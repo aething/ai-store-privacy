@@ -12,17 +12,19 @@ const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 // Создаем типизированную заглушку для stripePromise
 let stripePromise: Promise<Stripe | null>;
 
-try {
-  if (!stripeKey) {
-    console.warn("Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY - using real Stripe instance");
-    stripePromise = loadStripe(stripeKey || '');
-  } else {
-    stripePromise = loadStripe(stripeKey);
-  }
-} catch (error) {
-  console.error("Error initializing Stripe:", error);
-  // В случае ошибки возвращаем null
+// Проверяем наличие ключа и инициализируем Stripe только если он есть
+if (!stripeKey) {
+  console.warn("Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY");
+  // Создаем резолвящийся в null промис, чтобы избежать ошибок
   stripePromise = Promise.resolve(null);
+} else {
+  try {
+    stripePromise = loadStripe(stripeKey);
+  } catch (error) {
+    console.error("Error initializing Stripe:", error);
+    // В случае ошибки возвращаем null
+    stripePromise = Promise.resolve(null);
+  }
 }
 
 /**

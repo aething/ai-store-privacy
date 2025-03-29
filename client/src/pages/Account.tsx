@@ -10,6 +10,7 @@ import MaterialInput from "@/components/MaterialInput";
 import { Card } from "@/components/ui/card";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useLocale } from "@/context/LocaleContext";
+import { ChevronRight, Trash2 } from "lucide-react";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),
@@ -339,7 +340,7 @@ export default function Account() {
               onClick={() => navigateToPolicy(policy.id)}
             >
               <span>{policy.title}</span>
-              <span className="material-icons text-text-secondary">chevron_right</span>
+              <ChevronRight className="text-gray-500" size={20} />
             </button>
           ))}
         </Card>
@@ -353,7 +354,7 @@ export default function Account() {
             className="bg-red-600 text-white w-full py-3 rounded-full hover:bg-red-700 disabled:opacity-50 flex items-center justify-center"
             disabled={isLoading || !user}
           >
-            <span className="material-icons mr-2">delete_forever</span>
+            <Trash2 className="mr-2" size={20} />
             {t("closeAccount") || "Close Account"}
           </button>
           <p className="text-gray-500 text-xs text-center mt-2">
