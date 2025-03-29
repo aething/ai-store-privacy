@@ -1,314 +1,265 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { useToast } from "@/hooks/use-toast";
-import { useLocale } from "@/context/LocaleContext";
+import { useLocale } from '@/context/LocaleContext';
+import { Toast, ToastAction, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from '@/components/ui/toast';
+import { useToast } from '@/hooks/use-toast';
+import { registerPushWorker, isPushNotificationSupported } from '@/lib/push-notification';
 
-interface Notification {
+interface NotificationItem {
   id: string;
   title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  timestamp: number;
-  read: boolean;
+  description: string;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
+  duration?: number;
+  variant?: 'default' | 'destructive';
 }
 
+const NotificationSystem: React.FC = () => {
+  const { t } = useLocale();
+  const { toast } = useToast();
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | null>(null);
+  const [pushSupported, setPushSupported] = useState<boolean>(false);
+  
+  // Проверка поддержки push-уведомлений при монтировании компонента
+  useEffect(() => {
+    setPushSupported(isPushNotificationSupported());
+    
+    // Проверка текущего разрешения на уведомления
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+    }
+    
+    // Регистрация сервис-воркера для push-уведомлений если пользователь уже дал разрешение
+    if (Notification.permission === 'granted') {
+      registerServiceWorkerForPush();
+    }
+  }, []);
+  
+  // Регистрация сервис-воркера для push-уведомлений
+  const registerServiceWorkerForPush = async () => {
+    try {
+      // Перед регистрацией проверяем, есть ли пользователь в localStorage
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        console.log('User not logged in, skipping push notification registration');
+        return;
+      }
+      
+      const registrationScope = await registerPushWorker();
+      
+      if (registrationScope) {
+        console.log('Push notification service worker registered with scope:', registrationScope);
+      } else {
+        console.error('Failed to register push notification service worker');
+      }
+    } catch (error) {
+      console.error('Error registering push notifications:', error);
+    }
+  };
+  
+  // Слушатель событий хранилища для синхронизации уведомлений между вкладками
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'notifications') {
+        try {
+          const newNotifications = event.newValue ? JSON.parse(event.newValue) : [];
+          setNotifications(newNotifications);
+        } catch (error) {
+          console.error('Error parsing notifications from localStorage:', error);
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+  
+  // Загрузка уведомлений из localStorage при монтировании
+  useEffect(() => {
+    try {
+      const savedNotifications = localStorage.getItem('notifications');
+      if (savedNotifications) {
+        setNotifications(JSON.parse(savedNotifications));
+      }
+    } catch (error) {
+      console.error('Error loading notifications from localStorage:', error);
+    }
+  }, []);
+  
+  // Сохранение уведомлений в localStorage при их изменении
+  useEffect(() => {
+    try {
+      localStorage.setItem('notifications', JSON.stringify(notifications));
+    } catch (error) {
+      console.error('Error saving notifications to localStorage:', error);
+    }
+  }, [notifications]);
+  
+  // Функция для добавления нового уведомления
+  const addNotification = (notification: Omit<NotificationItem, 'id'>) => {
+    const id = Math.random().toString(36).substring(2, 11);
+    const newNotification = { ...notification, id };
+    
+    setNotifications((prev) => [...prev, newNotification]);
+    
+    // Если поддерживаются браузерные уведомления и пользователь дал разрешение,
+    // показываем также нативное уведомление браузера
+    if (notificationPermission === 'granted' && 'Notification' in window) {
+      try {
+        const options: NotificationOptions = {
+          body: notification.description,
+          icon: '/icons/app-icon-96x96.png',
+          badge: '/icons/badge-icon.png',
+          vibrate: [100, 50, 100]
+        };
+        
+        new Notification(notification.title, options);
+      } catch (error) {
+        console.error('Error showing browser notification:', error);
+      }
+    }
+    
+    return id;
+  };
+  
+  // Функция для удаления уведомления по ID
+  const removeNotification = (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+  
+  // Экспорт функций для глобального использования
+  React.useEffect(() => {
+    // @ts-ignore - добавляем в глобальный объект window для доступа из других компонентов
+    window.notificationSystem = {
+      addNotification,
+      removeNotification,
+    };
+  }, []);
+  
+  return (
+    <ToastProvider>
+      {notifications.map((notification) => (
+        <Toast
+          key={notification.id}
+          variant={notification.variant || 'default'}
+          onOpenChange={(open) => {
+            if (!open) removeNotification(notification.id);
+          }}
+        >
+          <div className="flex justify-between items-start gap-2">
+            <div>
+              <ToastTitle>{notification.title}</ToastTitle>
+              <ToastDescription>{notification.description}</ToastDescription>
+            </div>
+            {notification.action && (
+              <ToastAction
+                altText={notification.action.label}
+                onClick={notification.action.onClick}
+              >
+                {notification.action.label}
+              </ToastAction>
+            )}
+          </div>
+        </Toast>
+      ))}
+      <ToastViewport className="p-4 md:p-6" />
+    </ToastProvider>
+  );
+};
+
+// Глобальные типы для TypeScript
+declare global {
+  interface Window {
+    notificationSystem?: {
+      addNotification: (notification: Omit<NotificationItem, 'id'>) => string;
+      removeNotification: (id: string) => void;
+    };
+  }
+}
+
+// Создаем контекст для глобального доступа к API уведомлений
 interface NotificationContextType {
-  notifications: Notification[];
-  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void;
-  markAsRead: (id: string) => void;
-  clearAll: () => void;
-  hasUnread: boolean;
+  addNotification: (notification: Omit<NotificationItem, 'id'>) => string;
+  removeNotification: (id: string) => void;
+  isPushSupported: boolean;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-export const useNotification = () => {
+// Хук для использования API уведомлений
+export const useNotifications = () => {
   const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotification must be used within a NotificationProvider');
+  if (context === undefined) {
+    throw new Error('useNotifications must be used within a NotificationProvider');
   }
   return context;
 };
 
+// Провайдер уведомлений
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [hasUnread, setHasUnread] = useState(false);
+  // Создаем ref для сохранения ссылки на экземпляр компонента NotificationSystem
+  const notificationSystemRef = React.useRef<{
+    addNotification: (notification: Omit<NotificationItem, 'id'>) => string;
+    removeNotification: (id: string) => void;
+  } | null>(null);
   
-  // Проверка наличия непрочитанных уведомлений
-  useEffect(() => {
-    const unread = notifications.some(notification => !notification.read);
-    setHasUnread(unread);
-  }, [notifications]);
+  const [isPushSupported, setIsPushSupported] = useState<boolean>(false);
   
-  // Загрузка уведомлений из localStorage при монтировании
+  // Проверяем поддержку push-уведомлений при монтировании
   useEffect(() => {
-    const savedNotifications = localStorage.getItem('notifications');
-    if (savedNotifications) {
-      try {
-        const parsedNotifications = JSON.parse(savedNotifications);
-        setNotifications(parsedNotifications);
-      } catch (error) {
-        console.error('Failed to parse notifications from localStorage:', error);
-      }
-    }
+    setIsPushSupported(isPushNotificationSupported());
   }, []);
   
-  // Сохранение уведомлений в localStorage при изменении
+  // При монтировании компонента получаем доступ к функциям из window.notificationSystem
   useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications));
-  }, [notifications]);
-  
-  // Добавление нового уведомления
-  const addNotification = (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: Date.now().toString(),
-      timestamp: Date.now(),
-      read: false
+    const checkNotificationSystem = () => {
+      if (window.notificationSystem) {
+        notificationSystemRef.current = window.notificationSystem;
+      } else {
+        // Если notificationSystem еще не инициализирован, пробуем снова через 100мс
+        setTimeout(checkNotificationSystem, 100);
+      }
     };
     
-    setNotifications(prev => [newNotification, ...prev]);
-    
-    // Проверяем поддержку уведомлений в браузере
-    if ("Notification" in window) {
-      // Если разрешения еще нет, запрашиваем его
-      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-        Notification.requestPermission();
-      }
-      
-      // Если разрешения есть, показываем уведомление
-      if (Notification.permission === 'granted') {
-        new Notification(notification.title, {
-          body: notification.message,
-          icon: '/favicon.ico'
-        });
-      }
+    checkNotificationSystem();
+  }, []);
+  
+  // Функция для добавления нотификации через контекст
+  const addNotification = (notification: Omit<NotificationItem, 'id'>) => {
+    if (notificationSystemRef.current) {
+      return notificationSystemRef.current.addNotification(notification);
     }
+    console.error('NotificationSystem is not initialized yet');
+    return '';
   };
   
-  // Отметка уведомления как прочитанного
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
-  };
-  
-  // Очистка всех уведомлений
-  const clearAll = () => {
-    setNotifications([]);
-  };
-  
-  const value = {
-    notifications,
-    addNotification,
-    markAsRead,
-    clearAll,
-    hasUnread
+  // Функция для удаления нотификации через контекст
+  const removeNotification = (id: string) => {
+    if (notificationSystemRef.current) {
+      notificationSystemRef.current.removeNotification(id);
+    } else {
+      console.error('NotificationSystem is not initialized yet');
+    }
   };
   
   return (
-    <NotificationContext.Provider value={value}>
+    <NotificationContext.Provider 
+      value={{ 
+        addNotification, 
+        removeNotification,
+        isPushSupported
+      }}
+    >
       {children}
+      <NotificationSystem />
     </NotificationContext.Provider>
   );
 };
 
-// Компонент для отображения списка уведомлений
-interface NotificationListProps {
-  onClose: () => void;
-}
-
-export const NotificationList: React.FC<NotificationListProps> = ({ onClose }) => {
-  const { notifications, markAsRead, clearAll } = useNotification();
-  const { t } = useLocale();
-  
-  // Обработка клика по уведомлению
-  const handleNotificationClick = (id: string) => {
-    markAsRead(id);
-  };
-  
-  // Форматирование времени
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-  
-  // Получение иконки в зависимости от типа уведомления
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'success':
-        return <span className="material-icons text-green-500">check_circle</span>;
-      case 'warning':
-        return <span className="material-icons text-yellow-500">warning</span>;
-      case 'error':
-        return <span className="material-icons text-red-500">error</span>;
-      default:
-        return <span className="material-icons text-blue-500">info</span>;
-    }
-  };
-  
-  return (
-    <div className="notification-list bg-white rounded-lg shadow-xl p-4 max-h-[80vh] w-full max-w-md overflow-y-auto animate-slide-down">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">{t("notifications") || "Notifications"}</h2>
-        <div className="flex">
-          <button 
-            onClick={clearAll}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500"
-            aria-label={t("clearAll") || "Clear all"}
-          >
-            <span className="material-icons">delete_sweep</span>
-          </button>
-          <button 
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 ml-2"
-            aria-label={t("close") || "Close"}
-          >
-            <span className="material-icons">close</span>
-          </button>
-        </div>
-      </div>
-      
-      {notifications.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <span className="material-icons text-4xl mb-2">notifications_off</span>
-          <p>{t("noNotifications") || "No notifications"}</p>
-        </div>
-      ) : (
-        <ul className="space-y-2">
-          {notifications.map(notification => (
-            <li 
-              key={notification.id}
-              className={`p-3 rounded-lg border ${notification.read ? 'bg-gray-50' : 'bg-blue-50 border-blue-200'} cursor-pointer hover:bg-gray-100 transition-colors duration-200`}
-              onClick={() => handleNotificationClick(notification.id)}
-            >
-              <div className="flex items-start">
-                <div className="mr-3 mt-1">
-                  {getNotificationIcon(notification.type)}
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-medium">{notification.title}</h3>
-                    {!notification.read && (
-                      <span className="bg-blue-500 w-2 h-2 rounded-full"></span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600">{notification.message}</p>
-                  <p className="text-xs text-gray-400 mt-1">{formatTime(notification.timestamp)}</p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};
-
-// Компонент кнопки уведомлений
-interface NotificationButtonProps {
-  className?: string;
-}
-
-export const NotificationButton: React.FC<NotificationButtonProps> = ({ className = '' }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { hasUnread } = useNotification();
-  const { t } = useLocale();
-  
-  // Обработка открытия/закрытия списка уведомлений
-  const toggleNotifications = () => {
-    setIsOpen(!isOpen);
-  };
-  
-  return (
-    <div className="relative">
-      <button 
-        onClick={toggleNotifications}
-        className={`p-2 rounded-full flex items-center justify-center relative ${className}`}
-        aria-label={t("notifications") || "Notifications"}
-      >
-        <span className="material-icons">notifications</span>
-        {hasUnread && (
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        )}
-      </button>
-      
-      {isOpen && (
-        <div className="absolute right-0 mt-2 z-50 w-96">
-          <NotificationList onClose={() => setIsOpen(false)} />
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Компонент для демонстрации системы уведомлений
-export const NotificationDemo: React.FC = () => {
-  const { toast } = useToast();
-  const { t } = useLocale();
-  const { addNotification } = useNotification();
-  
-  const handleAddTestNotification = (type: 'info' | 'success' | 'warning' | 'error') => {
-    let title, message;
-    
-    switch (type) {
-      case 'success':
-        title = t("orderComplete") || "Order complete";
-        message = t("orderCompleteDesc") || "Your order has been successfully processed";
-        break;
-      case 'warning':
-        title = t("lowStock") || "Low stock";
-        message = t("lowStockDesc") || "Some items in your cart are running low on stock";
-        break;
-      case 'error':
-        title = t("paymentFailed") || "Payment failed";
-        message = t("paymentFailedDesc") || "There was a problem processing your payment";
-        break;
-      default:
-        title = t("newFeature") || "New feature";
-        message = t("newFeatureDesc") || "Check out our new product recommendations";
-        break;
-    }
-    
-    addNotification({
-      title,
-      message,
-      type
-    });
-    
-    toast({
-      title: t("notificationAdded") || "Notification added",
-      description: t("notificationAddedDesc") || "Check your notifications panel",
-    });
-  };
-  
-  return (
-    <div className="flex flex-wrap gap-2 mt-4">
-      <button 
-        onClick={() => handleAddTestNotification('info')}
-        className="md-btn-primary"
-      >
-        {t("addInfoNotification") || "Add Info Notification"}
-      </button>
-      <button 
-        onClick={() => handleAddTestNotification('success')}
-        className="bg-green-600 hover:bg-green-700 md-btn text-white"
-      >
-        {t("addSuccessNotification") || "Add Success Notification"}
-      </button>
-      <button 
-        onClick={() => handleAddTestNotification('warning')}
-        className="bg-yellow-600 hover:bg-yellow-700 md-btn text-white"
-      >
-        {t("addWarningNotification") || "Add Warning Notification"}
-      </button>
-      <button 
-        onClick={() => handleAddTestNotification('error')}
-        className="bg-red-600 hover:bg-red-700 md-btn text-white"
-      >
-        {t("addErrorNotification") || "Add Error Notification"}
-      </button>
-    </div>
-  );
-};
+export default NotificationSystem;

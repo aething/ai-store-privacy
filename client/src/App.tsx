@@ -13,6 +13,7 @@ import Checkout from "@/pages/Checkout";
 import Confirmation from "@/pages/Confirmation";
 import Subscribe from "@/pages/Subscribe";
 import AppInfo from "@/pages/AppInfo";
+import Analytics from "@/pages/Analytics";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import { ErrorProvider } from "@/context/ErrorContext";
@@ -60,6 +61,7 @@ function Router() {
       <Route path="/confirmation" component={Confirmation} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/app-info" component={AppInfo} />
+      <Route path="/analytics" component={Analytics} />
       <Route component={NotFound} />
     </Switch>
   );

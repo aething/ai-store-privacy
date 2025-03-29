@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - AI Store by Aething</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f9fafb;
+      color: #111827;
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    
+    .logo span {
+      font-style: italic;
+      color: #f97316; /* Dark orange for Aething */
+    }
+    
+    .icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      color: #6b7280;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #374151;
+    }
+    
+    p {
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+    
+    .button {
+      background-color: #2563eb;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .button:hover {
+      background-color: #1d4ed8;
+    }
+    
+    .footer {
+      margin-top: 3rem;
+      font-size: 0.875rem;
+      color: #9ca3af;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1f2937;
+        color: #f9fafb;
+      }
+      
+      h1 {
+        color: #e5e7eb;
+      }
+      
+      p {
+        color: #9ca3af;
+      }
+      
+      .icon {
+        color: #9ca3af;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      AI Store by <span>Aething</span>
+    </div>
+    
+    <div class="icon">
+      📶
+    </div>
+    
+    <h1>Нет подключения к интернету</h1>
+    
+    <p>
+      Для использования AI Store необходимо подключение к интернету.
+      Проверьте ваше соединение и попробуйте снова.
+    </p>
+    
+    <button class="button" onclick="tryReconnect()">Попробовать снова</button>
+    
+    <div class="footer">
+      &copy; 2025 Aething Technologies Ltd.
+    </div>
+  </div>
+  
+  <script>
+    function tryReconnect() {
+      window.location.reload();
+    }
+    
+    // Проверка состояния сети каждые 5 секунд
+    setInterval(() => {
+      if (navigator.onLine) {
+        window.location.reload();
+      }
+    }, 5000);
+  </script>
+</body>
+</html>
