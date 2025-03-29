@@ -1,17 +1,30 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { useLocale } from "@/context/LocaleContext";
 import { getInfoPageById } from "@/constants/infoPages";
 import SwipeBack from "@/components/SwipeBack";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Home } from "lucide-react";
+import { ArrowLeft, Home, ChevronLeft } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function InfoPage() {
   const [, setLocation] = useLocation();
   const [match, params] = useRoute<{ id: string }>("/info/:id");
   const { t } = useLocale();
   const contentRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
+  
+  // Скрыть подсказку о жесте через 5 секунд
+  useEffect(() => {
+    if (showSwipeHint) {
+      const timer = setTimeout(() => {
+        setShowSwipeHint(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSwipeHint]);
 
   const infoPage = params && getInfoPageById(parseInt(params.id, 10));
 
@@ -46,9 +59,30 @@ export default function InfoPage() {
 
   return (
     <SwipeBack onSwipeBack={() => setLocation("/")}>
-      <div className="max-w-4xl mx-auto">
-        <Card className="overflow-hidden shadow-md rounded-lg">
+      <div className="max-w-4xl mx-auto relative">
+        {/* Навигационная панель вверху - всегда видима */}
+        <div className="sticky top-0 z-20 flex items-center justify-between w-full px-4 py-2 bg-white/80 backdrop-blur-sm border-b">
+          <Button
+            variant="ghost"
+            className="flex items-center text-blue-600"
+            onClick={() => setLocation("/")}
+          >
+            <ChevronLeft className="h-5 w-5 mr-1" />
+            {t("backToMain")}
+          </Button>
+        </div>
+        
+        {/* Подсказка о жесте смахивания - появляется только на мобильных */}
+        {showSwipeHint && isMobile && (
+          <div className="fixed top-14 right-4 z-30 bg-black/70 text-white py-1 px-3 rounded-full text-sm flex items-center animate-pulse">
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            {t("swipeHint")}
+          </div>
+        )}
+        
+        <Card className="overflow-hidden shadow-md rounded-lg mt-2">
           <div className="relative">
+            {/* Кнопка быстрого возврата на изображении */}
             <div className="absolute top-4 left-4 z-10">
               <Button
                 variant="outline"
@@ -85,10 +119,10 @@ export default function InfoPage() {
             
             <div className="mt-8 flex justify-center">
               <Button
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={scrollToTop}
               >
-                Back to Top
+                {t("scrollToTop")}
               </Button>
             </div>
           </div>

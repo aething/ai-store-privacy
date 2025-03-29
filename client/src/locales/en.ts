@@ -85,6 +85,9 @@ export default {
   backToHome: "Back to Home",
   learnMore: "Learn More",
   readMore: "Read More",
+  backToMain: "Back to main page",
+  swipeHint: "Swipe right to go back",
+  scrollToTop: "Back to top",
   
   // Sorting
   sort_by: "Sort by",
