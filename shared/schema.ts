@@ -22,7 +22,8 @@ export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  price: integer("price").notNull(), // in cents
+  price: integer("price").notNull(), // in USD cents
+  priceEUR: integer("price_eur").notNull(), // in EUR cents
   imageUrl: text("image_url").notNull(),
   category: text("category").notNull(),
   features: text("features").array(),
@@ -35,6 +36,7 @@ export const orders = pgTable("orders", {
   productId: integer("product_id").references(() => products.id),
   status: text("status").notNull(),
   amount: integer("amount").notNull(),
+  currency: text("currency").notNull().default("usd"), // 'usd' or 'eur'
   stripePaymentId: text("stripe_payment_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

@@ -15,7 +15,8 @@ export interface Product {
   id: number;
   title: string;
   description: string;
-  price: number; // in cents
+  price: number; // in USD cents
+  priceEUR: number; // in EUR cents
   imageUrl: string;
   category: string;
   features: string[];
@@ -28,6 +29,7 @@ export interface Order {
   productId: number;
   status: string;
   amount: number;
+  currency: string; // 'usd' or 'eur'
   stripePaymentId?: string;
   createdAt: Date;
 }

@@ -51,6 +51,7 @@ export class MemStorage implements IStorage {
         title: "AI Personal Assistant",
         description: "Your intelligent companion for everyday tasks and reminders. This advanced AI assistant learns your preferences and adapts to your lifestyle, helping you stay organized and efficient.",
         price: 14999, // $149.99
+        priceEUR: 13999, // €139.99
         imageUrl: "https://images.unsplash.com/photo-1673203834806-c320f851c9f9?auto=format&fit=crop&w=400&h=300",
         category: "Productivity",
         features: [
@@ -72,6 +73,7 @@ export class MemStorage implements IStorage {
         title: "AI Home Hub",
         description: "Control your smart home with advanced voice recognition technology. Connect all your smart devices and manage them from a central hub with intuitive voice commands or the companion app.",
         price: 29999, // $299.99
+        priceEUR: 27999, // €279.99
         imageUrl: "https://images.unsplash.com/photo-1677442135146-1d91a759eee8?auto=format&fit=crop&w=400&h=300",
         category: "Smart Home",
         features: [
@@ -93,6 +95,7 @@ export class MemStorage implements IStorage {
         title: "AI Learning Device",
         description: "Personalized education system with adaptive learning algorithms. This device tailors educational content to individual learning styles and progress, making learning more engaging and effective.",
         price: 19999, // $199.99
+        priceEUR: 18999, // €189.99
         imageUrl: "https://images.unsplash.com/photo-1655720031554-a929595d5fb0?auto=format&fit=crop&w=400&h=300",
         category: "Education",
         features: [
@@ -114,6 +117,7 @@ export class MemStorage implements IStorage {
         title: "AI Health Monitor",
         description: "Track your health metrics with precision and get AI-powered insights for better wellbeing. Monitor vital signs, activity levels, sleep patterns, and receive personalized recommendations.",
         price: 24999, // $249.99
+        priceEUR: 22999, // €229.99
         imageUrl: "https://images.unsplash.com/photo-1686191669169-b42fcd632af0?auto=format&fit=crop&w=600&h=400",
         category: "Health & Fitness",
         features: [
@@ -159,7 +163,14 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id, 
       isVerified: false,
-      verificationToken: this.generateRandomToken()
+      verificationToken: this.generateRandomToken(),
+      stripeCustomerId: null,
+      name: null,
+      phone: null,
+      country: null,
+      street: null,
+      house: null,
+      apartment: null
     };
     this.users.set(id, user);
     return user;
@@ -230,7 +241,12 @@ export class MemStorage implements IStorage {
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
     const id = this.productIdCounter++;
-    const product: Product = { ...insertProduct, id };
+    const product: Product = { 
+      ...insertProduct, 
+      id,
+      features: insertProduct.features || [],
+      specifications: insertProduct.specifications || []
+    };
     this.products.set(id, product);
     return product;
   }
@@ -242,7 +258,11 @@ export class MemStorage implements IStorage {
     const order: Order = { 
       ...insertOrder, 
       id, 
-      createdAt: now 
+      createdAt: now,
+      userId: insertOrder.userId || null,
+      productId: insertOrder.productId || null,
+      currency: insertOrder.currency || 'usd',
+      stripePaymentId: insertOrder.stripePaymentId || null
     };
     this.orders.set(id, order);
     return order;

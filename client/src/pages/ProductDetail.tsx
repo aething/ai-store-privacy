@@ -4,6 +4,7 @@ import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
@@ -92,7 +93,9 @@ export default function ProductDetail() {
       <div className="mb-6">
         <h1 className="font-medium text-xl mb-3">{product.title}</h1>
         <div className="flex justify-between items-center mb-4">
-          <span className="text-lg font-medium">${(product.price / 100).toFixed(2)}</span>
+          <span className="text-lg font-medium">
+            {formatPrice(getPriceForCountry(product, user?.country), getCurrencyForCountry(user?.country))}
+          </span>
           <button 
             className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700"
             onClick={handleBuyNow}

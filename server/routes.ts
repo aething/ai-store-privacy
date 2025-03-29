@@ -244,10 +244,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment routes
   app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
     try {
-      const { amount, userId, productId } = req.body;
+      const { amount, userId, productId, currency = "usd" } = req.body;
       
       if (!amount || !userId || !productId) {
         return res.status(400).json({ message: "Amount, userId, and productId are required" });
+      }
+      
+      // Validate currency
+      if (currency !== "usd" && currency !== "eur") {
+        return res.status(400).json({ message: "Currency must be either 'usd' or 'eur'" });
       }
       
       // In a real application, check if the user exists
@@ -265,12 +270,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create a PaymentIntent with the order amount and currency
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
-        currency: "usd",
+        currency, // Use the currency from the request
         // In a production app, you would set this to the customer's email
         receipt_email: user.email || undefined,
         metadata: {
           userId: userId.toString(),
-          productId: productId.toString()
+          productId: productId.toString(),
+          currency
         }
       });
       
@@ -280,6 +286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         productId,
         status: "pending",
         amount,
+        currency,
         stripePaymentId: paymentIntent.id
       });
       

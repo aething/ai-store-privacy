@@ -8,8 +8,9 @@ import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
 import stripePromise from "@/lib/stripe";
+import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 
-const CheckoutForm = ({ productId, amount }: { productId: number; amount: number }) => {
+const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
@@ -82,15 +83,20 @@ export default function Checkout() {
     enabled: !!productId,
   });
   
+  // Determine currency and price based on user's country
+  const currency = getCurrencyForCountry(user?.country);
+  const price = product ? getPriceForCountry(product, user?.country) : 0;
+  
   useEffect(() => {
     const getPaymentIntent = async () => {
       if (!productId || !user || !product) return;
       
       try {
         const response = await apiRequest("POST", "/api/create-payment-intent", {
-          amount: product.price,
+          amount: price,
           userId: user.id,
-          productId: productId
+          productId: productId,
+          currency: currency
         });
         
         const data = await response.json();
@@ -105,7 +111,7 @@ export default function Checkout() {
     };
     
     getPaymentIntent();
-  }, [productId, user, product, toast]);
+  }, [productId, user, product, toast, price, currency]);
   
   if (!product) {
     return (
@@ -172,14 +178,14 @@ export default function Checkout() {
           />
           <div>
             <h3 className="font-medium">{product.title}</h3>
-            <p className="text-lg">${(product.price / 100).toFixed(2)}</p>
+            <p className="text-lg">{formatPrice(price, currency)}</p>
           </div>
         </div>
         
         <div className="border-t border-b py-3 my-3">
           <div className="flex justify-between mb-2">
             <span>Subtotal</span>
-            <span>${(product.price / 100).toFixed(2)}</span>
+            <span>{formatPrice(price, currency)}</span>
           </div>
           <div className="flex justify-between mb-2">
             <span>Shipping</span>
@@ -187,7 +193,7 @@ export default function Checkout() {
           </div>
           <div className="flex justify-between font-medium">
             <span>Total</span>
-            <span>${(product.price / 100).toFixed(2)}</span>
+            <span>{formatPrice(price, currency)}</span>
           </div>
         </div>
       </Card>
@@ -207,7 +213,7 @@ export default function Checkout() {
               }
             }}
           >
-            <CheckoutForm productId={productId as number} amount={product.price} />
+            <CheckoutForm productId={productId as number} amount={price} currency={currency} />
           </Elements>
         ) : (
           <div className="flex justify-center py-4">
