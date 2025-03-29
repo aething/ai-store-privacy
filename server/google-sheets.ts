@@ -142,6 +142,8 @@ export async function initializeGoogleSheets(): Promise<void> {
   }
 }
 
+
+
 /**
  * Инициализация заголовков для каждого листа
  */
