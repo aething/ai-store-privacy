@@ -1,224 +1,236 @@
-import React, { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import React, { useEffect, useState } from 'react';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { requestFCMToken, isFirebaseMessagingSupported } from '@/lib/firebase';
 import { useLocale } from '@/context/LocaleContext';
-import RippleEffect from '@/components/RippleEffect';
-import { requestNotificationPermission, registerPushWorker, unsubscribeFromPush } from '@/lib/push-notification';
+import { useAppContext } from '@/context/AppContext';
 
-interface PushNotificationSettingsProps {
-  className?: string;
-}
-
-const PushNotificationSettings: React.FC<PushNotificationSettingsProps> = ({ className = '' }) => {
+const PushNotificationSettings: React.FC = () => {
   const { toast } = useToast();
-  const { t } = useLocale();
-  const [isSupported, setIsSupported] = useState<boolean>(false);
-  const [isPushEnabled, setIsPushEnabled] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  
-  // Проверяем поддержку уведомлений при монтировании компонента
+  const { translations } = useLocale();
+  const { user } = useAppContext();
+  const [supported, setSupported] = useState<boolean>(false);
+  const [enabled, setEnabled] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // Проверяем, поддерживаются ли push-уведомления и есть ли сохраненные настройки
   useEffect(() => {
-    const checkNotificationSupport = () => {
-      // Проверка поддержки уведомлений в браузере
-      const notificationsSupported = 'Notification' in window;
-      
-      // Проверка поддержки сервис-воркеров
-      const serviceWorkerSupported = 'serviceWorker' in navigator;
-      
-      // Проверка поддержки Push API
-      const pushSupported = 'PushManager' in window;
-      
-      // Устанавливаем флаг поддержки
-      setIsSupported(notificationsSupported && serviceWorkerSupported && pushSupported);
-      
-      // Проверяем текущий статус разрешения и подписки
-      if (notificationsSupported) {
-        setIsPushEnabled(Notification.permission === 'granted');
-        
-        // Если сервис-воркеры поддерживаются, проверяем активную подписку
-        if (serviceWorkerSupported) {
-          checkSubscriptionStatus();
+    const checkPushStatus = async () => {
+      // Проверяем поддержку push-уведомлений
+      const isPushSupported = isFirebaseMessagingSupported();
+      setSupported(isPushSupported);
+
+      if (isPushSupported) {
+        // Проверяем, есть ли сохраненная настройка уведомлений
+        const notificationEnabled = localStorage.getItem('pushNotificationsEnabled') === 'true';
+        setEnabled(notificationEnabled);
+
+        // Если уведомления включены, обновляем токен FCM
+        if (notificationEnabled && user) {
+          await updateFCMToken();
         }
       }
     };
-    
-    // Проверка статуса подписки через сервис-воркер
-    const checkSubscriptionStatus = async () => {
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
-        setIsPushEnabled(!!subscription);
-      } catch (error) {
-        console.error('Error checking subscription status:', error);
-      }
-    };
-    
-    checkNotificationSupport();
-  }, []);
-  
-  // Обработчик переключения статуса уведомлений
-  const handleTogglePushNotifications = async () => {
-    if (isLoading) return;
-    
-    setIsLoading(true);
-    
-    try {
-      if (isPushEnabled) {
-        // Отписываемся от уведомлений
-        const success = await unsubscribeFromPush();
-        
-        if (success) {
-          setIsPushEnabled(false);
-          toast({
-            title: t('notificationsDisabled') || 'Notifications disabled',
-            description: t('notificationsDisabledDesc') || 'You will no longer receive push notifications',
-          });
-        } else {
-          throw new Error('Failed to unsubscribe from notifications');
-        }
-      } else {
-        // Запрашиваем разрешение и подписываемся на уведомления
-        const permissionGranted = await requestNotificationPermission();
-        
-        if (permissionGranted) {
-          const registrationScope = await registerPushWorker();
-          
-          if (registrationScope) {
-            setIsPushEnabled(true);
-            toast({
-              title: t('notificationsEnabled') || 'Notifications enabled',
-              description: t('notificationsEnabledDesc') || 'You will now receive important updates',
-            });
-          } else {
-            throw new Error('Failed to register for push notifications');
-          }
-        } else {
-          toast({
-            title: t('permissionDenied') || 'Permission denied',
-            description: t('permissionDeniedDesc') || 'Please allow notifications in your browser settings',
-            variant: 'destructive',
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Push notification error:', error);
+
+    checkPushStatus();
+  }, [user]);
+
+  // Обработчик переключения статуса push-уведомлений
+  const handleToggleNotifications = async (checked: boolean) => {
+    if (!supported) {
       toast({
-        title: t('notificationError') || 'Notification error',
-        description: error instanceof Error ? error.message : String(error),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Отправка тестового уведомления
-  const sendTestNotification = () => {
-    if (!isPushEnabled) {
-      toast({
-        title: t('notificationsDisabled') || 'Notifications disabled',
-        description: t('enableNotificationsFirst') || 'Please enable notifications first',
-        variant: 'destructive',
+        title: translations.pushNotifications.unsupported,
+        description: translations.pushNotifications.unsupportedDesc,
+        variant: "destructive",
       });
       return;
     }
-    
-    // Создаем локальное уведомление
-    new Notification(t('testNotificationTitle') || 'Test Notification', {
-      body: t('testNotificationBody') || 'This is a test notification from AI Store',
-      icon: '/icons/app-icon-96x96.png',
-    });
-    
-    toast({
-      title: t('testNotificationSent') || 'Test notification sent',
-      description: t('testNotificationSentDesc') || 'If you don\'t see it, check your notification settings',
-    });
+
+    if (!user) {
+      toast({
+        title: translations.pushNotifications.loginRequired,
+        description: translations.pushNotifications.loginRequiredDesc,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      if (checked) {
+        // Включаем push-уведомления
+        const success = await enablePushNotifications();
+        if (success) {
+          setEnabled(true);
+          localStorage.setItem('pushNotificationsEnabled', 'true');
+          toast({
+            title: translations.pushNotifications.enabled,
+            description: translations.pushNotifications.enabledDesc
+          });
+        }
+      } else {
+        // Выключаем push-уведомления
+        await disablePushNotifications();
+        setEnabled(false);
+        localStorage.setItem('pushNotificationsEnabled', 'false');
+        toast({
+          title: translations.pushNotifications.disabled,
+          description: translations.pushNotifications.disabledDesc
+        });
+      }
+    } catch (error: any) {
+      console.error('Failed to toggle push notifications:', error);
+      toast({
+        title: translations.pushNotifications.error,
+        description: error.message || translations.pushNotifications.errorDesc,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
-  
-  // Если уведомления не поддерживаются, показываем соответствующее сообщение
-  if (!isSupported) {
-    return (
-      <div className={`bg-gray-100 rounded-lg p-4 ${className}`}>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
-          {t('pushNotifications') || 'Push Notifications'}
-        </h3>
-        <p className="text-gray-600 mb-4">
-          {t('pushNotSupportedDesc') || 'Your browser does not support push notifications. Please use a modern browser like Chrome, Firefox, or Edge.'}
-        </p>
-      </div>
-    );
+
+  // Включение push-уведомлений
+  const enablePushNotifications = async (): Promise<boolean> => {
+    try {
+      // Запрашиваем разрешение на push-уведомления
+      const permission = await Notification.requestPermission();
+      
+      if (permission !== 'granted') {
+        throw new Error(translations.pushNotifications.permissionDenied);
+      }
+      
+      // Получаем FCM токен
+      await updateFCMToken();
+      return true;
+    } catch (error) {
+      console.error('Error enabling push notifications:', error);
+      throw error;
+    }
+  };
+
+  // Отключение push-уведомлений
+  const disablePushNotifications = async () => {
+    try {
+      // Получаем сохраненный endpoint
+      const endpoint = localStorage.getItem('pushEndpoint');
+      
+      if (endpoint && user) {
+        // Отправляем запрос на отмену подписки
+        await fetch('/api/push/unsubscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            endpoint,
+            userId: user.id
+          })
+        });
+        
+        // Очищаем сохраненный endpoint
+        localStorage.removeItem('pushEndpoint');
+      }
+    } catch (error) {
+      console.error('Error disabling push notifications:', error);
+      throw error;
+    }
+  };
+
+  // Обновление FCM токена
+  const updateFCMToken = async () => {
+    try {
+      // Получаем FCM токен
+      const token = await requestFCMToken();
+      
+      if (!token) {
+        throw new Error(translations.pushNotifications.tokenFailed);
+      }
+      
+      if (user) {
+        // Регистрируем FCM токен на сервере
+        const response = await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            subscription: {
+              endpoint: token,
+              keys: {
+                p256dh: 'firebase-fcm',
+                auth: 'firebase-fcm'
+              }
+            },
+            userId: user.id
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(translations.pushNotifications.registrationFailed);
+        }
+        
+        // Сохраняем endpoint для возможности отмены подписки
+        localStorage.setItem('pushEndpoint', token);
+      }
+    } catch (error) {
+      console.error('Error updating FCM token:', error);
+      throw error;
+    }
+  };
+
+  // Если push-уведомления не поддерживаются, не отображаем компонент
+  // В production-режиме скрываем компонент, если уведомления не поддерживаются
+  if (!supported && import.meta.env.PROD) {
+    return null;
   }
-  
+
   return (
-    <div className={`bg-white rounded-lg shadow-md p-4 ${className}`}>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
-        {t('pushNotifications') || 'Push Notifications'}
-      </h3>
-      
-      <p className="text-gray-600 mb-4">
-        {t('pushNotificationsDesc') || 'Receive notifications about order updates, new products, and special offers.'}
-      </p>
-      
-      <div className="flex justify-between items-center mb-4">
-        <span className="font-medium">
-          {t('enablePushNotifications') || 'Enable push notifications'}
-        </span>
-        
-        <button
-          type="button"
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
-            isPushEnabled ? 'bg-blue-600' : 'bg-gray-200'
-          } ${isLoading ? 'opacity-50' : ''}`}
-          onClick={handleTogglePushNotifications}
-          disabled={isLoading}
-        >
-          <span
-            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-              isPushEnabled ? 'translate-x-5' : 'translate-x-1'
-            }`}
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>{translations.pushNotifications.title}</CardTitle>
+        <CardDescription>
+          {translations.pushNotifications.description}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="push-notifications"
+            checked={enabled}
+            onCheckedChange={handleToggleNotifications}
+            disabled={loading || !supported || !user}
           />
-        </button>
-      </div>
-      
-      <div className="space-y-3">
-        <div className="flex items-start">
-          <span className="material-icons text-blue-600 mr-2">shopping_cart</span>
-          <div>
-            <p className="font-medium">{t('orderUpdates') || 'Order Updates'}</p>
-            <p className="text-sm text-gray-500">{t('orderUpdatesDesc') || 'Get notified about status changes and delivery updates'}</p>
-          </div>
+          <Label htmlFor="push-notifications">
+            {translations.pushNotifications.toggle}
+          </Label>
         </div>
-        
-        <div className="flex items-start">
-          <span className="material-icons text-blue-600 mr-2">new_releases</span>
-          <div>
-            <p className="font-medium">{t('newProducts') || 'New Products'}</p>
-            <p className="text-sm text-gray-500">{t('newProductsDesc') || 'Be the first to know about new AI products'}</p>
-          </div>
-        </div>
-        
-        <div className="flex items-start">
-          <span className="material-icons text-blue-600 mr-2">local_offer</span>
-          <div>
-            <p className="font-medium">{t('specialOffers') || 'Special Offers'}</p>
-            <p className="text-sm text-gray-500">{t('specialOffersDesc') || 'Don\'t miss out on discounts and promotions'}</p>
-          </div>
-        </div>
-      </div>
-      
-      <div className="mt-6">
-        <RippleEffect>
-          <button
-            type="button"
-            className="md-btn-outlined w-full"
-            onClick={sendTestNotification}
-            disabled={isLoading || !isPushEnabled}
-          >
-            <span className="material-icons mr-2">notifications</span>
-            {t('sendTestNotification') || 'Send Test Notification'}
-          </button>
-        </RippleEffect>
-      </div>
-    </div>
+        {!supported && (
+          <p className="text-sm text-destructive mt-2">
+            {translations.pushNotifications.unsupportedBrowser}
+          </p>
+        )}
+        {!user && (
+          <p className="text-sm text-destructive mt-2">
+            {translations.pushNotifications.loginRequiredShort}
+          </p>
+        )}
+      </CardContent>
+      <CardFooter className="text-sm text-muted-foreground">
+        {translations.pushNotifications.info}
+      </CardFooter>
+    </Card>
   );
 };
 

@@ -24,11 +24,12 @@ const localesData = {
 };
 
 // Define context type
-interface LocaleContextType {
+export interface LocaleContextType {
   currentLocale: LocaleCode;
   setLocale: (locale: LocaleCode) => void;
   t: (key: string) => string;
   getLocaleOptions: () => { value: LocaleCode; label: string }[];
+  translations: any; // Добавляем доступ к объекту переводов
 }
 
 // Create context
@@ -79,7 +80,9 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
     currentLocale,
     setLocale,
     t,
-    getLocaleOptions
+    getLocaleOptions,
+    // Добавляем доступ к текущим переводам
+    translations: localesData[currentLocale].translations
   };
 
   return (

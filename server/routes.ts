@@ -6,6 +6,7 @@ import Stripe from "stripe";
 import crypto from "crypto";
 import { ZodError } from "zod";
 import * as googleSheets from "./google-sheets";
+import * as pushNotification from "./push-notification";
 
 // Расширяем типы для Express.Request
 declare global {
@@ -730,7 +731,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/orders/:id/update-status", async (req: Request, res: Response) => {
     try {
       const orderId = parseInt(req.params.id);
-      const { status } = req.body;
+      const { status, sendNotification = false } = req.body;
       
       if (!status) {
         return res.status(400).json({ message: "Status is required" });
@@ -745,8 +746,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update order status in Google Sheets
       await safeGoogleSheetsCall(googleSheets.updateOrderStatus, orderId, status);
       
+      // Отправляем уведомление, если параметр sendNotification = true
+      if (sendNotification && updatedOrder.userId) {
+        try {
+          await pushNotification.sendOrderStatusNotification(
+            updatedOrder.userId,
+            orderId,
+            status
+          );
+          console.log(`Push notification sent for order ${orderId} status update to ${status}`);
+        } catch (notificationError) {
+          // Просто логируем ошибку, но не прерываем выполнение запроса
+          console.error(`Failed to send push notification for order ${orderId}:`, notificationError);
+        }
+      }
+      
       res.json(updatedOrder);
     } catch (error) {
+      console.error("Error updating order status:", error);
       res.status(500).json({ message: "Error updating order status" });
     }
   });
@@ -796,6 +813,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               await storage.updateOrderStatus(order.id, 'completed');
               await safeGoogleSheetsCall(googleSheets.updateOrderStatus, order.id, 'completed');
               console.log(`Order ${order.id} marked as completed`);
+              
+              // Отправляем уведомление об успешной оплате заказа
+              if (order.userId) {
+                try {
+                  await pushNotification.sendOrderStatusNotification(
+                    order.userId,
+                    order.id,
+                    'completed'
+                  );
+                  console.log(`Payment success notification sent for order ${order.id}`);
+                } catch (notificationError) {
+                  console.error(`Failed to send payment notification for order ${order.id}:`, notificationError);
+                }
+              }
             }
           } catch (error) {
             console.error('Error updating order after payment success:', error);
@@ -813,6 +844,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               await storage.updateOrderStatus(order.id, 'failed');
               await safeGoogleSheetsCall(googleSheets.updateOrderStatus, order.id, 'failed');
               console.log(`Order ${order.id} marked as failed`);
+              
+              // Отправляем уведомление о неудачной оплате заказа
+              if (order.userId) {
+                try {
+                  await pushNotification.sendOrderStatusNotification(
+                    order.userId,
+                    order.id,
+                    'failed'
+                  );
+                  console.log(`Payment failure notification sent for order ${order.id}`);
+                } catch (notificationError) {
+                  console.error(`Failed to send payment failure notification for order ${order.id}:`, notificationError);
+                }
+              }
             }
           } catch (error) {
             console.error('Error updating order after payment failure:', error);
@@ -848,6 +893,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Webhook error:', error);
       res.status(500).json({ message: "Error processing webhook" });
+    }
+  });
+
+  // API routes for push notifications
+  app.post("/api/push/subscribe", pushNotification.registerPushSubscription);
+  app.post("/api/push/unsubscribe", pushNotification.unregisterPushSubscription);
+  
+  // Эндпоинт для обновления статуса заказа с отправкой уведомления
+  app.post("/api/orders/:id/update-status-notify", async (req: Request, res: Response) => {
+    try {
+      const orderId = parseInt(req.params.id);
+      const { status, userId } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ message: "Status is required" });
+      }
+      
+      // Обновляем статус заказа
+      const updatedOrder = await storage.updateOrderStatus(orderId, status);
+      if (!updatedOrder) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Обновляем статус в Google Sheets
+      await safeGoogleSheetsCall(googleSheets.updateOrderStatus, orderId, status);
+      
+      // Отправляем push-уведомление о смене статуса заказа
+      if (userId && typeof userId === 'number') {
+        await pushNotification.sendOrderStatusNotification(userId, orderId, status);
+      }
+      
+      res.json({ success: true, order: updatedOrder });
+    } catch (error) {
+      console.error("Error updating order status with notification:", error);
+      res.status(500).json({ message: "Error updating order status" });
+    }
+  });
+
+  // Тестовый эндпоинт для отправки push-уведомления конкретному пользователю
+  app.post("/api/push/send-test", async (req: Request, res: Response) => {
+    try {
+      const { userId, title, body, url } = req.body;
+      
+      if (!userId || !title || !body) {
+        return res.status(400).json({ message: "userId, title, and body are required" });
+      }
+      
+      await pushNotification.sendPushNotificationToUser(
+        parseInt(userId),
+        title,
+        body,
+        url || '/'
+      );
+      
+      res.json({ success: true, message: "Test notification sent" });
+    } catch (error) {
+      console.error("Error sending test notification:", error);
+      res.status(500).json({ message: "Error sending test notification" });
     }
   });
 

@@ -1,88 +1,116 @@
-// Сервисы для работы с push-уведомлениями
 import { Request, Response } from 'express';
 import webpush from 'web-push';
 import { storage } from './storage';
+import { log } from './vite';
+import * as admin from 'firebase-admin';
 
-// В реальном приложении ключи должны быть получены с помощью web-push generate-vapid-keys
-// и храниться в переменных окружения
-const VAPID_PUBLIC_KEY = 'BPD6t0y5rlisRn3DiU8VC-kJZHvVRwDuXiPFO4TKk5ysNjCZ2PvmQf4YaEn9u2PvXXh0NgGK7q4L-npXsM2MFfI';
-const VAPID_PRIVATE_KEY = 'cXVGIyvASCEEBPaIkkmomNNyB08SilqvQ98-lkPvmek';
+// Проверяем наличие необходимых переменных окружения
+let firebaseInitialized = false;
+let webpushInitialized = false;
 
-// Конфигурация VAPID для WebPush
-webpush.setVapidDetails(
-  'mailto:support@aething.com', // Контактный email для идентификации отправителя
-  VAPID_PUBLIC_KEY,
-  VAPID_PRIVATE_KEY
-);
+// Инициализируем Firebase Admin SDK только если все необходимые переменные окружения доступны
+if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+  try {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        // Заменяем экранированные новые строки настоящими новыми строками
+        privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+      }),
+      databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`,
+    });
+    firebaseInitialized = true;
+    log('Firebase Admin SDK initialized successfully', 'push-notification');
+  } catch (error) {
+    log(`Failed to initialize Firebase Admin SDK: ${error}`, 'push-notification');
+  }
+} else {
+  log('Skipping Firebase Admin SDK initialization: missing required environment variables', 'push-notification');
+}
 
-// Коллекция для хранения подписок (в реальном приложении должна быть в БД)
-const pushSubscriptions = new Map<number, webpush.PushSubscription[]>();
+// Устанавливаем данные VAPID для web-push только если ключи доступны
+if (process.env.FIREBASE_VAPID_PUBLIC_KEY && process.env.FIREBASE_VAPID_PRIVATE_KEY) {
+  try {
+    webpush.setVapidDetails(
+      'mailto:contact@example.com', // Заменить на действительный email для контакта
+      process.env.FIREBASE_VAPID_PUBLIC_KEY,
+      process.env.FIREBASE_VAPID_PRIVATE_KEY
+    );
+    webpushInitialized = true;
+    log('Web-push initialized successfully with VAPID keys', 'push-notification');
+  } catch (error) {
+    log(`Failed to initialize web-push: ${error}`, 'push-notification');
+  }
+} else {
+  log('Skipping web-push initialization: missing VAPID keys', 'push-notification');
+}
+
+// Хранилище для подписок на push-уведомления (временное решение, можно перенести в более постоянное хранилище)
+const pushSubscriptions = new Map<number, PushSubscription[]>();
+
+interface PushSubscription {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+  userId?: number;
+}
 
 /**
  * Эндпоинт для регистрации новой подписки на push-уведомления
  */
 export async function registerPushSubscription(req: Request, res: Response) {
   try {
-    const { subscription, userId } = req.body;
-    
-    if (!subscription || !userId) {
-      return res.status(400).json({
-        error: 'Missing required fields: subscription and userId are required'
+    // Если web-push не инициализирован, уведомляем клиента
+    if (!webpushInitialized) {
+      log('Push notification service is not initialized', 'push-notification');
+      return res.status(503).json({ 
+        error: 'Push notification service is unavailable',
+        initialized: false 
       });
     }
-    
-    // Проверяем существование пользователя
-    const user = await storage.getUser(userId);
-    
-    if (!user) {
-      return res.status(404).json({
-        error: 'User not found'
-      });
+
+    const subscription = req.body.subscription;
+    const userId = req.body.userId;
+
+    if (!subscription || !subscription.endpoint) {
+      return res.status(400).json({ error: 'Invalid subscription object' });
     }
-    
-    // Сохраняем подписку для пользователя
-    if (!pushSubscriptions.has(userId)) {
-      pushSubscriptions.set(userId, []);
-    }
-    
-    // Проверяем, нет ли уже такой подписки
-    const userSubscriptions = pushSubscriptions.get(userId) || [];
-    const existingSubscription = userSubscriptions.find(
-      sub => sub.endpoint === subscription.endpoint
-    );
-    
-    if (!existingSubscription) {
-      userSubscriptions.push(subscription);
-      pushSubscriptions.set(userId, userSubscriptions);
-    }
-    
-    // Отправляем приветственное уведомление для подтверждения работы
-    const payload = JSON.stringify({
-      title: 'Успешная подписка',
-      body: 'Вы успешно подписались на уведомления AI Store by Aething',
-      icon: '/icons/app-icon-96x96.png',
-      badge: '/icons/badge-icon.png',
-      data: {
-        url: '/'
+
+    // Если userId указан, связываем подписку с пользователем
+    if (userId) {
+      // Проверяем, существует ли пользователь
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
       }
-    });
-    
-    try {
-      await webpush.sendNotification(subscription, payload);
-    } catch (err) {
-      console.error('Error sending welcome notification:', err);
-      // Продолжаем выполнение, даже если не удалось отправить тестовое уведомление
+
+      // Получаем текущие подписки пользователя или создаем новый массив
+      const userSubscriptions = pushSubscriptions.get(userId) || [];
+      
+      // Проверяем, существует ли уже эта подписка
+      const existingIndex = userSubscriptions.findIndex(sub => sub.endpoint === subscription.endpoint);
+      
+      if (existingIndex === -1) {
+        // Добавляем новую подписку
+        userSubscriptions.push({
+          ...subscription,
+          userId
+        });
+        pushSubscriptions.set(userId, userSubscriptions);
+      }
     }
-    
-    return res.status(201).json({
-      message: 'Push subscription registered successfully',
-      subscriptionsCount: userSubscriptions.length
+
+    log(`Push subscription registered for user ID: ${userId}`, 'push-notification');
+    return res.status(201).json({ 
+      message: 'Subscription added successfully',
+      initialized: true
     });
   } catch (error) {
-    console.error('Error registering push subscription:', error);
-    return res.status(500).json({
-      error: 'Internal server error'
-    });
+    log(`Error registering push subscription: ${error}`, 'push-notification');
+    return res.status(500).json({ error: 'Failed to register subscription' });
   }
 }
 
@@ -91,38 +119,45 @@ export async function registerPushSubscription(req: Request, res: Response) {
  */
 export async function unregisterPushSubscription(req: Request, res: Response) {
   try {
-    const { subscription, userId } = req.body;
-    
-    if (!subscription || !userId) {
-      return res.status(400).json({
-        error: 'Missing required fields: subscription and userId are required'
+    // Если web-push не инициализирован, уведомляем клиента
+    if (!webpushInitialized) {
+      log('Push notification service is not initialized', 'push-notification');
+      return res.status(503).json({ 
+        error: 'Push notification service is unavailable',
+        initialized: false 
       });
     }
-    
-    // Проверяем, есть ли подписки для пользователя
-    if (!pushSubscriptions.has(userId)) {
-      return res.status(404).json({
-        error: 'No subscriptions found for this user'
-      });
+
+    const endpoint = req.body.endpoint;
+    const userId = req.body.userId;
+
+    if (!endpoint) {
+      return res.status(400).json({ error: 'Endpoint is required' });
     }
-    
-    // Удаляем подписку
-    const userSubscriptions = pushSubscriptions.get(userId) || [];
-    const updatedSubscriptions = userSubscriptions.filter(
-      sub => sub.endpoint !== subscription.endpoint
-    );
-    
-    pushSubscriptions.set(userId, updatedSubscriptions);
-    
-    return res.status(200).json({
-      message: 'Push subscription unregistered successfully',
-      subscriptionsCount: updatedSubscriptions.length
+
+    if (userId) {
+      const userSubscriptions = pushSubscriptions.get(userId);
+      
+      if (userSubscriptions) {
+        // Удаляем подписку с данным endpoint
+        const updatedSubscriptions = userSubscriptions.filter(sub => sub.endpoint !== endpoint);
+        
+        if (updatedSubscriptions.length === 0) {
+          pushSubscriptions.delete(userId);
+        } else {
+          pushSubscriptions.set(userId, updatedSubscriptions);
+        }
+      }
+    }
+
+    log(`Push subscription unregistered for user ID: ${userId}`, 'push-notification');
+    return res.status(200).json({ 
+      message: 'Subscription removed successfully',
+      initialized: true 
     });
   } catch (error) {
-    console.error('Error unregistering push subscription:', error);
-    return res.status(500).json({
-      error: 'Internal server error'
-    });
+    log(`Error unregistering push subscription: ${error}`, 'push-notification');
+    return res.status(500).json({ error: 'Failed to unregister subscription' });
   }
 }
 
@@ -130,41 +165,82 @@ export async function unregisterPushSubscription(req: Request, res: Response) {
  * Отправка уведомления всем подписчикам
  */
 export async function sendPushNotificationToAll(title: string, body: string, url: string = '/') {
+  // Если web-push не инициализирован, логируем и возвращаемся
+  if (!webpushInitialized) {
+    log('Cannot send push notifications: web-push is not initialized', 'push-notification');
+    return Promise.resolve();
+  }
+
   const payload = JSON.stringify({
-    title,
-    body,
-    icon: '/icons/app-icon-96x96.png',
-    badge: '/icons/badge-icon.png',
-    data: { url }
-  });
-  
-  const notificationPromises: Promise<any>[] = [];
-  
-  // Перебираем все подписки для всех пользователей
-  for (const [, subscriptions] of pushSubscriptions.entries()) {
-    for (const subscription of subscriptions) {
-      try {
-        notificationPromises.push(webpush.sendNotification(subscription, payload));
-      } catch (error) {
-        console.error('Error sending push notification:', error);
-      }
+    notification: {
+      title,
+      body,
+      icon: '/icons/app-icon-96x96.png',
+      vibrate: [100, 50, 100],
+      data: {
+        url
+      },
     }
-  }
-  
-  // Ждем завершения всех запросов на отправку
+  });
+
+  // Отправка уведомлений с помощью web-push
+  const notificationPromises: Promise<any>[] = [];
+
+  // Для каждого пользователя в Map
+  pushSubscriptions.forEach((subscriptions) => {
+    // Для каждой подписки пользователя
+    subscriptions.forEach((subscription) => {
+      // Отправляем уведомление через web-push
+      notificationPromises.push(
+        webpush.sendNotification({
+          endpoint: subscription.endpoint,
+          keys: subscription.keys
+        }, payload)
+        .catch((error: any) => {
+          // Если получаем ошибку GONE (410), значит подписка более не действительна
+          if (error.statusCode === 410) {
+            log(`Subscription is no longer valid: ${subscription.endpoint}`, 'push-notification');
+            // Здесь нужно будет удалить недействительные подписки
+          } else {
+            log(`Error sending push notification: ${error}`, 'push-notification');
+          }
+        })
+      );
+    });
+  });
+
+  // Отправка уведомлений с помощью Firebase Cloud Messaging (FCM)
+  // Закомментировано до получения правильных FCM токенов
+  /*
   try {
-    await Promise.allSettled(notificationPromises);
-    return {
-      success: true,
-      sent: notificationPromises.length
-    };
-  } catch (error) {
-    console.error('Error sending push notifications:', error);
-    return {
-      success: false,
-      error: String(error)
-    };
+    // Firebase Cloud Messaging v9+ не имеет метода sendMulticast, используем другой подход
+    // Здесь должны быть FCM токены пользователей
+    const tokens: string[] = [];
+    
+    if (tokens.length > 0) {
+      await admin.messaging().sendEachForMultipleTokens({
+        notification: {
+          title,
+          body,
+        },
+        webpush: {
+          notification: {
+            icon: '/icons/app-icon-96x96.png',
+            vibrate: [100, 50, 100],
+            data: {
+              url
+            },
+          }
+        },
+        tokens: tokens
+      });
+    }
+  } catch (error: any) {
+    log(`Error sending FCM notifications: ${error}`, 'push-notification');
   }
+  */
+
+  return Promise.all(notificationPromises);
 }
 
 /**
@@ -176,73 +252,82 @@ export async function sendPushNotificationToUser(
   body: string,
   url: string = '/'
 ) {
-  const userSubscriptions = pushSubscriptions.get(userId) || [];
-  
-  if (userSubscriptions.length === 0) {
-    return {
-      success: false,
-      error: 'No subscriptions found for this user'
-    };
+  // Если web-push не инициализирован, логируем и возвращаемся
+  if (!webpushInitialized) {
+    log('Cannot send push notifications: web-push is not initialized', 'push-notification');
+    return Promise.resolve();
   }
+
+  const userSubscriptions = pushSubscriptions.get(userId);
   
+  if (!userSubscriptions || userSubscriptions.length === 0) {
+    log(`No push subscriptions found for user ID: ${userId}`, 'push-notification');
+    return Promise.resolve();
+  }
+
   const payload = JSON.stringify({
-    title,
-    body,
-    icon: '/icons/app-icon-96x96.png',
-    badge: '/icons/badge-icon.png',
-    data: { url }
-  });
-  
-  const notificationPromises: Promise<any>[] = [];
-  
-  for (const subscription of userSubscriptions) {
-    try {
-      notificationPromises.push(webpush.sendNotification(subscription, payload));
-    } catch (error) {
-      console.error('Error sending push notification to user:', error);
+    notification: {
+      title,
+      body,
+      icon: '/icons/app-icon-96x96.png',
+      vibrate: [100, 50, 100],
+      data: {
+        url
+      },
     }
-  }
-  
-  try {
-    await Promise.allSettled(notificationPromises);
-    return {
-      success: true,
-      sent: notificationPromises.length
-    };
-  } catch (error) {
-    console.error('Error sending push notifications to user:', error);
-    return {
-      success: false,
-      error: String(error)
-    };
-  }
+  });
+
+  const notificationPromises = userSubscriptions.map(subscription => {
+    return webpush.sendNotification({
+      endpoint: subscription.endpoint,
+      keys: subscription.keys
+    }, payload)
+    .catch((error: any) => {
+      if (error.statusCode === 410) {
+        log(`Subscription is no longer valid: ${subscription.endpoint}`, 'push-notification');
+        // Здесь нужно будет удалить недействительные подписки
+      } else {
+        log(`Error sending push notification: ${error}`, 'push-notification');
+      }
+    });
+  });
+
+  return Promise.all(notificationPromises);
 }
 
-// Отправка уведомления при изменении статуса заказа
 export async function sendOrderStatusNotification(userId: number, orderId: number, newStatus: string) {
-  let title = 'Обновление статуса заказа';
-  let body = `Статус вашего заказа #${orderId} изменен на "${newStatus}"`;
-  let url = `/account?tab=orders`;
-  
-  // Формируем специальные сообщения в зависимости от статуса
-  switch (newStatus.toLowerCase()) {
-    case 'processing':
-      title = 'Заказ в обработке';
-      body = `Ваш заказ #${orderId} принят и обрабатывается нашей командой`;
-      break;
-    case 'shipped':
-      title = 'Заказ отправлен';
-      body = `Ваш заказ #${orderId} отправлен! Ожидайте доставку в ближайшее время`;
-      break;
-    case 'delivered':
-      title = 'Заказ доставлен';
-      body = `Ваш заказ #${orderId} успешно доставлен. Спасибо за покупку!`;
-      break;
-    case 'cancelled':
-      title = 'Заказ отменен';
-      body = `Ваш заказ #${orderId} был отменен. Если у вас есть вопросы, пожалуйста, свяжитесь с нами`;
-      break;
+  const statusMessages: { [key: string]: { title: string; body: string } } = {
+    'processing': {
+      title: 'Заказ принят в обработку',
+      body: `Заказ №${orderId} был принят в обработку. Мы уведомим вас о следующих изменениях статуса.`
+    },
+    'completed': {
+      title: 'Оплата подтверждена',
+      body: `Оплата заказа №${orderId} успешно подтверждена. Заказ передан в обработку.`
+    },
+    'shipped': {
+      title: 'Заказ отправлен',
+      body: `Заказ №${orderId} был отправлен. Ожидайте доставку в ближайшее время.`
+    },
+    'delivered': {
+      title: 'Заказ доставлен',
+      body: `Заказ №${orderId} доставлен. Спасибо за покупку!`
+    },
+    'cancelled': {
+      title: 'Заказ отменен',
+      body: `Заказ №${orderId} был отменен. Если у вас возникли вопросы, пожалуйста, свяжитесь с нами.`
+    },
+    'failed': {
+      title: 'Ошибка оплаты',
+      body: `К сожалению, при оплате заказа №${orderId} произошла ошибка. Пожалуйста, проверьте ваш способ оплаты или свяжитесь с нами для помощи.`
+    }
+  };
+
+  const message = statusMessages[newStatus];
+  if (!message) {
+    log(`No notification message for status: ${newStatus}`, 'push-notification');
+    return;
   }
-  
-  return await sendPushNotificationToUser(userId, title, body, url);
+
+  return sendPushNotificationToUser(userId, message.title, message.body, `/account?order=${orderId}`);
 }

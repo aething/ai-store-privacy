@@ -94,4 +94,27 @@ export default {
   ascending: "Ascending",
   descending: "Descending",
   category: "Category",
+  
+  // Push Notifications
+  pushNotifications: {
+    title: "Push Notifications",
+    description: "Receive alerts about order status, special offers, and more.",
+    toggle: "Enable push notifications",
+    enabled: "Notifications Enabled",
+    enabledDesc: "You will now receive notifications about order updates and promotions.",
+    disabled: "Notifications Disabled",
+    disabledDesc: "You will no longer receive notifications.",
+    unsupported: "Notifications Not Supported",
+    unsupportedDesc: "Your browser doesn't support push notifications.",
+    unsupportedBrowser: "Your browser doesn't support push notifications.",
+    error: "Notification Error",
+    errorDesc: "There was an error enabling notifications. Please try again.",
+    permissionDenied: "Permission for notifications was denied.",
+    tokenFailed: "Failed to retrieve notification token.",
+    registrationFailed: "Failed to register notification subscription.",
+    loginRequired: "Login Required",
+    loginRequiredDesc: "You need to be logged in to manage notifications.",
+    loginRequiredShort: "Please login to enable notifications.",
+    info: "You can change this setting at any time."
+  }
 };
