@@ -84,20 +84,11 @@ export default function InfoPage() {
         )}
         
         <Card className="overflow-hidden shadow-md rounded-lg mt-2">
-          {/* Hero Image - вынесен за пределы прокручиваемой области */}
-          <div className="w-full h-56 sm:h-72 md:h-96 bg-gray-200 overflow-hidden">
-            <img
-              src={infoPage.imageUrl}
-              alt={infoPage.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          {/* Content - прокручиваемая область начинается после изображения */}
+          {/* Content - прокручиваемая область */}
           <div 
             ref={contentRef}
             className="p-4 sm:p-6 overflow-y-auto"
-            style={{ maxHeight: "calc(100vh - 400px)" }}
+            style={{ maxHeight: "calc(100vh - 200px)" }}
           >
             <h1 className="text-2xl font-bold mb-2">{infoPage.title}</h1>
             <p className="text-gray-500 mb-6">{infoPage.description}</p>

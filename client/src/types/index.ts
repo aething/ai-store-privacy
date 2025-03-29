@@ -44,6 +44,5 @@ export interface InfoPage {
   id: number;
   title: string;
   description: string;
-  imageUrl: string;
   content: string; // Может содержать HTML-разметку для форматирования
 }

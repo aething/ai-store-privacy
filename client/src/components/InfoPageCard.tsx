@@ -18,16 +18,7 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
       onClick={() => setLocation(`/info/${infoPage.id}`)}
     >
       <div className="flex flex-col h-full">
-        {/* Изображение (занимает треть карточки) */}
-        <div className="w-full h-48 overflow-hidden">
-          <img 
-            src={infoPage.imageUrl} 
-            alt={infoPage.title} 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        
-        {/* Содержание (занимает две трети карточки) */}
+        {/* Содержание */}
         <div className="p-4 flex flex-col flex-grow">
           <h3 className="font-medium text-lg mb-2">{infoPage.title}</h3>
           

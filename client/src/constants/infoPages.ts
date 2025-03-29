@@ -5,7 +5,6 @@ export const infoPages: InfoPage[] = [
     id: 0,
     title: "AI Store - Play Market Description",
     description: "Learn about our mobile application available on Play Market with advanced AI shopping features.",
-    imageUrl: "https://images.unsplash.com/photo-1611746872915-64382b5c2a98?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     content: `
       <h2>AI Store by Aething - Mobile Application</h2>
       <p>AI Store by Aething is a modern mobile e-commerce application designed according to Material Design principles. The application features an intuitive, user-friendly interface with two main pages: Shop and Account.</p>
@@ -34,7 +33,6 @@ export const infoPages: InfoPage[] = [
     id: 1,
     title: "AI-Powered Shopping Assistant",
     description: "Enhance your shopping experience with our AI assistant that helps you find exactly what you need.",
-    imageUrl: "https://images.unsplash.com/photo-1677442135096-ba962c4c5474?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1332&q=80",
     content: `
       <h2>Shopping Reimagined with AI</h2>
       <p>Our AI shopping assistant uses advanced machine learning algorithms to understand your preferences and provide personalized shopping recommendations. Whether you're looking for a specific item or need inspiration, our assistant is here to help.</p>
@@ -57,7 +55,6 @@ export const infoPages: InfoPage[] = [
     id: 2,
     title: "Our Vision for Sustainable Technology",
     description: "Learn about our commitment to creating technology that's good for people and the planet.",
-    imageUrl: "https://images.unsplash.com/photo-1580927752452-89d86da3fa0a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     content: `
       <h2>Technology with Purpose</h2>
       <p>At Aething, we believe that technology should enhance human lives while respecting our planet. Our vision is to create innovative products that solve real problems without creating new ones for future generations.</p>
@@ -80,7 +77,6 @@ export const infoPages: InfoPage[] = [
     id: 3,
     title: "The Next Wave of AI Innovation",
     description: "Explore how we're pushing the boundaries of what's possible with artificial intelligence.",
-    imageUrl: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1965&q=80",
     content: `
       <h2>Pioneering the Future of AI</h2>
       <p>Artificial intelligence is evolving at an unprecedented pace, and we're at the forefront of this revolution. Our research team is exploring new paradigms in machine learning that will make AI more capable, efficient, and accessible than ever before.</p>
@@ -103,7 +99,6 @@ export const infoPages: InfoPage[] = [
     id: 4,
     title: "Privacy-First Design Philosophy",
     description: "Discover how we build privacy into everything we do, from product design to data practices.",
-    imageUrl: "https://images.unsplash.com/photo-1563461661024-ce984ab861fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80",
     content: `
       <h2>Privacy as a Fundamental Right</h2>
       <p>In today's connected world, privacy isn't just a feature—it's a fundamental right. At Aething, we believe you should never have to choose between amazing technology and privacy. That's why we build privacy protections into every product and service we offer.</p>
