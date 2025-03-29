@@ -14,7 +14,7 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
 
   return (
     <Card 
-      className="flex-none w-64 rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow"
+      className="flex-none w-64 h-[280px] rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow"
       onClick={() => setLocation(`/info/${infoPage.id}`)}
     >
       <div className="flex flex-col h-full">
@@ -22,7 +22,7 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
         <div className="p-4 flex flex-col flex-grow">
           <h3 className="font-medium text-lg mb-2">{infoPage.title}</h3>
           
-          <p className="text-gray-500 text-sm flex-grow line-clamp-3 mb-3">
+          <p className="text-gray-500 text-sm flex-grow line-clamp-6 mb-4">
             {infoPage.description}
           </p>
           
