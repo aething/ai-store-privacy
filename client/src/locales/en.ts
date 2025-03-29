@@ -69,6 +69,11 @@ export default {
   edit: "Edit",
   delete: "Delete",
   back: "Back",
+  backToTop: "Back to Top",
+  
+  // Policy Page
+  policyNotFound: "Policy Not Found",
+  policyCouldNotBeFound: "The requested policy could not be found.",
   
   // Sorting
   sort_by: "Sort by",
