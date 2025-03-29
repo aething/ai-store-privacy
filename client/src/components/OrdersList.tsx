@@ -20,6 +20,8 @@ const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
         return 'bg-green-100 text-green-800';
       case 'delivered':
         return 'bg-green-700 text-white';
+      case 'complete':
+        return 'bg-purple-700 text-white';
       case 'cancelled':
         return 'bg-red-100 text-red-800';
       default:

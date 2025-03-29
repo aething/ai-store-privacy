@@ -53,6 +53,22 @@ const DEMO_ORDERS: Order[] = [
       imageUrl: '/assets/products/smart-home.jpg',
       price: 149.99
     }
+  },
+  {
+    id: 1003,
+    userId: 999,
+    productId: 3,
+    status: 'complete',
+    amount: 199.99,
+    currency: 'USD',
+    stripePaymentId: 'demo_payment_id_3',
+    trackingNumber: 'DEMO987654321',
+    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 дней назад
+    product: {
+      title: 'Wireless Earbuds',
+      imageUrl: '/assets/products/earbuds.jpg',
+      price: 199.99
+    }
   }
 ];
 
