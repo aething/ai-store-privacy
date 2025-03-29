@@ -75,25 +75,30 @@ export default function Shop() {
                 className="flex-none w-64 rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow"
                 onClick={() => setLocation(`/product/${product.id}`)}
               >
-                <div className="flex flex-col w-full h-full" style={{ height: "24rem" }}>
-                  {/* Верхняя треть - заголовок */}
+                <div className="flex flex-col w-full" style={{ height: "auto", maxHeight: "24rem" }}>
+                  {/* Заголовок */}
                   <div className="p-3 border-b">
                     <h3 className="font-medium text-lg">{product.title}</h3>
                   </div>
                   
-                  {/* Нижние две трети - описание */}
-                  <div className="p-3 flex-grow overflow-auto" style={{ height: "calc(100% - 60px)" }}>
-                    <p className="text-text-secondary text-sm">
-                      {product.description.substring(0, 300)}...
-                      <span 
-                        className="text-primary font-medium ml-1 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLocation(`/product/${product.id}`);
-                        }}
-                      >
-                        More
-                      </span>
+                  {/* Описание - используем auto высоту и min-height */}
+                  <div className="p-3 overflow-auto" style={{ minHeight: "100px" }}>
+                    <p className="text-text-secondary text-sm mb-1">
+                      {product.description.substring(0, 180)}
+                      {product.description.length > 180 && (
+                        <>
+                          ...
+                          <span 
+                            className="text-primary font-medium ml-1 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLocation(`/product/${product.id}`);
+                            }}
+                          >
+                            More
+                          </span>
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
