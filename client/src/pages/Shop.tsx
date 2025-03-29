@@ -39,9 +39,13 @@ export default function Shop() {
 
       {/* Description Section */}
       {products && products.length > 0 && (
-        <div className="mb-8">
+        <div className="mb-8 relative">
           <h2 className="text-lg font-medium mb-4">Description</h2>
-          <div className="flex overflow-x-auto space-x-4 pb-4">
+          <div 
+            id="description-scroll"
+            className="flex overflow-x-auto space-x-4 pb-4 -mx-4 px-4 scrollbar-hide"
+            style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}
+          >
             {products.slice(0, 3).map((product) => (
               <Card 
                 key={product.id}
@@ -66,6 +70,33 @@ export default function Shop() {
               </Card>
             ))}
           </div>
+          
+          {products.length > 2 && (
+            <>
+              <button
+                className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1 z-10"
+                onClick={() => {
+                  const scrollElem = document.getElementById('description-scroll');
+                  if (scrollElem) {
+                    scrollElem.scrollBy({ left: -280, behavior: 'smooth' });
+                  }
+                }}
+              >
+                <span className="material-icons">chevron_left</span>
+              </button>
+              <button
+                className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1 z-10"
+                onClick={() => {
+                  const scrollElem = document.getElementById('description-scroll');
+                  if (scrollElem) {
+                    scrollElem.scrollBy({ left: 280, behavior: 'smooth' });
+                  }
+                }}
+              >
+                <span className="material-icons">chevron_right</span>
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
