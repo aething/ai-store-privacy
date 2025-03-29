@@ -39,41 +39,13 @@ const NotFoundPage: React.FC = () => {
         <div className="p-6">
           <div className="flex justify-center mb-6">
             <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center animate-pulse">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-12 w-12 text-red-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                {isUserOffline ? (
-                  // Иконка для офлайн-режима
-                  <>
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a5 5 0 010-7.072m-4.95 4.95a3 3 0 110-4.242"
-                    />
-                    <line
-                      x1="1"
-                      y1="1"
-                      x2="23"
-                      y2="23"
-                      strokeLinecap="round"
-                      strokeWidth={2}
-                    />
-                  </>
-                ) : (
-                  // Иконка 404
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                )}
-              </svg>
+              {isUserOffline ? (
+                // Иконка для офлайн-режима
+                <Icon name="signal_wifi_off" size="large" className="text-red-500" />
+              ) : (
+                // Иконка 404
+                <Icon name="error" size="large" className="text-red-500" />
+              )}
             </div>
           </div>
           
