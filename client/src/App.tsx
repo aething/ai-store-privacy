@@ -14,6 +14,7 @@ import Confirmation from "@/pages/Confirmation";
 import Subscribe from "@/pages/Subscribe";
 import AppInfo from "@/pages/AppInfo";
 import Analytics from "@/pages/Analytics";
+import PlayMarket from "@/pages/PlayMarket";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import { ErrorProvider } from "@/context/ErrorContext";
@@ -109,6 +110,7 @@ function Router() {
         <Route path="/subscribe" component={Subscribe} />
         <Route path="/app-info" component={AppInfo} />
         <Route path="/analytics" component={Analytics} />
+        <Route path="/play-market" component={PlayMarket} />
         <Route component={NotFound} />
       </Switch>
     </PageTransition>

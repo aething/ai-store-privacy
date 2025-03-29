@@ -156,6 +156,18 @@
   to { transform: translateX(0); opacity: 1; }
 }
 
+@keyframes fadeInScale {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-2px, 0, 0); }
+  40%, 60% { transform: translate3d(2px, 0, 0); }
+}
+
 /* Дополнительные анимации для микроинтеракций */
 @keyframes pulse {
   0% { transform: scale(1); }

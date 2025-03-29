@@ -401,6 +401,48 @@ export default function Account() {
           </div>
         </Card>
       </div>
+
+      {/* Google Play Market */}
+      <div className="mb-8">
+        <h2 className="text-lg font-medium mb-4">{t("getOurApp") || "Get Our App"}</h2>
+        <Card className="rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center overflow-hidden mr-3">
+                <span className="text-white text-xl font-bold">A</span>
+              </div>
+              <div>
+                <h3 className="font-medium">AI Store by Aething</h3>
+                <div className="flex items-center">
+                  <span className="text-sm text-gray-500 mr-1">4.7</span>
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span key={star} className="material-icons text-yellow-500 text-sm">
+                        {star <= 4 ? "star" : "star_half"}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setLocation("/play-market")}
+              className="text-blue-600 text-sm font-medium"
+            >
+              VIEW
+            </button>
+          </div>
+
+          <button 
+            onClick={() => setLocation("/play-market")}
+            className="w-full bg-blue-600 text-white py-2.5 rounded-full flex items-center justify-center hover:bg-blue-700 transition"
+          >
+            <span className="material-icons mr-2">android</span>
+            Install from Google Play
+          </button>
+        </Card>
+      </div>
       
       {/* Policies */}
       <div className="mb-8">
