@@ -82,18 +82,6 @@ export default function InfoPage() {
         
         <Card className="overflow-hidden shadow-md rounded-lg mt-2">
           <div className="relative">
-            {/* Кнопка быстрого возврата на изображении */}
-            <div className="absolute top-4 left-4 z-10">
-              <Button
-                variant="outline"
-                size="icon"
-                className="bg-white/80 backdrop-blur-sm hover:bg-white"
-                onClick={() => setLocation("/")}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </div>
-            
             {/* Hero Image */}
             <div className="w-full h-56 sm:h-72 md:h-96 bg-gray-200 overflow-hidden">
               <img
