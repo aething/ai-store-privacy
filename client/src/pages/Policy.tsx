@@ -4,7 +4,9 @@ import { Card } from "@/components/ui/card";
 import { getPolicyById } from "@/constants/policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
-import { X, ArrowUp, MoveLeft } from "lucide-react";
+import { X, MoveLeft } from "lucide-react";
+import { scrollToTop as globalScrollToTop } from "@/lib/scrollUtils";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 export default function Policy() {
   const [match, params] = useRoute("/policy/:id");
@@ -19,23 +21,29 @@ export default function Policy() {
     return getPolicyById(policyId);
   }, [policyId]);
   
-  // Скроллим содержимое страницы в начало при загрузке
+  // Скроллим содержимое страницы в начало при загрузке - используем глобальную функцию
   useEffect(() => {
+    // Вызываем глобальную функцию скроллинга сразу
+    globalScrollToTop(false);
+    
+    // Скроллим также и контент
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
-    // Также скроллим всю страницу в начало
-    window.scrollTo(0, 0);
+    
+    // Повторяем скроллинг с задержками для надежности
+    const delayedScrollTimer1 = setTimeout(() => globalScrollToTop(false), 50);
+    const delayedScrollTimer2 = setTimeout(() => globalScrollToTop(false), 200);
+    const delayedScrollTimer3 = setTimeout(() => globalScrollToTop(false), 500);
+    
+    return () => {
+      clearTimeout(delayedScrollTimer1);
+      clearTimeout(delayedScrollTimer2);
+      clearTimeout(delayedScrollTimer3);
+    };
   }, [policyId]);
   
-  const scrollToTop = () => {
-    if (contentRef.current) {
-      contentRef.current.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    }
-  };
+  // Функция scrollToTop удалена, так как мы используем компонент ScrollToTopButton
   
   if (!policy) {
     return (
@@ -61,13 +69,20 @@ export default function Policy() {
   
   return (
     <SwipeBack onSwipeBack={() => setLocation("/account")}>
-      <div className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
+      <div id="policy-root" className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
+        {/* Якорь для верхней точки страницы */}
+        <div id="policy-page-top" className="scroll-m-0"></div>
+        
         {/* Header with close button */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-medium">{policy.title}</h2>
           <button 
             className="p-2 rounded-full hover:bg-gray-100"
-            onClick={() => setLocation("/account")}
+            onClick={() => {
+              // Используем глобальную утилиту скроллинга перед навигацией
+              globalScrollToTop(false);
+              setLocation("/account");
+            }}
             aria-label="Close"
           >
             <X size={20} />
@@ -91,13 +106,7 @@ export default function Policy() {
           
           {/* Back to top button */}
           <div className="flex justify-center mt-6 mb-4">
-            <button
-              onClick={scrollToTop}
-              className="bg-blue-600 text-white px-6 py-2 rounded-full flex items-center hover:bg-blue-700"
-            >
-              <ArrowUp size={18} className="mr-1" />
-              {t("backToTop")}
-            </button>
+            <ScrollToTopButton contentRef={contentRef} />
           </div>
         </div>
       </div>

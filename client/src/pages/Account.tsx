@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useLocale } from "@/context/LocaleContext";
 import { ChevronRight, Trash2 } from "lucide-react";
+import { scrollToTop } from "@/lib/scrollUtils";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),
@@ -184,8 +185,15 @@ export default function Account() {
     }
   };
   
+  // Навигация к политике с предварительным скроллингом
   const navigateToPolicy = (policyId: string) => {
-    setLocation(`/policy/${policyId}`);
+    // Сначала скроллим вверх используя глобальную утилиту
+    scrollToTop(false); // Используем моментальную прокрутку без эффекта smooth
+    
+    // Небольшая задержка перед навигацией
+    setTimeout(() => {
+      setLocation(`/policy/${policyId}`);
+    }, 10);
   };
   
   const policies = [
@@ -334,14 +342,19 @@ export default function Account() {
         <h2 className="text-lg font-medium mb-4">{t("policies")}</h2>
         <Card className="rounded-lg divide-y">
           {policies.map((policy, index) => (
-            <button
+            <a
               key={index}
+              href={`/policy/${policy.id}`}
+              onClick={(e) => {
+                e.preventDefault(); // Prevent default to allow our custom navigation
+                navigateToPolicy(policy.id);
+                return false;
+              }}
               className="flex items-center justify-between p-4 w-full text-left"
-              onClick={() => navigateToPolicy(policy.id)}
             >
               <span>{policy.title}</span>
               <ChevronRight className="text-gray-500" size={20} />
-            </button>
+            </a>
           ))}
         </Card>
       </div>
