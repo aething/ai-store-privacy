@@ -66,6 +66,21 @@ export default function SwipeBack({
     window.addEventListener('keydown', handleBackButton);
     return () => window.removeEventListener('keydown', handleBackButton);
   }, [onSwipeBack]);
+  
+  // При монтировании компонента скроллим страницу в начало
+  useEffect(() => {
+    // Сбрасываем скролл на странице
+    window.scrollTo(0, 0);
+    
+    // Также устанавливаем таймеры для принудительного скролла (для устройств с медленной загрузкой)
+    const timer1 = setTimeout(() => window.scrollTo(0, 0), 100);
+    const timer2 = setTimeout(() => window.scrollTo(0, 0), 300);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, []);
 
   return (
     <div 

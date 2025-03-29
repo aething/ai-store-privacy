@@ -49,6 +49,21 @@ export default function PlayMarket() {
     return () => clearTimeout(timer);
   }, []);
   
+  // Скроллим содержимое страницы в начало при загрузке
+  useEffect(() => {
+    // Сбрасываем скролл на странице
+    window.scrollTo(0, 0);
+    
+    // Также устанавливаем таймеры для принудительного скролла (для устройств с медленной загрузкой)
+    const timer1 = setTimeout(() => window.scrollTo(0, 0), 100);
+    const timer2 = setTimeout(() => window.scrollTo(0, 0), 300);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, []);
+  
   // Функция для отображения рейтинга в виде звезд
   const renderStars = (rating: number) => {
     const stars = [];

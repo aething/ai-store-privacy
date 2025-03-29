@@ -75,6 +75,21 @@ const AppInfo = () => {
     (window as any).deferredPrompt = deferredPrompt;
   }, []);
   
+  // Скроллим содержимое страницы в начало при загрузке
+  useEffect(() => {
+    // Сбрасываем скролл на странице
+    window.scrollTo(0, 0);
+    
+    // Также устанавливаем таймеры для принудительного скролла (для устройств с медленной загрузкой)
+    const timer1 = setTimeout(() => window.scrollTo(0, 0), 100);
+    const timer2 = setTimeout(() => window.scrollTo(0, 0), 300);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, []);
+  
   // Функция установки приложения
   const handleInstall = async () => {
     const deferredPrompt = (window as any).deferredPrompt;

@@ -1,6 +1,6 @@
+import React, { useEffect, useMemo, useRef } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
-import { useMemo, useRef } from "react";
 import { getPolicyById } from "@/constants/policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
@@ -17,6 +17,15 @@ export default function Policy() {
   const policy = useMemo(() => {
     if (!policyId) return null;
     return getPolicyById(policyId);
+  }, [policyId]);
+  
+  // Скроллим содержимое страницы в начало при загрузке
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+    // Также скроллим всю страницу в начало
+    window.scrollTo(0, 0);
   }, [policyId]);
   
   const scrollToTop = () => {

@@ -9,6 +9,56 @@ import type { Product } from '@/types';
 // recreating the `Stripe` object on every render.
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
+// Функция для проверки доступности URL
+const checkUrlAvailability = async (url: string): Promise<boolean> => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 секунды таймаут
+    
+    const response = await fetch(url, { 
+      method: 'HEAD',
+      signal: controller.signal 
+    });
+    
+    clearTimeout(timeoutId);
+    return response.ok;
+  } catch (error) {
+    console.error(`Failed to connect to ${url}:`, error);
+    return false;
+  }
+};
+
+// Функция с повторными попытками для загрузки Stripe
+const loadStripeWithRetry = async (key: string, maxRetries = 3, delay = 2000): Promise<Stripe | null> => {
+  // Сначала проверим доступность основного домена Stripe
+  const isStripeAvailable = await checkUrlAvailability('https://js.stripe.com/v3/');
+  
+  if (!isStripeAvailable) {
+    console.warn("Stripe.js is not available at the moment. Network might be limited.");
+    return null;
+  }
+  
+  let lastError: any = null;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      // Пробуем загрузить Stripe
+      return await loadStripe(key);
+    } catch (error) {
+      lastError = error;
+      console.warn(`Attempt ${attempt + 1}/${maxRetries} to load Stripe failed:`, error);
+      
+      if (attempt < maxRetries - 1) {
+        // Ждем перед следующей попыткой (с увеличивающейся задержкой)
+        await new Promise(resolve => setTimeout(resolve, delay * (attempt + 1)));
+      }
+    }
+  }
+  
+  console.error("All attempts to load Stripe failed:", lastError);
+  return null;
+};
+
 // Создаем типизированную заглушку для stripePromise
 let stripePromise: Promise<Stripe | null>;
 
@@ -18,13 +68,8 @@ if (!stripeKey) {
   // Создаем резолвящийся в null промис, чтобы избежать ошибок
   stripePromise = Promise.resolve(null);
 } else {
-  try {
-    stripePromise = loadStripe(stripeKey);
-  } catch (error) {
-    console.error("Error initializing Stripe:", error);
-    // В случае ошибки возвращаем null
-    stripePromise = Promise.resolve(null);
-  }
+  // Используем функцию с повторными попытками
+  stripePromise = loadStripeWithRetry(stripeKey);
 }
 
 /**
