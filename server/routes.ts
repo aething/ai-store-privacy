@@ -977,8 +977,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Отправляем email-уведомление, если параметр sendEmail = true и у пользователя есть почта
         if (sendEmail && user && user.email && updatedOrder) {
           try {
-            // Используем значение по умолчанию "ru", если язык не указан
-            await email.sendTrackingUpdate(updatedOrder, user.email, user.language || "ru");
+            // Используем значение по умолчанию "en", если язык не указан
+            await email.sendTrackingUpdate(updatedOrder, user.email, user.language || "en");
             console.log(`Tracking update email sent to ${user.email}`);
           } catch (emailError) {
             console.error(`Failed to send tracking update email:`, emailError);
@@ -1050,7 +1050,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Тестовый эндпоинт для отправки email-уведомления
   app.post("/api/email/send-test", async (req: Request, res: Response) => {
     try {
-      const { emailAddress, type, language = 'ru', orderId } = req.body;
+      const { emailAddress, type, language = 'en', orderId } = req.body;
       
       if (!emailAddress || !type) {
         return res.status(400).json({ message: "emailAddress and type are required" });

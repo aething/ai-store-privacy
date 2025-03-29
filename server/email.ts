@@ -34,7 +34,7 @@ export async function verifyEmailConnection(): Promise<boolean> {
 export async function sendOrderConfirmation(
   order: Order, 
   email: string,
-  language: string = 'ru'
+  language: string = 'en'
 ): Promise<boolean> {
   try {
     // Получаем данные о продукте
@@ -116,7 +116,7 @@ export async function sendOrderConfirmation(
 export async function sendOrderStatusUpdate(
   order: Order,
   email: string,
-  language: string = 'ru'
+  language: string = 'en'
 ): Promise<boolean> {
   try {
     // Получаем данные о продукте
