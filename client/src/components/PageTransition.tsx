@@ -23,6 +23,26 @@ const PageTransition: React.FC<PageTransitionProps> = ({
   const [currentPage, setCurrentPage] = useState(location);
   const [content, setContent] = useState(children);
   
+  // Функция для скроллинга страницы вверх
+  const scrollToTop = () => {
+    // Принудительно скроллим обычное окно
+    window.scrollTo(0, 0);
+    
+    // Также пытаемся найти родительские элементы с прокруткой и сбросить их
+    const scrollableElements = document.querySelectorAll('.overflow-auto, .overflow-y-auto, [style*="overflow-y: auto"]');
+    scrollableElements.forEach(el => {
+      if (el instanceof HTMLElement) {
+        el.scrollTop = 0;
+      }
+    });
+    
+    // Если есть элемент с id="content-top", скроллим к нему
+    document.getElementById('content-top')?.scrollIntoView({ 
+      behavior: 'auto', 
+      block: 'start' 
+    });
+  };
+  
   // При изменении маршрута или содержимого
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -31,6 +51,9 @@ const PageTransition: React.FC<PageTransitionProps> = ({
     if (currentPage !== location) {
       // Запускаем анимацию исчезновения
       setIsVisible(false);
+      
+      // Принудительно скроллим вверх при изменении страницы
+      scrollToTop();
       
       // После окончания анимации исчезновения
       timeoutId = setTimeout(() => {
@@ -41,13 +64,21 @@ const PageTransition: React.FC<PageTransitionProps> = ({
         // Запускаем анимацию появления
         requestAnimationFrame(() => {
           setIsVisible(true);
+          // Еще раз скроллим вверх после обновления содержимого
+          scrollToTop();
         });
+        
+        // Дополнительно скроллим через небольшие промежутки времени для надежности
+        setTimeout(scrollToTop, 100);
+        setTimeout(scrollToTop, 300);
       }, duration);
     } else if (!isVisible) {
       // Если содержимое изменилось, но маршрут тот же
       setContent(children);
       requestAnimationFrame(() => {
         setIsVisible(true);
+        // Скроллим вверх при изменении содержимого
+        scrollToTop();
       });
     } else {
       // Просто обновляем содержимое

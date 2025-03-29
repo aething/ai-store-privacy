@@ -77,6 +77,8 @@ export default function Checkout() {
   const { toast } = useToast();
   const { user } = useAppContext();
   const [clientSecret, setClientSecret] = useState("");
+  const [stripeLoadingFailed, setStripeLoadingFailed] = useState(false);
+  const [paymentIntentError, setPaymentIntentError] = useState(false);
   
   const productId = match ? parseInt(params.id) : null;
   
@@ -88,6 +90,23 @@ export default function Checkout() {
   // Determine currency and price based on user's country
   const currency = getCurrencyForCountry(user?.country);
   const price = product ? getPriceForCountry(product, user?.country) : 0;
+
+  // Проверка загрузки Stripe
+  useEffect(() => {
+    // Если Stripe не загрузится за 5 секунд, показываем запасной вариант
+    const stripeLoadTimeout = setTimeout(() => {
+      if (!stripePromise) {
+        setStripeLoadingFailed(true);
+        toast({
+          title: "Payment System Unavailable",
+          description: "The payment system is currently unavailable. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    }, 5000);
+
+    return () => clearTimeout(stripeLoadTimeout);
+  }, [toast]);
   
   useEffect(() => {
     const getPaymentIntent = async () => {
@@ -102,10 +121,12 @@ export default function Checkout() {
         );
         
         setClientSecret(data.clientSecret);
+        setPaymentIntentError(false);
       } catch (error) {
+        setPaymentIntentError(true);
         toast({
-          title: "Error",
-          description: "Could not initialize payment",
+          title: "Payment System Error",
+          description: "Could not initialize payment. Please try again later.",
           variant: "destructive",
         });
       }
@@ -201,7 +222,37 @@ export default function Checkout() {
       
       <Card className="p-4">
         <h3 className="font-medium mb-4">Payment Information</h3>
-        {clientSecret ? (
+        
+        {/* Показываем запасной вариант, если Stripe не загрузился или произошла ошибка */}
+        {stripeLoadingFailed || paymentIntentError ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-red-50 text-red-800 rounded-lg">
+              <h4 className="font-semibold mb-2">Payment System Temporarily Unavailable</h4>
+              <p className="mb-3">We're experiencing technical difficulties with our payment processor. Please try again later or use an alternative payment method.</p>
+              <div className="space-y-2">
+                <button 
+                  className="bg-gray-700 text-white w-full py-3 rounded-full font-medium hover:bg-gray-800"
+                  onClick={() => setLocation(`/product/${productId}`)}
+                >
+                  Return to Product
+                </button>
+                <button 
+                  className="bg-blue-600 text-white w-full py-3 rounded-full font-medium hover:bg-blue-700"
+                  onClick={() => window.location.reload()}
+                >
+                  Retry Payment
+                </button>
+              </div>
+            </div>
+            
+            <div className="border-t pt-4">
+              <p className="text-sm text-gray-500 mb-2">Having trouble? Contact our support team:</p>
+              <div className="bg-gray-100 p-3 rounded">
+                <p className="text-center">support@yourdomain.com</p>
+              </div>
+            </div>
+          </div>
+        ) : clientSecret ? (
           <Elements 
             stripe={stripePromise} 
             options={{ 

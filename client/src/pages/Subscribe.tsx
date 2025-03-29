@@ -97,9 +97,28 @@ const SubscribeForm = () => {
 
 export default function Subscribe() {
   const [clientSecret, setClientSecret] = useState('');
+  const [stripeLoadError, setStripeLoadError] = useState(false);
+  const [subscriptionError, setSubscriptionError] = useState(false);
   const { user } = useAppContext();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+
+  // Проверка загрузки Stripe
+  useEffect(() => {
+    // Если Stripe не загрузится за 5 секунд, показываем запасной вариант
+    const stripeLoadTimeout = setTimeout(() => {
+      if (!stripePromise) {
+        setStripeLoadError(true);
+        toast({
+          title: "Платежная система недоступна",
+          description: "Платежная система временно недоступна. Пожалуйста, попробуйте позже.",
+          variant: "destructive",
+        });
+      }
+    }, 5000);
+
+    return () => clearTimeout(stripeLoadTimeout);
+  }, [toast]);
 
   useEffect(() => {
     // Если пользователь не авторизован, перенаправляем на главную
@@ -126,6 +145,7 @@ export default function Subscribe() {
       .then((data) => {
         if (data.clientSecret) {
           setClientSecret(data.clientSecret);
+          setSubscriptionError(false);
         } else {
           // Если нет clientSecret, значит подписка уже активна
           toast({
@@ -137,6 +157,7 @@ export default function Subscribe() {
       })
       .catch((error) => {
         console.error('Error creating subscription:', error);
+        setSubscriptionError(true);
         toast({
           title: 'Ошибка',
           description: 'Не удалось создать подписку. Попробуйте позже.',
@@ -144,6 +165,45 @@ export default function Subscribe() {
         });
       });
   }, [user, toast, setLocation]);
+
+  // Показываем запасной вариант при ошибке загрузки Stripe или создания подписки
+  if (stripeLoadError || subscriptionError) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-8">
+          <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4 text-center">Сервис временно недоступен</h2>
+            
+            <div className="p-4 mb-6 bg-red-50 text-red-800 rounded-lg">
+              <h4 className="font-semibold mb-2">Система оплаты временно недоступна</h4>
+              <p className="mb-3">В настоящее время мы испытываем технические проблемы с нашей платежной системой. Пожалуйста, попробуйте позже.</p>
+            </div>
+            
+            <div className="space-y-3">
+              <button 
+                className="w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-md transition hover:bg-blue-700"
+                onClick={() => window.location.reload()}
+              >
+                Попробовать снова
+              </button>
+              
+              <button 
+                className="w-full py-3 px-4 bg-gray-200 text-gray-800 font-semibold rounded-md transition hover:bg-gray-300"
+                onClick={() => setLocation('/')}
+              >
+                Вернуться на главную
+              </button>
+            </div>
+            
+            <div className="mt-6 pt-4 border-t text-center">
+              <p className="text-sm text-gray-500">Если проблема повторяется, свяжитесь с нашей службой поддержки:</p>
+              <p className="text-sm font-medium mt-1">support@yourdomain.com</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!clientSecret) {
     return (

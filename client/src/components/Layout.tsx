@@ -15,6 +15,8 @@ export default function Layout({ children }: LayoutProps) {
         
         {/* Phone Content */}
         <div className="h-full flex flex-col pt-8 bg-background font-roboto">
+          {/* Маркер для скролла вверх */}
+          <div id="content-top"></div>
           <Header />
           <main className="flex-1 px-4 pt-2 pb-20 overflow-y-auto">
             {children}
