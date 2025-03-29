@@ -180,6 +180,51 @@
   50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8); }
 }
 
+/* Новые анимации для Material Design */
+@keyframes fadeScale {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes zoomOut {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.2); }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes wave {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-5px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(5px); }
+  100% { transform: translateY(0); }
+}
+
+/* Дополнительные эффекты для Material Design */
+@keyframes elevate {
+  from { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); transform: translateY(0); }
+  to { box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); transform: translateY(-5px); }
+}
+
+@keyframes expandWidth {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes progressIndeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 @layer utilities {
   /* Дополнительные утилиты анимаций */
   .animate-pulse {
@@ -198,6 +243,27 @@
     animation: glow 2s infinite;
   }
   
+  /* Новые анимации для Material Design */
+  .animate-fade-scale {
+    animation: fadeScale 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .animate-zoom-in {
+    animation: zoomIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .animate-zoom-out {
+    animation: zoomOut 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .animate-rotate {
+    animation: rotate 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .animate-wave {
+    animation: wave 1.5s infinite;
+  }
+  
   /* Тактильная обратная связь */
   .touch-scale {
     @apply transition-transform duration-150 active:scale-95;
@@ -205,6 +271,20 @@
   
   .touch-press {
     @apply transition-all duration-150 active:translate-y-1;
+  }
+  
+  .touch-ripple {
+    @apply relative overflow-hidden;
+  }
+  
+  .touch-ripple::after {
+    content: '';
+    @apply absolute left-0 top-0 w-full h-full bg-current opacity-0 rounded-full scale-0 transform-gpu;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .touch-ripple:active::after {
+    @apply opacity-10 scale-[2.5] transform-gpu;
   }
   
   /* Материальные микроанимации для элементов */
@@ -218,5 +298,42 @@
   
   .focus-glow {
     @apply transition-shadow duration-300 focus:shadow-lg focus:shadow-blue-300/50;
+  }
+  
+  /* Эффекты наведения в стиле Material Design */
+  .md-hover-effect {
+    @apply transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)];
+  }
+  
+  .md-hover-overlay {
+    @apply relative overflow-hidden;
+  }
+  
+  .md-hover-overlay::before {
+    content: '';
+    @apply absolute inset-0 bg-current opacity-0 pointer-events-none transition-opacity duration-300;
+  }
+  
+  .md-hover-overlay:hover::before {
+    @apply opacity-5;
+  }
+  
+  /* Эффекты карточек */
+  .md-card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  
+  .md-card-active {
+    @apply transition-all duration-150 active:shadow-sm active:translate-y-0.5;
+  }
+  
+  /* Эффекты для кнопок */
+  .md-btn-effect {
+    @apply transform transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+  }
+  
+  /* Эффекты для полей ввода */
+  .md-input-effect {
+    @apply transition-all duration-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
   }
 }

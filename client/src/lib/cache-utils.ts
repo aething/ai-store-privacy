@@ -1,147 +1,198 @@
-import { QueryClient } from "@tanstack/react-query";
-import { CACHE_TIME, STALE_TIME } from "./queryClient";
+/**
+ * Утилиты для кэширования данных для офлайн-режима
+ */
+
+// Название для кэша ресурсов и API
+export const APP_CACHE_NAME = 'ai-store-cache-v1';
+export const API_CACHE_NAME = 'ai-store-api-cache-v1';
+
+// Время жизни кэша данных API в миллисекундах
+export const API_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 часа
 
 /**
- * Типы данных для кеширования
+ * Инициализация кэширования основных ресурсов приложения
  */
-export enum DataType {
-  PRODUCTS = "products",
-  USERS = "users",
-  INFO = "info",
-  ORDERS = "orders",
-  AUTH = "auth",
-  SETTINGS = "settings"
-}
-
-/**
- * Типы запросов
- */
-export enum QueryType {
-  LIST = "list",
-  DETAIL = "detail",
-  USER_SPECIFIC = "user-specific"
-}
-
-/**
- * Получение настроек кеширования для определенного типа данных
- */
-export function getCacheSettings(dataType: DataType, queryType: QueryType = QueryType.LIST) {
-  switch (dataType) {
-    case DataType.PRODUCTS:
-      return {
-        staleTime: queryType === QueryType.LIST 
-          ? STALE_TIME.STANDARD  // Список продуктов кешируется на 5 минут
-          : STALE_TIME.FREQUENT, // Детали продукта кешируются на 30 секунд
-        gcTime: CACHE_TIME.STANDARD,
-      };
-      
-    case DataType.USERS:
-      return {
-        staleTime: STALE_TIME.FREQUENT, // Данные пользователя быстро устаревают
-        gcTime: CACHE_TIME.STANDARD,
-      };
-      
-    case DataType.INFO:
-      return {
-        staleTime: STALE_TIME.LONG,  // Инфо-страницы редко меняются
-        gcTime: CACHE_TIME.LONG,
-      };
-      
-    case DataType.ORDERS:
-      return {
-        staleTime: queryType === QueryType.USER_SPECIFIC 
-          ? STALE_TIME.FREQUENT     // Список заказов пользователя
-          : STALE_TIME.STANDARD,    // Общие данные о заказах
-        gcTime: CACHE_TIME.STANDARD,
-      };
-      
-    case DataType.AUTH:
-      return {
-        staleTime: STALE_TIME.FREQUENT, // Авторизация требует свежих данных
-        gcTime: CACHE_TIME.STANDARD,
-      };
-      
-    case DataType.SETTINGS:
-      return {
-        staleTime: STALE_TIME.LONG,     // Настройки редко меняются
-        gcTime: CACHE_TIME.LONG,
-      };
-      
-    default:
-      return {
-        staleTime: STALE_TIME.STANDARD,
-        gcTime: CACHE_TIME.STANDARD,
-      };
+export async function initCache() {
+  // Проверяем поддержку Service Worker
+  if (!('serviceWorker' in navigator)) {
+    console.log('Service Worker is not supported in this browser');
+    return;
   }
-}
-
-/**
- * Формирование ключа кеша в структурированном формате
- */
-export function getQueryKey(dataType: DataType, id?: string | number) {
-  return id !== undefined ? [`/api/${dataType}`, id.toString()] : [`/api/${dataType}`];
-}
-
-/**
- * Инвалидация кеша по типу данных и опционально по ID
- */
-export function invalidateCache(
-  queryClient: QueryClient, 
-  dataType: DataType, 
-  id?: string | number
-) {
-  if (id !== undefined) {
-    // Инвалидация конкретной записи
-    return queryClient.invalidateQueries({ 
-      queryKey: getQueryKey(dataType, id) 
-    });
-  } else {
-    // Инвалидация всех записей определенного типа
-    return queryClient.invalidateQueries({ 
-      queryKey: [`/api/${dataType}`], 
-      refetchType: 'inactive'  // Обновляем и неактивные запросы
-    });
-  }
-}
-
-/**
- * Предварительная загрузка данных в кеш
- */
-export async function prefetchData(
-  queryClient: QueryClient,
-  dataType: DataType,
-  id?: string | number
-) {
-  const { staleTime, gcTime } = getCacheSettings(
-    dataType,
-    id !== undefined ? QueryType.DETAIL : QueryType.LIST
-  );
   
-  return queryClient.prefetchQuery({
-    queryKey: getQueryKey(dataType, id),
-    staleTime,
-    gcTime,
-  });
+  try {
+    // Регистрируем Service Worker
+    const registration = await navigator.serviceWorker.register('/sw.js');
+    console.log('Service Worker registered with scope:', registration.scope);
+    
+    // Открываем кэш и предварительно кэшируем основные ресурсы
+    const cache = await caches.open(APP_CACHE_NAME);
+    const resourcesToCache = [
+      '/',
+      '/index.html',
+      '/manifest.json',
+      '/offline.html',
+      '/app-icon.png',
+    ];
+    
+    await cache.addAll(resourcesToCache);
+    console.log('Initial resources cached successfully');
+  } catch (error) {
+    console.error('Service Worker registration failed:', error);
+  }
 }
 
 /**
- * Прямое обновление кеша
+ * Кэширование данных API с временем жизни
+ * @param request Запрос или URL строка
+ * @param response Ответ для кэширования
  */
-export function updateCache<T>(
-  queryClient: QueryClient, 
-  dataType: DataType, 
-  id: string | number, 
-  updater: (oldData: T | undefined) => T
-) {
-  queryClient.setQueryData(
-    getQueryKey(dataType, id),
-    (oldData: T | undefined) => updater(oldData)
-  );
+export async function cacheApiResponse(request: Request | string, response: Response): Promise<void> {
+  try {
+    const cache = await caches.open(API_CACHE_NAME);
+    
+    // Клонируем ответ, так как он может быть использован только один раз
+    const responseToCache = response.clone();
+    
+    // Добавляем метаданные о времени кэширования
+    const headers = new Headers(responseToCache.headers);
+    headers.append('x-cache-timestamp', Date.now().toString());
+    
+    // Создаем новый ответ с обновленными заголовками
+    const cachedResponse = new Response(await responseToCache.blob(), {
+      status: responseToCache.status,
+      statusText: responseToCache.statusText,
+      headers,
+    });
+    
+    await cache.put(request, cachedResponse);
+  } catch (error) {
+    console.error('Failed to cache API response:', error);
+  }
 }
 
 /**
- * Очистка всего кеша приложения
+ * Получение кэшированного ответа API с проверкой TTL
+ * @param request Запрос или URL строка
+ * @returns Кэшированный ответ или null, если кэш недействителен или отсутствует
  */
-export function clearAllCache(queryClient: QueryClient) {
-  return queryClient.clear();
+export async function getCachedApiResponse(request: Request | string): Promise<Response | null> {
+  try {
+    const cache = await caches.open(API_CACHE_NAME);
+    const cachedResponse = await cache.match(request);
+    
+    if (!cachedResponse) {
+      return null;
+    }
+    
+    // Проверяем время кэширования
+    const timestamp = cachedResponse.headers.get('x-cache-timestamp');
+    if (!timestamp) {
+      return null;
+    }
+    
+    const cachedTime = parseInt(timestamp, 10);
+    const now = Date.now();
+    
+    // Если кэш устарел, возвращаем null
+    if (now - cachedTime > API_CACHE_TTL) {
+      return null;
+    }
+    
+    return cachedResponse;
+  } catch (error) {
+    console.error('Failed to get cached API response:', error);
+    return null;
+  }
+}
+
+/**
+ * Очистка всех кэшей приложения
+ */
+export async function clearAllCaches(): Promise<void> {
+  try {
+    const cacheNames = await caches.keys();
+    await Promise.all(
+      cacheNames.map(cacheName => {
+        if (cacheName.startsWith('ai-store-')) {
+          return caches.delete(cacheName);
+        }
+        return Promise.resolve();
+      })
+    );
+    console.log('All caches cleared successfully');
+  } catch (error) {
+    console.error('Failed to clear caches:', error);
+  }
+}
+
+/**
+ * Обновление кэша ресурсов при новой версии приложения
+ * @param newCacheName Название нового кэша
+ */
+export async function updateCache(newCacheName: string): Promise<void> {
+  try {
+    const cacheNames = await caches.keys();
+    
+    // Удаляем старые кэши ресурсов
+    await Promise.all(
+      cacheNames.map(cacheName => {
+        if (cacheName.startsWith('ai-store-cache-') && cacheName !== newCacheName) {
+          return caches.delete(cacheName);
+        }
+        return Promise.resolve();
+      })
+    );
+    
+    // Открываем новый кэш и предварительно кэшируем основные ресурсы
+    const cache = await caches.open(newCacheName);
+    const resourcesToCache = [
+      '/',
+      '/index.html',
+      '/manifest.json',
+      '/offline.html',
+      '/app-icon.png',
+    ];
+    
+    await cache.addAll(resourcesToCache);
+    console.log('Cache updated successfully to', newCacheName);
+  } catch (error) {
+    console.error('Failed to update cache:', error);
+  }
+}
+
+/**
+ * Проверка, находится ли приложение в офлайн-режиме
+ * @returns true, если приложение офлайн
+ */
+export function isOffline(): boolean {
+  return typeof navigator !== 'undefined' && !navigator.onLine;
+}
+
+/**
+ * Инициализация обработчиков событий онлайн/офлайн
+ * @param onOffline Функция, вызываемая при переходе в офлайн
+ * @param onOnline Функция, вызываемая при переходе в онлайн
+ */
+export function initOnlineStatusHandlers(
+  onOffline: () => void = () => {},
+  onOnline: () => void = () => {}
+): () => void {
+  const handleOffline = () => {
+    console.log('Application is offline');
+    onOffline();
+  };
+  
+  const handleOnline = () => {
+    console.log('Application is back online');
+    onOnline();
+  };
+  
+  window.addEventListener('offline', handleOffline);
+  window.addEventListener('online', handleOnline);
+  
+  // Возвращаем функцию для удаления обработчиков
+  return () => {
+    window.removeEventListener('offline', handleOffline);
+    window.removeEventListener('online', handleOnline);
+  };
 }

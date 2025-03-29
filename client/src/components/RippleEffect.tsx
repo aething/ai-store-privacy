@@ -1,83 +1,141 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-interface RippleProps {
+interface RippleEffectProps {
   children: React.ReactNode;
   color?: string;
   duration?: number;
+  disabled?: boolean;
+  className?: string;
 }
 
-interface RippleStyle {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  backgroundColor?: string;
+interface Ripple {
+  x: number;
+  y: number;
+  size: number;
+  id: number;
 }
 
-const RippleEffect: React.FC<RippleProps> = ({ 
-  children, 
-  color = 'rgba(255, 255, 255, 0.3)',
-  duration = 600 
+/**
+ * Компонент для добавления эффекта пульсации (Ripple) при клике
+ * Следует Material Design принципам
+ */
+const RippleEffect: React.FC<RippleEffectProps> = ({
+  children,
+  color = 'rgba(255, 255, 255, 0.4)', // Цвет эффекта
+  duration = 600, // Длительность анимации в мс
+  disabled = false, // Отключение эффекта
+  className = '',
 }) => {
-  const [ripples, setRipples] = useState<Array<{ id: number, style: RippleStyle }>>([]);
+  const [ripples, setRipples] = useState<Ripple[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const nextId = useRef(0);
   
+  // Очистка эффекта при размонтировании
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (ripples.length > 0) {
-        setRipples([]);
-      }
-    }, duration * 2);
+    return () => {
+      setRipples([]);
+    };
+  }, []);
+  
+  // Удаляем ripple после окончания анимации
+  useEffect(() => {
+    const timeoutIds: NodeJS.Timeout[] = [];
     
-    return () => clearTimeout(timer);
+    ripples.forEach(ripple => {
+      const timeoutId = setTimeout(() => {
+        setRipples(prevRipples => prevRipples.filter(r => r.id !== ripple.id));
+      }, duration);
+      
+      timeoutIds.push(timeoutId);
+    });
+    
+    return () => {
+      timeoutIds.forEach(id => clearTimeout(id));
+    };
   }, [ripples, duration]);
   
+  // Обработчик клика для создания эффекта
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const element = e.currentTarget;
-    const rect = element.getBoundingClientRect();
+    if (disabled) return;
     
-    const left = e.clientX - rect.left;
-    const top = e.clientY - rect.top;
-    const width = Math.max(rect.width, rect.height) * 2;
-    const height = width;
+    const container = containerRef.current;
+    if (!container) return;
     
-    const newRipple = {
-      id: Date.now(),
-      style: {
-        left,
-        top,
-        width,
-        height,
-        backgroundColor: color
-      }
+    const rect = container.getBoundingClientRect();
+    
+    // Определяем позицию клика относительно контейнера
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Определяем размер ripple на основе размеров контейнера
+    // Берем максимальный размер, чтобы покрыть весь контейнер
+    const size = Math.max(rect.width, rect.height) * 2;
+    
+    // Создаем новый ripple
+    const newRipple: Ripple = {
+      x,
+      y,
+      size,
+      id: nextId.current,
     };
     
-    setRipples([...ripples, newRipple]);
+    nextId.current += 1;
+    
+    // Добавляем ripple
+    setRipples(prevRipples => [...prevRipples, newRipple]);
   };
   
+  // Если ребенок - кнопка или элемент с onClick, оборачиваем его div'ом
+  // чтобы избежать конфликтов с обработчиками событий
+  const isInteractive =
+    React.isValidElement(children) &&
+    (children.type === 'button' || 
+     children.type === 'a' || 
+     (typeof children.type === 'string' && children.props.onClick));
+  
   return (
-    <div 
-      className="ripple-container"
+    <div
+      ref={containerRef}
+      className={`relative overflow-hidden ${className}`}
       onClick={handleClick}
-      style={{ position: 'relative', overflow: 'hidden' }}
+      style={{ touchAction: 'manipulation' }}
     >
       {children}
-      {ripples.map(ripple => (
-        <span
-          key={ripple.id}
-          className="ripple"
-          style={{
-            position: 'absolute',
-            borderRadius: '50%',
-            transform: 'scale(0)',
-            animation: `ripple ${duration}ms linear`,
-            left: ripple.style.left - ripple.style.width / 2,
-            top: ripple.style.top - ripple.style.height / 2,
-            width: ripple.style.width,
-            height: ripple.style.height,
-            backgroundColor: ripple.style.backgroundColor
-          }}
-        />
-      ))}
+      
+      {/* Контейнер для ripple эффектов */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {ripples.map(ripple => (
+          <span
+            key={ripple.id}
+            style={{
+              position: 'absolute',
+              top: ripple.y - ripple.size / 2,
+              left: ripple.x - ripple.size / 2,
+              width: ripple.size,
+              height: ripple.size,
+              borderRadius: '50%',
+              backgroundColor: color,
+              transform: 'scale(0)',
+              opacity: '0.5',
+              animation: `ripple-animation ${duration}ms ease-out forwards`,
+            }}
+          />
+        ))}
+      </div>
+      
+      {/* Стили для анимации */}
+      <style jsx>{`
+        @keyframes ripple-animation {
+          0% {
+            transform: scale(0);
+            opacity: 0.5;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   );
 };
