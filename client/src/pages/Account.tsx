@@ -172,9 +172,9 @@ export default function Account() {
           <h2 className="text-lg font-medium">{t("account")}</h2>
           <div className="flex items-center">
             <span 
-              className={`h-3 w-3 rounded-full ${currentUser.isVerified ? "bg-verified" : "bg-error"} mr-2`}
+              className={`h-3 w-3 rounded-full ${currentUser.isVerified ? "bg-green-500" : "bg-red-500"} mr-2`}
             ></span>
-            <span className="text-sm text-text-secondary">
+            <span className={`text-sm ${currentUser.isVerified ? "text-green-600" : "text-red-600"} font-medium`}>
               {currentUser.isVerified ? t("emailVerified") : t("notVerified")}
             </span>
           </div>
@@ -189,7 +189,7 @@ export default function Account() {
             readOnly
           />
           <button 
-            className="bg-primary text-white w-full py-2 rounded"
+            className="bg-blue-600 text-white w-full py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
             onClick={handleVerifyEmail}
             disabled={isLoading || currentUser.isVerified}
           >
@@ -253,7 +253,7 @@ export default function Account() {
             </div>
             <button 
               type="submit"
-              className="bg-primary text-white w-full py-2 rounded mt-4"
+              className="bg-blue-600 text-white w-full py-2 rounded-full mt-4 hover:bg-blue-700 disabled:opacity-50"
               disabled={isLoading}
             >
               {isLoading ? t("saving") + "..." : t("save") + " " + t("personalInformation")}

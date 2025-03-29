@@ -200,12 +200,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const orderData = insertOrderSchema.parse(req.body);
       
       // In a real application, verify that the user exists
+      if (typeof orderData.userId !== 'number') {
+        return res.status(400).json({ message: "Invalid userId format" });
+      }
+      
       const user = await storage.getUser(orderData.userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
       
       // In a real application, verify that the product exists
+      if (typeof orderData.productId !== 'number') {
+        return res.status(400).json({ message: "Invalid productId format" });
+      }
+      
       const product = await storage.getProduct(orderData.productId);
       if (!product) {
         return res.status(404).json({ message: "Product not found" });

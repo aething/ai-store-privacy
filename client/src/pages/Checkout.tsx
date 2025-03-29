@@ -60,7 +60,7 @@ const CheckoutForm = ({ productId, amount }: { productId: number; amount: number
       <button 
         type="submit"
         disabled={!stripe || isLoading}
-        className="bg-primary text-white w-full py-3 rounded-full font-medium disabled:opacity-70"
+        className="bg-blue-600 text-white w-full py-3 rounded-full font-medium hover:bg-blue-700 disabled:opacity-70"
       >
         {isLoading ? "Processing..." : "Pay Now"}
       </button>
@@ -141,7 +141,7 @@ export default function Checkout() {
         <Card className="p-4">
           <p className="text-error mb-4">Please log in to continue with checkout.</p>
           <button 
-            className="bg-primary text-white w-full py-2 rounded"
+            className="bg-blue-600 text-white w-full py-2 rounded-full hover:bg-blue-700"
             onClick={() => setLocation("/account")}
           >
             Go to Account
@@ -207,7 +207,7 @@ export default function Checkout() {
               }
             }}
           >
-            <CheckoutForm productId={productId || 0} amount={product.price} />
+            <CheckoutForm productId={productId as number} amount={product.price} />
           </Elements>
         ) : (
           <div className="flex justify-center py-4">

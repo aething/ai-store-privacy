@@ -17,13 +17,13 @@ export default function Confirmation() {
           Your payment has been processed successfully. We'll send you an email with your order details.
         </p>
         <button 
-          className="bg-primary text-white px-6 py-2 rounded-full font-medium mb-4"
+          className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium mb-4 hover:bg-blue-700"
           onClick={() => setLocation("/")}
         >
           Continue Shopping
         </button>
         <button 
-          className="text-primary"
+          className="text-blue-600 hover:text-blue-800"
           onClick={() => setLocation("/account")}
         >
           View Your Account
