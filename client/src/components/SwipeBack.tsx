@@ -17,6 +17,25 @@ export default function SwipeBack({
   const [startX, setStartX] = useState<number | null>(null);
   const [opacity, setOpacity] = useState<number>(1);
 
+  // Функция для выполнения перехода назад
+  const executeNavBack = () => {
+    // Сначала прокручиваем окно на самый верх для страницы, на которую вернёмся
+    window.scrollTo(0, 0);
+    
+    // Затем выполняем переход назад
+    if (onSwipeBack) {
+      // Задержка для синхронизации скролла и перехода
+      setTimeout(() => {
+        onSwipeBack();
+      }, 50);
+    } else {
+      // По умолчанию возвращаемся на предыдущую страницу
+      setTimeout(() => {
+        window.history.back();
+      }, 50);
+    }
+  };
+
   // Настройка обработчиков свайпа
   const handlers = useSwipeable({
     onSwipeStart: (eventData) => {
@@ -34,13 +53,8 @@ export default function SwipeBack({
     },
     onSwiped: (eventData) => {
       if (startX && eventData.dir === 'Right' && eventData.deltaX > threshold) {
-        // Если свайп достаточно длинный, выполняем действие назад
-        if (onSwipeBack) {
-          onSwipeBack();
-        } else {
-          // По умолчанию возвращаемся на предыдущую страницу
-          window.history.back();
-        }
+        // Выполняем переход назад с помощью нашей улучшенной функции
+        executeNavBack();
       }
       
       // Сбрасываем состояние
@@ -55,11 +69,8 @@ export default function SwipeBack({
   useEffect(() => {
     const handleBackButton = (e: any) => {
       if (e.key === 'Escape' || e.keyCode === 27) {
-        if (onSwipeBack) {
-          onSwipeBack();
-        } else {
-          window.history.back();
-        }
+        // Используем улучшенную функцию перехода
+        executeNavBack();
       }
     };
 
