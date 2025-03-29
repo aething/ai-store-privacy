@@ -4,6 +4,7 @@ import { useMemo, useRef } from "react";
 import { getPolicyById } from "@/constants/policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
+import { X, ArrowUp, MoveLeft } from "lucide-react";
 
 export default function Policy() {
   const [match, params] = useRoute("/policy/:id");
@@ -33,11 +34,11 @@ export default function Policy() {
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-medium">{t("policyNotFound")}</h2>
           <button 
-            className="material-icons p-2 rounded-full hover:bg-gray-100"
+            className="p-2 rounded-full hover:bg-gray-100"
             onClick={() => setLocation("/account")}
             aria-label="Close"
           >
-            close
+            <X size={20} />
           </button>
         </div>
         <div className="flex-1 p-4 overflow-auto">
@@ -56,17 +57,17 @@ export default function Policy() {
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-medium">{policy.title}</h2>
           <button 
-            className="material-icons p-2 rounded-full hover:bg-gray-100"
+            className="p-2 rounded-full hover:bg-gray-100"
             onClick={() => setLocation("/account")}
             aria-label="Close"
           >
-            close
+            <X size={20} />
           </button>
         </div>
         
         {/* Вспомогательная подсказка для свайпа */}
         <div className="text-gray-400 text-xs text-center py-1 border-b">
-          <span className="material-icons text-xs align-text-bottom mr-1">swipe</span>
+          <MoveLeft size={14} className="inline mr-1" />
           {t("swipeRightToGoBack")}
         </div>
         
@@ -85,7 +86,7 @@ export default function Policy() {
               onClick={scrollToTop}
               className="bg-blue-600 text-white px-6 py-2 rounded-full flex items-center hover:bg-blue-700"
             >
-              <span className="material-icons mr-1">arrow_upward</span>
+              <ArrowUp size={18} className="mr-1" />
               {t("backToTop")}
             </button>
           </div>

@@ -10,6 +10,7 @@ import stripePromise, { createPaymentIntent } from "@/lib/stripe";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import { apiRequest } from "@/lib/queryClient";
 import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
+import { ArrowLeft } from "lucide-react";
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
@@ -118,10 +119,10 @@ export default function Checkout() {
       <div>
         <div className="flex items-center mb-4">
           <button 
-            className="material-icons mr-2"
+            className="p-1 mr-2"
             onClick={() => setLocation("/")}
           >
-            arrow_back
+            <ArrowLeft size={24} />
           </button>
           <h2 className="text-lg font-medium">Checkout</h2>
         </div>
@@ -137,10 +138,10 @@ export default function Checkout() {
       <div>
         <div className="flex items-center mb-4">
           <button 
-            className="material-icons mr-2"
+            className="p-1 mr-2"
             onClick={() => setLocation("/")}
           >
-            arrow_back
+            <ArrowLeft size={24} />
           </button>
           <h2 className="text-lg font-medium">Checkout</h2>
         </div>
@@ -161,10 +162,10 @@ export default function Checkout() {
     <div>
       <div className="flex items-center mb-4">
         <button 
-          className="material-icons mr-2"
+          className="p-1 mr-2"
           onClick={() => setLocation(`/product/${productId}`)}
         >
-          arrow_back
+          <ArrowLeft size={24} />
         </button>
         <h2 className="text-lg font-medium">Checkout</h2>
       </div>

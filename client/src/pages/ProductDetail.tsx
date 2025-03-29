@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import SwipeBack from "@/components/SwipeBack";
 import { useLocale } from "@/context/LocaleContext";
+import { ArrowLeft } from "lucide-react";
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
@@ -44,10 +45,10 @@ export default function ProductDetail() {
       <div>
         <div className="flex items-center mb-4">
           <button 
-            className="material-icons mr-2"
+            className="p-1 mr-2"
             onClick={() => setLocation("/")}
           >
-            arrow_back
+            <ArrowLeft size={24} />
           </button>
           <h2 className="text-lg font-medium">Product Details</h2>
         </div>
@@ -76,17 +77,17 @@ export default function ProductDetail() {
       <div>
         <div className="flex items-center mb-4">
           <button 
-            className="material-icons mr-2"
+            className="p-1 mr-2"
             onClick={() => setLocation("/")}
           >
-            arrow_back
+            <ArrowLeft size={24} />
           </button>
           <h2 className="text-lg font-medium">Product Details</h2>
         </div>
         
         {/* Подсказка для свайпа */}
-        <div className="text-gray-400 text-xs text-center py-1 mb-2 border-y">
-          <span className="material-icons text-xs align-text-bottom mr-1">swipe</span>
+        <div className="text-gray-400 text-xs text-center py-1 mb-2 border-y flex items-center justify-center">
+          <ArrowLeft size={14} className="mr-1" />
           {t("swipeRightToGoBack")}
         </div>
         

@@ -3,6 +3,7 @@ import { InfoPage } from "@/types";
 import InfoPageCard from "./InfoPageCard";
 import { useLocale } from "@/context/LocaleContext";
 import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface InfoPageSliderProps {
   title: string;
@@ -107,7 +108,7 @@ export default function InfoPageSlider({ title, infoPages }: InfoPageSliderProps
               }
             }}
           >
-            <span className="material-icons">chevron_left</span>
+            <ChevronLeft size={24} />
           </button>
           <button
             className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1 z-10"
@@ -117,7 +118,7 @@ export default function InfoPageSlider({ title, infoPages }: InfoPageSliderProps
               }
             }}
           >
-            <span className="material-icons">chevron_right</span>
+            <ChevronRight size={24} />
           </button>
         </>
       )}

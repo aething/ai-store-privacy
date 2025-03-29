@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { Product } from "@/types";
 import ProductCard from "@/components/ProductCard";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ProductSliderProps {
   title: string;
@@ -43,13 +44,13 @@ export default function ProductSlider({ title, products }: ProductSliderProps) {
             className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1 z-10"
             onClick={() => scroll('left')}
           >
-            <span className="material-icons">chevron_left</span>
+            <ChevronLeft size={24} />
           </button>
           <button
             className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1 z-10"
             onClick={() => scroll('right')}
           >
-            <span className="material-icons">chevron_right</span>
+            <ChevronRight size={24} />
           </button>
         </>
       )}

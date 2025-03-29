@@ -1,19 +1,11 @@
 import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../hooks/use-toast';
 import { apiRequest } from '../lib/queryClient';
 import { useLocation } from 'wouter';
-
-// Убедитесь, что ключ Stripe загружен
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-
-// Загружаем Stripe вне компонента для оптимизации
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+import stripePromise from '@/lib/stripe';
 
 const SubscribeForm = () => {
   const stripe = useStripe();
