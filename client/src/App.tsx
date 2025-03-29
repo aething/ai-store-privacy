@@ -11,6 +11,7 @@ import Policy from "@/pages/Policy";
 import InfoPage from "@/pages/InfoPage";
 import Checkout from "@/pages/Checkout";
 import Confirmation from "@/pages/Confirmation";
+import Subscribe from "@/pages/Subscribe";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/info/:id" component={InfoPage} />
       <Route path="/checkout/:id" component={Checkout} />
       <Route path="/confirmation" component={Confirmation} />
+      <Route path="/subscribe" component={Subscribe} />
       <Route component={NotFound} />
     </Switch>
   );

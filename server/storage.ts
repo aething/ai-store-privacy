@@ -16,6 +16,7 @@ export interface IStorage {
   generateVerificationToken(userId: number): Promise<string>;
   verifyUserByToken(token: string): Promise<User | undefined>;
   updateUserStripeCustomerId(userId: number, customerId: string): Promise<User | undefined>;
+  updateUserStripeSubscriptionId(userId: number, subscriptionId: string): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
 
   // Product methods
@@ -29,6 +30,7 @@ export interface IStorage {
   // Order methods
   createOrder(order: InsertOrder): Promise<Order>;
   getOrdersByUserId(userId: number): Promise<Order[]>;
+  getOrderByStripePaymentId(stripePaymentId: string): Promise<Order | undefined>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   updateOrderStripePaymentId(id: number, paymentId: string): Promise<Order | undefined>;
 }
@@ -169,6 +171,7 @@ export class MemStorage implements IStorage {
       isVerified: false,
       verificationToken: this.generateRandomToken(),
       stripeCustomerId: null,
+      stripeSubscriptionId: null,
       name: null,
       phone: null,
       country: null,
@@ -230,6 +233,15 @@ export class MemStorage implements IStorage {
     if (!user) return undefined;
     
     const updatedUser = { ...user, stripeCustomerId: customerId };
+    this.users.set(userId, updatedUser);
+    return updatedUser;
+  }
+  
+  async updateUserStripeSubscriptionId(userId: number, subscriptionId: string): Promise<User | undefined> {
+    const user = this.users.get(userId);
+    if (!user) return undefined;
+    
+    const updatedUser = { ...user, stripeSubscriptionId: subscriptionId };
     this.users.set(userId, updatedUser);
     return updatedUser;
   }
@@ -333,6 +345,12 @@ export class MemStorage implements IStorage {
   async getOrdersByUserId(userId: number): Promise<Order[]> {
     return Array.from(this.orders.values()).filter(
       (order) => order.userId === userId
+    );
+  }
+  
+  async getOrderByStripePaymentId(stripePaymentId: string): Promise<Order | undefined> {
+    return Array.from(this.orders.values()).find(
+      (order) => order.stripePaymentId === stripePaymentId
     );
   }
 

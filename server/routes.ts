@@ -564,6 +564,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Endpoint for creating or retrieving a subscription
+  app.post("/api/get-or-create-subscription", async (req: Request, res: Response) => {
+    try {
+      // Проверка аутентификации
+      if (!req.isAuthenticated() || !req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const user = req.user;
+      
+      // Если у пользователя уже есть подписка, получаем информацию о ней
+      if (user.stripeSubscriptionId) {
+        try {
+          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId, {
+            expand: ['latest_invoice.payment_intent']
+          });
+          
+          // Если есть активная подписка, возвращаем её данные
+          res.json({
+            subscriptionId: subscription.id,
+            status: subscription.status,
+            clientSecret: subscription.latest_invoice && 
+              typeof subscription.latest_invoice !== 'string' &&
+              subscription.latest_invoice.payment_intent &&
+              typeof subscription.latest_invoice.payment_intent !== 'string'
+                ? subscription.latest_invoice.payment_intent.client_secret
+                : null
+          });
+          
+          return;
+        } catch (error) {
+          console.error("Error retrieving subscription:", error);
+          // Если подписка не найдена в Stripe, сбрасываем ID в нашей БД
+          await storage.updateUserStripeSubscriptionId(user.id, "");
+        }
+      }
+      
+      // Получаем данные из запроса
+      const { priceId, currency = "usd" } = req.body;
+      
+      if (!priceId) {
+        return res.status(400).json({ message: "Price ID is required" });
+      }
+      
+      // Проверяем, есть ли у пользователя Stripe Customer ID
+      if (!user.stripeCustomerId) {
+        // Создаем нового клиента в Stripe
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: user.name || user.username,
+          metadata: {
+            userId: user.id.toString()
+          }
+        });
+        
+        // Сохраняем ID клиента в нашей БД
+        await storage.updateUserStripeCustomerId(user.id, customer.id);
+        user.stripeCustomerId = customer.id;
+      }
+      
+      // Создаем подписку
+      const subscription = await stripe.subscriptions.create({
+        customer: user.stripeCustomerId,
+        items: [{ price: priceId }],
+        payment_behavior: 'default_incomplete',
+        payment_settings: { save_default_payment_method: 'on_subscription' },
+        expand: ['latest_invoice.payment_intent'], // Получаем платежное намерение для клиентской стороны
+        metadata: {
+          userId: user.id.toString()
+        }
+      });
+      
+      // Проверяем, что у нас есть latest_invoice как объект, а не строка
+      const latest_invoice = subscription.latest_invoice;
+      let clientSecret = null;
+      
+      if (latest_invoice && typeof latest_invoice !== 'string') {
+        const payment_intent = latest_invoice.payment_intent;
+        if (payment_intent && typeof payment_intent !== 'string') {
+          clientSecret = payment_intent.client_secret;
+        }
+      }
+      
+      // Сохраняем ID подписки в нашей БД
+      await storage.updateUserStripeSubscriptionId(user.id, subscription.id);
+      
+      // Отправляем данные клиенту для завершения подписки
+      res.json({
+        subscriptionId: subscription.id,
+        clientSecret: clientSecret,
+        status: subscription.status
+      });
+    } catch (error) {
+      console.error("Error creating subscription:", error);
+      res.status(500).json({ message: "Error creating subscription" });
+    }
+  });
+  
   app.post("/api/orders/:id/update-status", async (req: Request, res: Response) => {
     try {
       const orderId = parseInt(req.params.id);
@@ -585,6 +683,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedOrder);
     } catch (error) {
       res.status(500).json({ message: "Error updating order status" });
+    }
+  });
+  
+  // Webhook для обработки событий от Stripe
+  app.post("/api/webhook/stripe", async (req: Request, res: Response) => {
+    try {
+      const sig = req.headers['stripe-signature'] as string;
+      
+      if (!sig) {
+        return res.status(400).json({ message: "Missing Stripe signature" });
+      }
+      
+      if (!process.env.STRIPE_WEBHOOK_SECRET) {
+        console.warn("STRIPE_WEBHOOK_SECRET is not set. Webhook verification will be skipped.");
+      }
+      
+      let event;
+      
+      // Верификация вебхука (рекомендуется в production)
+      if (process.env.STRIPE_WEBHOOK_SECRET) {
+        try {
+          event = stripe.webhooks.constructEvent(
+            req.body instanceof Buffer ? req.body : JSON.stringify(req.body),
+            sig,
+            process.env.STRIPE_WEBHOOK_SECRET
+          );
+        } catch (err: any) {
+          console.error(`Webhook Error: ${err.message}`);
+          return res.status(400).json({ message: `Webhook Error: ${err.message}` });
+        }
+      } else {
+        // Без верификации в dev-окружении
+        event = req.body;
+      }
+      
+      // Обработка различных событий от Stripe
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object;
+          console.log(`PaymentIntent ${paymentIntent.id} was successful!`);
+          
+          // Обновляем статус заказа
+          try {
+            const order = await storage.getOrderByStripePaymentId(paymentIntent.id);
+            if (order) {
+              await storage.updateOrderStatus(order.id, 'completed');
+              await safeGoogleSheetsCall(googleSheets.updateOrderStatus, order.id, 'completed');
+              console.log(`Order ${order.id} marked as completed`);
+            }
+          } catch (error) {
+            console.error('Error updating order after payment success:', error);
+          }
+          break;
+          
+        case 'payment_intent.payment_failed':
+          const failedPayment = event.data.object;
+          console.log(`Payment failed for PaymentIntent ${failedPayment.id}`);
+          
+          // Обновляем статус заказа
+          try {
+            const order = await storage.getOrderByStripePaymentId(failedPayment.id);
+            if (order) {
+              await storage.updateOrderStatus(order.id, 'failed');
+              await safeGoogleSheetsCall(googleSheets.updateOrderStatus, order.id, 'failed');
+              console.log(`Order ${order.id} marked as failed`);
+            }
+          } catch (error) {
+            console.error('Error updating order after payment failure:', error);
+          }
+          break;
+          
+        case 'checkout.session.completed':
+          // Обработка успешной сессии оформления заказа
+          const session = event.data.object;
+          console.log(`Checkout session ${session.id} completed`);
+          break;
+          
+        case 'subscription_schedule.created':
+        case 'subscription_schedule.updated':
+        case 'subscription_schedule.released':
+        case 'subscription_schedule.canceled':
+        case 'subscription.created':
+        case 'subscription.updated':
+        case 'subscription.deleted':
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted':
+        case 'customer.subscription.trial_will_end':
+          // Обработка событий, связанных с подписками
+          console.log(`Subscription event: ${event.type}`);
+          break;
+          
+        default:
+          console.log(`Unhandled event type: ${event.type}`);
+      }
+      
+      res.json({ received: true });
+    } catch (error) {
+      console.error('Webhook error:', error);
+      res.status(500).json({ message: "Error processing webhook" });
     }
   });
 

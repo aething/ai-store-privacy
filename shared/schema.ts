@@ -16,6 +16,7 @@ export const users = pgTable("users", {
   apartment: text("apartment"),
   verificationToken: text("verification_token"),
   stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
 });
 
 export const products = pgTable("products", {
@@ -48,6 +49,7 @@ export const insertUserSchema = createInsertSchema(users)
     isVerified: true,
     verificationToken: true,
     stripeCustomerId: true,
+    stripeSubscriptionId: true,
   })
   .extend({
     email: z.string().email("Please enter a valid email address"),
@@ -70,6 +72,7 @@ export const updateUserSchema = createInsertSchema(users).omit({
   isVerified: true,
   verificationToken: true,
   stripeCustomerId: true,
+  stripeSubscriptionId: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

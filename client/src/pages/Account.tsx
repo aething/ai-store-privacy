@@ -305,6 +305,29 @@ export default function Account() {
         </Card>
       </div>
       
+      {/* Subscription */}
+      <div className="mb-6">
+        <h2 className="text-lg font-medium mb-4">{t("subscription") || "Subscription"}</h2>
+        <Card className="p-4 rounded-lg">
+          <div className="flex flex-col items-center justify-center py-4">
+            <p className="mb-4">
+              {user?.stripeSubscriptionId 
+                ? t("activeSubscription") || "You have an active subscription" 
+                : t("noSubscription") || "You don't have an active subscription"}
+            </p>
+            <button
+              onClick={() => setLocation('/subscribe')}
+              className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
+              disabled={isLoading || !user}
+            >
+              {user?.stripeSubscriptionId 
+                ? t("manageSubscription") || "Manage Subscription" 
+                : t("subscribe") || "Subscribe Now"}
+            </button>
+          </div>
+        </Card>
+      </div>
+      
       {/* Policies */}
       <div className="mb-8">
         <h2 className="text-lg font-medium mb-4">{t("policies")}</h2>
