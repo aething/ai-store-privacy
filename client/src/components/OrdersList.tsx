@@ -147,7 +147,7 @@ const OrderCard: React.FC<{
 };
 
 export default function OrdersList({ showDemoOrders = false }) {
-  const { orders, isLoading, isError, updateOrderTrackingNumber } = useOrders();
+  const { orders, isLoading, isError, updateOrderTrackingNumber } = useOrders(showDemoOrders);
   const { toast } = useToast();
   const { t } = useLocale();
   const { user } = useAppContext();

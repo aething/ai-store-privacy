@@ -90,6 +90,9 @@ export function useOrders(isDemoMode = false) {
     return process.env.NODE_ENV !== 'production' || isDemoMode;
   };
   
+  // Определяем, нужно ли выполнять запрос
+  const shouldFetchData = Boolean(user?.id || shouldUseDemoOrders());
+  
   const {
     data: orders,
     isLoading,
@@ -114,7 +117,7 @@ export function useOrders(isDemoMode = false) {
       const orderData = await response.json();
       return orderData as Order[];
     },
-    enabled: user?.id || shouldUseDemoOrders() // Выполняем запрос только если есть пользователь или демо режим
+    enabled: shouldFetchData // Используем заранее вычисленное boolean значение
   });
   
   const updateOrderTrackingNumber = async (orderId: number, trackingNumber: string) => {
