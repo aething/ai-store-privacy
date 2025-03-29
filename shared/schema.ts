@@ -14,6 +14,7 @@ export const users = pgTable("users", {
   street: text("street"),
   house: text("house"),
   apartment: text("apartment"),
+  language: text("language").default("ru"),
   verificationToken: text("verification_token"),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),

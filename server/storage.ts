@@ -179,7 +179,8 @@ export class MemStorage implements IStorage {
       country: null,
       street: null,
       house: null,
-      apartment: null
+      apartment: null,
+      language: "ru" // По умолчанию русский язык
     };
     this.users.set(id, user);
     return user;

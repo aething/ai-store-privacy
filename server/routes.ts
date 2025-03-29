@@ -1,12 +1,13 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, updateUserSchema, insertOrderSchema, User } from "@shared/schema";
+import { insertUserSchema, updateUserSchema, insertOrderSchema, User, Order } from "@shared/schema";
 import Stripe from "stripe";
 import crypto from "crypto";
 import { ZodError } from "zod";
 import * as googleSheets from "./google-sheets";
 import * as pushNotification from "./push-notification";
+import * as email from "./email";
 
 // Расширяем типы для Express.Request
 declare global {
@@ -472,6 +473,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save order to Google Sheets
       await safeGoogleSheetsCall(googleSheets.saveOrder, order);
       
+      // Отправляем подтверждение заказа по электронной почте, если у пользователя есть почта
+      if (user.email) {
+        try {
+          const language = user.language || 'ru'; // Используем язык пользователя или по умолчанию
+          await email.sendOrderConfirmation(order, user.email, language);
+          console.log(`Order confirmation email sent to ${user.email}`);
+        } catch (emailError) {
+          // Логируем ошибку, но не прерываем выполнение запроса
+          console.error(`Failed to send order confirmation email:`, emailError);
+        }
+      }
+      
       res.status(201).json(order);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -731,7 +744,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/orders/:id/update-status", async (req: Request, res: Response) => {
     try {
       const orderId = parseInt(req.params.id);
-      const { status, sendNotification = false } = req.body;
+      const { status, sendNotification = false, sendEmail = false } = req.body;
       
       if (!status) {
         return res.status(400).json({ message: "Status is required" });
@@ -746,18 +759,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update order status in Google Sheets
       await safeGoogleSheetsCall(googleSheets.updateOrderStatus, orderId, status);
       
-      // Отправляем уведомление, если параметр sendNotification = true
-      if (sendNotification && updatedOrder.userId) {
-        try {
-          await pushNotification.sendOrderStatusNotification(
-            updatedOrder.userId,
-            orderId,
-            status
-          );
-          console.log(`Push notification sent for order ${orderId} status update to ${status}`);
-        } catch (notificationError) {
-          // Просто логируем ошибку, но не прерываем выполнение запроса
-          console.error(`Failed to send push notification for order ${orderId}:`, notificationError);
+      // Если нужно отправить уведомления
+      if ((sendNotification || sendEmail) && updatedOrder.userId) {
+        // Получаем данные пользователя
+        const user = await storage.getUser(updatedOrder.userId);
+        
+        // Отправляем push-уведомление, если параметр sendNotification = true
+        if (sendNotification) {
+          try {
+            await pushNotification.sendOrderStatusNotification(
+              updatedOrder.userId,
+              orderId,
+              status
+            );
+            console.log(`Push notification sent for order ${orderId} status update to ${status}`);
+          } catch (notificationError) {
+            // Просто логируем ошибку, но не прерываем выполнение запроса
+            console.error(`Failed to send push notification for order ${orderId}:`, notificationError);
+          }
+        }
+        
+        // Отправляем email-уведомление, если параметр sendEmail = true и у пользователя есть почта
+        if (sendEmail && user && user.email) {
+          try {
+            const language = user.language || 'ru'; // Используем язык пользователя или по умолчанию
+            await email.sendOrderStatusUpdate(updatedOrder, user.email, language);
+            console.log(`Order status update email sent to ${user.email}`);
+          } catch (emailError) {
+            // Логируем ошибку, но не прерываем выполнение запроса
+            console.error(`Failed to send order status update email:`, emailError);
+          }
         }
       }
       
@@ -904,7 +935,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/orders/:id/update-tracking", async (req: Request, res: Response) => {
     try {
       const orderId = parseInt(req.params.id, 10);
-      const { trackingNumber } = req.body;
+      const { trackingNumber, sendEmail = false } = req.body;
       
       if (!trackingNumber) {
         return res.status(400).json({ message: "Tracking number is required" });
@@ -927,13 +958,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Обновляем tracking number в Google Sheets
       await safeGoogleSheetsCall(googleSheets.updateOrderTrackingNumber, orderId, trackingNumber);
       
-      // Отправляем push-уведомление, если пользователь существует
+      // Если есть userId, отправляем уведомления
       if (order.userId) {
-        await pushNotification.sendOrderStatusNotification(
-          order.userId, 
-          orderId, 
-          "Tracking number updated"
-        );
+        // Получаем данные пользователя
+        const user = await storage.getUser(order.userId);
+        
+        // Отправляем push-уведомление
+        try {
+          await pushNotification.sendOrderStatusNotification(
+            order.userId, 
+            orderId, 
+            "Tracking number updated"
+          );
+        } catch (notificationError) {
+          console.error(`Failed to send push notification for tracking update, order ${orderId}:`, notificationError);
+        }
+        
+        // Отправляем email-уведомление, если параметр sendEmail = true и у пользователя есть почта
+        if (sendEmail && user && user.email && updatedOrder) {
+          try {
+            // Используем значение по умолчанию "ru", если язык не указан
+            await email.sendTrackingUpdate(updatedOrder, user.email, user.language || "ru");
+            console.log(`Tracking update email sent to ${user.email}`);
+          } catch (emailError) {
+            console.error(`Failed to send tracking update email:`, emailError);
+          }
+        }
       }
       
       res.json(updatedOrder);
@@ -994,6 +1044,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error sending test notification:", error);
       res.status(500).json({ message: "Error sending test notification" });
+    }
+  });
+  
+  // Тестовый эндпоинт для отправки email-уведомления
+  app.post("/api/email/send-test", async (req: Request, res: Response) => {
+    try {
+      const { emailAddress, type, language = 'ru', orderId } = req.body;
+      
+      if (!emailAddress || !type) {
+        return res.status(400).json({ message: "emailAddress and type are required" });
+      }
+      
+      // Если нужно отправить уведомление о заказе, но id заказа не указан
+      if ((type === 'order' || type === 'tracking' || type === 'status') && !orderId) {
+        return res.status(400).json({ message: "orderId is required for order-related notifications" });
+      }
+      
+      let success = false;
+      
+      // Получаем заказ, если он нужен
+      let order: Order | undefined;
+      if (orderId) {
+        order = await storage.getOrder(parseInt(orderId));
+        if (!order) {
+          return res.status(404).json({ message: "Order not found" });
+        }
+      }
+      
+      // Отправляем соответствующий тип уведомления
+      switch (type) {
+        case 'order':
+          if (order) {
+            success = await email.sendOrderConfirmation(order, emailAddress, language);
+          }
+          break;
+        case 'status':
+          if (order) {
+            success = await email.sendOrderStatusUpdate(order, emailAddress, language);
+          }
+          break;
+        case 'tracking':
+          if (order) {
+            // Если у заказа нет номера отслеживания, добавим временный для теста
+            if (!order.trackingNumber) {
+              order = await storage.updateOrderTrackingNumber(order.id, 'TEST123456789');
+            }
+            if (order) {
+              success = await email.sendTrackingUpdate(order, emailAddress, language);
+            }
+          }
+          break;
+        default:
+          return res.status(400).json({ message: "Invalid notification type" });
+      }
+      
+      if (success) {
+        res.json({ success: true, message: "Test email sent" });
+      } else {
+        res.status(500).json({ message: "Failed to send test email" });
+      }
+    } catch (error) {
+      console.error("Error sending test email:", error);
+      res.status(500).json({ message: "Error sending test email" });
     }
   });
 
