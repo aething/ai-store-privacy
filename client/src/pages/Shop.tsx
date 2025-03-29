@@ -1,27 +1,42 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import ProductSlider from "@/components/ProductSlider";
+import ProductSort from "@/components/ProductSort";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
+import { useState, useCallback } from "react";
 
 export default function Shop() {
   const [, setLocation] = useLocation();
   const { user } = useAppContext();
+  const [sortBy, setSortBy] = useState<string>('price');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   
   const { data: products, isLoading, error } = useQuery<Product[]>({
-    queryKey: ["/api/products", user?.country],
+    queryKey: ["/api/products", user?.country, sortBy, sortOrder],
     queryFn: async () => {
-      // If user has a country, filter products by country
-      const url = user?.country 
-        ? `/api/products?country=${encodeURIComponent(user.country)}` 
-        : '/api/products';
+      // Build the URL with all parameters
+      let url = '/api/products?';
+      
+      // Add country filter if available
+      if (user?.country) {
+        url += `country=${encodeURIComponent(user.country)}&`;
+      }
+      
+      // Add sorting parameters
+      url += `sortBy=${sortBy}&sortOrder=${sortOrder}`;
       
       const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch products');
       return res.json();
     }
   });
+  
+  const handleSort = useCallback((newSortBy: string, newSortOrder: 'asc' | 'desc') => {
+    setSortBy(newSortBy);
+    setSortOrder(newSortOrder);
+  }, []);
 
   if (isLoading) {
     return (
@@ -42,11 +57,20 @@ export default function Shop() {
 
   return (
     <div>
+      {/* Sort Controls */}
+      {products && products.length > 0 && (
+        <ProductSort 
+          onSort={handleSort}
+          defaultSortBy={sortBy}
+          defaultSortOrder={sortOrder}
+        />
+      )}
+      
       {/* Product Slider */}
       {products && products.length > 0 && (
         <ProductSlider 
           title="Products" 
-          products={products.slice(0, 3)} 
+          products={products} 
         />
       )}
 

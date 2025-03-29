@@ -14,6 +14,22 @@ if (!stripeSecretKey) {
 }
 const stripe = new Stripe(stripeSecretKey);
 
+/**
+ * Determine if the country should use EUR as currency
+ * @param country Country name
+ * @returns true if country should use EUR, false otherwise
+ */
+function shouldUseEUR(country: string): boolean {
+  const eurCountries = [
+    'Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic',
+    'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary',
+    'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Netherlands',
+    'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia', 'Spain', 'Sweden'
+  ];
+  
+  return eurCountries.includes(country);
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes for users
   app.post("/api/users/register", async (req: Request, res: Response) => {
@@ -178,14 +194,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Optional sync with Stripe products (for demo purposes)
       const syncWithStripe = req.query.sync === 'true';
       
+      // Check if we should sort products
+      const sortBy = req.query.sortBy as string | undefined;
+      const sortOrder = req.query.sortOrder as 'asc' | 'desc' | undefined;
+      
       if (syncWithStripe) {
         // This would sync with Stripe products in a real implementation
         await storage.syncStripeProducts();
       }
       
-      const products = country 
+      let products = country 
         ? await storage.getProductsByCountry(country)
         : await storage.getProducts();
+      
+      // Apply sorting if requested
+      if (sortBy) {
+        products = [...products].sort((a, b) => {
+          let valueA, valueB;
+          
+          // Handle different sort fields
+          if (sortBy === 'price') {
+            // Use the appropriate price based on country
+            if (country && shouldUseEUR(country)) {
+              valueA = a.priceEUR;
+              valueB = b.priceEUR;
+            } else {
+              valueA = a.price;
+              valueB = b.price;
+            }
+          } else if (sortBy === 'title') {
+            valueA = a.title.toLowerCase();
+            valueB = b.title.toLowerCase();
+          } else if (sortBy === 'category') {
+            valueA = a.category.toLowerCase();
+            valueB = b.category.toLowerCase();
+          } else {
+            // Default to sort by ID
+            valueA = a.id;
+            valueB = b.id;
+          }
+          
+          // Apply sort order
+          const multiplier = sortOrder === 'desc' ? -1 : 1;
+          
+          // Compare values
+          if (typeof valueA === 'string') {
+            return multiplier * valueA.localeCompare(valueB as string);
+          } else {
+            return multiplier * ((valueA as number) - (valueB as number));
+          }
+        });
+      }
       
       res.json(products);
     } catch (error) {

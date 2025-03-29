@@ -69,4 +69,10 @@ export default {
   edit: "Edit",
   delete: "Delete",
   back: "Back",
+  
+  // Sorting
+  sort_by: "Sort by",
+  ascending: "Ascending",
+  descending: "Descending",
+  category: "Category",
 };
