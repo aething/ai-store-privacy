@@ -25,25 +25,7 @@ let stripePromise: Promise<any> | null = null;
 // Функция для инициализации Stripe
 const getStripe = () => {
   if (!stripePromise && STRIPE_PUBLIC_KEY) {
-    try {
-      // Проверяем, есть ли Stripe уже в глобальном контексте (из index.html)
-      if (typeof window !== 'undefined' && (window as any).Stripe) {
-        console.log('Using preloaded Stripe from index.html');
-        const StripeInstance = (window as any).Stripe;
-        // Создаем экземпляр с публичным ключом
-        const instance = StripeInstance(STRIPE_PUBLIC_KEY);
-        // Оборачиваем в Promise для совместимости с API loadStripe
-        stripePromise = Promise.resolve(instance);
-      } else {
-        // Иначе загружаем через loadStripe
-        console.log('Loading Stripe dynamically via loadStripe');
-        stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
-      }
-    } catch (err) {
-      console.error('Error initializing Stripe:', err);
-      // Если произошла ошибка, пробуем загрузить через loadStripe как резервный вариант
-      stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
-    }
+    stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
   }
   return stripePromise;
 };
