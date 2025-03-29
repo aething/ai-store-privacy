@@ -25,19 +25,12 @@ export default function ProductDetail() {
           <div className="h-6 w-6 bg-gray-200 rounded-full mr-2"></div>
           <div className="h-6 w-40 bg-gray-200 rounded"></div>
         </div>
-        
         <div className="rounded-lg overflow-hidden bg-gray-200 h-72 mb-6"></div>
-        
-        <div className="space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-          <div className="flex justify-between">
-            <div className="h-6 bg-gray-200 rounded w-20"></div>
-            <div className="h-6 bg-gray-200 rounded w-32"></div>
-          </div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        </div>
+        <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
+        <div className="h-10 bg-gray-200 rounded w-full mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
       </div>
     );
   }
@@ -86,91 +79,61 @@ export default function ProductDetail() {
         <h2 className="text-lg font-medium">Product Details</h2>
       </div>
       
-      <Card className="rounded-lg overflow-hidden mb-6">
-        <div className="h-72 bg-surface">
-          <img 
-            src={product.imageUrl} 
-            alt={product.title} 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="p-5">
-          <h3 className="font-medium text-xl mb-2">{product.title}</h3>
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-lg font-medium">${(product.price / 100).toFixed(2)}</span>
-            <div className="flex items-center">
-              <span className="material-icons text-yellow-500">star</span>
-              <span className="material-icons text-yellow-500">star</span>
-              <span className="material-icons text-yellow-500">star</span>
-              <span className="material-icons text-yellow-500">star</span>
-              <span className="material-icons text-yellow-500">star_half</span>
-              <span className="ml-1 text-sm">(4.5)</span>
-            </div>
-          </div>
-          
-          <h4 className="font-medium mb-2">Description</h4>
-          <p className="text-text-secondary mb-4">{product.description}</p>
-          
-          <h4 className="font-medium mb-2">Features</h4>
-          <ul className="list-disc list-inside text-text-secondary mb-6">
-            {product.features.map((feature, index) => (
-              <li key={index}>{feature}</li>
-            ))}
-          </ul>
-          
+      {/* Image Section */}
+      <div className="h-64 bg-surface mb-4 rounded-lg overflow-hidden">
+        <img 
+          src={product.imageUrl} 
+          alt={product.title} 
+          className="w-full h-full object-cover"
+        />
+      </div>
+      
+      {/* Title and Buy Button */}
+      <div className="mb-6">
+        <h1 className="font-medium text-xl mb-3">{product.title}</h1>
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-lg font-medium">${(product.price / 100).toFixed(2)}</span>
           <button 
-            className="bg-primary text-white w-full py-3 rounded-full font-medium"
+            className="bg-primary text-white px-6 py-2 rounded-full font-medium"
             onClick={handleBuyNow}
           >
             Buy Now
           </button>
         </div>
-      </Card>
+      </div>
       
+      {/* Description */}
       <Card className="rounded-lg p-4 bg-white mb-6">
-        <h4 className="font-medium mb-3">Specifications</h4>
-        <div className="grid grid-cols-2 gap-y-2">
-          {product.specifications.map((spec, index) => {
-            const [label, value] = spec.split(": ");
-            return (
-              <React.Fragment key={index}>
-                <div className="text-text-secondary">{label}</div>
-                <div>{value}</div>
-              </React.Fragment>
-            );
-          })}
-        </div>
+        <h2 className="font-medium text-lg mb-3">Description</h2>
+        <p className="text-text-secondary">{product.description}</p>
       </Card>
       
-      <Card className="rounded-lg p-4 bg-white">
-        <h4 className="font-medium mb-3">Customer Reviews</h4>
-        <div className="mb-4 pb-4 border-b">
-          <div className="flex justify-between mb-1">
-            <div className="font-medium">Jane D.</div>
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map(i => (
-                <span key={i} className="material-icons text-yellow-500 text-sm">star</span>
-              ))}
-            </div>
-          </div>
-          <p className="text-sm text-text-secondary">
-            Absolutely love this assistant! It's intuitive and the voice recognition works perfectly even in noisy environments.
-          </p>
-        </div>
-        <div>
-          <div className="flex justify-between mb-1">
-            <div className="font-medium">Mark T.</div>
-            <div className="flex">
-              {[1, 2, 3, 4].map(i => (
-                <span key={i} className="material-icons text-yellow-500 text-sm">star</span>
-              ))}
-              <span className="material-icons text-text-secondary text-sm">star</span>
-            </div>
-          </div>
-          <p className="text-sm text-text-secondary">
-            Great device that's improved my productivity. The only downside is that it occasionally struggles with complex commands.
-          </p>
-        </div>
+      {/* Features */}
+      <Card className="rounded-lg p-4 bg-white mb-6">
+        <h2 className="font-medium text-lg mb-3">Features</h2>
+        <ul className="list-disc list-inside text-text-secondary">
+          {product.features.map((feature, index) => (
+            <li key={index} className="mb-2">{feature}</li>
+          ))}
+        </ul>
+      </Card>
+      
+      {/* Specifications */}
+      <Card className="rounded-lg p-4 bg-white mb-6">
+        <h2 className="font-medium text-lg mb-3">Specifications</h2>
+        <table className="w-full">
+          <tbody>
+            {product.specifications.map((spec, index) => {
+              const [label, value] = spec.split(": ");
+              return (
+                <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
+                  <td className="py-2 px-3 text-text-secondary">{label}</td>
+                  <td className="py-2 px-3">{value}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </Card>
     </div>
   );
