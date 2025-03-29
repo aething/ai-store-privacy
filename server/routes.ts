@@ -64,6 +64,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   };
   // API routes for users
+  
+  // GET /api/users/me - Получение данных текущего пользователя
+  app.get("/api/users/me", async (req: Request, res: Response) => {
+    try {
+      // Проверка аутентификации
+      if (!req.isAuthenticated() || !req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Отправка данных пользователя (без sensitive полей)
+      res.json({
+        id: req.user.id,
+        username: req.user.username,
+        email: req.user.email,
+        isVerified: req.user.isVerified,
+        name: req.user.name,
+        phone: req.user.phone,
+        country: req.user.country,
+        street: req.user.street,
+        house: req.user.house,
+        apartment: req.user.apartment
+      });
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+      res.status(500).json({ message: "Error fetching user data" });
+    }
+  });
+  
+  // POST /api/users/logout - Выход из системы
+  app.post("/api/users/logout", (req: Request, res: Response) => {
+    try {
+      // Проверка аутентификации
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Not logged in" });
+      }
+      
+      // Выход из системы (уничтожение сессии)
+      req.logout((err) => {
+        if (err) {
+          console.error("Error during logout:", err);
+          return res.status(500).json({ message: "Error during logout" });
+        }
+        
+        res.json({ success: true, message: "Successfully logged out" });
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ message: "Error during logout" });
+    }
+  });
+  
   app.post("/api/users/register", async (req: Request, res: Response) => {
     try {
       const userData = insertUserSchema.parse(req.body);
@@ -82,6 +133,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save user to Google Sheets
       await safeGoogleSheetsCall(googleSheets.saveUser, user);
       await safeGoogleSheetsCall(googleSheets.saveVerificationToken, user.id, token);
+      
+      // Устанавливаем пользователя в сессии
+      if (req.session) {
+        (req.session as any).userId = user.id;
+      }
       
       // In a real application, send an email with the verification link
       // For this prototype, we'll just return the token
@@ -103,10 +159,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/users/login", async (req: Request, res: Response) => {
     try {
+      // Валидация входных данных
+      if (!req.body || typeof req.body !== 'object') {
+        return res.status(400).json({ message: "Invalid request body" });
+      }
+      
       const { username, password } = req.body;
       
-      if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
+      if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({ message: "Username and password are required and must be strings" });
       }
       
       const user = await storage.getUserByUsername(username);
@@ -115,6 +176,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
+      // Устанавливаем userId в сессии для аутентификации
+      if (req.session) {
+        (req.session as any).userId = user.id;
+      }
+      
+      // Возвращаем данные пользователя (без sensitive полей)
       res.json({
         id: user.id,
         username: user.username,
@@ -128,6 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         apartment: user.apartment
       });
     } catch (error) {
+      console.error("Login error:", error);
       res.status(500).json({ message: "Error during login" });
     }
   });
@@ -415,10 +483,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/users/:userId/orders", async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.userId);
+      
+      // Валидация ID пользователя
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID format" });
+      }
+      
+      // Проверка аутентификации и авторизации
+      if (!req.isAuthenticated() || !req.user || req.user.id !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
       const orders = await storage.getOrdersByUserId(userId);
       
       res.json(orders);
     } catch (error) {
+      console.error("Error fetching orders:", error);
       res.status(500).json({ message: "Error fetching orders" });
     }
   });

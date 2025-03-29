@@ -6,27 +6,43 @@ export const infoPages: InfoPage[] = [
     title: "AI Store - Play Market Description",
     description: "Learn about our mobile application available on Play Market with advanced AI shopping features. Discover how our app combines intuitive design with powerful AI technology to create a seamless shopping experience on your mobile device.",
     content: `
-      <h2>AI Store by Aething - Mobile Application</h2>
-      <p>AI Store by Aething is a modern mobile e-commerce application designed according to Material Design principles. The application features an intuitive, user-friendly interface with two main pages: Shop and Account.</p>
+      <h2>AI Store by Aething - Мобильное приложение для Play Market</h2>
+      <p>AI Store by Aething - это современное мобильное приложение для электронной коммерции, разработанное в соответствии с принципами Material Design. Приложение представляет собой интернет-магазин с двумя основными страницами: Магазин и Аккаунт.</p>
       
-      <h3>Key Features</h3>
+      <h3>Особенности приложения</h3>
       <ul>
-        <li><strong>Material Design Interface</strong>: Clean, responsive design following Google's Material Design guidelines.</li>
-        <li><strong>Horizontal Scrolling Product Cards</strong>: Browse products with an Apple-style horizontal scrolling interface.</li>
-        <li><strong>Email Verification</strong>: Simple email-only registration with verification status display.</li>
-        <li><strong>Secure Payments</strong>: Integrated with Stripe for safe and convenient payments.</li>
-        <li><strong>Multi-Currency Support</strong>: Automatic currency detection (USD/EUR) based on user's country.</li>
-        <li><strong>Comprehensive Policy Information</strong>: Easily accessible policies including delivery, returns, privacy, payment terms, and more.</li>
+        <li><strong>Material Design</strong>: Чистый, отзывчивый дизайн, соответствующий руководящим принципам Google Material Design.</li>
+        <li><strong>Горизонтальная прокрутка карточек товаров</strong>: Просмотр товаров в стиле Apple с горизонтальным интерфейсом прокрутки.</li>
+        <li><strong>Верификация по электронной почте</strong>: Простая регистрация только по email с отображением статуса верификации.</li>
+        <li><strong>Безопасные платежи</strong>: Интеграция со Stripe для безопасных и удобных платежей.</li>
+        <li><strong>Поддержка нескольких валют</strong>: Автоматическое определение валюты (USD/EUR) на основе страны пользователя.</li>
+        <li><strong>Информационные страницы</strong>: Легкодоступные страницы с политиками, включая доставку, возврат, конфиденциальность, условия оплаты и многое другое.</li>
       </ul>
       
-      <h3>Application Structure</h3>
-      <p><strong>Shop Page:</strong> Displays product cards with images, descriptions, and "Buy" buttons. Products are arranged in a horizontal scrollable layout.</p>
-      <p><strong>Account Page:</strong> Shows user information (name, phone, address) and verification status. Includes links to policy pages covering delivery, returns, privacy, payment terms, and more.</p>
+      <h3>Структура приложения</h3>
+      <p><strong>Страница Магазин:</strong> Отображает карточки товаров с изображениями, описаниями и кнопками "Купить". Товары размещены в горизонтальном прокручиваемом макете. На странице размещаются три товара с возможностью прокрутки влево и вправо. Верхнюю треть карточки занимает изображение товара, нижнюю треть - описание и кнопка "Купить". При нажатии на карточку открывается страница с подробным описанием товара.</p>
       
-      <h3>Technology Stack</h3>
-      <p>The application is built using modern web technologies and can be packaged for Android. Payment processing is handled by Stripe, with customer data securely stored using Google Sheets integration.</p>
+      <p><strong>Страница Аккаунт:</strong> Показывает информацию о пользователе (имя, телефон, адрес) и статус верификации (красная надпись "Не верифицирован" или зеленая надпись "Подтвержден"). Включает ссылки на страницы с политиками:</p>
+      <ul>
+        <li>Политика доставки</li>
+        <li>Политика возврата и обмена</li>
+        <li>Контактная информация</li>
+        <li>Политика конфиденциальности</li>
+        <li>Условия оплаты</li>
+        <li>Гарантии и ответственность</li>
+        <li>Terms of Service</li>
+        <li>GDPR</li>
+        <li>FTC Rules</li>
+      </ul>
       
-      <p>Experience the future of shopping with AI Store by Aething - where cutting-edge technology meets intuitive design.</p>
+      <p>При нажатии на любой из этих пунктов открывается новая страница на весь экран с кнопкой закрытия вверху и кнопкой возврата к началу страницы внизу.</p>
+      
+      <h3>Технологии</h3>
+      <p>Приложение построено с использованием современных веб-технологий и может быть упаковано для Android. Обработка платежей осуществляется через Stripe, а данные о клиентах безопасно хранятся с использованием интеграции Google Sheets.</p>
+      
+      <p>При регистрации пользователя запрашивается только адрес электронной почты, на который отправляется письмо с подтверждением. После ввода email пользователь перенаправляется на страницу Магазин.</p>
+      
+      <p>Опыт будущего шоппинга с AI Store by Aething - где передовые технологии сочетаются с интуитивно понятным дизайном.</p>
     `,
   },
   {

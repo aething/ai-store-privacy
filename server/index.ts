@@ -1,10 +1,82 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import session from "express-session";
+import MemoryStore from "memorystore";
+import crypto from "crypto";
+
+// Расширяем типы для express-session
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+  }
+}
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Создаем безопасный секретный ключ для сессий (это гораздо безопаснее, чем хардкодирование)
+const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+
+// Настройка сессий с использованием memorystore
+const SessionStore = MemoryStore(session);
+app.use(session({
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  store: new SessionStore({
+    checkPeriod: 86400000 // Очистка просроченных сессий раз в 24 часа
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // В production используем только HTTPS
+    httpOnly: true, // Защита от XSS - клиентский JavaScript не может получить доступ к cookie
+    maxAge: 24 * 60 * 60 * 1000 // 24 часа
+  }
+}));
+
+// Middleware для аутентификации
+app.use((req: Request, res: Response, next: NextFunction) => {
+  // Реализация метода isAuthenticated
+  req.isAuthenticated = function() {
+    // Необходимо использовать принудительное приведение типов из-за особенностей типизации express-session
+    return !!((req.session as any).userId);
+  };
+  
+  // Реализация метода logout
+  req.logout = function(done: (err: any) => void) {
+    if (req.session) {
+      // Удаляем userId из сессии
+      delete (req.session as any).userId;
+      // Обнуляем пользователя
+      req.user = undefined;
+      // Уничтожаем сессию
+      req.session.destroy((err) => {
+        done(err);
+      });
+    } else {
+      done(null);
+    }
+  };
+  
+  // Загрузка пользователя из сессии
+  const loadUser = async () => {
+    if ((req.session as any).userId) {
+      try {
+        const { storage } = await import('./storage');
+        const user = await storage.getUser((req.session as any).userId);
+        if (user) {
+          req.user = user;
+        }
+      } catch (error) {
+        console.error('Error loading user from session:', error);
+      }
+    }
+    next();
+  };
+  
+  loadUser();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
