@@ -140,6 +140,49 @@ export default function Account() {
     }
   };
   
+  const handleCloseAccount = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You need to be logged in to close your account",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Показываем диалог подтверждения перед удалением
+    if (!window.confirm(t("confirmCloseAccount") || "Are you sure you want to close your account? This action cannot be undone.")) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await apiRequest("DELETE", `/api/users/${user.id}`);
+      
+      if (!response.ok) {
+        throw new Error("Failed to close account");
+      }
+      
+      // Выходим из системы и очищаем данные пользователя
+      setUser(null);
+      setLocation("/");
+      
+      toast({
+        title: "Account Closed",
+        description: "Your account has been closed successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to close your account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   const navigateToPolicy = (policyId: string) => {
     setLocation(`/policy/${policyId}`);
   };
@@ -263,7 +306,7 @@ export default function Account() {
       </div>
       
       {/* Policies */}
-      <div>
+      <div className="mb-8">
         <h2 className="text-lg font-medium mb-4">{t("policies")}</h2>
         <Card className="rounded-lg divide-y">
           {policies.map((policy, index) => (
@@ -277,6 +320,23 @@ export default function Account() {
             </button>
           ))}
         </Card>
+      </div>
+      
+      {/* Close Account Button */}
+      <div className="mb-10 mt-10">
+        <div className="border-t pt-6">
+          <button 
+            onClick={handleCloseAccount}
+            className="bg-red-600 text-white w-full py-3 rounded-full hover:bg-red-700 disabled:opacity-50 flex items-center justify-center"
+            disabled={isLoading || !user}
+          >
+            <span className="material-icons mr-2">delete_forever</span>
+            {t("closeAccount") || "Close Account"}
+          </button>
+          <p className="text-gray-500 text-xs text-center mt-2">
+            {t("closeAccountWarning") || "This action permanently deletes your account and all associated data."}
+          </p>
+        </div>
       </div>
     </div>
   );

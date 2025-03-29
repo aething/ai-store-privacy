@@ -71,6 +71,9 @@ export default {
   back: "Back",
   backToTop: "Back to Top",
   swipeRightToGoBack: "Swipe right to go back",
+  closeAccount: "Close Account",
+  closeAccountWarning: "This action permanently deletes your account and all associated data.",
+  confirmCloseAccount: "Are you sure you want to close your account? This action cannot be undone.",
   
   // Policy Page
   policyNotFound: "Policy Not Found",

@@ -101,6 +101,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = parseInt(req.params.id);
       const userData = updateUserSchema.parse(req.body);
       
+      // Проверка авторизации пользователя
+      if (!req.isAuthenticated() || req.user.id !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
       const updatedUser = await storage.updateUser(userId, userData);
       
       if (!updatedUser) {
@@ -124,6 +129,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid user data", errors: error.errors });
       }
       res.status(500).json({ message: "Error updating user" });
+    }
+  });
+  
+  // DELETE /api/users/:id - Удаление учетной записи пользователя
+  app.delete("/api/users/:id", async (req: Request, res: Response) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Проверка авторизации пользователя
+      if (!req.isAuthenticated() || req.user.id !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const deleted = await storage.deleteUser(userId);
+      if (!deleted) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Уничтожаем сессию пользователя
+      req.logout(() => {});
+      
+      res.json({ success: true, message: "Account deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting user account" });
     }
   });
   

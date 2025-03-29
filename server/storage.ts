@@ -16,6 +16,7 @@ export interface IStorage {
   generateVerificationToken(userId: number): Promise<string>;
   verifyUserByToken(token: string): Promise<User | undefined>;
   updateUserStripeCustomerId(userId: number, customerId: string): Promise<User | undefined>;
+  deleteUser(id: number): Promise<boolean>;
 
   // Product methods
   getProducts(): Promise<Product[]>;
@@ -231,6 +232,28 @@ export class MemStorage implements IStorage {
     const updatedUser = { ...user, stripeCustomerId: customerId };
     this.users.set(userId, updatedUser);
     return updatedUser;
+  }
+  
+  async deleteUser(id: number): Promise<boolean> {
+    // Проверяем существование пользователя
+    if (!this.users.has(id)) {
+      return false;
+    }
+    
+    // Удаляем пользователя
+    const deleted = this.users.delete(id);
+    
+    // Также удаляем все связанные заказы (необязательно, но для чистоты данных)
+    const userOrders = Array.from(this.orders.values())
+      .filter(order => order.userId === id)
+      .map(order => order.id);
+    
+    userOrders.forEach(orderId => this.orders.delete(orderId));
+    
+    // Если бы здесь была интеграция с Google Sheets, мы бы отправили уведомление
+    // об удалении пользователя в Google Sheets
+    
+    return deleted;
   }
 
   // Product methods
