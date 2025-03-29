@@ -11,6 +11,7 @@ import Policy from "@/pages/Policy";
 import Checkout from "@/pages/Checkout";
 import Confirmation from "@/pages/Confirmation";
 import { AppProvider } from "@/context/AppContext";
+import { LocaleProvider } from "@/context/LocaleContext";
 
 function Router() {
   return (
@@ -30,10 +31,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
-        <Layout>
-          <Router />
-        </Layout>
-        <Toaster />
+        <LocaleProvider>
+          <Layout>
+            <Router />
+          </Layout>
+          <Toaster />
+        </LocaleProvider>
       </AppProvider>
     </QueryClientProvider>
   );

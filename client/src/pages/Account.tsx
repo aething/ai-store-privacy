@@ -8,6 +8,8 @@ import { useAppContext } from "@/context/AppContext";
 import { useLocation } from "wouter";
 import MaterialInput from "@/components/MaterialInput";
 import { Card } from "@/components/ui/card";
+import LanguageSelector from "@/components/LanguageSelector";
+import { useLocale } from "@/context/LocaleContext";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),
@@ -25,6 +27,7 @@ export default function Account() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useLocale();
   
   const { register, handleSubmit, formState: { errors } } = useForm<UpdateUserForm>({
     resolver: zodResolver(updateUserSchema),
@@ -146,13 +149,13 @@ export default function Account() {
       {/* Account Verification */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium">Account</h2>
+          <h2 className="text-lg font-medium">{t("account")}</h2>
           <div className="flex items-center">
             <span 
               className={`h-3 w-3 rounded-full ${currentUser.isVerified ? "bg-verified" : "bg-error"} mr-2`}
             ></span>
             <span className="text-sm text-text-secondary">
-              {currentUser.isVerified ? "Verified" : "Not verified"}
+              {currentUser.isVerified ? t("emailVerified") : t("notVerified")}
             </span>
           </div>
         </div>
@@ -161,7 +164,7 @@ export default function Account() {
           <MaterialInput
             id="email"
             type="email"
-            label="Email"
+            label={t("emailAddress")}
             defaultValue={currentUser.email}
             readOnly
           />
@@ -170,50 +173,60 @@ export default function Account() {
             onClick={handleVerifyEmail}
             disabled={isLoading || currentUser.isVerified}
           >
-            {isLoading ? "Sending..." : "Verify Email"}
+            {isLoading ? t("submit") + "..." : t("verifyEmail")}
           </button>
+        </Card>
+      </div>
+      
+      {/* Language Selection */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-medium">{t("language")}</h2>
+        </div>
+        <Card className="p-4 rounded-lg mb-6">
+          <LanguageSelector />
         </Card>
       </div>
       
       {/* Personal Information */}
       <div className="mb-6">
-        <h2 className="text-lg font-medium mb-4">Personal Information</h2>
+        <h2 className="text-lg font-medium mb-4">{t("personalInformation")}</h2>
         <Card className="p-4 rounded-lg">
           <form onSubmit={handleSubmit(onSubmit)}>
             <MaterialInput
               id="name"
-              label="Full Name"
+              label={t("name") || "Full Name"}
               register={register("name")}
               error={errors.name?.message}
             />
             <MaterialInput
               id="phone"
-              label="Phone Number"
+              label={t("phone") || "Phone Number"}
               register={register("phone")}
               error={errors.phone?.message}
             />
             <MaterialInput
               id="country"
-              label="Country"
+              label={t("country") || "Country"}
               register={register("country")}
               error={errors.country?.message}
             />
             <MaterialInput
               id="street"
-              label="Street"
+              label={t("street") || "Street"}
               register={register("street")}
               error={errors.street?.message}
             />
             <div className="grid grid-cols-2 gap-4">
               <MaterialInput
                 id="house"
-                label="House/Building"
+                label={t("house") || "House/Building"}
                 register={register("house")}
                 error={errors.house?.message}
               />
               <MaterialInput
                 id="apartment"
-                label="Apartment"
+                label={t("apartment") || "Apartment"}
                 register={register("apartment")}
                 error={errors.apartment?.message}
               />
@@ -223,7 +236,7 @@ export default function Account() {
               className="bg-primary text-white w-full py-2 rounded mt-4"
               disabled={isLoading}
             >
-              {isLoading ? "Saving..." : "Save Information"}
+              {isLoading ? t("saving") + "..." : t("save") + " " + t("personalInformation")}
             </button>
           </form>
         </Card>
@@ -231,7 +244,7 @@ export default function Account() {
       
       {/* Policies */}
       <div>
-        <h2 className="text-lg font-medium mb-4">Policies & Information</h2>
+        <h2 className="text-lg font-medium mb-4">{t("policies")}</h2>
         <Card className="rounded-lg divide-y">
           {policies.map((policy, index) => (
             <button
