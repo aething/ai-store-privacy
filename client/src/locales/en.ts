@@ -70,6 +70,7 @@ export default {
   delete: "Delete",
   back: "Back",
   backToTop: "Back to Top",
+  swipeRightToGoBack: "Swipe right to go back",
   
   // Policy Page
   policyNotFound: "Policy Not Found",
