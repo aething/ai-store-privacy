@@ -16,7 +16,7 @@ export interface IStorage {
   generateVerificationToken(userId: number): Promise<string>;
   verifyUserByToken(token: string): Promise<User | undefined>;
   updateUserStripeCustomerId(userId: number, customerId: string): Promise<User | undefined>;
-  updateUserStripeSubscriptionId(userId: number, subscriptionId: string): Promise<User | undefined>;
+  updateUserStripeSubscriptionId(userId: number, subscriptionId: string | null): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
 
   // Product methods
@@ -237,11 +237,11 @@ export class MemStorage implements IStorage {
     return updatedUser;
   }
   
-  async updateUserStripeSubscriptionId(userId: number, subscriptionId: string): Promise<User | undefined> {
+  async updateUserStripeSubscriptionId(userId: number, subscriptionId: string | null): Promise<User | undefined> {
     const user = this.users.get(userId);
     if (!user) return undefined;
     
-    const updatedUser = { ...user, stripeSubscriptionId: subscriptionId };
+    const updatedUser = { ...user, stripeSubscriptionId: subscriptionId || "" };
     this.users.set(userId, updatedUser);
     return updatedUser;
   }

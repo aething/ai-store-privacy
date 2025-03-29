@@ -662,6 +662,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Эндпоинт для управления подпиской (отмена, возобновление)
+  app.post("/api/manage-subscription", async (req: Request, res: Response) => {
+    try {
+      // Проверка аутентификации
+      if (!req.isAuthenticated() || !req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const user = req.user;
+      const { action } = req.body;
+      
+      if (!action) {
+        return res.status(400).json({ message: "Action is required" });
+      }
+      
+      // Проверяем наличие подписки
+      if (!user.stripeSubscriptionId) {
+        return res.status(400).json({ message: "No active subscription found" });
+      }
+      
+      let subscription;
+      
+      switch (action) {
+        case 'cancel':
+          // Отмена в конце текущего платежного периода
+          subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+            cancel_at_period_end: true,
+          });
+          break;
+        
+        case 'reactivate':
+          // Возобновление подписки, которая была отменена
+          subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+            cancel_at_period_end: false,
+          });
+          break;
+        
+        case 'cancel_immediately':
+          // Немедленная отмена подписки
+          subscription = await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+          
+          // Если подписка отменена, удаляем ID из профиля пользователя
+          if (subscription.status === 'canceled') {
+            await storage.updateUserStripeSubscriptionId(user.id, null);
+          }
+          break;
+          
+        default:
+          return res.status(400).json({ message: "Invalid action" });
+      }
+      
+      res.json({
+        subscriptionId: subscription.id,
+        status: subscription.status,
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      });
+    } catch (error) {
+      console.error("Error managing subscription:", error);
+      res.status(500).json({ 
+        message: "Error managing subscription",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
   app.post("/api/orders/:id/update-status", async (req: Request, res: Response) => {
     try {
       const orderId = parseInt(req.params.id);
