@@ -75,9 +75,20 @@ const DEMO_ORDERS: Order[] = [
 // Хранение демо-данных между рендерами
 let demoOrdersState = [...DEMO_ORDERS];
 
-export function useOrders() {
+export function useOrders(isDemoMode = false) {
   const { user } = useAppContext();
   const [demoOrders, setDemoOrders] = useState<Order[]>(demoOrdersState);
+  
+  // Определяем, используем ли демо-режим
+  // - В демо-режиме или во время разработки показываем демо заказы
+  // - В продакшене показываем демо только если явно запрошено isDemoMode=true
+  const shouldUseDemoOrders = () => {
+    // Если пользователь авторизован, всегда используем настоящие данные
+    if (user?.id) return false;
+    
+    // В противном случае решаем на основе окружения и флага isDemoMode
+    return process.env.NODE_ENV !== 'production' || isDemoMode;
+  };
   
   const {
     data: orders,
@@ -87,8 +98,13 @@ export function useOrders() {
   } = useQuery({
     queryKey: ['/api/users/orders', user?.id],
     queryFn: async () => {
-      if (!user?.id) return demoOrders;
+      // Если пользователь не авторизован и демо включено - возвращаем демо заказы
+      if (!user?.id && shouldUseDemoOrders()) return demoOrders;
       
+      // Если пользователь не авторизован и демо выключено - возвращаем пустой массив
+      if (!user?.id) return [];
+      
+      // Иначе делаем запрос к API для получения настоящих заказов
       const response = await apiRequest('GET', `/api/users/${user.id}/orders`);
       
       if (!response.ok) {
@@ -98,12 +114,12 @@ export function useOrders() {
       const orderData = await response.json();
       return orderData as Order[];
     },
-    enabled: true // Всегда выполняем запрос, даже если пользователь не авторизован
+    enabled: user?.id || shouldUseDemoOrders() // Выполняем запрос только если есть пользователь или демо режим
   });
   
   const updateOrderTrackingNumber = async (orderId: number, trackingNumber: string) => {
     // Для демо-режима - обновляем локальное состояние
-    if (!user?.id) {
+    if (!user?.id && shouldUseDemoOrders()) {
       const updatedDemoOrders = demoOrders.map(order => 
         order.id === orderId ? { ...order, trackingNumber } : order
       );
@@ -126,7 +142,7 @@ export function useOrders() {
   };
   
   return {
-    orders: user?.id ? (orders || []) : demoOrders,
+    orders: user?.id ? (orders || []) : (shouldUseDemoOrders() ? demoOrders : []),
     isLoading: user?.id ? isLoading : false,
     isError: user?.id ? isError : false,
     updateOrderTrackingNumber,

@@ -4,8 +4,10 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useLocale } from '@/context/LocaleContext';
 import MaterialInput from '@/components/MaterialInput';
-import { TruckIcon, Package, ExternalLink } from 'lucide-react';
+import { TruckIcon, Package, ExternalLink, LogIn, ShoppingBag } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
+import { useAppContext } from '@/context/AppContext';
+import { useLocation } from 'wouter';
 
 const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const getStatusColor = () => {
@@ -144,10 +146,31 @@ const OrderCard: React.FC<{
   );
 };
 
-export default function OrdersList() {
+export default function OrdersList({ showDemoOrders = false }) {
   const { orders, isLoading, isError, updateOrderTrackingNumber } = useOrders();
   const { toast } = useToast();
   const { t } = useLocale();
+  const { user } = useAppContext();
+  const [, setLocation] = useLocation();
+  
+  // Проверка авторизации пользователя в продакшене (когда демо выключено)
+  if (!user && !showDemoOrders) {
+    return (
+      <Card className="p-6 text-center">
+        <LogIn className="mx-auto mb-4 text-gray-400" size={48} />
+        <p className="text-gray-600 mb-4">
+          {t('loginToSeeOrders') || "Please log in to see your orders"}
+        </p>
+        <button
+          onClick={() => setLocation('/checkout')}
+          className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700"
+        >
+          <ShoppingBag className="inline-block mr-2" size={16} />
+          {t('startShopping') || "Start Shopping"}
+        </button>
+      </Card>
+    );
+  }
   
   const handleUpdateTracking = async (orderId: number, trackingNumber: string) => {
     try {

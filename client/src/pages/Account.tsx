@@ -341,8 +341,8 @@ export default function Account() {
       {/* Orders */}
       <div className="mb-6">
         <h2 className="text-lg font-medium mb-4">{t("orders") || "My Orders"}</h2>
-        {/* Всегда показываем OrdersList, независимо от статуса авторизации (демо-режим) */}
-        <OrdersList />
+        {/* Для демо-режима используем параметр showDemoOrders */}
+        <OrdersList showDemoOrders={process.env.NODE_ENV !== 'production'} />
       </div>
       
       {/* Policies */}
