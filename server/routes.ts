@@ -1,10 +1,22 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, updateUserSchema, insertOrderSchema } from "@shared/schema";
+import { insertUserSchema, updateUserSchema, insertOrderSchema, User } from "@shared/schema";
 import Stripe from "stripe";
 import crypto from "crypto";
 import { ZodError } from "zod";
+import * as googleSheets from "./google-sheets";
+
+// Расширяем типы для Express.Request
+declare global {
+  namespace Express {
+    interface Request {
+      user?: User;
+      isAuthenticated(): boolean;
+      logout(done: (err: any) => void): void;
+    }
+  }
+}
 
 // Check if Stripe secret key is available
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -31,6 +43,26 @@ function shouldUseEUR(country: string): boolean {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Инициализация Google Sheets
+  let googleSheetsAvailable = false;
+  try {
+    await googleSheets.initializeGoogleSheets();
+    console.log("Google Sheets initialized successfully");
+    googleSheetsAvailable = true;
+  } catch (error) {
+    console.error("Failed to initialize Google Sheets:", error);
+    console.log("Continuing without Google Sheets integration. User and order data will only be stored in memory.");
+  }
+  
+  // Вспомогательная функция для безопасного вызова функций Google Sheets
+  const safeGoogleSheetsCall = async (operation: Function, ...args: any[]) => {
+    if (!googleSheetsAvailable) return;
+    try {
+      await operation(...args);
+    } catch (error) {
+      console.error(`Error during Google Sheets operation: ${error}`);
+    }
+  };
   // API routes for users
   app.post("/api/users/register", async (req: Request, res: Response) => {
     try {
@@ -46,6 +78,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Generate verification token
       const token = await storage.generateVerificationToken(user.id);
+      
+      // Save user to Google Sheets
+      await safeGoogleSheetsCall(googleSheets.saveUser, user);
+      await safeGoogleSheetsCall(googleSheets.saveVerificationToken, user.id, token);
       
       // In a real application, send an email with the verification link
       // For this prototype, we'll just return the token
@@ -102,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userData = updateUserSchema.parse(req.body);
       
       // Проверка авторизации пользователя
-      if (!req.isAuthenticated() || req.user.id !== userId) {
+      if (!req.isAuthenticated() || !req.user || req.user.id !== userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
       
@@ -111,6 +147,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!updatedUser) {
         return res.status(404).json({ message: "User not found" });
       }
+      
+      // Update user in Google Sheets
+      await safeGoogleSheetsCall(googleSheets.updateUser, updatedUser);
       
       res.json({
         id: updatedUser.id,
@@ -138,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = parseInt(req.params.id);
       
       // Проверка авторизации пользователя
-      if (!req.isAuthenticated() || req.user.id !== userId) {
+      if (!req.isAuthenticated() || !req.user || req.user.id !== userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
       
@@ -146,6 +185,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!deleted) {
         return res.status(404).json({ message: "User not found" });
       }
+      
+      // Delete user from Google Sheets
+      await safeGoogleSheetsCall(googleSheets.deleteUser, userId);
       
       // Уничтожаем сессию пользователя
       req.logout(() => {});
@@ -168,6 +210,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!verifiedUser) {
         return res.status(400).json({ message: "Invalid or expired verification token" });
+      }
+      
+      // Also verify token in Google Sheets and update user verification status
+      if (googleSheetsAvailable) {
+        try {
+          const gsUserId = await googleSheets.verifyToken(token);
+          if (gsUserId) {
+            await safeGoogleSheetsCall(googleSheets.updateUser, verifiedUser);
+          }
+        } catch (error) {
+          console.error("Error verifying token in Google Sheets:", error);
+        }
       }
       
       res.json({ message: "Email verified successfully", isVerified: true });
@@ -201,6 +255,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const token = await storage.generateVerificationToken(user.id);
+      
+      // Save verification token to Google Sheets
+      await safeGoogleSheetsCall(googleSheets.saveVerificationToken, user.id, token);
       
       // In a real application, send the email with the verification link
       // For this prototype, we'll just return success
@@ -343,6 +400,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const order = await storage.createOrder(orderData);
       
+      // Save order to Google Sheets
+      await safeGoogleSheetsCall(googleSheets.saveOrder, order);
+      
       res.status(201).json(order);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -412,6 +472,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stripePaymentId: paymentIntent.id
       });
       
+      // Save order to Google Sheets
+      await safeGoogleSheetsCall(googleSheets.saveOrder, order);
+      
       res.json({
         clientSecret: paymentIntent.client_secret,
         orderId: order.id
@@ -435,6 +498,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!updatedOrder) {
         return res.status(404).json({ message: "Order not found" });
       }
+      
+      // Update order status in Google Sheets
+      await safeGoogleSheetsCall(googleSheets.updateOrderStatus, orderId, status);
       
       res.json(updatedOrder);
     } catch (error) {
