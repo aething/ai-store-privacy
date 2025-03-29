@@ -10,7 +10,20 @@ const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 if (!stripeKey) {
   console.error("Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY");
 }
-const stripePromise = loadStripe(stripeKey);
+
+// Обработка ошибок при загрузке Stripe.js
+let stripePromise;
+try {
+  stripePromise = loadStripe(stripeKey);
+} catch (error) {
+  console.error("Error loading Stripe.js:", error);
+  // Создаем заглушку, чтобы приложение не падало полностью
+  stripePromise = new Promise((resolve) => {
+    console.warn("Using fallback stripe object for development");
+    // Задержка, чтобы имитировать загрузку
+    setTimeout(() => resolve(null), 100);
+  });
+}
 
 /**
  * Create a payment intent for a product

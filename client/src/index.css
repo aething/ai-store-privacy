@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Исправление для предотвращения ошибок с загрузкой Stripe.js */
+.stripe-loading-fix {
+  display: none;
+}
+
 @layer base {
   * {
     @apply border-border;

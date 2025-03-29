@@ -153,7 +153,7 @@ export default function ProductDetail() {
                     <Share2 size={18} />
                   </button>
                   <button 
-                    className="bg-blue-600 text-white px-3 py-1.5 rounded-full font-medium hover:bg-blue-700 text-xs transform scale-85"
+                    className="bg-blue-600 text-white px-3 py-1 rounded-full font-medium hover:bg-blue-700 text-xs transform scale-85"
                     onClick={handleBuyNow}
                   >
                     Buy Now
@@ -231,7 +231,7 @@ export default function ProductDetail() {
               {formatPrice(getPriceForCountry(product, user?.country), getCurrencyForCountry(user?.country))}
             </span>
             <button 
-              className="bg-blue-600 text-white px-5 py-1.5 rounded-full font-medium hover:bg-blue-700 text-sm transform scale-85"
+              className="bg-blue-600 text-white px-4 py-1 rounded-full font-medium hover:bg-blue-700 text-xs transform scale-85"
               onClick={handleBuyNow}
             >
               Buy Now
