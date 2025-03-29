@@ -10,6 +10,8 @@ import { formatCurrency } from '@/lib/currency';
 const OrderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const getStatusColor = () => {
     switch (status.toLowerCase()) {
+      case 'ordered':
+        return 'bg-yellow-100 text-yellow-800';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       case 'processing':
@@ -101,22 +103,38 @@ const OrderCard: React.FC<{
             </a>
           </div>
         ) : (
-          <div className="flex">
-            <div className="flex-1 mr-2">
-              <MaterialInput
-                id={`tracking-${order.id}`}
-                label={t('trackingNumber') || 'Tracking Number'}
-                value={trackingNumber}
-                onChange={(e) => setTrackingNumber(e.target.value)}
-              />
+          <div className="flex flex-col">
+            <div className="bg-gray-50 p-2 rounded text-sm text-gray-600 mb-2">
+              {t('noTrackingYet') || "Tracking number will appear here when your order ships"}
             </div>
-            <button
-              onClick={handleUpdateTracking}
-              disabled={isUpdating || !trackingNumber.trim()}
-              className="bg-blue-600 text-white px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 self-end mb-1"
-            >
-              {isUpdating ? '...' : t('save') || 'Save'}
-            </button>
+            
+            {/* Примечание: в реальном приложении этот input блок будет скрыт для пользователей */}
+            {/* Он оставлен только для демонстрации функционала */}
+            <details className="mt-2 text-xs">
+              <summary className="cursor-pointer text-blue-600">{t('adminTools') || "Admin Tools"}</summary>
+              <div className="mt-2 border-t pt-2">
+                <div className="flex">
+                  <div className="flex-1 mr-2">
+                    <MaterialInput
+                      id={`tracking-${order.id}`}
+                      label={t('trackingNumber') || 'Tracking Number'}
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    onClick={handleUpdateTracking}
+                    disabled={isUpdating || !trackingNumber.trim()}
+                    className="bg-blue-600 text-white px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 self-end mb-1"
+                  >
+                    {isUpdating ? '...' : t('save') || 'Save'}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {t('adminTrackingNote') || "Normally tracking numbers are updated automatically from Google Sheets"}
+                </p>
+              </div>
+            </details>
           </div>
         )}
       </div>

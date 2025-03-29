@@ -26,7 +26,7 @@ const DEMO_ORDERS: Order[] = [
     id: 1001,
     userId: 999,
     productId: 1,
-    status: 'processing',
+    status: 'ordered',
     amount: 299.99,
     currency: 'USD',
     stripePaymentId: 'demo_payment_id_1',
