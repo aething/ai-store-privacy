@@ -28,6 +28,7 @@ export const products = pgTable("products", {
   category: text("category").notNull(),
   features: text("features").array(),
   specifications: text("specifications").array(),
+  stripeProductId: text("stripe_product_id"),
 });
 
 export const orders = pgTable("orders", {

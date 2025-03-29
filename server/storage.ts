@@ -21,6 +21,9 @@ export interface IStorage {
   getProducts(): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
+  syncStripeProducts(): Promise<Product[]>;
+  getProductByStripeId(stripeId: string): Promise<Product | undefined>;
+  getProductsByCountry(country: string | null | undefined): Promise<Product[]>;
 
   // Order methods
   createOrder(order: InsertOrder): Promise<Order>;
@@ -245,10 +248,46 @@ export class MemStorage implements IStorage {
       ...insertProduct, 
       id,
       features: insertProduct.features || [],
-      specifications: insertProduct.specifications || []
+      specifications: insertProduct.specifications || [],
+      stripeProductId: insertProduct.stripeProductId || null
     };
     this.products.set(id, product);
     return product;
+  }
+  
+  async syncStripeProducts(): Promise<Product[]> {
+    // This would call the Stripe API in a real implementation
+    // For our prototype, we'll simulate this by adding stripeProductIds to existing products
+    const products = Array.from(this.products.values());
+    const updatedProducts: Product[] = [];
+    
+    for (const product of products) {
+      // Only update products that don't have a stripeProductId
+      if (!product.stripeProductId) {
+        const updatedProduct = {
+          ...product,
+          stripeProductId: `prod_${Math.random().toString(36).substring(2, 10)}`
+        };
+        this.products.set(product.id, updatedProduct);
+        updatedProducts.push(updatedProduct);
+      } else {
+        updatedProducts.push(product);
+      }
+    }
+    
+    return updatedProducts;
+  }
+  
+  async getProductByStripeId(stripeId: string): Promise<Product | undefined> {
+    return Array.from(this.products.values()).find(
+      (product) => product.stripeProductId === stripeId
+    );
+  }
+  
+  async getProductsByCountry(country: string | null | undefined): Promise<Product[]> {
+    // All products are available in all countries in our prototype
+    // But in a real implementation, you might filter products based on availability
+    return this.getProducts();
   }
 
   // Order methods

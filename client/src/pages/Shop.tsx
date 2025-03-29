@@ -3,11 +3,24 @@ import { useLocation } from "wouter";
 import ProductSlider from "@/components/ProductSlider";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
+import { useAppContext } from "@/context/AppContext";
 
 export default function Shop() {
   const [, setLocation] = useLocation();
+  const { user } = useAppContext();
+  
   const { data: products, isLoading, error } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+    queryKey: ["/api/products", user?.country],
+    queryFn: async () => {
+      // If user has a country, filter products by country
+      const url = user?.country 
+        ? `/api/products?country=${encodeURIComponent(user.country)}` 
+        : '/api/products';
+      
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Failed to fetch products');
+      return res.json();
+    }
   });
 
   if (isLoading) {
@@ -52,11 +65,11 @@ export default function Shop() {
                 className="flex-none w-64 rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow"
                 onClick={() => setLocation(`/product/${product.id}`)}
               >
-                <div className="p-4 flex flex-col" style={{ height: "16rem" }}>
+                <div className="p-4 flex flex-col" style={{ height: "20rem" }}>
                   <h3 className="font-medium text-lg mb-3">{product.title}</h3>
                   <div className="flex-grow overflow-hidden">
                     <p className="text-text-secondary text-sm">
-                      {product.description.substring(0, 250)}...
+                      {product.description.substring(0, 400)}...
                       <span 
                         className="text-primary font-medium ml-1 cursor-pointer"
                         onClick={(e) => {

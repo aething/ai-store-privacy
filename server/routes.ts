@@ -170,9 +170,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // API routes for products
-  app.get("/api/products", async (_req: Request, res: Response) => {
+  app.get("/api/products", async (req: Request, res: Response) => {
     try {
-      const products = await storage.getProducts();
+      // Check if we should filter by country
+      const country = req.query.country as string | undefined;
+      
+      // Optional sync with Stripe products (for demo purposes)
+      const syncWithStripe = req.query.sync === 'true';
+      
+      if (syncWithStripe) {
+        // This would sync with Stripe products in a real implementation
+        await storage.syncStripeProducts();
+      }
+      
+      const products = country 
+        ? await storage.getProductsByCountry(country)
+        : await storage.getProducts();
+      
       res.json(products);
     } catch (error) {
       res.status(500).json({ message: "Error fetching products" });
@@ -181,8 +195,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/products/:id", async (req: Request, res: Response) => {
     try {
-      const productId = parseInt(req.params.id);
-      const product = await storage.getProduct(productId);
+      // Check if the ID is a Stripe product ID (they start with 'prod_')
+      const isStripeId = req.params.id.startsWith('prod_');
+      let product;
+      
+      if (isStripeId) {
+        product = await storage.getProductByStripeId(req.params.id);
+      } else {
+        const productId = parseInt(req.params.id);
+        product = await storage.getProduct(productId);
+      }
       
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
@@ -191,6 +213,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(product);
     } catch (error) {
       res.status(500).json({ message: "Error fetching product" });
+    }
+  });
+  
+  // Endpoint to sync products with Stripe
+  app.post("/api/stripe/sync-products", async (_req: Request, res: Response) => {
+    try {
+      // In a real implementation, this would fetch products from Stripe API
+      // and sync them with our database
+      const products = await storage.syncStripeProducts();
+      res.json({ success: true, products });
+    } catch (error) {
+      res.status(500).json({ message: "Error syncing products with Stripe" });
     }
   });
   

@@ -6,9 +6,9 @@ import { useAppContext } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
 import { useEffect, useState } from "react";
-import { apiRequest } from "@/lib/queryClient";
-import stripePromise from "@/lib/stripe";
+import stripePromise, { createPaymentIntent } from "@/lib/stripe";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
+import { apiRequest } from "@/lib/queryClient";
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
@@ -92,14 +92,13 @@ export default function Checkout() {
       if (!productId || !user || !product) return;
       
       try {
-        const response = await apiRequest("POST", "/api/create-payment-intent", {
-          amount: price,
-          userId: user.id,
-          productId: productId,
-          currency: currency
-        });
+        // Use our helper function to create a payment intent
+        const data = await createPaymentIntent(
+          productId, 
+          user.id, 
+          user.country
+        );
         
-        const data = await response.json();
         setClientSecret(data.clientSecret);
       } catch (error) {
         toast({
@@ -111,7 +110,7 @@ export default function Checkout() {
     };
     
     getPaymentIntent();
-  }, [productId, user, product, toast, price, currency]);
+  }, [productId, user, product, toast]);
   
   if (!product) {
     return (
