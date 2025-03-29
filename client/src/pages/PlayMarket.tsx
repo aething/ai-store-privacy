@@ -2,6 +2,7 @@ import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { useAppContext } from "@/context/AppContext";
+import { ArrowLeft, ChevronLeft, ChevronRight, Share, Download, Play } from "lucide-react";
 
 interface PlayMarketData {
   appName: string;
@@ -56,11 +57,23 @@ export default function PlayMarket() {
     
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
-        stars.push(<span key={i} className="material-icons text-yellow-500">star</span>);
+        stars.push(
+          <svg key={i} className="w-5 h-5 text-yellow-500 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+          </svg>
+        );
       } else if (i === fullStars && hasHalfStar) {
-        stars.push(<span key={i} className="material-icons text-yellow-500">star_half</span>);
+        stars.push(
+          <svg key={i} className="w-5 h-5 text-yellow-500 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27V2z" />
+          </svg>
+        );
       } else {
-        stars.push(<span key={i} className="material-icons text-gray-300">star_outline</span>);
+        stars.push(
+          <svg key={i} className="w-5 h-5 text-gray-300 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z" />
+          </svg>
+        );
       }
     }
     
@@ -97,10 +110,10 @@ export default function PlayMarket() {
     <div className="pb-16">
       <div className="flex items-center mb-4 sticky top-0 bg-white z-10 p-2">
         <button 
-          className="material-icons mr-2"
+          className="mr-2 p-1"
           onClick={() => setLocation("/")}
         >
-          arrow_back
+          <ArrowLeft size={24} />
         </button>
         <h2 className="text-lg font-medium">Google Play Market</h2>
       </div>
@@ -128,12 +141,12 @@ export default function PlayMarket() {
             className="bg-blue-600 text-white py-2 px-4 rounded-full flex items-center justify-center text-sm font-medium hover:bg-blue-700 transition md-btn-effect"
             onClick={() => window.open('https://play.google.com', '_blank')}
           >
-            <span className="material-icons mr-1 text-sm">file_download</span>
+            <Download className="mr-1 w-4 h-4" />
             Install
           </button>
           
           <button className="border border-gray-300 py-2 px-4 rounded-full flex items-center justify-center text-sm font-medium hover:bg-gray-50 transition">
-            <span className="material-icons mr-1 text-sm">share</span>
+            <Share className="mr-1 w-4 h-4" />
             Share
           </button>
         </div>
@@ -151,14 +164,14 @@ export default function PlayMarket() {
             className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full w-10 h-10 flex items-center justify-center shadow-md"
             onClick={prevScreenshot}
           >
-            <span className="material-icons">chevron_left</span>
+            <ChevronLeft size={24} />
           </button>
           
           <button 
             className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full w-10 h-10 flex items-center justify-center shadow-md"
             onClick={nextScreenshot}
           >
-            <span className="material-icons">chevron_right</span>
+            <ChevronRight size={24} />
           </button>
           
           <div className="absolute bottom-2 left-0 right-0 flex justify-center">
@@ -239,7 +252,7 @@ export default function PlayMarket() {
       <div className="mt-8 text-center">
         <p className="text-sm text-gray-500 mb-4">Get it on</p>
         <div className="inline-block bg-black text-white py-2 px-4 rounded-lg flex items-center hover:bg-gray-800 transition cursor-pointer">
-          <span className="material-icons mr-2 text-2xl">play_arrow</span>
+          <Play className="mr-2" size={24} />
           <div className="text-left">
             <p className="text-xs">GET IT ON</p>
             <p className="font-medium">Google Play</p>

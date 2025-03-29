@@ -1,4 +1,5 @@
 import { useLocation, useRoute } from "wouter";
+import { ShoppingBag, User } from "lucide-react";
 
 export default function BottomNav() {
   const [location, setLocation] = useLocation();
@@ -11,9 +12,7 @@ export default function BottomNav() {
         className="flex flex-col items-center justify-center w-1/2 transition-colors"
         onClick={() => setLocation("/")}
       >
-        <span className={`material-icons ${isShopActive ? "text-primary" : "text-gray-500"}`}>
-          shopping_bag
-        </span>
+        <ShoppingBag className={isShopActive ? "text-primary" : "text-gray-500"} size={24} />
         <span className={`text-xs mt-1 ${isShopActive ? "text-primary font-medium" : "text-gray-500"}`}>
           Shop
         </span>
@@ -22,9 +21,7 @@ export default function BottomNav() {
         className="flex flex-col items-center justify-center w-1/2 transition-colors"
         onClick={() => setLocation("/account")}
       >
-        <span className={`material-icons ${isAccountActive ? "text-primary" : "text-gray-500"}`}>
-          person
-        </span>
+        <User className={isAccountActive ? "text-primary" : "text-gray-500"} size={24} />
         <span className={`text-xs mt-1 ${isAccountActive ? "text-primary font-medium" : "text-gray-500"}`}>
           Account
         </span>
