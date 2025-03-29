@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDeviceSize } from '@/hooks/use-device-size';
 import { useLocale } from '@/context/LocaleContext';
+import { Star, StarHalf, Download, Tags, ShieldCheck, Share, RefreshCcw, Image } from 'lucide-react';
 import SwipeableCarousel from './SwipeableCarousel';
 
 interface PlayMarketCardProps {
@@ -41,11 +42,11 @@ const PlayMarketCard: React.FC<PlayMarketCardProps> = ({
     
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
-        stars.push(<span key={i} className="material-icons text-yellow-500">star</span>);
+        stars.push(<Star key={i} className="text-yellow-500" size={18} fill="currentColor" />);
       } else if (i === fullStars && hasHalfStar) {
-        stars.push(<span key={i} className="material-icons text-yellow-500">star_half</span>);
+        stars.push(<StarHalf key={i} className="text-yellow-500" size={18} fill="currentColor" />);
       } else {
-        stars.push(<span key={i} className="material-icons text-gray-300">star_border</span>);
+        stars.push(<Star key={i} className="text-gray-300" size={18} />);
       }
     }
     
@@ -74,7 +75,7 @@ const PlayMarketCard: React.FC<PlayMarketCardProps> = ({
               <div className="flex items-center">
                 <span className="font-semibold mr-1">{rating}</span>
                 {isMobile ? (
-                  <span className="material-icons text-yellow-500">star</span>
+                  <Star className="text-yellow-500" size={18} fill="currentColor" />
                 ) : (
                   renderStars(rating)
                 )}
@@ -96,12 +97,12 @@ const PlayMarketCard: React.FC<PlayMarketCardProps> = ({
             </div>
             
             <div className="text-center flex-1">
-              <span className="material-icons text-gray-700">category</span>
+              <Tags className="text-gray-700 mx-auto mb-1" size={20} />
               <p className="text-xs text-gray-600">{category}</p>
             </div>
             
             <div className="text-center flex-1">
-              <span className="material-icons text-gray-700">verified_user</span>
+              <ShieldCheck className="text-gray-700 mx-auto mb-1" size={20} />
               <p className="text-xs text-gray-600">{contentRating}</p>
             </div>
           </div>
@@ -114,9 +115,9 @@ const PlayMarketCard: React.FC<PlayMarketCardProps> = ({
               className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-blue-700 transition-colors flex items-center justify-center"
             >
               {isInstalling ? (
-                <span className="material-icons animate-spin mr-1 text-sm">refresh</span>
+                <RefreshCcw className="animate-spin mr-1" size={16} />
               ) : (
-                <span className="material-icons mr-1 text-sm">get_app</span>
+                <Download className="mr-1" size={16} />
               )}
               {t("install") || "Install"}
             </button>
@@ -125,7 +126,7 @@ const PlayMarketCard: React.FC<PlayMarketCardProps> = ({
               onClick={onShare}
               className="bg-gray-100 text-gray-700 py-2 px-4 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
             >
-              <span className="material-icons text-sm">share</span>
+              <Share size={16} />
             </button>
           </div>
         </div>
@@ -168,7 +169,7 @@ export const ScreenshotGallery: React.FC<ScreenshotGalleryProps> = ({
     
     return (
       <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 bg-gray-100">
-        <span className="material-icons text-4xl mb-2">image</span>
+        <Image className="text-4xl mb-2" size={36} />
         <span className="text-center px-2">{label}</span>
       </div>
     );
