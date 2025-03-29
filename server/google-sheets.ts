@@ -171,6 +171,7 @@ async function initializeHeaders(): Promise<void> {
     'amount',
     'currency',
     'stripePaymentId',
+    'trackingNumber',
     'createdAt',
   ];
 
@@ -197,7 +198,7 @@ async function initializeHeaders(): Promise<void> {
     // Устанавливаем заголовки для листа заказов
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `${SHEETS.ORDERS}!A1:H1`,
+      range: `${SHEETS.ORDERS}!A1:I1`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [orderHeaders],
@@ -459,13 +460,14 @@ export async function saveOrder(order: Order): Promise<void> {
         order.amount,
         order.currency,
         order.stripePaymentId || '',
+        order.trackingNumber || '',
         new Date().toISOString(),
       ],
     ];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: `${SHEETS.ORDERS}!A:H`,
+      range: `${SHEETS.ORDERS}!A:I`,
       valueInputOption: 'RAW',
       requestBody: {
         values,
@@ -532,7 +534,7 @@ export async function getUserOrders(userId: number): Promise<Order[]> {
     // Получаем все заказы
     const ordersData = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `${SHEETS.ORDERS}!A:H`,
+      range: `${SHEETS.ORDERS}!A:I`,
     });
 
     const rows = ordersData.data.values || [];
@@ -549,8 +551,9 @@ export async function getUserOrders(userId: number): Promise<Order[]> {
           status: row[3],
           amount: parseInt(row[4], 10),
           currency: row[5],
-          stripePaymentId: row[6] || undefined,
-          createdAt: new Date(row[7]),
+          stripePaymentId: row[6] || null,
+          trackingNumber: row[7] || null,
+          createdAt: new Date(row[8]),
         });
       }
     }
@@ -603,6 +606,51 @@ export async function updateOrderPaymentId(
     console.log(`Order payment ID updated in Google Sheets: ID ${orderId}, paymentId: ${paymentId}`);
   } catch (error) {
     console.error('Error updating order payment ID in Google Sheets:', error);
+    throw error;
+  }
+}
+
+/**
+ * Обновление tracking number заказа в Google Sheets
+ */
+export async function updateOrderTrackingNumber(
+  orderId: number, 
+  trackingNumber: string
+): Promise<void> {
+  try {
+    // Находим строку с заказом по ID
+    const orderRows = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${SHEETS.ORDERS}!A:A`,
+    });
+
+    const rows = orderRows.data.values || [];
+    let rowIndex = -1;
+
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][0] == orderId) {
+        rowIndex = i + 1; // +1 потому что в Google Sheets индексация с 1
+        break;
+      }
+    }
+
+    if (rowIndex === -1) {
+      throw new Error(`Order with id ${orderId} not found in Google Sheets`);
+    }
+
+    // Обновляем tracking number заказа
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${SHEETS.ORDERS}!H${rowIndex}`,
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: [[trackingNumber]],
+      },
+    });
+
+    console.log(`Order tracking number updated in Google Sheets: ID ${orderId}, tracking: ${trackingNumber}`);
+  } catch (error) {
+    console.error('Error updating order tracking number in Google Sheets:', error);
     throw error;
   }
 }

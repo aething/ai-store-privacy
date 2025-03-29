@@ -77,3 +77,30 @@ export function getPriceForCountry(
 ): number {
   return shouldUseEUR(country) ? product.priceEUR : product.price;
 }
+
+/**
+ * Format currency amount with appropriate currency symbol
+ * @param amount Amount in cents (or smallest currency unit)
+ * @param currency Currency code (e.g., 'usd', 'eur')
+ * @returns Formatted currency string with symbol
+ */
+export function formatCurrency(amount: number, currency: string = 'usd'): string {
+  const value = amount / 100; // Convert cents to dollars/euros/etc.
+  
+  const currencyCode = currency.toLowerCase();
+  
+  if (currencyCode === 'eur') {
+    return `€${value.toFixed(2)}`;
+  } else if (currencyCode === 'gbp') {
+    return `£${value.toFixed(2)}`;
+  } else if (currencyCode === 'jpy') {
+    return `¥${Math.round(value)}`; // JPY typically doesn't use decimals
+  } else if (currencyCode === 'rub') {
+    return `₽${value.toFixed(2)}`;
+  } else if (currencyCode === 'cny' || currencyCode === 'rmb') {
+    return `¥${value.toFixed(2)}`;
+  } else {
+    // Default to USD
+    return `$${value.toFixed(2)}`;
+  }
+}

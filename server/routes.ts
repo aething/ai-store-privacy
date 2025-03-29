@@ -900,6 +900,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/push/subscribe", pushNotification.registerPushSubscription);
   app.post("/api/push/unsubscribe", pushNotification.unregisterPushSubscription);
   
+  // Эндпоинт для обновления tracking number заказа
+  app.post("/api/orders/:id/update-tracking", async (req: Request, res: Response) => {
+    try {
+      const orderId = parseInt(req.params.id, 10);
+      const { trackingNumber } = req.body;
+      
+      if (!trackingNumber) {
+        return res.status(400).json({ message: "Tracking number is required" });
+      }
+      
+      // Получаем заказ из хранилища
+      const order = await storage.getOrder(orderId);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Проверяем, что заказ принадлежит текущему пользователю или пользователь - админ
+      if (req.user?.id !== order.userId && req.user?.email !== 'admin@example.com') {
+        return res.status(403).json({ message: "You don't have permission to update this order" });
+      }
+      
+      // Обновляем tracking number в хранилище
+      const updatedOrder = await storage.updateOrderTrackingNumber(orderId, trackingNumber);
+      
+      // Обновляем tracking number в Google Sheets
+      await safeGoogleSheetsCall(googleSheets.updateOrderTrackingNumber, orderId, trackingNumber);
+      
+      // Отправляем push-уведомление, если пользователь существует
+      if (order.userId) {
+        await pushNotification.sendOrderStatusNotification(
+          order.userId, 
+          orderId, 
+          "Tracking number updated"
+        );
+      }
+      
+      res.json(updatedOrder);
+    } catch (error) {
+      console.error("Error updating tracking number:", error);
+      res.status(500).json({ message: "Error updating tracking number" });
+    }
+  });
+
   // Эндпоинт для обновления статуса заказа с отправкой уведомления
   app.post("/api/orders/:id/update-status-notify", async (req: Request, res: Response) => {
     try {

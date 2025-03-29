@@ -33,6 +33,8 @@ export interface IStorage {
   getOrderByStripePaymentId(stripePaymentId: string): Promise<Order | undefined>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   updateOrderStripePaymentId(id: number, paymentId: string): Promise<Order | undefined>;
+  updateOrderTrackingNumber(id: number, trackingNumber: string): Promise<Order | undefined>;
+  getOrder(id: number): Promise<Order | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -336,7 +338,8 @@ export class MemStorage implements IStorage {
       userId: insertOrder.userId || null,
       productId: insertOrder.productId || null,
       currency: insertOrder.currency || 'usd',
-      stripePaymentId: insertOrder.stripePaymentId || null
+      stripePaymentId: insertOrder.stripePaymentId || null,
+      trackingNumber: null
     };
     this.orders.set(id, order);
     return order;
@@ -370,6 +373,19 @@ export class MemStorage implements IStorage {
     const updatedOrder = { ...order, stripePaymentId: paymentId };
     this.orders.set(id, updatedOrder);
     return updatedOrder;
+  }
+
+  async updateOrderTrackingNumber(id: number, trackingNumber: string): Promise<Order | undefined> {
+    const order = this.orders.get(id);
+    if (!order) return undefined;
+    
+    const updatedOrder = { ...order, trackingNumber };
+    this.orders.set(id, updatedOrder);
+    return updatedOrder;
+  }
+
+  async getOrder(id: number): Promise<Order | undefined> {
+    return this.orders.get(id);
   }
 }
 
