@@ -13,6 +13,7 @@ export default function InfoPage() {
   const [match, params] = useRoute<{ id: string }>("/info/:id");
   const { t } = useLocale();
   const contentRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   
@@ -29,19 +30,29 @@ export default function InfoPage() {
   const infoPage = params && getInfoPageById(parseInt(params.id, 10));
 
   const scrollToTop = () => {
+    // Прокрутить до самого верха страницы
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Также обнулить прокрутку внутри контента
     if (contentRef.current) {
-      contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      contentRef.current.scrollTop = 0;
     }
   };
 
   useEffect(() => {
-    // Убедимся, что страница полностью прокручена вверх при первом открытии
+    // Сразу прокручиваем в самый верх при загрузке страницы
     window.scrollTo(0, 0);
     
-    // Убедимся, что контент тоже прокручен вверх
-    if (contentRef.current) {
-      contentRef.current.scrollTop = 0;
-    }
+    // Таймер, чтобы дать время браузеру отрендерить страницу
+    const timer = setTimeout(() => {
+      // Еще раз прокручиваем в самый верх после того, как все элементы загрузились
+      window.scrollTo(0, 0);
+      // Также обнуляем скролл внутреннего контента
+      if (contentRef.current) {
+        contentRef.current.scrollTop = 0;
+      }
+    }, 150);
+    
+    return () => clearTimeout(timer);
   }, [params?.id]);
 
   if (!match || !infoPage) {
@@ -62,7 +73,7 @@ export default function InfoPage() {
 
   return (
     <SwipeBack onSwipeBack={() => setLocation("/")}>
-      <div className="max-w-4xl mx-auto relative">
+      <div className="max-w-4xl mx-auto relative" ref={pageRef}>
         {/* Навигационная панель вверху - всегда видима */}
         <div className="sticky top-0 z-20 flex items-center justify-between w-full px-4 py-2 bg-white/80 backdrop-blur-sm border-b">
           <Button
