@@ -19,7 +19,7 @@ import { LocaleProvider } from "@/context/LocaleContext";
 import { ErrorProvider } from "@/context/ErrorContext";
 import { NotificationProvider } from "@/components/NotificationSystem";
 import { useApiErrorHandler } from "@/hooks/use-api-error";
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState } from "react";
 import PageTransition from "@/components/PageTransition";
 import { initCache, initOnlineStatusHandlers } from "@/lib/cache-utils";
 import { triggerHapticFeedback } from "@/hooks/use-haptic-feedback";
