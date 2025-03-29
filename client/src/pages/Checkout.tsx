@@ -11,8 +11,6 @@ import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/cu
 import { apiRequest } from "@/lib/queryClient";
 // Используем импорт типа, а не значения
 import type { Stripe } from "@stripe/stripe-js";
-// Импортируем наш новый компонент иконок
-import Icon from "@/components/Icon";
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
@@ -208,7 +206,7 @@ export default function Checkout() {
             className="mr-2 flex items-center"
             onClick={() => setLocation("/")}
           >
-            <Icon name="arrow_back" />
+            <span className="material-icons">arrow_back</span>
           </button>
           <h2 className="text-lg font-medium">Checkout</h2>
         </div>
@@ -227,7 +225,7 @@ export default function Checkout() {
             className="mr-2 flex items-center"
             onClick={() => setLocation("/")}
           >
-            <Icon name="arrow_back" />
+            <span className="material-icons">arrow_back</span>
           </button>
           <h2 className="text-lg font-medium">Checkout</h2>
         </div>
@@ -261,7 +259,7 @@ export default function Checkout() {
           className="mr-2 flex items-center"
           onClick={() => setLocation(`/product/${productId}`)}
         >
-          <Icon name="arrow_back" />
+          <span className="material-icons">arrow_back</span>
         </button>
         <h2 className="text-lg font-medium">Checkout</h2>
       </div>

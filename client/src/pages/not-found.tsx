@@ -4,7 +4,6 @@ import { useLocale } from '@/context/LocaleContext';
 import RippleEffect from '@/components/RippleEffect';
 import { triggerHapticFeedback } from '@/hooks/use-haptic-feedback';
 import { isOffline } from '@/lib/cache-utils';
-import Icon from '@/components/Icon';
 
 /**
  * Страница 404 - не найдено
@@ -41,10 +40,10 @@ const NotFoundPage: React.FC = () => {
             <div className="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center animate-pulse">
               {isUserOffline ? (
                 // Иконка для офлайн-режима
-                <Icon name="signal_wifi_off" size="large" className="text-red-500" />
+                <span className="material-icons text-3xl text-red-500">signal_wifi_off</span>
               ) : (
                 // Иконка 404
-                <Icon name="error" size="large" className="text-red-500" />
+                <span className="material-icons text-3xl text-red-500">error</span>
               )}
             </div>
           </div>
@@ -67,7 +66,7 @@ const NotFoundPage: React.FC = () => {
                 onClick={goToHome}
                 className="px-6 py-2 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg flex items-center space-x-2"
               >
-                <Icon name="arrow_back" className="text-white" />
+                <span className="material-icons text-white">arrow_back</span>
                 <span>{t('returnToHome') || 'Вернуться на главную'}</span>
               </button>
             </RippleEffect>

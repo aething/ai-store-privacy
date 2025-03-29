@@ -25,7 +25,10 @@ if (!stripeSecretKey) {
   console.error("Missing required Stripe secret: STRIPE_SECRET_KEY");
   throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
 }
-const stripe = new Stripe(stripeSecretKey);
+// Создание инстанса Stripe с наиболее актуальной версией API
+const stripe = new Stripe(stripeSecretKey, {
+  apiVersion: "2023-10-16" as any, // Используем приведение типа для совместимости
+});
 
 /**
  * Determine if the country should use EUR as currency
@@ -683,11 +686,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Отправляем push-уведомление о смене статуса заказа
       try {
-        await pushNotification.sendOrderStatusNotification(
-          updatedOrder.userId, 
-          orderId, 
-          status
-        );
+        // Проверяем, что userId существует и является числом
+        if (updatedOrder && typeof updatedOrder.userId === 'number') {
+          await pushNotification.sendOrderStatusNotification(
+            updatedOrder.userId, 
+            orderId, 
+            status
+          );
+        } else {
+          console.warn("Cannot send notification: Invalid userId in order", updatedOrder);
+        }
       } catch (notificationError) {
         console.error("Error sending order status notification:", notificationError);
         // Продолжаем выполнение даже при ошибке отправки уведомления
