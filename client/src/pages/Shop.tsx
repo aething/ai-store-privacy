@@ -1,17 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import ProductSlider from "@/components/ProductSlider";
-import ProductSort from "@/components/ProductSort";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
-import { useState, useCallback } from "react";
 
 export default function Shop() {
   const [, setLocation] = useLocation();
   const { user } = useAppContext();
-  const [sortBy, setSortBy] = useState<string>('price');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
+  // Always sort by price ascending by default
+  const sortBy = 'price';
+  const sortOrder = 'asc';
   
   const { data: products, isLoading, error } = useQuery<Product[]>({
     queryKey: ["/api/products", user?.country, sortBy, sortOrder],
@@ -32,11 +32,6 @@ export default function Shop() {
       return res.json();
     }
   });
-  
-  const handleSort = useCallback((newSortBy: string, newSortOrder: 'asc' | 'desc') => {
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
-  }, []);
 
   if (isLoading) {
     return (
@@ -57,16 +52,7 @@ export default function Shop() {
 
   return (
     <div>
-      {/* Sort Controls */}
-      {products && products.length > 0 && (
-        <ProductSort 
-          onSort={handleSort}
-          defaultSortBy={sortBy}
-          defaultSortOrder={sortOrder}
-        />
-      )}
-      
-      {/* Product Slider */}
+      {/* Product Slider - Products are automatically sorted by price ascending */}
       {products && products.length > 0 && (
         <ProductSlider 
           title="Products" 
