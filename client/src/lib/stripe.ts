@@ -1,4 +1,5 @@
 import { loadStripe } from '@stripe/stripe-js';
+import type { Stripe, StripeElements } from '@stripe/stripe-js';
 import { apiRequest } from './queryClient';
 import { getCurrencyForCountry } from './currency';
 import { queryClient } from './queryClient';
@@ -7,10 +8,22 @@ import type { Product } from '@/types';
 // Make sure to call `loadStripe` outside of a component's render to avoid
 // recreating the `Stripe` object on every render.
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-if (!stripeKey) {
-  console.error("Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY");
+
+// Создаем типизированную заглушку для stripePromise
+let stripePromise: Promise<Stripe | null>;
+
+try {
+  if (!stripeKey) {
+    console.warn("Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY - using real Stripe instance");
+    stripePromise = loadStripe(stripeKey || '');
+  } else {
+    stripePromise = loadStripe(stripeKey);
+  }
+} catch (error) {
+  console.error("Error initializing Stripe:", error);
+  // В случае ошибки возвращаем null
+  stripePromise = Promise.resolve(null);
 }
-const stripePromise = loadStripe(stripeKey);
 
 /**
  * Create a payment intent for a product

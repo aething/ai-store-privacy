@@ -11,6 +11,7 @@ import { useLocale } from "@/context/LocaleContext";
 export default function Shop() {
   const [, setLocation] = useLocation();
   const { user } = useAppContext();
+  const { t } = useLocale();
   
   // Always sort by price ascending by default
   const sortBy = 'price';
@@ -36,6 +37,8 @@ export default function Shop() {
     }
   });
 
+  const infoPages = getAllInfoPages();
+
   if (isLoading) {
     return (
       <div className="flex flex-col space-y-4">
@@ -52,9 +55,6 @@ export default function Shop() {
   if (error) {
     return <div className="text-error">Error loading products</div>;
   }
-
-  const { t } = useLocale();
-  const infoPages = getAllInfoPages();
   
   return (
     <div>

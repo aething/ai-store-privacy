@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import stripePromise, { createPaymentIntent } from "@/lib/stripe";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import { apiRequest } from "@/lib/queryClient";
+import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
