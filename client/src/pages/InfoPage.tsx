@@ -106,7 +106,7 @@ export default function InfoPage() {
         <div className="sticky top-0 z-20 flex items-center justify-between w-full px-4 py-2 bg-white/80 backdrop-blur-sm border-b">
           <Button
             variant="ghost"
-            className="flex items-center text-blue-600"
+            className="flex items-center text-black font-normal"
             onClick={() => setLocation("/")}
           >
             <ChevronLeft className="h-5 w-5 mr-1" />
