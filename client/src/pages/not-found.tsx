@@ -4,6 +4,7 @@ import { useLocale } from '@/context/LocaleContext';
 import RippleEffect from '@/components/RippleEffect';
 import { triggerHapticFeedback } from '@/hooks/use-haptic-feedback';
 import { isOffline } from '@/lib/cache-utils';
+import Icon from '@/components/Icon';
 
 /**
  * Страница 404 - не найдено
@@ -94,18 +95,7 @@ const NotFoundPage: React.FC = () => {
                 onClick={goToHome}
                 className="px-6 py-2 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg flex items-center space-x-2"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <Icon name="arrow_back" className="text-white" />
                 <span>{t('returnToHome') || 'Вернуться на главную'}</span>
               </button>
             </RippleEffect>
@@ -115,36 +105,7 @@ const NotFoundPage: React.FC = () => {
         <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-1.5 w-full transform origin-left transition-all duration-1000 animate-expand"></div>
       </div>
       
-      {/* Добавляем стили анимации */}
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes pulse {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); }
-        }
-        
-        @keyframes expand {
-          from { transform: scaleX(0); }
-          to { transform: scaleX(1); }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out forwards;
-        }
-        
-        .animate-pulse {
-          animation: pulse 2s infinite;
-        }
-        
-        .animate-expand {
-          animation: expand 1s ease-out forwards;
-        }
-      `}</style>
+      {/* Анимации добавлены через CSS-классы */}
     </div>
   );
 };
