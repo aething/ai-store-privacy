@@ -31,7 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex justify-between items-center">
           <span className="font-medium">${(product.price / 100).toFixed(2)}</span>
           <button 
-            className="bg-primary text-white px-4 py-2 rounded-full text-sm font-medium"
+            className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700"
             onClick={(e) => {
               e.stopPropagation();
               setLocation(`/checkout/${product.id}`);

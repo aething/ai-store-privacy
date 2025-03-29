@@ -52,20 +52,33 @@ export default function Shop() {
                 className="flex-none w-64 rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow"
                 onClick={() => setLocation(`/product/${product.id}`)}
               >
-                <div className="p-4" style={{ height: "16rem" }}>
-                  <h3 className="font-medium text-lg mb-4">{product.title}</h3>
-                  <p className="text-text-secondary text-sm mb-4">
-                    {product.description.substring(0, 150)}...
-                    <span 
-                      className="text-primary font-medium ml-1 cursor-pointer"
+                <div className="p-4 flex flex-col" style={{ height: "16rem" }}>
+                  <h3 className="font-medium text-lg mb-3">{product.title}</h3>
+                  <div className="flex-grow overflow-hidden">
+                    <p className="text-text-secondary text-sm">
+                      {product.description.substring(0, 250)}...
+                      <span 
+                        className="text-primary font-medium ml-1 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLocation(`/product/${product.id}`);
+                        }}
+                      >
+                        More
+                      </span>
+                    </p>
+                  </div>
+                  <div className="mt-auto pt-3">
+                    <button 
+                      className="w-full bg-blue-600 text-white py-2 rounded-full text-sm font-medium hover:bg-blue-700"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setLocation(`/product/${product.id}`);
+                        setLocation(`/checkout/${product.id}`);
                       }}
                     >
-                      More
-                    </span>
-                  </p>
+                      Buy Now
+                    </button>
+                  </div>
                 </div>
               </Card>
             ))}
