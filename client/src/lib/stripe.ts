@@ -1,31 +1,37 @@
-import { loadStripe, Stripe } from '@stripe/stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import { apiRequest } from './queryClient';
 import { getCurrencyForCountry } from './currency';
 import { queryClient } from './queryClient';
 import type { Product } from '@/types';
 
-// Make sure to call `loadStripe` outside of a component's render to avoid
-// recreating the `Stripe` object on every render.
-const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+// Публичный ключ из переменных окружения
+const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string;
 
-// Для отладки - проверяем значение ключа
-console.log('Stripe public key (first few chars):', stripeKey ? stripeKey.substring(0, 5) + '...' : 'undefined');
-
-if (!stripeKey) {
-  console.error("Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY");
-  // В случае отсутствия ключа, создаем заглушку
-  alert("Stripe configuration is missing. Please ensure VITE_STRIPE_PUBLIC_KEY is set.");
+// Только для диагностики - логируем частичный ключ
+if (typeof window !== 'undefined') {
+  console.log('Stripe Public Key available:', 
+    STRIPE_PUBLIC_KEY ? 'Yes' : 'No');
 }
 
-// Оборачиваем загрузку в try-catch, чтобы избежать неожиданных ошибок
-let stripePromise: Promise<Stripe | null>;
-try {
-  stripePromise = loadStripe(stripeKey || '');
-} catch (error) {
-  console.error('Error loading Stripe.js:', error);
-  // Создаем заглушку для обещания, чтобы избежать ошибок нулевой ссылки
-  stripePromise = Promise.resolve(null);
+// Проверяем наличие ключа
+if (!STRIPE_PUBLIC_KEY) {
+  console.error('Stripe public key is missing!');
 }
+
+// Загружаем Stripe вне компонентов - это рекомендуемый подход
+// В stripe.js обеспечивается загрузка только один раз, даже при повторных вызовах
+let stripePromise: Promise<any> | null = null;
+
+// Функция для инициализации Stripe
+const getStripe = () => {
+  if (!stripePromise && STRIPE_PUBLIC_KEY) {
+    stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
+  }
+  return stripePromise;
+};
+
+// Экспортируем промис
+const stripe = getStripe();
 
 /**
  * Create a payment intent for a product
@@ -80,4 +86,4 @@ export async function syncProductsWithStripe() {
   return response.json();
 }
 
-export default stripePromise;
+export default stripe;

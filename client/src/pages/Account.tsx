@@ -427,7 +427,7 @@ export default function Account() {
             </div>
 
             <button 
-              onClick={() => setLocation("/play-market")}
+              onClick={() => setLocation("/playmarket")}
               className="text-blue-600 text-sm font-medium"
             >
               VIEW
@@ -435,7 +435,7 @@ export default function Account() {
           </div>
 
           <button 
-            onClick={() => setLocation("/play-market")}
+            onClick={() => setLocation("/playmarket")}
             className="w-full bg-blue-600 text-white py-2.5 rounded-full flex items-center justify-center hover:bg-blue-700 transition"
           >
             <span className="material-icons mr-2">android</span>

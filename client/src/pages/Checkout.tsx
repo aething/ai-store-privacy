@@ -9,7 +9,8 @@ import { useEffect, useState } from "react";
 import stripePromise, { createPaymentIntent } from "@/lib/stripe";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import { apiRequest } from "@/lib/queryClient";
-import { Stripe } from "@stripe/stripe-js";
+// Используем импорт типа, а не значения
+import type { Stripe } from "@stripe/stripe-js";
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
@@ -311,7 +312,7 @@ export default function Checkout() {
         {!stripeError && clientSecret ? (
           <div className="relative animate-fade-scale">
             <Elements 
-              stripe={stripePromise as Promise<Stripe | null>} 
+              stripe={stripePromise} 
               options={{ 
                 clientSecret,
                 appearance: {
