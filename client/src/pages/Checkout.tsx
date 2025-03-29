@@ -5,13 +5,9 @@ import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
-
-// Stripe setup
-const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || "pk_test_placeholder";
-const stripePromise = loadStripe(stripeKey);
+import stripePromise from "@/lib/stripe";
 
 const CheckoutForm = ({ productId, amount }: { productId: number; amount: number }) => {
   const stripe = useStripe();

@@ -7,10 +7,12 @@ import crypto from "crypto";
 import { ZodError } from "zod";
 
 // Check if Stripe secret key is available
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "sk_test_placeholder";
-const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: "2023-10-16",
-});
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  console.error("Missing required Stripe secret: STRIPE_SECRET_KEY");
+  throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
+}
+const stripe = new Stripe(stripeSecretKey);
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes for users
