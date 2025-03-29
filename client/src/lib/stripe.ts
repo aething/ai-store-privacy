@@ -9,49 +9,72 @@ import type { Product } from '@/types';
 // recreating the `Stripe` object on every render.
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
-// Функция для проверки доступности URL
-const checkUrlAvailability = async (url: string): Promise<boolean> => {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 секунды таймаут
+// Решение по мотивам обсуждения в https://github.com/stripe/stripe-js/pull/518
+// Создаем функцию для динамического добавления скрипта Stripe вручную
+const injectStripeScript = (): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    // Проверим, не загружен ли уже скрипт
+    if (document.querySelector('script[src*="js.stripe.com/v3"]')) {
+      console.log('Stripe script already loaded');
+      resolve();
+      return;
+    }
+
+    // Создаем элемент скрипта
+    const script = document.createElement('script');
     
-    const response = await fetch(url, { 
-      method: 'HEAD',
-      signal: controller.signal 
-    });
+    // Добавляем параметры для обхода кэширования и политик CSP
+    script.src = 'https://js.stripe.com/v3/?v=' + Date.now();
+    script.id = 'stripe-js';
+    script.crossOrigin = 'anonymous'; // важный параметр для CSP
+    script.async = true;
+    script.defer = true;
     
-    clearTimeout(timeoutId);
-    return response.ok;
-  } catch (error) {
-    console.error(`Failed to connect to ${url}:`, error);
-    return false;
-  }
+    // Отслеживаем загрузку или ошибку
+    script.onload = () => {
+      console.log('Stripe script loaded manually');
+      resolve();
+    };
+    
+    script.onerror = (error) => {
+      console.error('Failed to load Stripe script manually:', error);
+      reject(new Error('Failed to load Stripe script'));
+    };
+    
+    // Добавляем скрипт в DOM
+    document.head.appendChild(script);
+  });
 };
 
-// Функция с повторными попытками для загрузки Stripe
-const loadStripeWithRetry = async (key: string, maxRetries = 3, delay = 2000): Promise<Stripe | null> => {
-  // Сначала проверим доступность основного домена Stripe
-  const isStripeAvailable = await checkUrlAvailability('https://js.stripe.com/v3/');
-  
-  if (!isStripeAvailable) {
-    console.warn("Stripe.js is not available at the moment. Network might be limited.");
-    return null;
+// Модифицированная функция для загрузки Stripe с ручным добавлением скрипта
+const customLoadStripe = async (key: string, maxRetries = 5): Promise<Stripe | null> => {
+  // Сначала пробуем загрузить скрипт вручную
+  try {
+    await injectStripeScript();
+  } catch (error) {
+    console.error('Failed to inject Stripe script:', error);
   }
   
+  // Теперь попробуем загрузить Stripe с повторными попытками
   let lastError: any = null;
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      // Пробуем загрузить Stripe
-      return await loadStripe(key);
+      // Добавляем небольшую задержку между попытками
+      if (attempt > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
+      
+      // Пробуем загрузить Stripe с нашим ключом
+      const stripe = await loadStripe(key, {
+        stripeAccount: undefined,
+      });
+      
+      console.log('Stripe loaded successfully!');
+      return stripe;
     } catch (error) {
       lastError = error;
       console.warn(`Attempt ${attempt + 1}/${maxRetries} to load Stripe failed:`, error);
-      
-      if (attempt < maxRetries - 1) {
-        // Ждем перед следующей попыткой (с увеличивающейся задержкой)
-        await new Promise(resolve => setTimeout(resolve, delay * (attempt + 1)));
-      }
     }
   }
   
@@ -68,8 +91,8 @@ if (!stripeKey) {
   // Создаем резолвящийся в null промис, чтобы избежать ошибок
   stripePromise = Promise.resolve(null);
 } else {
-  // Используем функцию с повторными попытками
-  stripePromise = loadStripeWithRetry(stripeKey);
+  // Используем нашу новую функцию загрузки с ручным внедрением
+  stripePromise = customLoadStripe(stripeKey);
 }
 
 /**
