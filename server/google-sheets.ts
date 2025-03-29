@@ -4,10 +4,77 @@ import { User, Order } from '@shared/schema';
 // Настройка Google Sheets API
 let privateKey = process.env.GOOGLE_PRIVATE_KEY || '';
 
-// Если ключ не содержит переносы строк, но содержит '\n', заменяем их
-if (!privateKey.includes('\n') && privateKey.includes('\\n')) {
-  privateKey = privateKey.replace(/\\n/g, '\n');
+// Альтернативный способ обработки приватного ключа для решения проблемы 'DECODER routines::unsupported'
+try {
+  // 1. Сначала проверяем, если ключ уже в правильном формате
+  if (privateKey.startsWith('-----BEGIN PRIVATE KEY-----') && privateKey.endsWith('-----END PRIVATE KEY-----')) {
+    // Проверяем наличие переносов строк
+    if (!privateKey.includes('\n')) {
+      // Если нет переносов строк, пытаемся извлечь и переформатировать тело ключа
+      const keyBody = privateKey.replace('-----BEGIN PRIVATE KEY-----', '').replace('-----END PRIVATE KEY-----', '').trim();
+      privateKey = '-----BEGIN PRIVATE KEY-----\n' + keyBody + '\n-----END PRIVATE KEY-----';
+    }
+  }
+  // 2. Если ключ содержит экранированные переносы строк
+  else if (privateKey.includes('\\n')) {
+    privateKey = privateKey.replace(/\\n/g, '\n');
+  }
+  // 3. Если ключ содержит только тело (без заголовков)
+  else {
+    privateKey = '-----BEGIN PRIVATE KEY-----\n' + privateKey.trim() + '\n-----END PRIVATE KEY-----';
+  }
+
+  // 4. Принудительно вставляем переносы строк вокруг заголовков
+  privateKey = privateKey.replace(/-----BEGIN PRIVATE KEY-----(?!\n)/g, '-----BEGIN PRIVATE KEY-----\n');
+  privateKey = privateKey.replace(/(?<!\n)-----END PRIVATE KEY-----/g, '\n-----END PRIVATE KEY-----');
+  
+  // 5. Дополнительная обработка: вставка переносов строк каждые 64 символа в теле ключа
+  const header = '-----BEGIN PRIVATE KEY-----\n';
+  const footer = '\n-----END PRIVATE KEY-----';
+  if (privateKey.startsWith('-----BEGIN PRIVATE KEY-----') && privateKey.endsWith('-----END PRIVATE KEY-----')) {
+    // Извлекаем тело ключа
+    let body = privateKey.replace('-----BEGIN PRIVATE KEY-----', '')
+                         .replace('-----END PRIVATE KEY-----', '')
+                         .replace(/\n/g, '');
+    
+    // Вставляем переносы строк каждые 64 символа
+    let formattedBody = '';
+    for (let i = 0; i < body.length; i += 64) {
+      formattedBody += body.substring(i, i + 64) + '\n';
+    }
+    
+    // Собираем ключ заново
+    privateKey = header + formattedBody + footer;
+  }
+} catch (error) {
+  console.error('Error formatting private key:', error);
 }
+
+// Функция для диагностики формата ключа
+function logPrivateKeyDiagnostics(key: string) {
+  try {
+    // Логируем основную информацию о ключе, не раскрывая его содержимое
+    console.log('Private key diagnostics:');
+    console.log(`- Length: ${key.length} characters`);
+    console.log(`- Contains BEGIN marker: ${key.includes('-----BEGIN PRIVATE KEY-----')}`);
+    console.log(`- Contains END marker: ${key.includes('-----END PRIVATE KEY-----')}`);
+    console.log(`- Contains newlines: ${key.includes('\n')}`);
+    console.log(`- First 10 chars after BEGIN: ${key.indexOf('-----BEGIN PRIVATE KEY-----\n') > -1 ? 
+      '[' + key.substring(key.indexOf('-----BEGIN PRIVATE KEY-----\n') + 28, 
+                          key.indexOf('-----BEGIN PRIVATE KEY-----\n') + 38) + ']' : 'Not found'}`);
+    
+    // Проверка на наличие PEM формата
+    const isPEM = key.startsWith('-----BEGIN PRIVATE KEY-----') && 
+                 key.endsWith('-----END PRIVATE KEY-----') &&
+                 key.includes('\n');
+    console.log(`- Appears to be valid PEM format: ${isPEM}`);
+  } catch (error) {
+    console.error('Error in key diagnostics:', error);
+  }
+}
+
+logPrivateKeyDiagnostics(privateKey);
+console.log('Private key formatting completed.');
 
 const auth = new google.auth.JWT({
   email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
