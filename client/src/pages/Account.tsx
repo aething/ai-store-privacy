@@ -338,6 +338,13 @@ export default function Account() {
         </Card>
       </div>
       
+      {/* Orders */}
+      <div className="mb-6">
+        <h2 className="text-lg font-medium mb-4">{t("orders") || "My Orders"}</h2>
+        {/* Всегда показываем OrdersList, независимо от статуса авторизации (демо-режим) */}
+        <OrdersList />
+      </div>
+      
       {/* Policies */}
       <div className="mb-8">
         <h2 className="text-lg font-medium mb-4">{t("policies")}</h2>
@@ -358,18 +365,6 @@ export default function Account() {
             </a>
           ))}
         </Card>
-      </div>
-      
-      {/* Orders */}
-      <div className="mb-8">
-        <h2 className="text-lg font-medium mb-4">{t("orders") || "My Orders"}</h2>
-        {user ? (
-          <OrdersList />
-        ) : (
-          <Card className="p-4 rounded-lg">
-            <p className="text-center">{t("loginToSeeOrders") || "Please log in to see your orders"}</p>
-          </Card>
-        )}
       </div>
       
       {/* Close Account Button */}
