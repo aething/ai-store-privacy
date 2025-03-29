@@ -29,30 +29,58 @@ export default function InfoPage() {
 
   const infoPage = params && getInfoPageById(parseInt(params.id, 10));
 
-  const scrollToTop = () => {
-    // Прокрутить до самого верха страницы
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    // Также обнулить прокрутку внутри контента
+  // Функция сброса прокрутки (вынесена отдельно для повторного использования)
+  const resetScrollPosition = () => {
+    // Сбрасываем глобальный скролл страницы
+    window.scrollTo(0, 0);
+    
+    // Сбрасываем скролл контента
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
+    
+    // Принудительно устанавливаем фокус на верхнюю часть страницы
+    if (pageRef.current) {
+      pageRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
+    }
+  };
+  
+  // Функция для плавной прокрутки наверх при нажатии кнопки
+  const scrollToTop = () => {
+    // Использовать плавную прокрутку для кнопки
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    // Прокрутить контент наверх
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    
+    // Скроллим к якорю
+    document.getElementById('content-top')?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
+    
+    // Дополнительно принудительно установим позицию через небольшой таймаут
+    setTimeout(resetScrollPosition, 300);
   };
 
   useEffect(() => {
-    // Сразу прокручиваем в самый верх при загрузке страницы
-    window.scrollTo(0, 0);
+    // Сразу сбрасываем прокрутку
+    resetScrollPosition();
     
-    // Таймер, чтобы дать время браузеру отрендерить страницу
-    const timer = setTimeout(() => {
-      // Еще раз прокручиваем в самый верх после того, как все элементы загрузились
-      window.scrollTo(0, 0);
-      // Также обнуляем скролл внутреннего контента
-      if (contentRef.current) {
-        contentRef.current.scrollTop = 0;
-      }
-    }, 150);
+    // Дополнительный сброс с таймерами для надежности
+    const timer1 = setTimeout(resetScrollPosition, 50);
+    const timer2 = setTimeout(resetScrollPosition, 150);
+    const timer3 = setTimeout(resetScrollPosition, 300);
+    const timer4 = setTimeout(resetScrollPosition, 500); // Добавляем еще один таймер для большей надежности
     
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+    };
   }, [params?.id]);
 
   if (!match || !infoPage) {
@@ -99,8 +127,15 @@ export default function InfoPage() {
           <div 
             ref={contentRef}
             className="p-4 sm:p-6 overflow-y-auto"
-            style={{ maxHeight: "calc(100vh - 200px)" }}
+            style={{ 
+              maxHeight: "calc(100vh - 200px)",
+              scrollBehavior: "smooth"
+            }}
+            id="info-content"
           >
+            {/* Якорь для верхней части контента */}
+            <div id="content-top"></div>
+            
             <h1 className="text-2xl font-bold mb-2">{infoPage.title}</h1>
             <p className="text-gray-500 mb-6">{infoPage.description}</p>
             
