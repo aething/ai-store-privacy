@@ -1,30 +1,51 @@
 import { ReactNode } from "react";
 import BottomNav from "./BottomNav";
 import Header from "./Header";
+import PhoneMockup from "./PhoneMockup";
+import OrientationManager from "./OrientationManager";
+import { useDeviceSize } from "@/hooks/use-device-size";
+import { useSwipeNavigation } from "@/hooks/use-swipe-navigation";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const { isMobile, isTablet } = useDeviceSize();
+  
+  // Включаем навигацию свайпами (свайп вправо = кнопка "назад")
+  useSwipeNavigation({
+    directions: { right: true },
+  });
+  
+  // Контент приложения
+  const AppContent = () => (
+    <div className="h-full flex flex-col pt-8 bg-background font-roboto">
+      <Header />
+      <main className="flex-1 px-4 pt-2 pb-20 overflow-y-auto">
+        {children}
+      </main>
+      <BottomNav />
+    </div>
+  );
+  
+  // На мобильных устройствах не показываем макет телефона
+  if (isMobile || isTablet) {
+    return (
+      <OrientationManager forcePortrait={true}>
+        <div className="min-h-screen bg-white">
+          <AppContent />
+        </div>
+      </OrientationManager>
+    );
+  }
+  
+  // На десктопе показываем в рамке телефона
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 py-8 px-4">
-      <div className="relative w-full max-w-md mx-auto bg-white rounded-[3rem] shadow-2xl overflow-hidden border-8 border-black" style={{ height: "90vh" }}>
-        {/* Phone Notch */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1/3 h-7 bg-black rounded-b-xl z-10"></div>
-        
-        {/* Phone Content */}
-        <div className="h-full flex flex-col pt-8 bg-background font-roboto">
-          <Header />
-          <main className="flex-1 px-4 pt-2 pb-20 overflow-y-auto">
-            {children}
-          </main>
-          <BottomNav />
-        </div>
-        
-        {/* Phone Button */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-1/4 h-1 bg-black rounded-full"></div>
-      </div>
+      <PhoneMockup showMockup={true} mockupColor="black">
+        <AppContent />
+      </PhoneMockup>
     </div>
   );
 }

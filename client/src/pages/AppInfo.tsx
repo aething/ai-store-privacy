@@ -3,11 +3,23 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocale } from "@/context/LocaleContext";
 import ShareButton from "@/components/ShareButton";
 import RippleEffect from "@/components/RippleEffect";
+import { useDeviceSize } from '@/hooks/use-device-size';
+import AdaptiveContainer from '@/components/AdaptiveContainer';
+import PlayMarketCard, { ScreenshotGallery } from '@/components/PlayMarketCard';
+import { useH1Size, useH2Size, useH3Size, useBodySize } from '@/hooks/use-responsive-text';
+import { Card } from '@/components/ui/card';
 
 const AppInfo = () => {
   const { toast } = useToast();
   const { t } = useLocale();
   const [isInstalling, setIsInstalling] = useState(false);
+  const { isMobile, isTablet, isLandscape } = useDeviceSize();
+  
+  // Адаптивные размеры текста
+  const h1Size = useH1Size();
+  const h2Size = useH2Size();
+  const h3Size = useH3Size();
+  const bodySize = useBodySize();
   
   // Данные приложения
   const appData = {
@@ -105,45 +117,132 @@ const AppInfo = () => {
     }
   };
   
-  // Рендеринг звездного рейтинга
-  const renderStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        stars.push(<span key={i} className="material-icons text-yellow-500">star</span>);
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push(<span key={i} className="material-icons text-yellow-500">star_half</span>);
-      } else {
-        stars.push(<span key={i} className="material-icons text-gray-300">star_border</span>);
-      }
+  // Функция для "поделиться"
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: appData.name,
+        text: appData.description,
+        url: window.location.href,
+      })
+      .then(() => {
+        toast({
+          title: "Shared successfully",
+          description: "App has been shared",
+        });
+      })
+      .catch(() => {
+        toast({
+          title: "Share canceled",
+          description: "App sharing was canceled",
+        });
+      });
+    } else {
+      toast({
+        title: "Share not supported",
+        description: "Your browser does not support sharing",
+        variant: "destructive",
+      });
     }
-    
-    return <div className="flex">{stars}</div>;
   };
   
-  // Рендеринг галереи скриншотов
-  const renderScreenshots = () => {
+  // Адаптивный компонент для мобильных устройств
+  if (isMobile) {
     return (
-      <div className="overflow-x-auto pb-4">
-        <div className="flex space-x-4">
-          {appData.screenshots.map((screenshot, index) => (
-            <div key={index} className="flex-shrink-0 w-40 h-80 bg-gray-200 rounded-lg overflow-hidden">
-              <div className="w-full h-full flex items-center justify-center text-gray-500">
-                <span className="material-icons text-4xl">image</span>
-                <span className="ml-2">Screenshot {index + 1}</span>
+      <div className="pt-2 pb-6">
+        {/* Карточка приложения */}
+        <div className="mb-4">
+          <PlayMarketCard 
+            appName={appData.name}
+            developer={appData.developer}
+            icon={<span className="text-white font-bold text-xl text-center">AI Store</span>}
+            rating={appData.rating}
+            reviews={appData.reviews}
+            downloads={appData.downloads}
+            category={appData.category}
+            contentRating={appData.contentRating}
+            onInstall={handleInstall}
+            onShare={handleShare}
+            isInstalling={isInstalling}
+          />
+        </div>
+        
+        {/* Скриншоты */}
+        <div className="px-4 mb-4">
+          <ScreenshotGallery 
+            screenshots={[]} // Пустые URL (будут заменены на плейсхолдеры)
+            placeholderLabels={[
+              'Shop Page', 
+              'Product Details', 
+              'Account Page', 
+              'Checkout'
+            ]}
+          />
+        </div>
+        
+        {/* Информация о приложении */}
+        <div className="px-4">
+          <Card className="p-4 mb-4">
+            <h2 className={`${h2Size} font-semibold mb-3`}>{t("about") || "About this app"}</h2>
+            <p className={`mb-4 ${bodySize}`}>{appData.description}</p>
+            
+            <h3 className={`${h3Size} font-semibold mb-2`}>{t("features") || "Features"}:</h3>
+            <ul className={`list-disc list-inside mb-2 space-y-1 ${bodySize}`}>
+              {appData.features.map((feature, index) => (
+                <li key={index}>{feature}</li>
+              ))}
+            </ul>
+          </Card>
+          
+          <Card className="p-4 mb-4">
+            <h2 className={`${h2Size} font-semibold mb-2`}>{t("whatsNew") || "What's New"}</h2>
+            <p className="text-sm text-gray-600 mb-2">{t("updated") || "Updated on"} {appData.lastUpdate}</p>
+            <ul className={`list-disc list-inside space-y-1 ${bodySize}`}>
+              {appData.whatsNew.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          </Card>
+          
+          <Card className="p-4 mb-4">
+            <h2 className={`${h2Size} font-semibold mb-3`}>{t("additionalInfo") || "Additional Information"}</h2>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">{t("updated") || "Updated"}</span>
+                <span>{appData.lastUpdate}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">{t("size") || "Size"}</span>
+                <span>{appData.size}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">{t("version") || "Version"}</span>
+                <span>{appData.currentVersion}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">{t("androidVersion") || "Android"}</span>
+                <span>{appData.requiredAndroidVersion}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">{t("inAppPurchases") || "In-app Purchases"}</span>
+                <span>{appData.inAppPurchases}</span>
               </div>
             </div>
-          ))}
+          </Card>
+          
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600 text-center">
+              © 2025 Aething Technologies Ltd. {t("allRightsReserved") || "All rights reserved"}
+            </p>
+          </div>
         </div>
       </div>
     );
-  };
+  }
   
+  // Для планшетов и десктопа
   return (
-    <div className="container mx-auto px-4 py-6 max-w-4xl">
+    <div className={`container mx-auto px-4 py-6 ${isTablet ? 'max-w-2xl' : 'max-w-4xl'}`}>
       <div className="flex flex-col md:flex-row gap-6">
         {/* Левая колонка - иконка и кнопки */}
         <div className="flex flex-col items-center md:items-start">
@@ -175,14 +274,23 @@ const AppInfo = () => {
         
         {/* Правая колонка - информация о приложении */}
         <div className="flex-1">
-          <h1 className="text-2xl font-bold mb-2">{appData.name}</h1>
+          <h1 className={`${h1Size} font-bold mb-2`}>{appData.name}</h1>
           <p className="text-blue-600 mb-4">{appData.developer}</p>
           
           <div className="bg-gray-100 p-4 rounded-lg mb-6">
             <div className="flex flex-wrap gap-4 justify-between">
               <div>
                 <div className="flex items-center">
-                  {renderStars(appData.rating)}
+                  <div className="flex">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <span 
+                        key={i} 
+                        className={`material-icons ${i < Math.floor(appData.rating) ? 'text-yellow-500' : 'text-gray-300'}`}
+                      >
+                        {i < Math.floor(appData.rating) ? 'star' : 'star_border'}
+                      </span>
+                    ))}
+                  </div>
                   <span className="ml-2 text-lg font-semibold">{appData.rating}</span>
                 </div>
                 <p className="text-sm text-gray-600">{appData.reviews} {t("reviews") || "reviews"}</p>
@@ -205,12 +313,26 @@ const AppInfo = () => {
             </div>
           </div>
           
+          {/* Скриншоты */}
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">{t("about") || "About this app"}</h2>
-            <p className="mb-4">{appData.description}</p>
+            <ScreenshotGallery 
+              screenshots={[]} // Пустые URL (будут заменены на плейсхолдеры)
+              placeholderLabels={[
+                'Shop Page', 
+                'Product Details', 
+                'Account Page', 
+                'Checkout', 
+                'Order Confirmation'
+              ]}
+            />
+          </div>
+          
+          <div className="mb-6">
+            <h2 className={`${h2Size} font-semibold mb-3`}>{t("about") || "About this app"}</h2>
+            <p className={`mb-4 ${bodySize}`}>{appData.description}</p>
             
-            <h3 className="font-semibold mb-2">{t("features") || "Features"}:</h3>
-            <ul className="list-disc list-inside mb-4 space-y-1">
+            <h3 className={`${h3Size} font-semibold mb-2`}>{t("features") || "Features"}:</h3>
+            <ul className={`list-disc list-inside mb-4 space-y-1 ${bodySize}`}>
               {appData.features.map((feature, index) => (
                 <li key={index}>{feature}</li>
               ))}
@@ -218,9 +340,9 @@ const AppInfo = () => {
           </div>
           
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">{t("whatsNew") || "What's New"}</h2>
+            <h2 className={`${h2Size} font-semibold mb-3`}>{t("whatsNew") || "What's New"}</h2>
             <p className="text-sm text-gray-600 mb-2">{t("updated") || "Updated on"} {appData.lastUpdate}</p>
-            <ul className="list-disc list-inside space-y-1">
+            <ul className={`list-disc list-inside space-y-1 ${bodySize}`}>
               {appData.whatsNew.map((item, index) => (
                 <li key={index}>{item}</li>
               ))}
@@ -228,12 +350,7 @@ const AppInfo = () => {
           </div>
           
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">{t("screenshots") || "Screenshots"}</h2>
-            {renderScreenshots()}
-          </div>
-          
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">{t("additionalInfo") || "Additional Information"}</h2>
+            <h2 className={`${h2Size} font-semibold mb-3`}>{t("additionalInfo") || "Additional Information"}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-gray-600">{t("updated") || "Updated"}</p>
