@@ -1,191 +1,178 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { 
-  Elements, 
-  PaymentElement,
-  useStripe, 
-  useElements 
-} from '@stripe/react-stripe-js';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSubscription } from '@/hooks/use-subscription';
+import { useEffect, useState } from 'react';
+import Layout from '../components/Layout';
+import { useAppContext } from '../context/AppContext';
+import { useToast } from '../hooks/use-toast';
+import { apiRequest } from '../lib/queryClient';
+import { useLocation } from 'wouter';
 
-// Загружаем Stripe за пределами компонента
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
+// Убедитесь, что ключ Stripe загружен
+if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+}
 
-// Форма для оплаты подписки
-function SubscriptionCheckoutForm() {
+// Загружаем Stripe вне компонента для оптимизации
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+const SubscribeForm = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const [processing, setProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [, setLocation] = useLocation();
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!stripe || !elements) {
+      // Stripe.js еще не загружен
       return;
     }
 
-    setProcessing(true);
-    setError(null);
+    setLoading(true);
 
-    // Подтверждаем платеж
-    const { error: submitError } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        // После успешной оплаты перенаправляем на страницу подтверждения
-        return_url: `${window.location.origin}/confirmation?type=subscription`,
-      },
-    });
+    try {
+      const result = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/confirmation`,
+        },
+      });
 
-    if (submitError) {
-      setError(submitError.message || 'Ошибка при обработке платежа');
-      setProcessing(false);
-      
+      if (result.error) {
+        // Показываем ошибку пользователю
+        toast({
+          title: 'Ошибка оплаты',
+          description: result.error.message || 'Произошла ошибка при обработке платежа',
+          variant: 'destructive',
+        });
+      } else {
+        // Успешная оплата будет обработана на странице перенаправления (return_url)
+        toast({
+          title: 'Подписка активирована',
+          description: 'Спасибо за оформление подписки!',
+        });
+
+        // Перенаправляем на страницу подтверждения
+        setLocation('/confirmation');
+      }
+    } catch (error: any) {
       toast({
-        title: 'Ошибка оплаты',
-        description: submitError.message || 'Произошла ошибка при обработке платежа',
+        title: 'Ошибка',
+        description: error.message || 'Произошла неизвестная ошибка',
         variant: 'destructive',
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto space-y-6 p-4">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold mb-2">Оформление подписки</h2>
+        <p className="text-gray-600">
+          Введите данные карты для оформления подписки на наши услуги
+        </p>
+      </div>
+
+      <div className="mb-6">
         <PaymentElement />
-        
-        {error && (
-          <div className="text-red-500 text-sm">{error}</div>
-        )}
       </div>
-      
-      <Button 
-        type="submit" 
-        className="w-full" 
-        disabled={!stripe || processing}
+
+      <button
+        type="submit"
+        disabled={!stripe || loading}
+        className={`w-full py-3 px-4 bg-blue-600 text-white font-semibold rounded-md transition 
+          ${(!stripe || loading) ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-700'}`}
       >
-        {processing ? 'Обработка...' : 'Подписаться'}
-      </Button>
-      
-      <div className="text-center text-sm text-muted-foreground mt-4">
-        <p>Нажимая кнопку выше, вы соглашаетесь с нашими Условиями подписки</p>
-      </div>
+        {loading ? (
+          <span className="flex items-center justify-center">
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Обработка...
+          </span>
+        ) : (
+          'Оформить подписку'
+        )}
+      </button>
     </form>
   );
-}
+};
 
-// Основной компонент страницы подписки
 export default function Subscribe() {
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const { data, error, isLoading, refetch } = useSubscription();
+  const [clientSecret, setClientSecret] = useState('');
+  const { user } = useAppContext();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  
-  // Инициируем получение подписки при загрузке страницы
+
   useEffect(() => {
-    const getSubscription = async () => {
-      try {
-        const result = await refetch();
-        if (result.data && result.data.clientSecret) {
-          setClientSecret(result.data.clientSecret);
+    // Если пользователь не авторизован, перенаправляем на главную
+    if (!user) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Для оформления подписки необходимо войти в аккаунт',
+        variant: 'destructive',
+      });
+      setLocation('/');
+      return;
+    }
+
+    // PRICE_ID должен быть создан в панели управления Stripe и привязан к продукту
+    // В реальном проекте его нужно получать из конфигурации или из API
+    const PRICE_ID = 'price_test123'; // Замените на реальный price_id из Stripe
+
+    // Создаем или получаем существующую подписку для пользователя
+    apiRequest('POST', '/api/get-or-create-subscription', { priceId: PRICE_ID })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to create subscription');
+        return res.json();
+      })
+      .then((data) => {
+        if (data.clientSecret) {
+          setClientSecret(data.clientSecret);
+        } else {
+          // Если нет clientSecret, значит подписка уже активна
+          toast({
+            title: 'Подписка активна',
+            description: 'У вас уже есть активная подписка',
+          });
+          setLocation('/account');
         }
-      } catch (err) {
+      })
+      .catch((error) => {
+        console.error('Error creating subscription:', error);
         toast({
           title: 'Ошибка',
-          description: 'Не удалось получить данные для подписки',
+          description: 'Не удалось создать подписку. Попробуйте позже.',
           variant: 'destructive',
         });
-      }
-    };
-    
-    getSubscription();
-  }, [refetch, toast]);
-  
-  // Обработка ошибок и состояния загрузки
-  if (isLoading) {
-    return (
-      <div className="container max-w-lg mx-auto py-12 px-4">
-        <Card className="w-full">
-          <CardHeader className="text-center">
-            <CardTitle>Загрузка данных...</CardTitle>
-            <CardDescription>
-              Пожалуйста, подождите
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center py-6">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-  
-  if (error) {
-    return (
-      <div className="container max-w-lg mx-auto py-12 px-4">
-        <Card className="w-full">
-          <CardHeader className="text-center">
-            <CardTitle className="text-red-500">Ошибка</CardTitle>
-            <CardDescription>
-              Не удалось загрузить данные для подписки
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center text-muted-foreground">
-              {error instanceof Error ? error.message : 'Произошла неизвестная ошибка'}
-            </p>
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <Button onClick={() => setLocation('/')}>
-              Вернуться на главную
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    );
-  }
-  
-  // Если нет секретного ключа для клиента, показываем сообщение
+      });
+  }, [user, toast, setLocation]);
+
   if (!clientSecret) {
     return (
-      <div className="container max-w-lg mx-auto py-12 px-4">
-        <Card className="w-full">
-          <CardHeader className="text-center">
-            <CardTitle>Подготовка данных</CardTitle>
-            <CardDescription>
-              Пожалуйста, подождите, мы готовим данные для оформления подписки
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center py-6">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          </CardContent>
-        </Card>
-      </div>
+      <Layout>
+        <div className="h-[80vh] flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-4"></div>
+            <p>Подготовка подписки...</p>
+          </div>
+        </div>
+      </Layout>
     );
   }
-  
-  // Если есть секретный ключ, показываем форму оплаты
+
   return (
-    <div className="container max-w-lg mx-auto py-12 px-4">
-      <Card className="w-full">
-        <CardHeader className="text-center">
-          <CardTitle>Оформление подписки</CardTitle>
-          <CardDescription>
-            Для продолжения введите данные платежной карты
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Elements stripe={stripePromise} options={{ clientSecret }}>
-            <SubscriptionCheckoutForm />
-          </Elements>
-        </CardContent>
-      </Card>
-    </div>
+    <Layout>
+      <div className="container mx-auto py-8">
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+          <SubscribeForm />
+        </Elements>
+      </div>
+    </Layout>
   );
 }

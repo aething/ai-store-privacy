@@ -6,7 +6,6 @@ import Stripe from "stripe";
 import crypto from "crypto";
 import { ZodError } from "zod";
 import * as googleSheets from "./google-sheets";
-import * as pushNotification from "./push-notification";
 
 // Расширяем типы для Express.Request
 declare global {
@@ -25,10 +24,7 @@ if (!stripeSecretKey) {
   console.error("Missing required Stripe secret: STRIPE_SECRET_KEY");
   throw new Error("Missing required Stripe secret: STRIPE_SECRET_KEY");
 }
-// Создание инстанса Stripe с наиболее актуальной версией API
-const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: "2023-10-16" as any, // Используем приведение типа для совместимости
-});
+const stripe = new Stripe(stripeSecretKey);
 
 /**
  * Determine if the country should use EUR as currency
@@ -684,85 +680,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update order status in Google Sheets
       await safeGoogleSheetsCall(googleSheets.updateOrderStatus, orderId, status);
       
-      // Отправляем push-уведомление о смене статуса заказа
-      try {
-        // Проверяем, что userId существует и является числом
-        if (updatedOrder && typeof updatedOrder.userId === 'number') {
-          await pushNotification.sendOrderStatusNotification(
-            updatedOrder.userId, 
-            orderId, 
-            status
-          );
-        } else {
-          console.warn("Cannot send notification: Invalid userId in order", updatedOrder);
-        }
-      } catch (notificationError) {
-        console.error("Error sending order status notification:", notificationError);
-        // Продолжаем выполнение даже при ошибке отправки уведомления
-      }
-      
       res.json(updatedOrder);
     } catch (error) {
       res.status(500).json({ message: "Error updating order status" });
-    }
-  });
-  
-  // Маршрут для управления подпиской (отмена, возобновление, обновление)
-  app.post("/api/manage-subscription", async (req: Request, res: Response) => {
-    try {
-      if (!req.isAuthenticated() || !req.user) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-      
-      const user = req.user;
-      const { action } = req.body;
-      
-      if (!user.stripeSubscriptionId) {
-        return res.status(400).json({ message: "No active subscription found" });
-      }
-      
-      // Получаем текущую подписку
-      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
-      
-      let result;
-      
-      switch (action) {
-        case 'cancel':
-          // Отмена подписки в конце платежного периода
-          result = await stripe.subscriptions.update(user.stripeSubscriptionId, {
-            cancel_at_period_end: true,
-          });
-          break;
-          
-        case 'reactivate':
-          // Возобновление подписки, если она была отменена
-          if (subscription.cancel_at_period_end) {
-            result = await stripe.subscriptions.update(user.stripeSubscriptionId, {
-              cancel_at_period_end: false,
-            });
-          } else {
-            return res.status(400).json({ message: "Subscription is not scheduled for cancellation" });
-          }
-          break;
-        
-        case 'cancel_immediately':
-          // Немедленная отмена подписки
-          result = await stripe.subscriptions.cancel(user.stripeSubscriptionId);
-          // Обновляем пользователя
-          await storage.updateUserStripeSubscriptionId(user.id, "");
-          break;
-          
-        default:
-          return res.status(400).json({ message: "Invalid action" });
-      }
-      
-      res.json({
-        success: true,
-        subscription: result
-      });
-    } catch (error: any) {
-      console.error("Subscription management error:", error);
-      res.status(400).json({ error: { message: error.message } });
     }
   });
   
@@ -863,91 +783,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Webhook error:', error);
       res.status(500).json({ message: "Error processing webhook" });
-    }
-  });
-
-  // API routes для push-уведомлений
-  app.post("/api/push/subscribe", async (req: Request, res: Response) => {
-    await pushNotification.registerPushSubscription(req, res);
-  });
-  
-  app.post("/api/push/unsubscribe", async (req: Request, res: Response) => {
-    await pushNotification.unregisterPushSubscription(req, res);
-  });
-  
-  // Отправка тестового push-уведомления
-  app.post("/api/push/send-test", async (req: Request, res: Response) => {
-    try {
-      const { userId } = req.body;
-      
-      if (!userId) {
-        return res.status(400).json({
-          error: 'Missing userId'
-        });
-      }
-      
-      const result = await pushNotification.sendPushNotificationToUser(
-        userId,
-        'Тестовое уведомление',
-        'Это тестовое уведомление от AI Store by Aething',
-        '/'
-      );
-      
-      if (result.success) {
-        res.json({
-          success: true,
-          message: `Тестовое уведомление отправлено на ${result.sent} устройств`
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          message: result.error
-        });
-      }
-    } catch (error) {
-      console.error('Error sending test notification:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Error sending test notification'
-      });
-    }
-  });
-  
-  // Отправка уведомления всем пользователям
-  app.post("/api/push/broadcast", async (req: Request, res: Response) => {
-    try {
-      // Требуем авторизацию (в реальном приложении должны быть права администратора)
-      if (!req.isAuthenticated() || !req.user) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-      
-      const { title, body, url } = req.body;
-      
-      if (!title || !body) {
-        return res.status(400).json({
-          error: 'Missing required fields: title and body are required'
-        });
-      }
-      
-      const result = await pushNotification.sendPushNotificationToAll(title, body, url || '/');
-      
-      if (result.success) {
-        res.json({
-          success: true,
-          message: `Уведомление отправлено на ${result.sent} устройств`
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          message: result.error
-        });
-      }
-    } catch (error) {
-      console.error('Error sending broadcast notification:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Error sending broadcast notification'
-      });
     }
   });
 

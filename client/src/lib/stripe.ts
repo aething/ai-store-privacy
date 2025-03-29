@@ -4,48 +4,13 @@ import { getCurrencyForCountry } from './currency';
 import { queryClient } from './queryClient';
 import type { Product } from '@/types';
 
-// Публичный ключ из переменных окружения
-const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string;
-
-// Только для диагностики - логируем ключ и его формат
-if (typeof window !== 'undefined') {
-  console.log('Stripe Public Key available:', STRIPE_PUBLIC_KEY ? 'Yes' : 'No');
-  if (STRIPE_PUBLIC_KEY) {
-    console.log('Key format valid:', STRIPE_PUBLIC_KEY.startsWith('pk_'));
-    console.log('Key length:', STRIPE_PUBLIC_KEY.length);
-  }
+// Make sure to call `loadStripe` outside of a component's render to avoid
+// recreating the `Stripe` object on every render.
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+if (!stripeKey) {
+  console.error("Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY");
 }
-
-// Проверяем наличие ключа
-if (!STRIPE_PUBLIC_KEY) {
-  console.error('Stripe public key is missing!');
-} else if (!STRIPE_PUBLIC_KEY.startsWith('pk_')) {
-  console.error('Stripe public key format is invalid! Must start with pk_');
-}
-
-// Загружаем Stripe вне компонентов - это рекомендуемый подход
-// В stripe.js обеспечивается загрузка только один раз, даже при повторных вызовах
-let stripePromise: Promise<any> | null = null;
-
-// Функция для инициализации Stripe с обработкой ошибок
-const getStripe = () => {
-  if (!stripePromise && STRIPE_PUBLIC_KEY) {
-    try {
-      stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
-      // Добавляем обработку ошибок для промиса
-      stripePromise.catch(error => {
-        console.error('Error loading Stripe.js:', error);
-        stripePromise = null; // Сбрасываем промис в случае ошибки
-      });
-    } catch (error) {
-      console.error('Exception while initializing Stripe:', error);
-    }
-  }
-  return stripePromise;
-};
-
-// Экспортируем промис
-const stripe = getStripe();
+const stripePromise = loadStripe(stripeKey);
 
 /**
  * Create a payment intent for a product
@@ -100,4 +65,4 @@ export async function syncProductsWithStripe() {
   return response.json();
 }
 
-export default stripe;
+export default stripePromise;

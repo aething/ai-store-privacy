@@ -6,8 +6,6 @@
   <title>AI Store by Aething</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <!-- Предзагрузка Stripe.js для решения проблем с загрузкой через API -->
-  <script src="https://js.stripe.com/v3/" defer></script>
   <style>
     :root {
       --primary: #6200EE;
@@ -80,40 +78,6 @@
     
     .card:hover {
       box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-    }
-    
-    /* Добавляем загрузочную анимацию для элементов Stripe */
-    .stripe-loading {
-      position: relative;
-      min-height: 120px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .stripe-loading::before {
-      content: 'Loading payment system...';
-      position: absolute;
-      color: #6B7280;
-    }
-    
-    .stripe-loading::after {
-      content: '';
-      width: 24px;
-      height: 24px;
-      border: 3px solid #E5E7EB;
-      border-top-color: #6200EE;
-      border-radius: 50%;
-      animation: spinner 1s ease-in-out infinite;
-      position: absolute;
-      top: 50%;
-      margin-top: -25px;
-    }
-    
-    @keyframes spinner {
-      to {
-        transform: rotate(360deg);
-      }
     }
   </style>
 </head>

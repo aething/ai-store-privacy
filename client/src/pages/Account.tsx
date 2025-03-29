@@ -315,132 +315,16 @@ export default function Account() {
                 ? t("activeSubscription") || "You have an active subscription" 
                 : t("noSubscription") || "You don't have an active subscription"}
             </p>
-            
-            {user?.stripeSubscriptionId ? (
-              <div className="flex flex-col space-y-3 w-full max-w-xs">
-                <button
-                  onClick={() => {
-                    if (confirm(t("cancelSubscriptionConfirm") || "Are you sure you want to cancel your subscription at the end of the billing period?")) {
-                      // Вызываем API для отмены подписки
-                      fetch('/api/manage-subscription', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'cancel' })
-                      })
-                      .then(response => {
-                        if (response.ok) {
-                          toast({
-                            title: t("success") || "Success",
-                            description: t("subscriptionCancelled") || "Your subscription will be cancelled at the end of the billing period",
-                          });
-                        } else {
-                          throw new Error(t("errorCancellingSubscription") || "Error cancelling subscription");
-                        }
-                      })
-                      .catch(error => {
-                        toast({
-                          title: t("error") || "Error",
-                          description: error.message || t("errorCancellingSubscription") || "Error cancelling subscription",
-                          variant: "destructive",
-                        });
-                      });
-                    }
-                  }}
-                  className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 disabled:opacity-50"
-                  disabled={isLoading || !user}
-                >
-                  {t("cancelSubscription") || "Cancel Subscription"}
-                </button>
-                
-                <button
-                  onClick={() => {
-                    if (confirm(t("cancelImmediatelyConfirm") || "Are you sure you want to cancel your subscription immediately? This cannot be undone.")) {
-                      // Вызываем API для немедленной отмены подписки
-                      fetch('/api/manage-subscription', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'cancel_immediately' })
-                      })
-                      .then(response => {
-                        if (response.ok) {
-                          toast({
-                            title: t("success") || "Success",
-                            description: t("subscriptionCancelledImmediately") || "Your subscription has been cancelled immediately",
-                          });
-                          // Обновляем данные пользователя
-                          // Перезагружаем страницу, чтобы получить обновленные данные
-                          window.location.reload();
-                        } else {
-                          throw new Error(t("errorCancellingSubscription") || "Error cancelling subscription");
-                        }
-                      })
-                      .catch(error => {
-                        toast({
-                          title: t("error") || "Error",
-                          description: error.message || t("errorCancellingSubscription") || "Error cancelling subscription",
-                          variant: "destructive",
-                        });
-                      });
-                    }
-                  }}
-                  className="text-red-500 underline text-sm px-6 py-2"
-                  disabled={isLoading || !user}
-                >
-                  {t("cancelImmediately") || "Cancel Immediately"}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setLocation('/subscribe')}
-                className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
-                disabled={isLoading || !user}
-              >
-                {t("subscribe") || "Subscribe Now"}
-              </button>
-            )}
-          </div>
-        </Card>
-      </div>
-
-      {/* Google Play Market */}
-      <div className="mb-8">
-        <h2 className="text-lg font-medium mb-4">{t("getOurApp") || "Get Our App"}</h2>
-        <Card className="rounded-lg p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center overflow-hidden mr-3">
-                <span className="text-white text-xl font-bold">A</span>
-              </div>
-              <div>
-                <h3 className="font-medium">AI Store by Aething</h3>
-                <div className="flex items-center">
-                  <span className="text-sm text-gray-500 mr-1">4.7</span>
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span key={star} className="material-icons text-yellow-500 text-sm">
-                        {star <= 4 ? "star" : "star_half"}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <button 
-              onClick={() => setLocation("/playmarket")}
-              className="text-blue-600 text-sm font-medium"
+            <button
+              onClick={() => setLocation('/subscribe')}
+              className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
+              disabled={isLoading || !user}
             >
-              VIEW
+              {user?.stripeSubscriptionId 
+                ? t("manageSubscription") || "Manage Subscription" 
+                : t("subscribe") || "Subscribe Now"}
             </button>
           </div>
-
-          <button 
-            onClick={() => setLocation("/playmarket")}
-            className="w-full bg-blue-600 text-white py-2.5 rounded-full flex items-center justify-center hover:bg-blue-700 transition"
-          >
-            <span className="material-icons mr-2">android</span>
-            Install from Google Play
-          </button>
         </Card>
       </div>
       
