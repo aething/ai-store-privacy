@@ -51,12 +51,28 @@ export default function Account() {
       return;
     }
     
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(user.email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       const response = await apiRequest("POST", "/api/users/send-verification", {
         email: user.email,
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error sending verification email");
+      }
       
       const data = await response.json();
       
@@ -67,7 +83,11 @@ export default function Account() {
       
       // For demo purposes only: auto-verify the user
       if (data.token) {
-        await apiRequest("GET", `/api/users/${user.id}/verify?token=${data.token}`);
+        const verifyResponse = await apiRequest("GET", `/api/users/${user.id}/verify?token=${data.token}`);
+        
+        if (!verifyResponse.ok) {
+          throw new Error("Failed to verify email");
+        }
         
         setUser({ ...user, isVerified: true });
         
@@ -76,10 +96,10 @@ export default function Account() {
           description: "Your email has been verified successfully.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to send verification email",
+        description: error.message || "Failed to send verification email",
         variant: "destructive",
       });
     } finally {

@@ -53,14 +53,14 @@ export default {
   
   // Success Messages
   orderConfirmed: "Order Confirmed",
-  emailVerified: "Verified",
+  emailVerified: "Verified Email",
   profileUpdated: "Profile Updated Successfully",
   
   // Error Messages
   errorOccurred: "An error occurred",
   paymentFailed: "Payment failed",
   invalidCredentials: "Invalid credentials",
-  notVerified: "Not verified",
+  notVerified: "Email Not Verified",
   
   // Common Actions
   submit: "Submit",

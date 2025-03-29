@@ -39,12 +39,16 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  isVerified: true,
-  verificationToken: true,
-  stripeCustomerId: true,
-});
+export const insertUserSchema = createInsertSchema(users)
+  .omit({
+    id: true,
+    isVerified: true,
+    verificationToken: true,
+    stripeCustomerId: true,
+  })
+  .extend({
+    email: z.string().email("Please enter a valid email address"),
+  });
 
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
