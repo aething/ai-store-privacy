@@ -35,9 +35,12 @@ export default function InfoPage() {
   };
 
   useEffect(() => {
-    // Scroll to top when page changes
+    // Убедимся, что страница полностью прокручена вверх при первом открытии
+    window.scrollTo(0, 0);
+    
+    // Убедимся, что контент тоже прокручен вверх
     if (contentRef.current) {
-      contentRef.current.scrollTo({ top: 0 });
+      contentRef.current.scrollTop = 0;
     }
   }, [params?.id]);
 
@@ -81,21 +84,20 @@ export default function InfoPage() {
         )}
         
         <Card className="overflow-hidden shadow-md rounded-lg mt-2">
-          <div className="relative">
-            {/* Hero Image */}
-            <div className="w-full h-56 sm:h-72 md:h-96 bg-gray-200 overflow-hidden">
-              <img
-                src={infoPage.imageUrl}
-                alt={infoPage.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
+          {/* Hero Image - вынесен за пределы прокручиваемой области */}
+          <div className="w-full h-56 sm:h-72 md:h-96 bg-gray-200 overflow-hidden">
+            <img
+              src={infoPage.imageUrl}
+              alt={infoPage.title}
+              className="w-full h-full object-cover"
+            />
           </div>
           
-          {/* Content */}
+          {/* Content - прокручиваемая область начинается после изображения */}
           <div 
             ref={contentRef}
-            className="p-4 sm:p-6 max-h-[calc(100vh-300px)] overflow-y-auto"
+            className="p-4 sm:p-6 overflow-y-auto"
+            style={{ maxHeight: "calc(100vh - 400px)" }}
           >
             <h1 className="text-2xl font-bold mb-2">{infoPage.title}</h1>
             <p className="text-gray-500 mb-6">{infoPage.description}</p>
