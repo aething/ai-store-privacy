@@ -95,8 +95,8 @@ const NotFoundPage: React.FC = () => {
                 onClick={goToHome}
                 className="px-6 py-2 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-colors duration-300 shadow-md hover:shadow-lg flex items-center space-x-2"
               >
-                <Icon name="arrow_back" className="text-white" />
-                <span>{t('returnToHome') || 'Вернуться на главную'}</span>
+                <Icon name="arrow_back" size="medium" className="text-white" />
+                <span className="ml-2">{t('returnToHome') || 'Вернуться на главную'}</span>
               </button>
             </RippleEffect>
           </div>
