@@ -32,7 +32,7 @@ export default function ProductSlider({ title, products }: ProductSliderProps) {
         className="product-scroll overflow-x-auto flex space-x-4 pb-4 -mx-4 px-4 scrollbar-hide"
         style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}
       >
-        {products.map((product) => (
+        {products.slice(0, 3).map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
