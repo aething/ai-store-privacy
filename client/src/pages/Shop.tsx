@@ -1,9 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import ProductSlider from "@/components/ProductSlider";
+import InfoPageSlider from "@/components/InfoPageSlider";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
+import { getAllInfoPages } from "@/constants/infoPages";
+import { useLocale } from "@/context/LocaleContext";
 
 export default function Shop() {
   const [, setLocation] = useLocation();
@@ -50,90 +53,24 @@ export default function Shop() {
     return <div className="text-error">Error loading products</div>;
   }
 
+  const { t } = useLocale();
+  const infoPages = getAllInfoPages();
+  
   return (
     <div>
       {/* Product Slider - Products are automatically sorted by price ascending */}
       {products && products.length > 0 && (
         <ProductSlider 
-          title="Products" 
+          title={t("products") || "Products"} 
           products={products} 
         />
       )}
 
-      {/* Description Section */}
-      {products && products.length > 0 && (
-        <div className="mb-8 relative">
-          <h2 className="text-lg font-medium mb-4">Description</h2>
-          <div 
-            id="description-scroll"
-            className="flex overflow-x-auto space-x-4 pb-4 -mx-4 px-4 scrollbar-hide"
-            style={{ scrollSnapType: 'x mandatory', scrollBehavior: 'smooth' }}
-          >
-            {products.slice(0, 3).map((product) => (
-              <Card 
-                key={product.id}
-                className="flex-none w-64 rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow"
-                onClick={() => setLocation(`/product/${product.id}`)}
-              >
-                <div className="flex flex-col w-full" style={{ height: "auto", maxHeight: "24rem" }}>
-                  {/* Заголовок */}
-                  <div className="p-3 border-b">
-                    <h3 className="font-medium text-lg">{product.title}</h3>
-                  </div>
-                  
-                  {/* Описание - используем auto высоту и min-height */}
-                  <div className="p-3 overflow-auto" style={{ minHeight: "100px" }}>
-                    <p className="text-text-secondary text-sm mb-1">
-                      {product.description.substring(0, 180)}
-                      {product.description.length > 180 && (
-                        <>
-                          ...
-                          <span 
-                            className="text-primary font-medium ml-1 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setLocation(`/product/${product.id}`);
-                            }}
-                          >
-                            More
-                          </span>
-                        </>
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-          
-          {products.length > 2 && (
-            <>
-              <button
-                className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1 z-10"
-                onClick={() => {
-                  const scrollElem = document.getElementById('description-scroll');
-                  if (scrollElem) {
-                    scrollElem.scrollBy({ left: -280, behavior: 'smooth' });
-                  }
-                }}
-              >
-                <span className="material-icons">chevron_left</span>
-              </button>
-              <button
-                className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1 z-10"
-                onClick={() => {
-                  const scrollElem = document.getElementById('description-scroll');
-                  if (scrollElem) {
-                    scrollElem.scrollBy({ left: 280, behavior: 'smooth' });
-                  }
-                }}
-              >
-                <span className="material-icons">chevron_right</span>
-              </button>
-            </>
-          )}
-        </div>
-      )}
+      {/* Info Pages - New section with informational content */}
+      <InfoPageSlider 
+        title={t("learnMore") || "Learn More"} 
+        infoPages={infoPages} 
+      />
     </div>
   );
 }

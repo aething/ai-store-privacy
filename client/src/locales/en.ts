@@ -79,6 +79,13 @@ export default {
   policyNotFound: "Policy Not Found",
   policyCouldNotBeFound: "The requested policy could not be found.",
   
+  // Info Page
+  pageNotFound: "Page Not Found",
+  pageCouldNotBeFound: "The requested page could not be found.",
+  backToHome: "Back to Home",
+  learnMore: "Learn More",
+  readMore: "Read More",
+  
   // Sorting
   sort_by: "Sort by",
   ascending: "Ascending",

@@ -8,6 +8,7 @@ import Shop from "@/pages/Shop";
 import Account from "@/pages/Account";
 import ProductDetail from "@/pages/ProductDetail";
 import Policy from "@/pages/Policy";
+import InfoPage from "@/pages/InfoPage";
 import Checkout from "@/pages/Checkout";
 import Confirmation from "@/pages/Confirmation";
 import { AppProvider } from "@/context/AppContext";
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/account" component={Account} />
       <Route path="/product/:id" component={ProductDetail} />
       <Route path="/policy/:id" component={Policy} />
+      <Route path="/info/:id" component={InfoPage} />
       <Route path="/checkout/:id" component={Checkout} />
       <Route path="/confirmation" component={Confirmation} />
       <Route component={NotFound} />
