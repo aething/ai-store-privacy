@@ -12,9 +12,11 @@ import InfoPage from "@/pages/InfoPage";
 import Checkout from "@/pages/Checkout";
 import Confirmation from "@/pages/Confirmation";
 import Subscribe from "@/pages/Subscribe";
+import AppInfo from "@/pages/AppInfo";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import { ErrorProvider } from "@/context/ErrorContext";
+import { NotificationProvider } from "@/components/NotificationSystem";
 import { useApiErrorHandler } from "@/hooks/use-api-error";
 import { useEffect } from "react";
 
@@ -57,6 +59,7 @@ function Router() {
       <Route path="/checkout/:id" component={Checkout} />
       <Route path="/confirmation" component={Confirmation} />
       <Route path="/subscribe" component={Subscribe} />
+      <Route path="/app-info" component={AppInfo} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -68,11 +71,13 @@ function App() {
       <ErrorProvider>
         <AppProvider>
           <LocaleProvider>
-            <ErrorHandler />
-            <Layout>
-              <Router />
-            </Layout>
-            <Toaster />
+            <NotificationProvider>
+              <ErrorHandler />
+              <Layout>
+                <Router />
+              </Layout>
+              <Toaster />
+            </NotificationProvider>
           </LocaleProvider>
         </AppProvider>
       </ErrorProvider>
