@@ -49,7 +49,7 @@ export default function Policy() {
   }
   
   return (
-    <div className="fixed inset-0 bg-white flex flex-col">
+    <div className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
       {/* Header with close button */}
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-lg font-medium">{policy.title}</h2>
@@ -65,7 +65,7 @@ export default function Policy() {
       {/* Scrollable content area */}
       <div 
         ref={contentRef}
-        className="flex-1 p-4 overflow-auto"
+        className="flex-1 p-4 overflow-auto max-h-[80vh] sm:max-h-[70vh]"
       >
         <Card className="p-4 rounded-lg">
           <div dangerouslySetInnerHTML={{ __html: policy.content }} />

@@ -75,11 +75,11 @@ export default function Shop() {
                 className="flex-none w-64 rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow"
                 onClick={() => setLocation(`/product/${product.id}`)}
               >
-                <div className="p-3 flex flex-col" style={{ height: "20rem" }}>
+                <div className="p-3 flex flex-col" style={{ minHeight: "20rem", maxHeight: "24rem" }}>
                   <h3 className="font-medium text-lg mb-2">{product.title}</h3>
-                  <div className="flex-grow overflow-auto">
+                  <div className="flex-1 overflow-auto" style={{ flexBasis: "95%" }}>
                     <p className="text-text-secondary text-sm">
-                      {product.description.substring(0, 700)}...
+                      {product.description}
                       <span 
                         className="text-primary font-medium ml-1 cursor-pointer"
                         onClick={(e) => {
