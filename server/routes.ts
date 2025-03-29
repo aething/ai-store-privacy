@@ -686,6 +686,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Маршрут для управления подпиской (отмена, возобновление, обновление)
+  app.post("/api/manage-subscription", async (req: Request, res: Response) => {
+    try {
+      if (!req.isAuthenticated() || !req.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      const user = req.user;
+      const { action } = req.body;
+      
+      if (!user.stripeSubscriptionId) {
+        return res.status(400).json({ message: "No active subscription found" });
+      }
+      
+      // Получаем текущую подписку
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      
+      let result;
+      
+      switch (action) {
+        case 'cancel':
+          // Отмена подписки в конце платежного периода
+          result = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+            cancel_at_period_end: true,
+          });
+          break;
+          
+        case 'reactivate':
+          // Возобновление подписки, если она была отменена
+          if (subscription.cancel_at_period_end) {
+            result = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+              cancel_at_period_end: false,
+            });
+          } else {
+            return res.status(400).json({ message: "Subscription is not scheduled for cancellation" });
+          }
+          break;
+        
+        case 'cancel_immediately':
+          // Немедленная отмена подписки
+          result = await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+          // Обновляем пользователя
+          await storage.updateUserStripeSubscriptionId(user.id, "");
+          break;
+          
+        default:
+          return res.status(400).json({ message: "Invalid action" });
+      }
+      
+      res.json({
+        success: true,
+        subscription: result
+      });
+    } catch (error: any) {
+      console.error("Subscription management error:", error);
+      res.status(400).json({ error: { message: error.message } });
+    }
+  });
+  
   // Webhook для обработки событий от Stripe
   app.post("/api/webhook/stripe", async (req: Request, res: Response) => {
     try {

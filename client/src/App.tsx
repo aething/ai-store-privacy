@@ -14,6 +14,37 @@ import Confirmation from "@/pages/Confirmation";
 import Subscribe from "@/pages/Subscribe";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
+import { ErrorProvider } from "@/context/ErrorContext";
+import { useApiErrorHandler } from "@/hooks/use-api-error";
+import { useEffect } from "react";
+
+// Компонент для глобальной обработки ошибок
+function ErrorHandler() {
+  useApiErrorHandler();
+  
+  useEffect(() => {
+    // Добавляем обработчик для сетевых ошибок
+    const handleOnline = () => {
+      console.log("Сетевое соединение восстановлено");
+      // При восстановлении соединения обновляем данные
+      queryClient.invalidateQueries();
+    };
+    
+    const handleOffline = () => {
+      console.log("Потеряно сетевое соединение");
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+  
+  return null;
+}
 
 function Router() {
   return (
@@ -34,14 +65,17 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppProvider>
-        <LocaleProvider>
-          <Layout>
-            <Router />
-          </Layout>
-          <Toaster />
-        </LocaleProvider>
-      </AppProvider>
+      <ErrorProvider>
+        <AppProvider>
+          <LocaleProvider>
+            <ErrorHandler />
+            <Layout>
+              <Router />
+            </Layout>
+            <Toaster />
+          </LocaleProvider>
+        </AppProvider>
+      </ErrorProvider>
     </QueryClientProvider>
   );
 }

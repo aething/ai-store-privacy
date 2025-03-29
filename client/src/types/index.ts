@@ -9,6 +9,8 @@ export interface User {
   street?: string;
   house?: string;
   apartment?: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
 }
 
 export interface Product {

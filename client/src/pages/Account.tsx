@@ -315,15 +315,89 @@ export default function Account() {
                 ? t("activeSubscription") || "You have an active subscription" 
                 : t("noSubscription") || "You don't have an active subscription"}
             </p>
-            <button
-              onClick={() => setLocation('/subscribe')}
-              className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
-              disabled={isLoading || !user}
-            >
-              {user?.stripeSubscriptionId 
-                ? t("manageSubscription") || "Manage Subscription" 
-                : t("subscribe") || "Subscribe Now"}
-            </button>
+            
+            {user?.stripeSubscriptionId ? (
+              <div className="flex flex-col space-y-3 w-full max-w-xs">
+                <button
+                  onClick={() => {
+                    if (confirm(t("cancelSubscriptionConfirm") || "Are you sure you want to cancel your subscription at the end of the billing period?")) {
+                      // Вызываем API для отмены подписки
+                      fetch('/api/manage-subscription', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'cancel' })
+                      })
+                      .then(response => {
+                        if (response.ok) {
+                          toast({
+                            title: t("success") || "Success",
+                            description: t("subscriptionCancelled") || "Your subscription will be cancelled at the end of the billing period",
+                          });
+                        } else {
+                          throw new Error(t("errorCancellingSubscription") || "Error cancelling subscription");
+                        }
+                      })
+                      .catch(error => {
+                        toast({
+                          title: t("error") || "Error",
+                          description: error.message || t("errorCancellingSubscription") || "Error cancelling subscription",
+                          variant: "destructive",
+                        });
+                      });
+                    }
+                  }}
+                  className="bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-600 disabled:opacity-50"
+                  disabled={isLoading || !user}
+                >
+                  {t("cancelSubscription") || "Cancel Subscription"}
+                </button>
+                
+                <button
+                  onClick={() => {
+                    if (confirm(t("cancelImmediatelyConfirm") || "Are you sure you want to cancel your subscription immediately? This cannot be undone.")) {
+                      // Вызываем API для немедленной отмены подписки
+                      fetch('/api/manage-subscription', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'cancel_immediately' })
+                      })
+                      .then(response => {
+                        if (response.ok) {
+                          toast({
+                            title: t("success") || "Success",
+                            description: t("subscriptionCancelledImmediately") || "Your subscription has been cancelled immediately",
+                          });
+                          // Обновляем данные пользователя
+                          // Перезагружаем страницу, чтобы получить обновленные данные
+                          window.location.reload();
+                        } else {
+                          throw new Error(t("errorCancellingSubscription") || "Error cancelling subscription");
+                        }
+                      })
+                      .catch(error => {
+                        toast({
+                          title: t("error") || "Error",
+                          description: error.message || t("errorCancellingSubscription") || "Error cancelling subscription",
+                          variant: "destructive",
+                        });
+                      });
+                    }
+                  }}
+                  className="text-red-500 underline text-sm px-6 py-2"
+                  disabled={isLoading || !user}
+                >
+                  {t("cancelImmediately") || "Cancel Immediately"}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setLocation('/subscribe')}
+                className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
+                disabled={isLoading || !user}
+              >
+                {t("subscribe") || "Subscribe Now"}
+              </button>
+            )}
           </div>
         </Card>
       </div>
