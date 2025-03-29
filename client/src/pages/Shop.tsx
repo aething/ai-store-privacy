@@ -68,17 +68,6 @@ export default function Shop() {
                       </span>
                     </p>
                   </div>
-                  <div className="mt-auto pt-3">
-                    <button 
-                      className="w-full bg-blue-600 text-white py-2 rounded-full text-sm font-medium hover:bg-blue-700"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation(`/checkout/${product.id}`);
-                      }}
-                    >
-                      Buy Now
-                    </button>
-                  </div>
                 </div>
               </Card>
             ))}
