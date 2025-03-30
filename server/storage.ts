@@ -287,7 +287,7 @@ export class MemStorage implements IStorage {
       title: insertProduct.title,
       description: insertProduct.description,
       price: insertProduct.price,
-      priceEUR: insertProduct.priceEUR || insertProduct.price,
+      priceEUR: insertProduct.priceEUR || 0, // Должна быть отдельно заданная цена в EUR
       imageUrl: insertProduct.imageUrl,
       category: insertProduct.category,
       features: insertProduct.features || [],
@@ -323,6 +323,15 @@ export class MemStorage implements IStorage {
         const price = stripeProduct.default_price;
         const priceAmount = price ? price.unit_amount / 100 : 0; // Stripe хранит цены в центах
         
+        console.log(`Product ${stripeProduct.name} - price: ${priceAmount}, currency: ${price?.currency}`);
+        
+        // Проверяем наличие метаданных для priceEUR
+        if (stripeProduct.metadata && stripeProduct.metadata.priceEUR) {
+          console.log(`Product ${stripeProduct.name} has EUR price in metadata: ${stripeProduct.metadata.priceEUR}`);
+        } else {
+          console.log(`Product ${stripeProduct.name} has no EUR price in metadata`);
+        }
+        
         if (product) {
           // Обновляем существующий продукт
           const updatedProduct = {
@@ -330,7 +339,7 @@ export class MemStorage implements IStorage {
             title: stripeProduct.name,
             description: stripeProduct.description || product.description,
             price: priceAmount,
-            priceEUR: priceAmount * 0.92, // Примерный курс EUR к USD
+            priceEUR: stripeProduct.metadata?.priceEUR ? Number(stripeProduct.metadata.priceEUR) : product.priceEUR, // Обновляем цену в EUR, если она есть в метаданных
             imageUrl: stripeProduct.images && stripeProduct.images.length > 0 
               ? stripeProduct.images[0] 
               : product.imageUrl,
@@ -341,13 +350,14 @@ export class MemStorage implements IStorage {
           this.products.set(product.id, updatedProduct);
           updatedProducts.push(updatedProduct);
           console.log(`Updated existing product: ${updatedProduct.title}`);
+          console.log(`  Price USD: ${updatedProduct.price}, Price EUR: ${updatedProduct.priceEUR}, Currency: ${updatedProduct.currency}`);
         } else {
           // Создаем новый продукт
           const newProduct: InsertProduct = {
             title: stripeProduct.name,
             description: stripeProduct.description || 'New product from Stripe',
             price: priceAmount,
-            priceEUR: priceAmount * 0.92, // Примерный курс EUR к USD
+            priceEUR: stripeProduct.metadata?.priceEUR ? Number(stripeProduct.metadata.priceEUR) : 0, // Цена в EUR из метаданных
             imageUrl: stripeProduct.images && stripeProduct.images.length > 0 
               ? stripeProduct.images[0] 
               : 'https://placehold.co/600x400?text=Product',
@@ -361,6 +371,7 @@ export class MemStorage implements IStorage {
           const createdProduct = await this.createProduct(newProduct);
           updatedProducts.push(createdProduct);
           console.log(`Created new product: ${createdProduct.title}`);
+          console.log(`  Price USD: ${createdProduct.price}, Price EUR: ${createdProduct.priceEUR}, Currency: ${createdProduct.currency}`);
         }
       }
       
