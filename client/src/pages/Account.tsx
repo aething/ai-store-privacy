@@ -11,7 +11,8 @@ import { Card } from "@/components/ui/card";
 import LanguageSelector from "@/components/LanguageSelector";
 import OrdersList from "@/components/OrdersList";
 import { useLocale } from "@/context/LocaleContext";
-import { ChevronRight, Trash2 } from "lucide-react";
+import { ChevronRight, Trash2, RefreshCw, Settings } from "lucide-react";
+import { useProductsSync } from "@/hooks/use-products-sync";
 import { scrollToTop } from "@/lib/scrollUtils";
 
 const updateUserSchema = z.object({
@@ -209,6 +210,12 @@ export default function Account() {
     { id: "ftc", title: "FTC Rules" },
   ];
   
+  // Hook для синхронизации продуктов со Stripe
+  const { syncProducts, isSyncing } = useProductsSync();
+
+  // Проверка, является ли пользователь администратором (для демо используем email admin@example.com)
+  const isAdmin = user?.email === 'admin@example.com';
+  
   // Mock user if not logged in (for demo)
   const mockUser = {
     email: "user@example.com",
@@ -344,6 +351,33 @@ export default function Account() {
         {/* Для демо-режима используем параметр showDemoOrders */}
         <OrdersList showDemoOrders={process.env.NODE_ENV !== 'production'} />
       </div>
+      
+      {/* Панель администратора (отображается только для админов) */}
+      {isAdmin && (
+        <div className="mb-6">
+          <h2 className="text-lg font-medium mb-4 flex items-center">
+            <Settings className="mr-2" size={20} />
+            Administrator Panel
+          </h2>
+          <Card className="p-4 rounded-lg">
+            <div className="space-y-4">
+              <h3 className="font-medium">Product Management</h3>
+              <p className="text-sm text-gray-600">
+                Synchronize products with Stripe to automatically add new products or update existing ones.
+                Any products created in Stripe will be automatically added to your catalog.
+              </p>
+              <button
+                onClick={syncProducts}
+                disabled={isSyncing}
+                className="bg-blue-600 text-white w-full py-2 rounded-full hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+              >
+                <RefreshCw className={`mr-2 ${isSyncing ? 'animate-spin' : ''}`} size={18} />
+                {isSyncing ? "Syncing with Stripe..." : "Sync Products with Stripe"}
+              </button>
+            </div>
+          </Card>
+        </div>
+      )}
       
       {/* Policies */}
       <div className="mb-8">

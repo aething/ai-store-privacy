@@ -31,6 +31,7 @@ export const products = pgTable("products", {
   features: text("features").array(),
   specifications: text("specifications").array(),
   stripeProductId: text("stripe_product_id"),
+  currency: text("currency").notNull().default("usd"), // 'usd' or 'eur'
 });
 
 export const orders = pgTable("orders", {

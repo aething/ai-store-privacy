@@ -283,37 +283,93 @@ export class MemStorage implements IStorage {
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
     const id = this.productIdCounter++;
     const product: Product = { 
-      ...insertProduct, 
       id,
+      title: insertProduct.title,
+      description: insertProduct.description,
+      price: insertProduct.price,
+      priceEUR: insertProduct.priceEUR || insertProduct.price,
+      imageUrl: insertProduct.imageUrl,
+      category: insertProduct.category,
       features: insertProduct.features || [],
       specifications: insertProduct.specifications || [],
-      stripeProductId: insertProduct.stripeProductId || null
+      stripeProductId: insertProduct.stripeProductId || null,
+      currency: insertProduct.currency || "usd"
     };
     this.products.set(id, product);
     return product;
   }
   
   async syncStripeProducts(): Promise<Product[]> {
-    // This would call the Stripe API in a real implementation
-    // For our prototype, we'll simulate this by adding stripeProductIds to existing products
-    const products = Array.from(this.products.values());
-    const updatedProducts: Product[] = [];
-    
-    for (const product of products) {
-      // Only update products that don't have a stripeProductId
-      if (!product.stripeProductId) {
-        const updatedProduct = {
-          ...product,
-          stripeProductId: `prod_${Math.random().toString(36).substring(2, 10)}`
-        };
-        this.products.set(product.id, updatedProduct);
-        updatedProducts.push(updatedProduct);
-      } else {
-        updatedProducts.push(product);
+    try {
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      
+      // Получаем все продукты из Stripe
+      const stripeProducts = await stripe.products.list({
+        active: true,
+        expand: ['data.default_price']
+      });
+      
+      console.log(`Received ${stripeProducts.data.length} products from Stripe`);
+      
+      // Получаем существующие продукты
+      const existingProducts = Array.from(this.products.values());
+      const updatedProducts: Product[] = [];
+      
+      // Обновляем существующие и добавляем новые продукты
+      for (const stripeProduct of stripeProducts.data) {
+        // Ищем продукт в нашей базе по Stripe ID
+        let product = existingProducts.find(p => p.stripeProductId === stripeProduct.id);
+        
+        const price = stripeProduct.default_price;
+        const priceAmount = price ? price.unit_amount / 100 : 0; // Stripe хранит цены в центах
+        
+        if (product) {
+          // Обновляем существующий продукт
+          const updatedProduct = {
+            ...product,
+            title: stripeProduct.name,
+            description: stripeProduct.description || product.description,
+            price: priceAmount,
+            priceEUR: priceAmount * 0.92, // Примерный курс EUR к USD
+            imageUrl: stripeProduct.images && stripeProduct.images.length > 0 
+              ? stripeProduct.images[0] 
+              : product.imageUrl,
+            category: product.category,
+            currency: price ? price.currency : 'usd'
+          };
+          
+          this.products.set(product.id, updatedProduct);
+          updatedProducts.push(updatedProduct);
+          console.log(`Updated existing product: ${updatedProduct.title}`);
+        } else {
+          // Создаем новый продукт
+          const newProduct: InsertProduct = {
+            title: stripeProduct.name,
+            description: stripeProduct.description || 'New product from Stripe',
+            price: priceAmount,
+            priceEUR: priceAmount * 0.92, // Примерный курс EUR к USD
+            imageUrl: stripeProduct.images && stripeProduct.images.length > 0 
+              ? stripeProduct.images[0] 
+              : 'https://placehold.co/600x400?text=Product',
+            category: stripeProduct.metadata?.category || 'other',
+            currency: price ? price.currency : 'usd',
+            features: stripeProduct.metadata?.features ? JSON.parse(stripeProduct.metadata.features) : [],
+            specifications: stripeProduct.metadata?.specifications ? JSON.parse(stripeProduct.metadata.specifications) : [],
+            stripeProductId: stripeProduct.id
+          };
+          
+          const createdProduct = await this.createProduct(newProduct);
+          updatedProducts.push(createdProduct);
+          console.log(`Created new product: ${createdProduct.title}`);
+        }
       }
+      
+      return updatedProducts;
+    } catch (error) {
+      console.error('Error syncing products with Stripe:', error);
+      // В случае ошибки возвращаем текущие продукты
+      return Array.from(this.products.values());
     }
-    
-    return updatedProducts;
   }
   
   async getProductByStripeId(stripeId: string): Promise<Product | undefined> {
