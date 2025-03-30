@@ -70,6 +70,7 @@ export async function sendOrderConfirmation(
         </ul>
         <p>Вы получите дополнительное уведомление, когда ваш заказ будет готов к отправке.</p>
         <p>Если у вас возникли вопросы, пожалуйста, ответьте на это письмо или свяжитесь с нашей службой поддержки.</p>
+        <p>С уважением,<br>AI Store от команды Aething</p>
       `,
       en: `
         <h2>Thank you for your order!</h2>
@@ -83,6 +84,7 @@ export async function sendOrderConfirmation(
         </ul>
         <p>You will receive another notification when your order is ready to ship.</p>
         <p>If you have any questions, please reply to this email or contact our support team.</p>
+        <p>Best regards,<br>AI Store by Aething Team</p>
       `,
       // Добавьте шаблоны для других языков по аналогии
     };
@@ -178,6 +180,7 @@ export async function sendOrderStatusUpdate(
         </ul>
         ${order.trackingNumber ? `<p>Вы можете отслеживать вашу посылку по номеру отслеживания ${order.trackingNumber}.</p>` : ''}
         <p>Если у вас возникли вопросы, пожалуйста, ответьте на это письмо или свяжитесь с нашей службой поддержки.</p>
+        <p>С уважением,<br>AI Store от команды Aething</p>
       `,
       en: `
         <h2>Your Order Status Has Been Updated!</h2>
@@ -192,6 +195,7 @@ export async function sendOrderStatusUpdate(
         </ul>
         ${order.trackingNumber ? `<p>You can track your package using the tracking number ${order.trackingNumber}.</p>` : ''}
         <p>If you have any questions, please reply to this email or contact our support team.</p>
+        <p>Best regards,<br>AI Store by Aething Team</p>
       `,
       // Добавьте шаблоны для других языков по аналогии
     };
@@ -264,6 +268,7 @@ export async function sendTrackingUpdate(
         </ul>
         <p>Вы можете отслеживать вашу посылку по ссылке: <a href="https://www.aftership.com/track?tracking_number=${order.trackingNumber}">Отследить посылку</a></p>
         <p>Если у вас возникли вопросы, пожалуйста, ответьте на это письмо или свяжитесь с нашей службой поддержки.</p>
+        <p>С уважением,<br>AI Store от команды Aething</p>
       `,
       en: `
         <h2>Your Order Has Been Shipped!</h2>
@@ -276,6 +281,7 @@ export async function sendTrackingUpdate(
         </ul>
         <p>You can track your package using this link: <a href="https://www.aftership.com/track?tracking_number=${order.trackingNumber}">Track Package</a></p>
         <p>If you have any questions, please reply to this email or contact our support team.</p>
+        <p>Best regards,<br>AI Store by Aething Team</p>
       `,
       // Добавьте шаблоны для других языков по аналогии
     };

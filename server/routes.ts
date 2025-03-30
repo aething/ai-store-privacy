@@ -358,7 +358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 ${req.protocol}://${req.get('host')}/api/users/${user.id}/verify?token=${token}
               </p>
               <p>If you didn't create an account, you can safely ignore this email.</p>
-              <p>Best regards,<br>Your App Team</p>
+              <p>Best regards,<br>AI Store by Aething Team</p>
             </div>
           `
         });
