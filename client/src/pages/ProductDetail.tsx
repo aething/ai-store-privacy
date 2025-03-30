@@ -8,6 +8,8 @@ import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/cu
 import SwipeBack from "@/components/SwipeBack";
 import { useLocale } from "@/context/LocaleContext";
 import { ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
@@ -15,6 +17,7 @@ export default function ProductDetail() {
   const { toast } = useToast();
   const { user } = useAppContext();
   const { t } = useLocale();
+  const [couponCode, setCouponCode] = useState('');
   
   const productId = match ? parseInt(params.id) : null;
   
@@ -69,6 +72,18 @@ export default function ProductDetail() {
       return;
     }
     
+    // Сохраняем купон в localStorage для использования на странице оформления заказа
+    if (couponCode.trim()) {
+      localStorage.setItem('currentCouponCode', couponCode.trim());
+      toast({
+        title: "Coupon Applied",
+        description: `Coupon code "${couponCode}" will be applied to your order.`,
+        variant: "default",
+      });
+    } else {
+      localStorage.removeItem('currentCouponCode');
+    }
+    
     setLocation(`/checkout/${product.id}`);
   };
   
@@ -100,19 +115,32 @@ export default function ProductDetail() {
           />
         </div>
         
-        {/* Title and Buy Button */}
+        {/* Title, Coupon and Buy Button */}
         <div className="mb-6">
           <h1 className="font-medium text-xl mb-3">{product.title}</h1>
           <div className="flex justify-between items-center mb-4">
             <span className="text-lg font-medium">
               {formatPrice(getPriceForCountry(product, user?.country), getCurrencyForCountry(user?.country))}
             </span>
-            <button 
-              className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700"
-              onClick={handleBuyNow}
-            >
-              Buy Now
-            </button>
+          </div>
+          
+          {/* Coupon Field */}
+          <div className="mb-4">
+            <div className="flex items-center space-x-2">
+              <Input
+                type="text"
+                placeholder="Enter coupon code (optional)"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                className="flex-grow"
+              />
+              <button 
+                className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700"
+                onClick={handleBuyNow}
+              >
+                Buy Now
+              </button>
+            </div>
           </div>
         </div>
         

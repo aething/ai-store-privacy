@@ -174,6 +174,7 @@ async function initializeHeaders(): Promise<void> {
     'currency',
     'stripePaymentId',
     'trackingNumber',
+    'couponCode',
     'createdAt',
   ];
 
@@ -200,7 +201,7 @@ async function initializeHeaders(): Promise<void> {
     // Устанавливаем заголовки для листа заказов
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `${SHEETS.ORDERS}!A1:I1`,
+      range: `${SHEETS.ORDERS}!A1:J1`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [orderHeaders],
@@ -463,13 +464,14 @@ export async function saveOrder(order: Order): Promise<void> {
         order.currency,
         order.stripePaymentId || '',
         order.trackingNumber || '',
+        order.couponCode || '',
         new Date().toISOString(),
       ],
     ];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: `${SHEETS.ORDERS}!A:I`,
+      range: `${SHEETS.ORDERS}!A:J`,
       valueInputOption: 'RAW',
       requestBody: {
         values,
@@ -536,7 +538,7 @@ export async function getUserOrders(userId: number): Promise<Order[]> {
     // Получаем все заказы
     const ordersData = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `${SHEETS.ORDERS}!A:I`,
+      range: `${SHEETS.ORDERS}!A:J`,
     });
 
     const rows = ordersData.data.values || [];
@@ -555,7 +557,8 @@ export async function getUserOrders(userId: number): Promise<Order[]> {
           currency: row[5],
           stripePaymentId: row[6] || null,
           trackingNumber: row[7] || null,
-          createdAt: new Date(row[8]),
+          couponCode: row[8] || null,
+          createdAt: new Date(row[9]),
         });
       }
     }

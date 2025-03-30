@@ -43,6 +43,7 @@ export const orders = pgTable("orders", {
   currency: text("currency").notNull().default("usd"), // 'usd' or 'eur'
   stripePaymentId: text("stripe_payment_id"),
   trackingNumber: text("tracking_number"),
+  couponCode: text("coupon_code"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

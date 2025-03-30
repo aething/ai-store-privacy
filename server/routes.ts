@@ -520,7 +520,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment routes
   app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
     try {
-      const { amount, userId, productId, currency = "usd" } = req.body;
+      const { amount, userId, productId, currency = "usd", couponCode } = req.body;
       
       if (!amount || !userId || !productId) {
         return res.status(400).json({ message: "Amount, userId, and productId are required" });
@@ -543,17 +543,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Product not found" });
       }
       
+      // Create metadata object with optional coupon
+      const metadata: Record<string, string> = {
+        userId: userId.toString(),
+        productId: productId.toString(),
+        currency
+      };
+      
+      // Add coupon to metadata if provided
+      if (couponCode) {
+        metadata.couponCode = couponCode;
+      }
+      
       // Create a PaymentIntent with the order amount and currency
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
         currency, // Use the currency from the request
         // In a production app, you would set this to the customer's email
         receipt_email: user.email || undefined,
-        metadata: {
-          userId: userId.toString(),
-          productId: productId.toString(),
-          currency
-        }
+        metadata
       });
       
       // Create an order in pending status
@@ -563,7 +571,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "pending",
         amount,
         currency,
-        stripePaymentId: paymentIntent.id
+        stripePaymentId: paymentIntent.id,
+        couponCode: couponCode || null
       });
       
       // Save order to Google Sheets
@@ -574,6 +583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         orderId: order.id
       });
     } catch (error) {
+      console.error("Error creating payment intent:", error);
       res.status(500).json({ message: "Error creating payment intent" });
     }
   });

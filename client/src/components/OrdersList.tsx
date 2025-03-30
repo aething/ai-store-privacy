@@ -77,10 +77,17 @@ const OrderCard: React.FC<{
       </div>
       
       <div className="border-t border-b py-3 my-3">
-        <div className="flex justify-between">
+        <div className="flex justify-between mb-2">
           <div className="font-medium">{t('amount')}:</div>
           <div>{formatCurrency(order.amount, order.currency)}</div>
         </div>
+        
+        {order.couponCode && (
+          <div className="flex justify-between text-sm">
+            <div className="text-gray-600">{t('couponCode') || 'Coupon Code'}:</div>
+            <div className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">{order.couponCode}</div>
+          </div>
+        )}
       </div>
       
       <div className="mt-4">

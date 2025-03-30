@@ -100,10 +100,26 @@ if (!stripeKey) {
  * @param productId The ID of the product to purchase
  * @param userId The ID of the user making the purchase
  * @param country The country of the user (for currency determination)
+ * @param couponCode Optional coupon code for tracking and discounts
  */
-export async function createPaymentIntent(productId: number, userId: number, country?: string | null) {
+export async function createPaymentIntent(
+  productId: number, 
+  userId: number, 
+  country?: string | null,
+  couponCode?: string | null
+) {
   // Determine the appropriate currency based on country
   const currency = getCurrencyForCountry(country);
+  
+  // Check if there's a coupon in localStorage if not provided explicitly
+  if (!couponCode) {
+    couponCode = localStorage.getItem('currentCouponCode');
+    
+    // After retrieving, clear the coupon from localStorage to prevent reuse
+    if (couponCode) {
+      localStorage.removeItem('currentCouponCode');
+    }
+  }
   
   // Fetch the product to get the price
   const response = await fetch(`/api/products/${productId}`);
@@ -121,7 +137,8 @@ export async function createPaymentIntent(productId: number, userId: number, cou
     amount,
     userId,
     productId,
-    currency
+    currency,
+    couponCode: couponCode || undefined // Only include if we have a coupon
   });
   
   if (!paymentResponse.ok) {

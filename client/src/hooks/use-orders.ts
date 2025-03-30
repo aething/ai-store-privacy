@@ -12,6 +12,7 @@ export interface Order {
   currency: string;
   stripePaymentId: string | null;
   trackingNumber: string | null;
+  couponCode: string | null;
   createdAt: string;
   product?: {
     title: string;
@@ -31,13 +32,14 @@ const DEMO_ORDERS: Order[] = [
     currency: 'USD',
     stripePaymentId: 'demo_payment_id_1',
     trackingNumber: null,
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 дня назад
+    couponCode: 'WELCOME20',
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     product: {
       title: 'AI Personal Assistant',
       imageUrl: '/assets/products/assistant.jpg',
       price: 299.99
     }
-  },
+  } as Order,
   {
     id: 1002,
     userId: 999,
@@ -47,13 +49,14 @@ const DEMO_ORDERS: Order[] = [
     currency: 'USD',
     stripePaymentId: 'demo_payment_id_2',
     trackingNumber: 'DEMO123456789',
-    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 дней назад
+    couponCode: null,
+    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
     product: {
       title: 'Smart Home Hub',
       imageUrl: '/assets/products/smart-home.jpg',
       price: 149.99
     }
-  },
+  } as Order,
   {
     id: 1003,
     userId: 999,
@@ -63,13 +66,14 @@ const DEMO_ORDERS: Order[] = [
     currency: 'USD',
     stripePaymentId: 'demo_payment_id_3',
     trackingNumber: 'DEMO987654321',
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 дней назад
+    couponCode: 'SUMMER15',
+    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
     product: {
       title: 'Wireless Earbuds',
       imageUrl: '/assets/products/earbuds.jpg',
       price: 199.99
     }
-  }
+  } as Order
 ];
 
 // Хранение демо-данных между рендерами

@@ -407,7 +407,8 @@ export class MemStorage implements IStorage {
       productId: insertOrder.productId || null,
       currency: insertOrder.currency || 'usd',
       stripePaymentId: insertOrder.stripePaymentId || null,
-      trackingNumber: null
+      trackingNumber: null,
+      couponCode: insertOrder.couponCode || null
     };
     this.orders.set(id, order);
     return order;
