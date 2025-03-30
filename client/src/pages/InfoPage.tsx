@@ -89,7 +89,7 @@ export default function InfoPage() {
         <h1 className="text-2xl font-bold mb-2">{t("pageNotFound")}</h1>
         <p className="text-gray-500 mb-4">{t("pageCouldNotBeFound")}</p>
         <Button
-          className="bg-blue-600 hover:bg-blue-700"
+          className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
           onClick={() => setLocation("/")}
         >
           <Home className="mr-2 h-4 w-4" />
@@ -146,7 +146,7 @@ export default function InfoPage() {
             
             <div className="mt-8 flex justify-center">
               <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
                 onClick={scrollToTop}
               >
                 {t("scrollToTop")}

@@ -27,7 +27,7 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
           </p>
           
           <Button 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
             onClick={(e) => {
               e.stopPropagation();
               setLocation(`/info/${infoPage.id}`);
