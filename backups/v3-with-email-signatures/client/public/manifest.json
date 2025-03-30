@@ -1,0 +1,105 @@
+{
+  "name": "AI Store by Aething",
+  "short_name": "AI Store",
+  "description": "AI Store by Aething - магазин инновационных AI продуктов",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "categories": ["shopping", "ai", "technology"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "Главный экран AI Store"
+    },
+    {
+      "src": "/screenshots/screenshot2.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "Каталог товаров"
+    },
+    {
+      "src": "/screenshots/screenshot3.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "Страница товара"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.aething.aistore",
+      "id": "com.aething.aistore"
+    }
+  ],
+  "prefer_related_applications": true,
+  "shortcuts": [
+    {
+      "name": "Магазин",
+      "short_name": "Магазин",
+      "description": "Перейти в магазин AI-продуктов",
+      "url": "/",
+      "icons": [{ "src": "/icons/shop-icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Аккаунт",
+      "short_name": "Аккаунт",
+      "description": "Управление аккаунтом",
+      "url": "/account",
+      "icons": [{ "src": "/icons/account-icon-96x96.png", "sizes": "96x96" }]
+    }
+  ]
+}
