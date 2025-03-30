@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import ProductSlider from "@/components/ProductSlider";
 import InfoPageSlider from "@/components/InfoPageSlider";
+import SocialLinks from "@/components/SocialLinks";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
@@ -71,6 +72,9 @@ export default function Shop() {
         title={t("learnMore") || "Learn More"} 
         infoPages={infoPages} 
       />
+      
+      {/* Social Links */}
+      <SocialLinks className="mt-4 mb-8" />
     </div>
   );
 }
