@@ -118,29 +118,29 @@ export default function ProductDetail() {
         {/* Title, Coupon and Buy Button */}
         <div className="mb-6">
           <h1 className="font-medium text-xl mb-3">{product.title}</h1>
+          
+          {/* Price and Buy Button in one row */}
           <div className="flex justify-between items-center mb-4">
             <span className="text-lg font-medium">
               {formatPrice(getPriceForCountry(product, user?.country), getCurrencyForCountry(user?.country))}
             </span>
+            <button 
+              className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700"
+              onClick={handleBuyNow}
+            >
+              Buy Now
+            </button>
           </div>
           
           {/* Coupon Field */}
           <div className="mb-4">
-            <div className="flex items-center space-x-2">
-              <Input
-                type="text"
-                placeholder="Enter coupon code (optional)"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                className="flex-grow"
-              />
-              <button 
-                className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700"
-                onClick={handleBuyNow}
-              >
-                Buy Now
-              </button>
-            </div>
+            <Input
+              type="text"
+              placeholder="Enter coupon code (optional)"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              className="w-full"
+            />
           </div>
         </div>
         
