@@ -1,10 +1,10 @@
-import React, { useMemo, useRef, useEffect } from "react";
+import React, { useMemo, useRef, useEffect, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { getPolicyById } from "@/constants/policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
-import { X, MoveLeft } from "lucide-react";
+import { X } from "lucide-react";
 import SimpleScrollToTop from "@/components/SimpleScrollToTop";
 import { scrollToTop, scrollContainerToTop, saveScrollPositionForPath } from "@/lib/scrollUtils";
 
@@ -12,7 +12,9 @@ export default function Policy() {
   const [match, params] = useRoute("/policy/:id");
   const [, setLocation] = useLocation();
   const contentRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const { t } = useLocale();
+  const [mounted, setMounted] = useState(false);
   
   const policyId = match ? params.id : null;
   
@@ -21,47 +23,79 @@ export default function Policy() {
     return getPolicyById(policyId);
   }, [policyId]);
   
-  // Функция сброса прокрутки (в стиле InfoPage)
+  // Полностью новая функция сброса прокрутки с принудительным подходом
   const resetScrollPosition = () => {
-    // Сбрасываем глобальный скролл страницы
-    window.scrollTo(0, 0);
+    // Принудительно сбрасываем скролл документа
+    window.scrollTo({top: 0, left: 0, behavior: 'auto'});
+    document.body.scrollTop = 0; // Для старых браузеров
+    document.documentElement.scrollTop = 0;
     
-    // Сбрасываем скролл контента
+    // Принудительно сбрасываем положение для нашего контент-контейнера
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
     
-    // Дополнительно используем утилиты скролла
-    scrollContainerToTop(contentRef, false);
-    scrollToTop(false);
+    // Если есть корневой элемент, скролим его в верхнее положение во вьюпорте
+    if (rootRef.current) {
+      rootRef.current.scrollIntoView({block: 'start', behavior: 'auto'});
+    }
     
-    // Сохраняем текущую позицию скролла для возврата
+    // Логируем для отладки
+    console.log('[Policy] Принудительный сброс прокрутки', {
+      windowScrollY: window.scrollY,
+      contentScroll: contentRef.current?.scrollTop,
+      path: window.location.pathname
+    });
+    
+    // Дополнительно вызываем стандартные утилиты
+    scrollToTop(false);
+    scrollContainerToTop(contentRef, false);
+    
+    // Сохраняем позиции для возврата
     saveScrollPositionForPath('/account');
     saveScrollPositionForPath('/');
-    
-    console.log('[Policy] Прокрутили страницу и контент наверх');
+  };
+  
+  // Используем RAF для плавных анимаций и корректного рендеринга
+  const scheduleScroll = (callback: () => void) => {
+    requestAnimationFrame(() => {
+      callback();
+      
+      // Иногда требуется еще один кадр для гарантии
+      requestAnimationFrame(() => {
+        callback();
+      });
+    });
   };
 
-  // При монтировании компонента и изменении policyId скроллим страницу и контент наверх
+  // Эффект при монтировании компонента
   useEffect(() => {
-    if (policy) {
-      // Сразу сбрасываем прокрутку
-      resetScrollPosition();
-      
-      // Дополнительный сброс с таймерами для надежности (как в InfoPage)
-      const timer1 = setTimeout(resetScrollPosition, 50);
-      const timer2 = setTimeout(resetScrollPosition, 150);
-      const timer3 = setTimeout(resetScrollPosition, 300);
-      const timer4 = setTimeout(resetScrollPosition, 500);
-      
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-        clearTimeout(timer3);
-        clearTimeout(timer4);
-      };
-    }
-  }, [policyId, policy]);
+    // Устанавливаем флаг монтирования
+    setMounted(true);
+    
+    // Сразу сбрасываем прокрутку
+    resetScrollPosition();
+    
+    // Использует requestAnimationFrame для более надежной прокрутки
+    scheduleScroll(resetScrollPosition);
+    
+    // Дополнительно используем таймеры на случай медленной загрузки контента
+    const timers = [
+      setTimeout(() => scheduleScroll(resetScrollPosition), 0),
+      setTimeout(() => scheduleScroll(resetScrollPosition), 50),
+      setTimeout(() => scheduleScroll(resetScrollPosition), 100),
+      setTimeout(() => scheduleScroll(resetScrollPosition), 150),
+      setTimeout(() => scheduleScroll(resetScrollPosition), 200),
+      setTimeout(() => scheduleScroll(resetScrollPosition), 300),
+      setTimeout(() => scheduleScroll(resetScrollPosition), 500),
+      setTimeout(() => scheduleScroll(resetScrollPosition), 1000)
+    ];
+    
+    // Очищаем все таймеры при размонтировании
+    return () => {
+      timers.forEach(clearTimeout);
+    };
+  }, []);
   
   if (!policy) {
     return (
