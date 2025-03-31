@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useEffect } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { getPolicyById } from "@/constants/policies";
@@ -6,6 +6,7 @@ import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
 import { X, MoveLeft } from "lucide-react";
 import SimpleScrollToTop from "@/components/SimpleScrollToTop";
+import { scrollToTop, scrollContainerToTop } from "@/lib/scrollUtils";
 
 export default function Policy() {
   const [match, params] = useRoute("/policy/:id");
@@ -19,6 +20,28 @@ export default function Policy() {
     if (!policyId) return null;
     return getPolicyById(policyId);
   }, [policyId]);
+  
+  // При монтировании компонента и изменении policyId скроллим страницу и контент наверх
+  useEffect(() => {
+    if (policy) {
+      // Скроллим окно и contentRef наверх
+      scrollToTop(false);
+      
+      // Если у нас есть contentRef, дополнительно прокручиваем контент
+      if (contentRef.current) {
+        setTimeout(() => {
+          contentRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+        }, 0);
+        
+        // Дополнительные попытки для надежности
+        setTimeout(() => {
+          contentRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+        }, 100);
+      }
+      
+      console.log('[Policy] Прокрутили страницу и контент наверх');
+    }
+  }, [policyId, policy]);
   
   if (!policy) {
     return (

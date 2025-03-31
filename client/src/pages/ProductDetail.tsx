@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProductImage } from "@/lib/imagePreloader";
-import { restoreScrollPosition } from "@/lib/scrollUtils";
+import { scrollToTop, saveScrollPositionForPath, restoreScrollPositionForPath } from "@/lib/scrollUtils";
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
@@ -22,18 +22,31 @@ export default function ProductDetail() {
   const { t } = useLocale();
   const [couponCode, setCouponCode] = useState('');
   
+  // При монтировании компонента скроллим наверх и добавляем обработчик сохранения позиции
+  useEffect(() => {
+    // Сначала скроллим страницу наверх для удобства просмотра новой страницы
+    scrollToTop(false);
+    
+    // Сохраняем текущую позицию скролла главной страницы перед уходом
+    saveScrollPositionForPath('/');
+    
+    // Также добавляем событие перед уходом со страницы для сохранения позиции
+    const handleBeforeUnload = () => {
+      saveScrollPositionForPath('/');
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+  
   // Функция возврата на главную с сохранением позиции скролла
   const handleGoBack = () => {
-    // Восстанавливаем сохраненную позицию скролла при возврате на главную страницу
-    restoreScrollPosition();
-    setLocation("/");
+    // Используем history.back() для корректной работы системы восстановления позиции скролла
+    window.history.back();
   };
-  
-  // Восстанавливаем позицию скролла при загрузке страницы
-  useEffect(() => {
-    // После того как страница загрузится, восстанавливаем сохраненную позицию скролла
-    restoreScrollPosition();
-  }, []);
   
   const productId = match ? parseInt(params.id) : null;
   
