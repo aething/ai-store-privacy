@@ -6,7 +6,7 @@ import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
 import { X, MoveLeft } from "lucide-react";
 import SimpleScrollToTop from "@/components/SimpleScrollToTop";
-import { scrollToTop, scrollContainerToTop } from "@/lib/scrollUtils";
+import { scrollToTop, scrollContainerToTop, saveScrollPositionForPath } from "@/lib/scrollUtils";
 
 export default function Policy() {
   const [match, params] = useRoute("/policy/:id");
@@ -24,20 +24,16 @@ export default function Policy() {
   // При монтировании компонента и изменении policyId скроллим страницу и контент наверх
   useEffect(() => {
     if (policy) {
-      // Скроллим окно и contentRef наверх
-      scrollToTop(false);
-      
-      // Если у нас есть contentRef, дополнительно прокручиваем контент
+      // Используем прокрутку контейнера
       if (contentRef.current) {
-        setTimeout(() => {
-          contentRef.current?.scrollTo({ top: 0, behavior: 'auto' });
-        }, 0);
-        
-        // Дополнительные попытки для надежности
-        setTimeout(() => {
-          contentRef.current?.scrollTo({ top: 0, behavior: 'auto' });
-        }, 100);
+        scrollContainerToTop(contentRef, false);
+      } else {
+        scrollToTop(false);
       }
+      
+      // Сохраняем текущую позицию скролла для возврата
+      saveScrollPositionForPath('/account');
+      saveScrollPositionForPath('/');
       
       console.log('[Policy] Прокрутили страницу и контент наверх');
     }

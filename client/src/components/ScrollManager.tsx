@@ -1,113 +1,147 @@
-import { useEffect, useRef } from 'react';
-import { useLocation } from 'wouter';
+import React, { useEffect, useState } from 'react';
+import { saveCurrentScrollPosition, restoreCurrentScrollPosition } from '@/lib/scrollUtils';
 
 /**
- * ScrollManager - компонент для управления позицией скролла на страницах.
- * 
- * Принцип работы:
- * 1. Компонент отслеживает изменения URL
- * 2. При изменении URL определяет, была ли это навигация на новую страницу или назад
- * 3. На основе этого либо сбрасывает скролл в начало, либо восстанавливает сохраненную позицию
- * 4. Позиции скролла хранятся в sessionStorage по каждому пути отдельно
+ * Компонент для управления скроллом и отображения текущей позиции
+ * Полезен для тестирования системы скролла в UI
  */
 export default function ScrollManager() {
-  const [location] = useLocation();
-  const prevLocationRef = useRef<string>(location);
-  const scrollRestoredRef = useRef<boolean>(false);
+  const [scrollPosition, setScrollPosition] = useState<number>(0);
+  const [savedPositions, setSavedPositions] = useState<Record<string, string>>({});
+  const [showDebug, setShowDebug] = useState<boolean>(false);
 
-  // Сохранение позиции скролла при скроллинге
+  // Обновляем текущую позицию скролла
   useEffect(() => {
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const path = window.location.pathname;
-      
-      // Не сохраняем позицию для Policy страниц
-      if (path.startsWith('/policy/')) {
-        return;
-      }
-      
-      // Сохраняем позицию скролла для текущего пути
-      sessionStorage.setItem(`scroll-${path}`, scrollY.toString());
-      console.log(`[ScrollManager] Сохранена позиция скролла для ${path}: ${scrollY}px`);
+      const position = window.scrollY || document.documentElement.scrollTop;
+      setScrollPosition(position);
     };
 
-    // Используем throttle для оптимизации
-    let ticking = false;
-    const throttledScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          handleScroll();
-          ticking = false;
-        });
-        ticking = true;
+    // Загружаем сохраненные позиции из sessionStorage
+    const loadSavedPositions = () => {
+      const positions: Record<string, string> = {};
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith('scroll-position-')) {
+          const path = key.replace('scroll-position-', '');
+          const value = sessionStorage.getItem(key) || '';
+          positions[path] = value;
+        }
       }
+      setSavedPositions(positions);
     };
 
-    window.addEventListener('scroll', throttledScroll);
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Начальное значение
+    
+    // Периодически проверяем сохраненные позиции
+    const intervalId = setInterval(loadSavedPositions, 2000);
+    loadSavedPositions(); // Начальная загрузка
 
     return () => {
-      window.removeEventListener('scroll', throttledScroll);
+      window.removeEventListener('scroll', handleScroll);
+      clearInterval(intervalId);
     };
   }, []);
 
-  // Восстановление позиции скролла при изменении URL
-  useEffect(() => {
-    // Если это первая загрузка страницы, устанавливаем предыдущий путь
-    if (prevLocationRef.current === location) {
-      console.log(`[ScrollManager] Первая загрузка: ${location}`);
-      prevLocationRef.current = location;
-      return;
-    }
-    
-    console.log(`[ScrollManager] Изменение пути: ${prevLocationRef.current} -> ${location}`);
-    
-    const fromPolicyToAccount = 
-      prevLocationRef.current.startsWith('/policy/') && 
-      location === '/account';
-    
-    const fromAccountToPolicy = 
-      prevLocationRef.current === '/account' && 
-      location.startsWith('/policy/');
-    
-    // Если переходим на страницу Policy - скролл в начало
-    if (location.startsWith('/policy/')) {
-      console.log(`[ScrollManager] Переход на страницу Policy: скролл в начало`);
-      window.scrollTo(0, 0);
-    }
-    // Если возвращаемся со страницы Policy на Account - восстанавливаем позицию
-    else if (fromPolicyToAccount) {
-      // Запоминаем, что уже восстановили позицию, чтобы не делать это дважды
-      if (!scrollRestoredRef.current) {
-        scrollRestoredRef.current = true;
-        
-        // Восстанавливаем позицию с задержкой
-        setTimeout(() => {
-          const savedPosition = sessionStorage.getItem(`scroll-/account`);
-          if (savedPosition) {
-            const scrollY = parseInt(savedPosition, 10);
-            console.log(`[ScrollManager] Восстановление позиции для Account: ${scrollY}px`);
-            window.scrollTo(0, scrollY);
-          } else {
-            console.log(`[ScrollManager] Нет сохраненной позиции для Account`);
-          }
-          
-          // Сбрасываем флаг, когда позиция восстановлена
-          setTimeout(() => {
-            scrollRestoredRef.current = false;
-          }, 100);
-        }, 100);
+  // Функция для сохранения текущей позиции
+  const handleSavePosition = () => {
+    saveCurrentScrollPosition();
+    // Обновляем список сохраненных позиций
+    setTimeout(() => {
+      const positions: Record<string, string> = {};
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith('scroll-position-')) {
+          const path = key.replace('scroll-position-', '');
+          const value = sessionStorage.getItem(key) || '';
+          positions[path] = value;
+        }
       }
-    }
-    // Для других страниц (не Policy) - скролл в начало
-    else if (!location.startsWith('/policy/') && !fromPolicyToAccount) {
-      console.log(`[ScrollManager] Переход на страницу ${location}: скролл в начало`);
-      window.scrollTo(0, 0);
-    }
+      setSavedPositions(positions);
+    }, 100);
+  };
 
-    // Обновляем предыдущий путь
-    prevLocationRef.current = location;
-  }, [location]);
+  // Функция для восстановления текущей позиции
+  const handleRestorePosition = () => {
+    restoreCurrentScrollPosition();
+  };
 
-  // Никакой визуальной части - это компонент для управления скроллом
-  return null;
+  // Функция для очистки всех сохраненных позиций
+  const handleClearPositions = () => {
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.startsWith('scroll-position-')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+    setSavedPositions({});
+  };
+
+  // Если отладка не включена, показываем только компактный виджет
+  if (!showDebug) {
+    return (
+      <div 
+        className="fixed bottom-4 right-4 bg-black/70 text-white p-2 rounded-lg text-xs shadow-lg"
+        onClick={() => setShowDebug(true)}
+      >
+        Scroll: {scrollPosition}px
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed bottom-4 right-4 bg-white border shadow-xl rounded-lg p-3 max-w-xs z-50">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="font-medium text-sm">Scroll Manager</h3>
+        <button 
+          className="text-gray-500 hover:text-gray-700"
+          onClick={() => setShowDebug(false)}
+        >
+          ✕
+        </button>
+      </div>
+      
+      <div className="mb-2 text-xs">
+        <div>Current Position: <span className="font-mono">{scrollPosition}px</span></div>
+        <div>Current Path: <span className="font-mono">{window.location.pathname}</span></div>
+      </div>
+      
+      <div className="flex space-x-1 mb-3">
+        <button 
+          className="bg-blue-500 hover:bg-blue-600 text-white text-xs rounded px-2 py-1"
+          onClick={handleSavePosition}
+        >
+          Save Position
+        </button>
+        <button 
+          className="bg-green-500 hover:bg-green-600 text-white text-xs rounded px-2 py-1"
+          onClick={handleRestorePosition}
+        >
+          Restore Position
+        </button>
+        <button 
+          className="bg-red-500 hover:bg-red-600 text-white text-xs rounded px-2 py-1"
+          onClick={handleClearPositions}
+        >
+          Clear All
+        </button>
+      </div>
+      
+      <div className="max-h-32 overflow-y-auto text-xs">
+        <div className="font-medium mb-1">Saved Positions:</div>
+        {Object.keys(savedPositions).length === 0 ? (
+          <div className="text-gray-500 italic">No saved positions</div>
+        ) : (
+          <div className="space-y-1">
+            {Object.entries(savedPositions).map(([path, position]) => (
+              <div key={path} className="flex justify-between">
+                <span className="truncate">{path}:</span>
+                <span className="font-mono">{position}px</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

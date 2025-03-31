@@ -44,6 +44,10 @@ export default function ProductDetail() {
   
   // Функция возврата на главную с сохранением позиции скролла
   const handleGoBack = () => {
+    // Сохраняем текущую позицию скролла перед переходом
+    saveScrollPositionForPath('/product/' + productId);
+    console.log('[ProductDetail] Сохраняем позицию скролла перед уходом');
+    
     // Используем history.back() для корректной работы системы восстановления позиции скролла
     window.history.back();
   };
