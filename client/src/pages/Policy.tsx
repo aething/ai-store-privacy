@@ -23,17 +23,12 @@ export default function Policy() {
     return getPolicyById(policyId);
   }, [policyId]);
   
-  // Копия resetScrollPosition из InfoPage
+  // Упрощённая функция сброса прокрутки для страницы с единым скроллингом
   const resetScrollPosition = () => {
     // Сбрасываем глобальный скролл страницы
     window.scrollTo(0, 0);
     
-    // Сбрасываем скролл контента
-    if (contentRef.current) {
-      contentRef.current.scrollTop = 0;
-    }
-    
-    // Принудительно устанавливаем фокус на верхнюю часть страницы (как в InfoPage)
+    // Принудительно устанавливаем фокус на верхнюю часть страницы
     if (rootRef.current) {
       rootRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
@@ -41,7 +36,6 @@ export default function Policy() {
     // Логируем для отладки
     console.log('[Policy] Сбросили скролл', {
       windowScrollY: window.scrollY,
-      contentScroll: contentRef.current?.scrollTop,
       path: window.location.pathname
     });
     
@@ -131,26 +125,27 @@ export default function Policy() {
         
         {/* Удалили подсказку для свайпа, так как она может влиять на скроллинг */}
         
-        {/* Scrollable content area с ограничением по высоте (аналогично InfoPage) */}
+        {/* Простой контейнер без отдельной прокрутки */}
         <div 
           ref={contentRef}
-          className="flex-1 p-4 overflow-y-auto"
-          style={{ 
-            maxHeight: "calc(100vh - 200px)",
-            scrollBehavior: "smooth"
-          }}
+          className="flex-1 p-4"
           id="info-content"
         >
-          {/* Важный якорь для верхней части контента, используется PageTransition */}
+          {/* Важный якорь для верхней части контента */}
           <div id="content-top"></div>
           
           <Card className="p-4 rounded-lg">
             <div dangerouslySetInnerHTML={{ __html: policy.content }} />
           </Card>
           
-          {/* Back to top button - используем новый компонент */}
+          {/* Back to top button - использует window.scrollTo */}
           <div className="flex justify-center mt-6 mb-4">
-            <SimpleScrollToTop contentRef={contentRef} />
+            <Button
+              className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              {t("scrollToTop")}
+            </Button>
           </div>
         </div>
       </div>
