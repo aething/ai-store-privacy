@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,12 +13,6 @@ import OrdersList from "@/components/OrdersList";
 import { useLocale } from "@/context/LocaleContext";
 import { ChevronRight, Trash2, RefreshCw, Settings } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
-import { 
-  saveScrollPosition, 
-  restoreAccountScrollPosition, 
-  saveAccountScrollPosition, 
-  trackNavigation 
-} from "@/lib/scrollUtils";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),
@@ -38,13 +32,8 @@ export default function Account() {
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useLocale();
   
-  // Восстанавливаем позицию скролла страницы Account при монтировании
-  useEffect(() => {
-    console.log('[Account] Component mounted');
-    
-    // Простое восстановление позиции скролла
-    restoreAccountScrollPosition();
-  }, []);
+  // Отображаем страницу Account
+  // Позиция скролла теперь управляется через компонент ScrollManager
   
   const { register, handleSubmit, formState: { errors } } = useForm<UpdateUserForm>({
     resolver: zodResolver(updateUserSchema),
@@ -200,12 +189,8 @@ export default function Account() {
     }
   };
   
-  // Навигация к политике с сохранением текущей позиции скролла
+  // Навигация к политике
   const navigateToPolicy = (policyId: string) => {
-    // Сохраняем текущую позицию скролла перед переходом
-    saveAccountScrollPosition();
-    console.log(`[Account] Сохраняем позицию скролла перед переходом к политике ${policyId}`);
-    
     // Переходим на страницу политики
     setLocation(`/policy/${policyId}`);
   };

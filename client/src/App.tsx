@@ -1,6 +1,5 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Switch, Route, useLocation } from "wouter";
-import { useEffect } from "react";
+import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import Layout from "@/components/Layout";
@@ -16,6 +15,7 @@ import Subscribe from "@/pages/Subscribe";
 import PlayMarket from "@/pages/PlayMarket";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
+import ScrollManager from "@/components/ScrollManager";
 
 // Подключаем тесты в режиме разработки
 if (import.meta.env.DEV) {
@@ -23,25 +23,6 @@ if (import.meta.env.DEV) {
 }
 
 function Router() {
-  const [location] = useLocation();
-  
-  // Сбрасываем скролл при изменении маршрута, 
-  // но только для определенных переходов.
-  // Для путей с сохранением позиции скролла мы используем
-  // функции saveScrollPosition/restoreScrollPosition в самих компонентах
-  useEffect(() => {
-    // Пути, для которых мы не сбрасываем скролл автоматически:
-    // - Переход с "/" (Shop) на "/product/:id" сохраняет позицию скролла
-    // - Переход с "/account" на "/policy/:id" сохраняет позицию скролла
-    // - Возврат назад не сбрасывает позицию скролла
-    
-    // Для остальных переходов сбрасываем скролл
-    if (!location.includes("/product/") && 
-        !location.includes("/policy/")) {
-      window.scrollTo(0, 0);
-    }
-  }, [location]);
-  
   return (
     <Switch>
       <Route path="/" component={Shop} />
@@ -63,6 +44,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AppProvider>
         <LocaleProvider>
+          {/* ScrollManager следит за изменениями URL и управляет скроллом */}
+          <ScrollManager />
+          
           <Layout>
             <Router />
           </Layout>
