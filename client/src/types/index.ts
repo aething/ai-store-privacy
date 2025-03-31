@@ -23,6 +23,8 @@ export interface Product {
   category: string;
   features: string[];
   specifications: string[];
+  hardwareInfo?: string;
+  softwareInfo?: string;
 }
 
 export interface Order {

@@ -7,9 +7,10 @@ import { useToast } from "@/hooks/use-toast";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import SwipeBack from "@/components/SwipeBack";
 import { useLocale } from "@/context/LocaleContext";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
@@ -176,6 +177,44 @@ export default function ProductDetail() {
               })}
             </tbody>
           </table>
+        </Card>
+        
+        {/* Hardware & Software Tabs */}
+        <Card className="rounded-lg p-4 bg-white mb-6">
+          <Tabs defaultValue="hardware" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="hardware" className="flex items-center">
+                <Cpu className="mr-2 h-4 w-4" />
+                Hardware
+              </TabsTrigger>
+              <TabsTrigger value="software" className="flex items-center">
+                <Monitor className="mr-2 h-4 w-4" />
+                Software
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="hardware" className="p-2">
+              {product.hardwareInfo ? (
+                <div className="text-text-secondary whitespace-pre-line">
+                  {product.hardwareInfo}
+                </div>
+              ) : (
+                <div className="text-gray-400 text-center py-4">
+                  No hardware information available
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="software" className="p-2">
+              {product.softwareInfo ? (
+                <div className="text-text-secondary whitespace-pre-line">
+                  {product.softwareInfo}
+                </div>
+              ) : (
+                <div className="text-gray-400 text-center py-4">
+                  No software information available
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </SwipeBack>

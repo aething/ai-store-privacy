@@ -292,6 +292,8 @@ export class MemStorage implements IStorage {
       category: insertProduct.category,
       features: insertProduct.features || [],
       specifications: insertProduct.specifications || [],
+      hardwareInfo: insertProduct.hardwareInfo || null,
+      softwareInfo: insertProduct.softwareInfo || null,
       stripeProductId: insertProduct.stripeProductId || null,
       currency: insertProduct.currency || "usd"
     };
@@ -344,6 +346,8 @@ export class MemStorage implements IStorage {
               ? stripeProduct.images[0] 
               : product.imageUrl,
             category: product.category,
+            hardwareInfo: stripeProduct.metadata?.hardwareInfo || product.hardwareInfo,
+            softwareInfo: stripeProduct.metadata?.softwareInfo || product.softwareInfo,
             currency: price ? price.currency : 'usd'
           };
           
@@ -365,6 +369,8 @@ export class MemStorage implements IStorage {
             currency: price ? price.currency : 'usd',
             features: stripeProduct.metadata?.features ? JSON.parse(stripeProduct.metadata.features) : [],
             specifications: stripeProduct.metadata?.specifications ? JSON.parse(stripeProduct.metadata.specifications) : [],
+            hardwareInfo: stripeProduct.metadata?.hardwareInfo || null,
+            softwareInfo: stripeProduct.metadata?.softwareInfo || null,
             stripeProductId: stripeProduct.id
           };
           
