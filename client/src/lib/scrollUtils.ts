@@ -103,3 +103,80 @@ export function scrollToTop(): void {
   clearScrollPosition();
   console.log('Scrolled to top');
 }
+
+/**
+ * Прокручивает заданный контейнер наверх
+ * @param containerRef Ссылка на контейнер для скролла
+ */
+export function scrollContainerToTop(containerRef: React.RefObject<HTMLElement>): void {
+  console.log('scrollContainerToTop called');
+  
+  // Особая обработка для страницы Policy
+  // Проверяем URL пути - если это Policy страница, используем пользовательский подход
+  if (window.location.pathname.includes('/policy/')) {
+    console.log('Policy page detected, using specialized scroll approach');
+    
+    // Особая функция для страниц политик
+    const scrollPolicyPageToTop = () => {
+      // 1. Скроллим глобальное окно в начало
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      // 2. Если есть сохраненный якорь, скроллим к нему
+      if ((window as any).policyTopAnchor) {
+        console.log('Using policy top anchor for scrolling');
+        (window as any).policyTopAnchor.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+      
+      // 3. Если есть контейнер, скроллим его
+      if (containerRef?.current) {
+        try {
+          containerRef.current.scrollTop = 0;
+          console.log('Policy content container scrolled to top');
+        } catch (e) {
+          console.log('Error scrolling policy container:', e);
+        }
+      }
+    };
+    
+    // Выполняем немедленно и с задержкой для надежности
+    scrollPolicyPageToTop();
+    setTimeout(scrollPolicyPageToTop, 100);
+    return;
+  }
+  
+  // Стандартная обработка для других страниц
+  if (!containerRef.current) {
+    console.warn('Container ref is not available for scrolling');
+    return;
+  }
+  
+  try {
+    // Скроллим контейнер в начало
+    containerRef.current.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+    
+    // Также скроллим всю страницу вверх для мобильных устройств
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+    
+    console.log('Container scrolled to top');
+  } catch (error) {
+    console.error('Error scrolling container to top:', error);
+    
+    // В случае ошибки пытаемся скроллить окно
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+}

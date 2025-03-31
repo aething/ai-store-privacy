@@ -21,15 +21,16 @@ export default function Policy() {
     return getPolicyById(policyId);
   }, [policyId]);
   
-  // Скроллим содержимое страницы в начало при загрузке
+  // Обеспечиваем прокрутку содержимого страницы в начало при загрузке
   useEffect(() => {
-    // Сначала устанавливаем таймер для принудительного скролла к началу страницы
-    // небольшая задержка нужна, чтобы DOM успел обновиться
-    const timer = setTimeout(() => {
+    console.log('Policy component mounted, policyId:', policyId);
+    
+    // Определяем функцию для прокрутки, которую будем вызывать несколько раз с разными задержками
+    const scrollToTop = () => {
       // Скроллим окно (весь документ) в начало
       window.scrollTo({
         top: 0,
-        behavior: 'auto'
+        behavior: 'instant' // автоматическая прокрутка без анимации
       });
       
       // Также сбрасываем позицию скролла контента, если он существует
@@ -38,15 +39,30 @@ export default function Policy() {
       }
       
       console.log('Policy page scrolled to top');
-    }, 50);
+    };
+    
+    // Немедленно вызываем
+    scrollToTop();
+    
+    // Затем вызываем с разными задержками, чтобы гарантировать скролл после полной загрузки DOM
+    const timer1 = setTimeout(scrollToTop, 50);
+    const timer2 = setTimeout(scrollToTop, 200);
     
     // Компонент будет возвращать сохраненную позицию скролла при размонтировании
     return () => {
-      // Очищаем таймер при размонтировании компонента
-      clearTimeout(timer);
+      // Очищаем таймеры при размонтировании компонента
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       
-      // Функция очистки - восстанавливаем позицию на странице Account
-      restoreScrollPosition();
+      // Проверяем, возвращаемся ли мы на страницу аккаунта
+      // Это решает проблему с переходом между разными policy страницами
+      if (window.location.pathname.startsWith('/account')) {
+        console.log('Returning to Account page, restoring scroll position');
+        // Используем небольшую задержку, чтобы дать время компоненту Account загрузиться
+        setTimeout(() => {
+          restoreScrollPosition();
+        }, 50);
+      }
     };
   }, [policyId]);
   
@@ -79,8 +95,13 @@ export default function Policy() {
       setLocation("/account");
     }}>
       <div id="policy-root" className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
-        {/* Якорь для верхней точки страницы */}
-        <div id="policy-page-top" className="scroll-m-0"></div>
+        {/* Якорь для верхней точки страницы с идентификатором для программного скролла */}
+        <div id="policy-page-top" className="scroll-m-0" ref={(el) => {
+          if (el) {
+            // Сохраняем якорь в window для программного скролла
+            (window as any).policyTopAnchor = el;
+          }
+        }}></div>
         
         {/* Header with close button */}
         <div className="flex items-center justify-between p-4 border-b">
