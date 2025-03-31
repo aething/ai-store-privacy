@@ -23,33 +23,27 @@ export default function Policy() {
     return getPolicyById(policyId);
   }, [policyId]);
   
-  // Полностью новая функция сброса прокрутки с принудительным подходом
+  // Копия resetScrollPosition из InfoPage
   const resetScrollPosition = () => {
-    // Принудительно сбрасываем скролл документа
-    window.scrollTo({top: 0, left: 0, behavior: 'auto'});
-    document.body.scrollTop = 0; // Для старых браузеров
-    document.documentElement.scrollTop = 0;
+    // Сбрасываем глобальный скролл страницы
+    window.scrollTo(0, 0);
     
-    // Принудительно сбрасываем положение для нашего контент-контейнера
+    // Сбрасываем скролл контента
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
     
-    // Если есть корневой элемент, скролим его в верхнее положение во вьюпорте
+    // Принудительно устанавливаем фокус на верхнюю часть страницы (как в InfoPage)
     if (rootRef.current) {
-      rootRef.current.scrollIntoView({block: 'start', behavior: 'auto'});
+      rootRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
     
     // Логируем для отладки
-    console.log('[Policy] Принудительный сброс прокрутки', {
+    console.log('[Policy] Сбросили скролл', {
       windowScrollY: window.scrollY,
       contentScroll: contentRef.current?.scrollTop,
       path: window.location.pathname
     });
-    
-    // Дополнительно вызываем стандартные утилиты
-    scrollToTop(false);
-    scrollContainerToTop(contentRef, false);
     
     // Сохраняем позиции для возврата
     saveScrollPositionForPath('/account');
@@ -68,7 +62,7 @@ export default function Policy() {
     });
   };
 
-  // Эффект при монтировании компонента
+  // Эффект при монтировании компонента - копируем таймеры из InfoPage
   useEffect(() => {
     // Устанавливаем флаг монтирования
     setMounted(true);
@@ -76,26 +70,19 @@ export default function Policy() {
     // Сразу сбрасываем прокрутку
     resetScrollPosition();
     
-    // Использует requestAnimationFrame для более надежной прокрутки
-    scheduleScroll(resetScrollPosition);
+    // Дополнительный сброс с таймерами для надежности (как в InfoPage)
+    const timer1 = setTimeout(resetScrollPosition, 50);
+    const timer2 = setTimeout(resetScrollPosition, 150);
+    const timer3 = setTimeout(resetScrollPosition, 300);
+    const timer4 = setTimeout(resetScrollPosition, 500);
     
-    // Дополнительно используем таймеры на случай медленной загрузки контента
-    const timers = [
-      setTimeout(() => scheduleScroll(resetScrollPosition), 0),
-      setTimeout(() => scheduleScroll(resetScrollPosition), 50),
-      setTimeout(() => scheduleScroll(resetScrollPosition), 100),
-      setTimeout(() => scheduleScroll(resetScrollPosition), 150),
-      setTimeout(() => scheduleScroll(resetScrollPosition), 200),
-      setTimeout(() => scheduleScroll(resetScrollPosition), 300),
-      setTimeout(() => scheduleScroll(resetScrollPosition), 500),
-      setTimeout(() => scheduleScroll(resetScrollPosition), 1000)
-    ];
-    
-    // Очищаем все таймеры при размонтировании
     return () => {
-      timers.forEach(clearTimeout);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
     };
-  }, []);
+  }, [policyId]);
   
   if (!policy) {
     return (
@@ -125,7 +112,7 @@ export default function Policy() {
       // с механизмом восстановления позиции скролла
       window.history.back();
     }}>
-      <div id="policy-root" className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
+      <div id="policy-root" ref={rootRef} className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
         {/* Header with close button */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-medium">{policy.title}</h2>
@@ -144,10 +131,14 @@ export default function Policy() {
         
         {/* Удалили подсказку для свайпа, так как она может влиять на скроллинг */}
         
-        {/* Scrollable content area без ограничения по высоте */}
+        {/* Scrollable content area с ограничением по высоте (аналогично InfoPage) */}
         <div 
           ref={contentRef}
-          className="flex-1 p-4 overflow-auto"
+          className="flex-1 p-4 overflow-y-auto"
+          style={{ 
+            maxHeight: "calc(100vh - 200px)",
+            scrollBehavior: "smooth"
+          }}
           id="info-content"
         >
           {/* Важный якорь для верхней части контента, используется PageTransition */}
