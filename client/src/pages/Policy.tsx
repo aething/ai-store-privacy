@@ -148,7 +148,11 @@ export default function Policy() {
         <div 
           ref={contentRef}
           className="flex-1 p-4 overflow-auto"
+          id="info-content"
         >
+          {/* Важный якорь для верхней части контента, используется PageTransition */}
+          <div id="content-top"></div>
+          
           <Card className="p-4 rounded-lg">
             <div dangerouslySetInnerHTML={{ __html: policy.content }} />
           </Card>
