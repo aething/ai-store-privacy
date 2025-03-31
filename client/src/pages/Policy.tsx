@@ -6,7 +6,7 @@ import { getPolicyById } from "@/constants/policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
 import { X } from "lucide-react";
-import { saveScrollPositionForPath } from "@/lib/scrollUtils";
+import { saveScrollPositionForPath, scrollToTop } from "@/lib/scrollUtils";
 
 export default function Policy() {
   const [match, params] = useRoute("/policy/:id");
@@ -138,11 +138,11 @@ export default function Policy() {
             <div dangerouslySetInnerHTML={{ __html: policy.content }} />
           </Card>
           
-          {/* Back to top button - использует window.scrollTo */}
+          {/* Back to top button - использует scrollToTop из utils */}
           <div className="flex justify-center mt-6 mb-4">
             <Button
               className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              onClick={() => scrollToTop(true)}
             >
               {t("scrollToTop")}
             </Button>
