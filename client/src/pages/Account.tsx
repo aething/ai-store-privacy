@@ -13,7 +13,7 @@ import OrdersList from "@/components/OrdersList";
 import { useLocale } from "@/context/LocaleContext";
 import { ChevronRight, Trash2, RefreshCw, Settings } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
-import { scrollToTop } from "@/lib/scrollUtils";
+import { scrollToTop, saveScrollPosition } from "@/lib/scrollUtils";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),
@@ -187,15 +187,13 @@ export default function Account() {
     }
   };
   
-  // Навигация к политике с предварительным скроллингом
+  // Навигация к политике с сохранением текущей позиции скролла
   const navigateToPolicy = (policyId: string) => {
-    // Сначала скроллим вверх используя глобальную утилиту
-    scrollToTop(false); // Используем моментальную прокрутку без эффекта smooth
+    // Сохраняем текущую позицию скролла перед переходом
+    saveScrollPosition();
     
-    // Небольшая задержка перед навигацией
-    setTimeout(() => {
-      setLocation(`/policy/${policyId}`);
-    }, 10);
+    // Переходим на страницу политики
+    setLocation(`/policy/${policyId}`);
   };
   
   const policies = [

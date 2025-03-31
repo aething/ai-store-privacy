@@ -5,7 +5,7 @@ import { getPolicyById } from "@/constants/policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
 import { X, MoveLeft } from "lucide-react";
-import { scrollToTop as globalScrollToTop } from "@/lib/scrollUtils";
+import { scrollToTop, saveScrollPosition, restoreScrollPosition } from "@/lib/scrollUtils";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 export default function Policy() {
@@ -23,24 +23,18 @@ export default function Policy() {
   
   // Скроллим содержимое страницы в начало при загрузке
   useEffect(() => {
-    // Простая прокрутка страницы к началу
-    window.scrollTo(0, 0);
+    // Принудительно скроллим страницу в начало несколько раз
+    scrollToTop(false, true);
     
-    // Скроллим контент, если он существует
+    // Сбрасываем позицию скролла контента, если он существует
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
     
-    // Повторный скролл с задержкой для подстраховки на медленных устройствах
-    const delayedScrollTimer = setTimeout(() => {
-      window.scrollTo(0, 0);
-      if (contentRef.current) {
-        contentRef.current.scrollTop = 0;
-      }
-    }, 100);
-    
+    // Компонент будет возвращать сохраненную позицию скролла при размонтировании
     return () => {
-      clearTimeout(delayedScrollTimer);
+      // Функция очистки - восстанавливаем позицию на странице Account
+      restoreScrollPosition();
     };
   }, [policyId]);
   
@@ -67,7 +61,11 @@ export default function Policy() {
   }
   
   return (
-    <SwipeBack onSwipeBack={() => setLocation("/account")}>
+    <SwipeBack onSwipeBack={() => {
+      // При свайпе назад также возвращаемся на предыдущий экран
+      // с восстановлением позиции скролла
+      setLocation("/account");
+    }}>
       <div id="policy-root" className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
         {/* Якорь для верхней точки страницы */}
         <div id="policy-page-top" className="scroll-m-0"></div>
@@ -78,8 +76,8 @@ export default function Policy() {
           <button 
             className="p-2 rounded-full hover:bg-gray-100"
             onClick={() => {
-              // Используем глобальную утилиту скроллинга перед навигацией
-              globalScrollToTop(false);
+              // Возвращаемся на страницу Account
+              // restoreScrollPosition будет вызвана в useEffect cleanup функции
               setLocation("/account");
             }}
             aria-label="Close"
