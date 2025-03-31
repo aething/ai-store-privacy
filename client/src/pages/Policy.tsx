@@ -5,7 +5,12 @@ import { getPolicyById } from "@/constants/policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
 import { X, MoveLeft } from "lucide-react";
-import { saveScrollPosition, restoreScrollPosition } from "@/lib/scrollUtils";
+import { 
+  saveScrollPosition, 
+  restoreScrollPosition, 
+  trackNavigation, 
+  scrollContainerToTop 
+} from "@/lib/scrollUtils";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 export default function Policy() {
@@ -20,51 +25,65 @@ export default function Policy() {
     if (!policyId) return null;
     return getPolicyById(policyId);
   }, [policyId]);
-  
-  // Обеспечиваем прокрутку содержимого страницы в начало при загрузке
+
+  // Добавляем текущую страницу в историю навигации при первой загрузке
   useEffect(() => {
-    console.log('Policy component mounted, policyId:', policyId);
+    console.log('[Policy] Component mounted, policyId:', policyId);
+    trackNavigation();
+  }, []);
+  
+  // Обеспечиваем прокрутку содержимого страницы в начало при изменении ID политики
+  useEffect(() => {
+    console.log('[Policy] Policy ID changed:', policyId);
     
-    // Определяем функцию для прокрутки, которую будем вызывать несколько раз с разными задержками
-    const scrollToTop = () => {
-      // Скроллим окно (весь документ) в начало
+    // Функция для выполнения скролла к началу страницы
+    const scrollToPageTop = () => {
+      console.log('[Policy] Scrolling page to top');
+      
+      // Скроллим основное окно в начало
       window.scrollTo({
         top: 0,
-        behavior: 'instant' // автоматическая прокрутка без анимации
+        behavior: 'auto' // без анимации
       });
       
-      // Также сбрасываем позицию скролла контента, если он существует
+      // Скроллим содержимое, если оно есть
       if (contentRef.current) {
         contentRef.current.scrollTop = 0;
       }
-      
-      console.log('Policy page scrolled to top');
     };
     
-    // Немедленно вызываем
-    scrollToTop();
+    // Выполняем скролл с разными задержками для надежности
+    scrollToPageTop(); // Немедленно
     
-    // Затем вызываем с разными задержками, чтобы гарантировать скролл после полной загрузки DOM
-    const timer1 = setTimeout(scrollToTop, 50);
-    const timer2 = setTimeout(scrollToTop, 200);
+    // Таймеры для отложенного скролла
+    const timer1 = setTimeout(scrollToPageTop, 50);
+    const timer2 = setTimeout(scrollToPageTop, 200);
+    const timer3 = setTimeout(scrollToPageTop, 500);
     
-    // Компонент будет возвращать сохраненную позицию скролла при размонтировании
     return () => {
-      // Очищаем таймеры при размонтировании компонента
+      // Очищаем таймеры при размонтировании
       clearTimeout(timer1);
       clearTimeout(timer2);
-      
-      // Проверяем, возвращаемся ли мы на страницу аккаунта
-      // Это решает проблему с переходом между разными policy страницами
-      if (window.location.pathname.startsWith('/account')) {
-        console.log('Returning to Account page, restoring scroll position');
-        // Используем небольшую задержку, чтобы дать время компоненту Account загрузиться
-        setTimeout(() => {
-          restoreScrollPosition();
-        }, 50);
-      }
+      clearTimeout(timer3);
     };
   }, [policyId]);
+  
+  // Обработка возврата на страницу Account
+  useEffect(() => {
+    return () => {
+      // Вызывается при размонтировании компонента
+      // Если мы возвращаемся на страницу Account, восстанавливаем позицию скролла
+      if (window.location.pathname.startsWith('/account')) {
+        console.log('[Policy] Returning to Account page, will restore scroll position');
+        
+        // Восстанавливаем позицию для страницы Account
+        restoreScrollPosition({
+          pathOverride: '/account',
+          delay: 100
+        });
+      }
+    };
+  }, []);
   
   if (!policy) {
     return (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,7 +13,11 @@ import OrdersList from "@/components/OrdersList";
 import { useLocale } from "@/context/LocaleContext";
 import { ChevronRight, Trash2, RefreshCw, Settings } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
-import { saveScrollPosition } from "@/lib/scrollUtils";
+import { 
+  saveScrollPosition, 
+  restoreScrollPosition, 
+  trackNavigation 
+} from "@/lib/scrollUtils";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),
@@ -32,6 +36,21 @@ export default function Account() {
   const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useLocale();
+  
+  // Добавляем страницу в историю навигации и восстанавливаем позицию скролла при монтировании
+  useEffect(() => {
+    console.log('[Account] Component mounted');
+    
+    // Добавляем текущую страницу в историю навигации
+    trackNavigation();
+    
+    // Восстанавливаем позицию скролла с задержкой после загрузки компонента
+    // Это важно для корректного восстановления при возврате со страницы Policy
+    restoreScrollPosition({ 
+      delay: 100, 
+      defaultToTop: false // Не скроллить автоматически в начало, если нет сохраненной позиции
+    });
+  }, []);
   
   const { register, handleSubmit, formState: { errors } } = useForm<UpdateUserForm>({
     resolver: zodResolver(updateUserSchema),

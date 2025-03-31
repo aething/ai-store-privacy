@@ -1,5 +1,6 @@
 import { ArrowUp } from "lucide-react";
 import { useLocale } from "@/context/LocaleContext";
+import { scrollToTop, scrollContainerToTop, clearScrollPosition } from "@/lib/scrollUtils";
 
 interface ScrollToTopButtonProps {
   className?: string;
@@ -30,19 +31,32 @@ export default function ScrollToTopButton({
     size === "lg" ? "px-8 py-3" : "px-6 py-2";
   
   const handleClick = () => {
-    console.log('ScrollToTopButton clicked', contentRef?.current ? 'with ref' : 'no ref');
+    console.log('[ScrollToTopButton] Clicked', contentRef?.current ? 'with ref' : 'no ref');
     
-    // Импортируем функцию из scrollUtils.ts для скролла контейнера
+    // Очищаем сохраненную позицию скролла для текущего пути
+    clearScrollPosition();
+    
     if (contentRef?.current) {
-      // Используем новую функцию для обработки скролла контейнера
-      import('@/lib/scrollUtils').then(({ scrollContainerToTop }) => {
-        scrollContainerToTop(contentRef);
-      });
+      // Если есть специальный контейнер (например, для Policy страницы)
+      scrollContainerToTop(contentRef, true); // true для плавного скролла
     } else {
-      // Для обычных страниц используем scrollToTop из scrollUtils
-      import('@/lib/scrollUtils').then(({ scrollToTop }) => {
-        scrollToTop();
-      });
+      // Для обычных страниц используем scrollToTop
+      scrollToTop(true); // true для плавного скролла
+    }
+    
+    // Дополнительно для Policy страницы - проверяем наличие якоря
+    if (window.location.pathname.includes('/policy/') && (window as any).policyTopAnchor) {
+      setTimeout(() => {
+        console.log('[ScrollToTopButton] Scrolling to policy top anchor');
+        try {
+          (window as any).policyTopAnchor.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        } catch (e) {
+          console.error('[ScrollToTopButton] Error scrolling to anchor:', e);
+        }
+      }, 100);
     }
   };
   

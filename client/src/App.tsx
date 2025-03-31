@@ -17,6 +17,11 @@ import PlayMarket from "@/pages/PlayMarket";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 
+// Подключаем тесты в режиме разработки
+if (import.meta.env.DEV) {
+  import('@/utils/browserTests');
+}
+
 function Router() {
   const [location] = useLocation();
   
