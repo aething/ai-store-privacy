@@ -9,9 +9,10 @@ import SwipeBack from "@/components/SwipeBack";
 import { useLocale } from "@/context/LocaleContext";
 import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProductImage } from "@/lib/imagePreloader";
+import { restoreScrollPosition } from "@/lib/scrollUtils";
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
@@ -20,6 +21,19 @@ export default function ProductDetail() {
   const { user } = useAppContext();
   const { t } = useLocale();
   const [couponCode, setCouponCode] = useState('');
+  
+  // Функция возврата на главную с сохранением позиции скролла
+  const handleGoBack = () => {
+    // Восстанавливаем сохраненную позицию скролла при возврате на главную страницу
+    restoreScrollPosition();
+    setLocation("/");
+  };
+  
+  // Восстанавливаем позицию скролла при загрузке страницы
+  useEffect(() => {
+    // После того как страница загрузится, восстанавливаем сохраненную позицию скролла
+    restoreScrollPosition();
+  }, []);
   
   const productId = match ? parseInt(params.id) : null;
   
@@ -51,7 +65,7 @@ export default function ProductDetail() {
         <div className="flex items-center mb-4">
           <button 
             className="p-1 mr-2"
-            onClick={() => setLocation("/")}
+            onClick={handleGoBack}
           >
             <ArrowLeft size={24} />
           </button>
@@ -92,12 +106,12 @@ export default function ProductDetail() {
   // Используем функцию из сервиса предварительной загрузки для получения изображения
   
   return (
-    <SwipeBack onSwipeBack={() => setLocation("/")}>
+    <SwipeBack onSwipeBack={handleGoBack}>
       <div>
         <div className="flex items-center mb-4">
           <button 
             className="p-1 mr-2"
-            onClick={() => setLocation("/")}
+            onClick={handleGoBack}
           >
             <ArrowLeft size={24} />
           </button>

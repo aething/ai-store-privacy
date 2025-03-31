@@ -1,5 +1,4 @@
 import { ArrowUp } from "lucide-react";
-import { scrollToTop } from "@/lib/scrollUtils";
 import { useLocale } from "@/context/LocaleContext";
 
 interface ScrollToTopButtonProps {
@@ -35,8 +34,11 @@ export default function ScrollToTopButton({
     if (contentRef?.current) {
       contentRef.current.scrollTop = 0;
     } else {
-      // В противном случае используем простую прокрутку страницы
-      window.scrollTo(0, 0);
+      // В противном случае используем плавную прокрутку страницы
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     }
   };
   

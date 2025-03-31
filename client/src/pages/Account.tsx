@@ -13,7 +13,7 @@ import OrdersList from "@/components/OrdersList";
 import { useLocale } from "@/context/LocaleContext";
 import { ChevronRight, Trash2, RefreshCw, Settings } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
-import { scrollToTop, saveScrollPosition } from "@/lib/scrollUtils";
+import { saveScrollPosition } from "@/lib/scrollUtils";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),

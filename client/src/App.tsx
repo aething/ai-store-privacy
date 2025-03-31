@@ -20,9 +20,21 @@ import { LocaleProvider } from "@/context/LocaleContext";
 function Router() {
   const [location] = useLocation();
   
-  // Сбрасываем скролл при изменении маршрута
+  // Сбрасываем скролл при изменении маршрута, 
+  // но только для определенных переходов.
+  // Для путей с сохранением позиции скролла мы используем
+  // функции saveScrollPosition/restoreScrollPosition в самих компонентах
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Пути, для которых мы не сбрасываем скролл автоматически:
+    // - Переход с "/" (Shop) на "/product/:id" сохраняет позицию скролла
+    // - Переход с "/account" на "/policy/:id" сохраняет позицию скролла
+    // - Возврат назад не сбрасывает позицию скролла
+    
+    // Для остальных переходов сбрасываем скролл
+    if (!location.includes("/product/") && 
+        !location.includes("/policy/")) {
+      window.scrollTo(0, 0);
+    }
   }, [location]);
   
   return (

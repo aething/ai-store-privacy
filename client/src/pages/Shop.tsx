@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { getAllInfoPages } from "@/constants/infoPages";
 import { useLocale } from "@/context/LocaleContext";
+import { saveScrollPosition } from "@/lib/scrollUtils";
 
 export default function Shop() {
   const [, setLocation] = useLocation();

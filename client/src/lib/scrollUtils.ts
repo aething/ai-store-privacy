@@ -1,59 +1,105 @@
 /**
- * Утилиты для работы со скроллингом в приложении
+ * Утилиты для управления позицией скролла и ее сохранения при навигации
  */
 
-// Хранилище для позиции скролла
-let lastScrollPosition = 0;
+const STORAGE_KEY = 'scrollPositions';
 
 /**
- * Сохраняет текущую позицию скролла
+ * Сохраняет текущую позицию скролла в sessionStorage
  */
 export function saveScrollPosition(): void {
-  lastScrollPosition = window.scrollY || document.documentElement.scrollTop;
+  // Сохраняем текущую позицию скролла
+  const scrollY = window.scrollY || window.pageYOffset;
+  
+  // В sessionStorage храним объект с позициями для разных путей
+  try {
+    // Получаем текущие сохраненные позиции или создаем новый объект
+    const positions = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}');
+    
+    // Текущий путь используем как ключ
+    const currentPath = window.location.pathname;
+    
+    // Сохраняем позицию скролла для текущего пути
+    positions[currentPath] = scrollY;
+    
+    // Обновляем хранилище
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
+    
+    // Для отладки
+    console.log(`Scroll position ${scrollY}px saved for ${currentPath}`);
+  } catch (error) {
+    console.error('Error saving scroll position:', error);
+  }
 }
 
 /**
- * Восстанавливает сохраненную позицию скролла
+ * Восстанавливает сохраненную позицию скролла из sessionStorage
  */
 export function restoreScrollPosition(): void {
-  window.scrollTo(0, lastScrollPosition);
+  // Отложенное восстановление положения скролла
+  // Нужна задержка, чтобы DOM успел обновиться
+  setTimeout(() => {
+    try {
+      // Получаем сохраненные позиции
+      const positions = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}');
+      
+      // Получаем текущий путь
+      const currentPath = window.location.pathname;
+      
+      // Проверяем, есть ли сохраненная позиция для текущего пути
+      if (positions[currentPath] !== undefined) {
+        // Восстанавливаем позицию скролла
+        window.scrollTo({
+          top: positions[currentPath],
+          behavior: 'auto' // Мгновенно без анимации
+        });
+        
+        // Для отладки
+        console.log(`Scroll position restored to ${positions[currentPath]}px for ${currentPath}`);
+      } else {
+        // Если нет сохраненной позиции, скроллим к началу
+        window.scrollTo(0, 0);
+      }
+    } catch (error) {
+      console.error('Error restoring scroll position:', error);
+      // В случае ошибки просто скроллим к началу
+      window.scrollTo(0, 0);
+    }
+  }, 100);
 }
 
 /**
- * Функция для надежного скроллинга страницы в начало
- * @param smoothScroll - использовать плавную анимацию
- * @param multiple - выполнить скроллинг несколько раз с задержкой (для борьбы с багами)
+ * Удаляет сохраненную позицию скролла для текущего пути
  */
-export function scrollToTop(smoothScroll: boolean = true, multiple: boolean = true): void {
-  const scrollOptions = smoothScroll ? { top: 0, behavior: 'smooth' as ScrollBehavior } : { top: 0 };
-  
-  // Базовая прокрутка страницы
-  window.scrollTo(scrollOptions);
-  
-  // Для большей надежности (некоторые устройства/браузеры имеют проблемы со скроллингом)
-  if (multiple) {
-    setTimeout(() => {
-      window.scrollTo(scrollOptions);
-    }, 50);
+export function clearScrollPosition(): void {
+  try {
+    // Получаем сохраненные позиции
+    const positions = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '{}');
     
-    // Еще одна попытка через 150ms
-    setTimeout(() => {
-      window.scrollTo(scrollOptions);
-    }, 150);
+    // Получаем текущий путь
+    const currentPath = window.location.pathname;
+    
+    // Удаляем позицию скролла для текущего пути
+    if (positions[currentPath] !== undefined) {
+      delete positions[currentPath];
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
+      console.log(`Scroll position cleared for ${currentPath}`);
+    }
+  } catch (error) {
+    console.error('Error clearing scroll position:', error);
   }
 }
 
 /**
- * Функция для прокрутки страницы к определенному элементу
+ * Прокручивает страницу наверх с плавной анимацией
  */
-export function scrollToElement(elementId: string, smoothScroll: boolean = true): boolean {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.scrollIntoView({
-      behavior: smoothScroll ? 'smooth' : 'auto',
-      block: 'start'
-    });
-    return true;
-  }
-  return false;
+export function scrollToTop(): void {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+  
+  // Также очищаем сохраненную позицию для текущего пути
+  clearScrollPosition();
+  console.log('Scrolled to top');
 }

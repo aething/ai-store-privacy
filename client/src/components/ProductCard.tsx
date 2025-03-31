@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import { getProductImage } from "@/lib/imagePreloader";
+import { saveScrollPosition } from "@/lib/scrollUtils";
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +15,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { user } = useAppContext();
   
   const handleClick = () => {
+    // Сохраняем позицию скролла перед переходом на страницу детального просмотра
+    saveScrollPosition();
     setLocation(`/product/${product.id}`);
   };
   

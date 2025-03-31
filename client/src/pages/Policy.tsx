@@ -5,7 +5,7 @@ import { getPolicyById } from "@/constants/policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
 import { X, MoveLeft } from "lucide-react";
-import { scrollToTop, saveScrollPosition, restoreScrollPosition } from "@/lib/scrollUtils";
+import { saveScrollPosition, restoreScrollPosition } from "@/lib/scrollUtils";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 export default function Policy() {
@@ -23,8 +23,8 @@ export default function Policy() {
   
   // Скроллим содержимое страницы в начало при загрузке
   useEffect(() => {
-    // Принудительно скроллим страницу в начало несколько раз
-    scrollToTop(false, true);
+    // Принудительно скроллим страницу в начало
+    window.scrollTo({ top: 0, behavior: 'auto' });
     
     // Сбрасываем позицию скролла контента, если он существует
     if (contentRef.current) {
