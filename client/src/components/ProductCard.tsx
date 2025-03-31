@@ -3,6 +3,7 @@ import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
+import { getProductImage } from "@/lib/imagePreloader";
 
 interface ProductCardProps {
   product: Product;
@@ -16,6 +17,8 @@ export default function ProductCard({ product }: ProductCardProps) {
     setLocation(`/product/${product.id}`);
   };
   
+  // Используем функцию из нашего сервиса предварительной загрузки
+  
   // Determine currency and price based on user's country
   const currency = getCurrencyForCountry(user?.country);
   const price = getPriceForCountry(product, user?.country);
@@ -28,7 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       <div className="h-48 bg-surface">
         <img 
-          src={product.imageUrl} 
+          src={getProductImage(product.id)} 
           alt={product.title} 
           className="w-full h-full object-cover"
         />

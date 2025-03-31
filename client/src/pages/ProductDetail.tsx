@@ -11,11 +11,7 @@ import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Импортируем изображения продуктов
-import image1 from "@assets/11111111 Medium Small.jpeg";
-import image2 from "@assets/2222222 Small.jpeg";
-import image3 from "@assets/333333 Medium.jpeg";
+import { getProductImage } from "@/lib/imagePreloader";
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
@@ -93,19 +89,7 @@ export default function ProductDetail() {
     setLocation(`/checkout/${product.id}`);
   };
   
-  // Функция для получения соответствующего изображения продукта на основе ID
-  const getProductImage = (productId: number) => {
-    switch (productId) {
-      case 1:
-        return image1;
-      case 2:
-        return image2;
-      case 3:
-        return image3;
-      default:
-        return product.imageUrl;
-    }
-  };
+  // Используем функцию из сервиса предварительной загрузки для получения изображения
   
   return (
     <SwipeBack onSwipeBack={() => setLocation("/")}>
@@ -127,12 +111,17 @@ export default function ProductDetail() {
         </div>
         
         {/* Image Section */}
-        <div className="h-64 bg-surface mb-4 rounded-lg overflow-hidden">
-          <img 
-            src={getProductImage(product.id)} 
-            alt={product.title} 
-            className="w-full h-full object-cover"
-          />
+        <div className="mb-4">
+          <div className="h-64 bg-surface mb-1 rounded-lg overflow-hidden">
+            <img 
+              src={getProductImage(product.id)} 
+              alt={product.title} 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <p className="text-xs text-gray-500 italic text-center">
+            Images are for illustration purposes only. Refer to the description for full specifications.
+          </p>
         </div>
         
         {/* Title, Coupon and Buy Button */}
@@ -459,6 +448,11 @@ export default function ProductDetail() {
                 )}
               </TabsContent>
             </Tabs>
+            
+            {/* Примечание по изображениям */}
+            <div className="text-gray-400 text-xs text-center mt-4 italic">
+              Images are for illustration purposes only. Refer to the description for full specifications.
+            </div>
           </Card>
         </div>
       </div>
