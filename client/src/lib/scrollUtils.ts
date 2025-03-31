@@ -4,7 +4,7 @@
 
 /**
  * Функция для надежного скроллинга страницы в начало
- * Использует несколько методов для обеспечения работы на разных устройствах
+ * Упрощенная для предотвращения рывков при прокрутке
  */
 export function scrollToTop(smoothScroll: boolean = true): void {
   // Базовая прокрутка страницы
@@ -13,37 +13,21 @@ export function scrollToTop(smoothScroll: boolean = true): void {
     behavior: smoothScroll ? 'smooth' : 'auto',
   });
   
-  // Поиск и прокрутка якорей на странице
-  const topAnchors = [
-    'content-top',
-    'policy-page-top',
-    'policy-root',
-  ];
-  
-  for (const anchorId of topAnchors) {
-    const element = document.getElementById(anchorId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: smoothScroll ? 'smooth' : 'auto',
-        block: 'start'
-      });
-      break; // Прерываем цикл после нахождения первого якоря
-    }
+  // Находим основной контент для прокрутки
+  // Поиск основного контейнера политик, если он существует
+  const policyContent = document.querySelector('.policy-content');
+  if (policyContent instanceof HTMLElement) {
+    policyContent.scrollTop = 0;
   }
   
-  // Прокрутка всех скроллируемых элементов
-  document.querySelectorAll('.overflow-auto, .overflow-y-auto, .overflow-scroll, .overflow-y-scroll').forEach(el => {
-    if (el instanceof HTMLElement) {
-      el.scrollTop = 0;
-    }
-  });
-  
-  // Для улучшения отзывчивости на устройствах с медленной загрузкой, 
-  // добавляем отложенную прокрутку с небольшой задержкой
+  // Прокрутка скроллируемых элементов верхнего уровня только если гладкая прокрутка отключена
+  // Это помогает избежать конфликтов между множественными анимациями прокрутки
   if (!smoothScroll) {
-    setTimeout(() => {
-      window.scrollTo(0, 0);
-    }, 50);
+    document.querySelectorAll('.overflow-auto, .overflow-y-auto').forEach(el => {
+      if (el instanceof HTMLElement) {
+        el.scrollTop = 0;
+      }
+    });
   }
 }
 

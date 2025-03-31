@@ -21,29 +21,29 @@ export default function Policy() {
     return getPolicyById(policyId);
   }, [policyId]);
   
-  // Скроллим содержимое страницы в начало при загрузке - используем глобальную функцию
+  // Скроллим содержимое страницы в начало при загрузке - упрощенная версия
   useEffect(() => {
-    // Вызываем глобальную функцию скроллинга сразу
-    globalScrollToTop(false);
-    
-    // Скроллим также и контент
+    // Сначала скроллим основной контент, если он существует
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
     
-    // Повторяем скроллинг с задержками для надежности
-    const delayedScrollTimer1 = setTimeout(() => globalScrollToTop(false), 50);
-    const delayedScrollTimer2 = setTimeout(() => globalScrollToTop(false), 200);
-    const delayedScrollTimer3 = setTimeout(() => globalScrollToTop(false), 500);
+    // Затем скроллим страницу вверх с помощью глобальной функции, но без анимации
+    window.requestAnimationFrame(() => {
+      globalScrollToTop(false);
+    });
+    
+    // Единственный отложенный скролл для случаев медленной загрузки
+    const delayedScrollTimer = setTimeout(() => {
+      if (contentRef.current) {
+        contentRef.current.scrollTop = 0;
+      }
+    }, 100);
     
     return () => {
-      clearTimeout(delayedScrollTimer1);
-      clearTimeout(delayedScrollTimer2);
-      clearTimeout(delayedScrollTimer3);
+      clearTimeout(delayedScrollTimer);
     };
   }, [policyId]);
-  
-  // Функция scrollToTop удалена, так как мы используем компонент ScrollToTopButton
   
   if (!policy) {
     return (
@@ -95,10 +95,11 @@ export default function Policy() {
           {t("swipeRightToGoBack")}
         </div>
         
-        {/* Scrollable content area */}
+        {/* Scrollable content area - добавлен класс policy-content для улучшения прокрутки */}
         <div 
           ref={contentRef}
-          className="flex-1 p-4 overflow-auto max-h-[80vh] sm:max-h-[70vh]"
+          className="flex-1 p-4 overflow-auto policy-content max-h-[80vh] sm:max-h-[70vh]"
+          style={{ overscrollBehavior: 'contain', scrollBehavior: 'auto' }}
         >
           <Card className="p-4 rounded-lg">
             <div dangerouslySetInnerHTML={{ __html: policy.content }} />
