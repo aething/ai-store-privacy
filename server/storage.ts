@@ -56,8 +56,8 @@ export class MemStorage implements IStorage {
     // Initialize with some products
     const productsList: InsertProduct[] = [
       {
-        title: "AI Personal Assistant",
-        description: "Your intelligent companion for everyday tasks and reminders. This advanced AI assistant learns your preferences and adapts to your lifestyle, helping you stay organized and efficient.",
+        title: "AI-Driven Solutions",
+        description: "Built on the NVIDIA Jetson Orin Nano Ecosystem. This powerful AI platform delivers exceptional performance for edge computing applications, enabling real-time processing and analysis.",
         price: 14999, // $149.99
         priceEUR: 13999, // €139.99
         imageUrl: "https://images.unsplash.com/photo-1673203834806-c320f851c9f9?auto=format&fit=crop&w=400&h=300",
@@ -80,8 +80,8 @@ export class MemStorage implements IStorage {
         softwareInfo: "The AI-driven chatbot solution deployed on this hardware platform utilizes a highly efficient, open-source language model optimized for edge computing, alongside a suite of supporting software components.\n\nLanguage Model:\n• Parameter Size: Approximately 2–7 billion parameters, ensuring a balance between performance and resource efficiency.\n• Precision: Supports 4-bit quantization (e.g., INT8 or GGUF format) to fit within the 8 GB RAM constraint while maintaining quality.\n• Context Window: Configurable up to 4096–8192 tokens (~3000–6000 words, equivalent to 10–20 pages of A4 text), enabling robust handling of enterprise knowledge bases.\n• Performance: Capable of generating 5–10 tokens per second during inference, suitable for sequential processing of user queries.\n• Licensing: Fully open-source with permissive licensing (e.g., MIT or Apache 2.0), allowing unrestricted use, modification, and deployment within organizational networks.\n\nAdditional Software Components:\n• Inference Engine: A lightweight runtime environment optimized for GPU acceleration, leveraging CUDA and tensor core capabilities to maximize inference speed on the hardware.\n• Text Processing Framework: A modular toolkit for tokenization, embedding generation, and text preprocessing, enabling seamless integration of enterprise-specific datasets into the model's knowledge base.\n• Knowledge Base Integration: A retrieval-augmented generation (RAG) system that indexes and retrieves relevant textual data from an external storage medium (e.g., microSD or NVMe), supporting up to 500 GB of unstructured text data (approximately 200 million A4 pages).\n• Networking Layer: A secure, local server framework (e.g., RESTful API) for handling user queries within the enterprise intranet, ensuring data privacy and low-latency responses.\n• Installation Requirements: Compatible with a Linux-based operating system, requiring approximately 20–50 GB of storage for the OS, model weights, and supporting libraries."
       },
       {
-        title: "AI Home Hub",
-        description: "Control your smart home with advanced voice recognition technology. Connect all your smart devices and manage them from a central hub with intuitive voice commands or the companion app.",
+        title: "Machine Learning Systems",
+        description: "ML Systems Leveraging the NVIDIA DGX Spark. Advanced computing platform designed for enterprise-grade machine learning development and deployment.",
         price: 29999, // $299.99
         priceEUR: 27999, // €279.99
         imageUrl: "https://images.unsplash.com/photo-1677442135146-1d91a759eee8?auto=format&fit=crop&w=400&h=300",
@@ -104,8 +104,8 @@ export class MemStorage implements IStorage {
         softwareInfo: "Операционная система: AethingOS Home Edition 3.0\nПоддерживаемые языки: Русский, English, Deutsch, Français, Español, Italiano, 日本語, 中文\nГолосовой помощник: Aether Home Assistant 5.0\nПоддерживаемые сервисы: Все популярные музыкальные и видео сервисы\nПротоколы умного дома: HomeKit, Alexa, Google Home, Matter, Thread, Яндекс.Умный дом\nОбновления: Автоматические OTA-обновления\nБезопасность: Шифрование AES-256, локальная обработка команд\nДополнительно: Встроенный хаб для умного дома с поддержкой до 200 устройств"
       },
       {
-        title: "AI Learning Device",
-        description: "Personalized education system with adaptive learning algorithms. This device tailors educational content to individual learning styles and progress, making learning more engaging and effective.",
+        title: "Intelligent Automation Systems",
+        description: "AI-Driven Platform based on NVIDIA's Founders Edition. Cutting-edge system delivering automated solutions for industrial and enterprise applications.",
         price: 19999, // $199.99
         priceEUR: 18999, // €189.99
         imageUrl: "https://images.unsplash.com/photo-1655720031554-a929595d5fb0?auto=format&fit=crop&w=400&h=300",
@@ -128,8 +128,8 @@ export class MemStorage implements IStorage {
         softwareInfo: "Операционная система: AethingOS Education Edition 2.0\nПоддерживаемые языки: Русский, English, Deutsch, Français, Español, Italiano, 日本語, 中文\nОбразовательная платформа: Aether Learn 3.0\nПредустановленные предметы: Математика, Физика, Химия, Биология, История, Языки\nРодительский контроль: Полный набор функций с удаленным мониторингом\nРежим преподавателя: Создание и распространение материалов, проведение тестов\nСинхронизация: Облачное хранение с офлайн-доступом\nАналитика: AI-анализ успеваемости и рекомендации по обучению"
       },
       {
-        title: "AI Health Monitor",
-        description: "Track your health metrics with precision and get AI-powered insights for better wellbeing. Monitor vital signs, activity levels, sleep patterns, and receive personalized recommendations.",
+        title: "AI Healthcare Analytics",
+        description: "Advanced monitoring systems with built-in NVIDIA accelerated computing for real-time health analytics and predictive diagnostics.",
         price: 24999, // $249.99
         priceEUR: 22999, // €229.99
         imageUrl: "https://images.unsplash.com/photo-1686191669169-b42fcd632af0?auto=format&fit=crop&w=600&h=400",
