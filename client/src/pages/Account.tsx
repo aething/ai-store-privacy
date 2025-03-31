@@ -17,6 +17,21 @@ import { useProductsSync } from "@/hooks/use-products-sync";
 const updateUserSchema = z.object({
   name: z.string().optional(),
   phone: z.string().optional(),
+
+import { useProductsSync } from "@/hooks/use-products-sync";
+
+// Затем в вашем компоненте:
+const { syncProducts, isSyncing } = useProductsSync();
+
+// В JSX:
+<button 
+  onClick={syncProducts}
+  disabled={isSyncing}
+  className="py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+>
+  {isSyncing ? "Синхронизация..." : "Синхронизировать с Stripe"}
+</button>
+
   country: z.string().optional(),
   street: z.string().optional(),
   house: z.string().optional(),
