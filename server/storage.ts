@@ -75,7 +75,9 @@ export class MemStorage implements IStorage {
           "Connectivity: Wi-Fi, Bluetooth 5.0",
           "Power: AC Adapter (included)",
           "Warranty: 1 year limited"
-        ]
+        ],
+        hardwareInfo: "Процессор: Quad-core ARM Cortex-A76 @ 2.0GHz\nПамять: 4GB LPDDR4X\nХранение: 64GB eMMC\nДинамики: 2 x 1.5\" широкополосных динамика\nМикрофоны: Массив из 6 микрофонов с дальним полем\nДатчики: Температуры, Влажности, Освещенности\nКнопки: Физическая кнопка отключения микрофона\nРазъемы: USB-C для питания, 3.5мм аудио выход\nЭнергопотребление: 15Вт (макс.), 2Вт (режим ожидания)",
+        softwareInfo: "Операционная система: AethingOS 2.5\nПоддерживаемые языки: Русский, English, Deutsch, Français, Español, Italiano, 日本語, 中文\nГолосовой помощник: Aether Voice Assistant 4.0\nПоддерживаемые сервисы: Spotify, YouTube Music, Netflix, Яндекс.Музыка\nПротоколы умного дома: HomeKit, Google Home, Яндекс.Умный дом\nОбновления: Автоматические OTA-обновления\nБезопасность: Шифрование AES-256, биометрическая идентификация голоса\nДополнительно: Режим приватности с возможностью полного отключения микрофонов"
       },
       {
         title: "AI Home Hub",
@@ -97,7 +99,9 @@ export class MemStorage implements IStorage {
           "Connectivity: Wi-Fi, Bluetooth 5.0, Zigbee",
           "Power: AC Adapter (included)",
           "Warranty: 2 years limited"
-        ]
+        ],
+        hardwareInfo: "Процессор: Hexa-core ARM Cortex-A78 @ 2.4GHz\nПамять: 8GB LPDDR5\nХранение: 128GB UFS 3.1\nДинамики: 4 x 2\" широкополосных динамика + сабвуфер\nМикрофоны: Массив из 8 микрофонов с дальним полем\nДатчики: Температуры, Влажности, Освещенности, Движения, Присутствия\nРадиомодули: Wi-Fi 6E, Bluetooth 5.2, Zigbee, Thread, Matter\nРазъемы: USB-C, HDMI, Ethernet 1Gbps\nЭнергопотребление: 25Вт (макс.), 3Вт (режим ожидания)",
+        softwareInfo: "Операционная система: AethingOS Home Edition 3.0\nПоддерживаемые языки: Русский, English, Deutsch, Français, Español, Italiano, 日本語, 中文\nГолосовой помощник: Aether Home Assistant 5.0\nПоддерживаемые сервисы: Все популярные музыкальные и видео сервисы\nПротоколы умного дома: HomeKit, Alexa, Google Home, Matter, Thread, Яндекс.Умный дом\nОбновления: Автоматические OTA-обновления\nБезопасность: Шифрование AES-256, локальная обработка команд\nДополнительно: Встроенный хаб для умного дома с поддержкой до 200 устройств"
       },
       {
         title: "AI Learning Device",
@@ -119,7 +123,9 @@ export class MemStorage implements IStorage {
           "Connectivity: Wi-Fi, Bluetooth 4.2",
           "Battery: Up to 12 hours",
           "Warranty: 1 year limited"
-        ]
+        ],
+        hardwareInfo: "Процессор: Octa-core ARM Cortex-A55 @ 1.8GHz\nГрафика: Mali-G52 MP4\nПамять: 6GB LPDDR4X\nХранение: 128GB UFS 2.1, расширяемое до 1TB через microSD\nЭкран: 10.1\" IPS LCD, 2560x1600, 400 nits, 120Hz\nКамеры: Передняя 8MP, Задняя 13MP с автофокусом\nБатарея: 8000mAh, до 12 часов активного использования\nРазъемы: USB-C (USB 3.1), 3.5мм аудио разъем\nДополнительно: Стилус с 4096 уровнями нажатия",
+        softwareInfo: "Операционная система: AethingOS Education Edition 2.0\nПоддерживаемые языки: Русский, English, Deutsch, Français, Español, Italiano, 日本語, 中文\nОбразовательная платформа: Aether Learn 3.0\nПредустановленные предметы: Математика, Физика, Химия, Биология, История, Языки\nРодительский контроль: Полный набор функций с удаленным мониторингом\nРежим преподавателя: Создание и распространение материалов, проведение тестов\nСинхронизация: Облачное хранение с офлайн-доступом\nАналитика: AI-анализ успеваемости и рекомендации по обучению"
       },
       {
         title: "AI Health Monitor",
@@ -141,7 +147,9 @@ export class MemStorage implements IStorage {
           "Connectivity: Bluetooth 5.1, NFC",
           "Battery: Up to 7 days",
           "Water resistance: 5 ATM"
-        ]
+        ],
+        hardwareInfo: "Процессор: Dual-core ARM Cortex-M33 @ 96MHz\nПамять: 512KB RAM\nХранение: 32MB Flash\nЭкран: 1.4\" AMOLED, 454x454, 326 PPI, всегда активный\nСенсоры: Оптический пульсометр, Акселерометр, Гироскоп, Альтиметр, Термометр, ЭКГ, Пульсоксиметр\nБатарея: 420mAh, до 7 дней автономной работы\nЗарядка: Беспроводная (Qi), полная зарядка за 1.5 часа\nВодонепроницаемость: 5 ATM (до 50 метров)\nМатериалы: Титановый корпус, Сапфировое стекло, Гипоаллергенный силиконовый ремешок",
+        softwareInfo: "Операционная система: AethingOS Health Edition 1.5\nПоддерживаемые языки: Русский, English, Deutsch, Français, Español, Italiano, 日本語, 中文\nОтслеживание активности: 30+ видов спорта с продвинутыми метриками\nМониторинг здоровья: Пульс, ЭКГ, Кислород в крови, Температура тела, Качество сна, Уровень стресса\nОповещения: Уведомления со смартфона, звонки, сообщения, календарь\nПерсонализация: 200+ циферблатов, настраиваемые сложные функции\nСинхронизация: Автоматическая с Aether Health Cloud, экспорт в Apple Health и Google Fit\nАналитика: AI-анализ данных здоровья с персональными рекомендациями"
       }
     ];
 
