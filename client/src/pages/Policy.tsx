@@ -21,20 +21,19 @@ export default function Policy() {
     return getPolicyById(policyId);
   }, [policyId]);
   
-  // Скроллим содержимое страницы в начало при загрузке - упрощенная версия
+  // Скроллим содержимое страницы в начало при загрузке
   useEffect(() => {
-    // Сначала скроллим основной контент, если он существует
+    // Простая прокрутка страницы к началу
+    window.scrollTo(0, 0);
+    
+    // Скроллим контент, если он существует
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
     }
     
-    // Затем скроллим страницу вверх с помощью глобальной функции, но без анимации
-    window.requestAnimationFrame(() => {
-      globalScrollToTop(false);
-    });
-    
-    // Единственный отложенный скролл для случаев медленной загрузки
+    // Повторный скролл с задержкой для подстраховки на медленных устройствах
     const delayedScrollTimer = setTimeout(() => {
+      window.scrollTo(0, 0);
       if (contentRef.current) {
         contentRef.current.scrollTop = 0;
       }
@@ -95,11 +94,10 @@ export default function Policy() {
           {t("swipeRightToGoBack")}
         </div>
         
-        {/* Scrollable content area - добавлен класс policy-content для улучшения прокрутки */}
+        {/* Scrollable content area без ограничения по высоте */}
         <div 
           ref={contentRef}
-          className="flex-1 p-4 overflow-auto policy-content max-h-[80vh] sm:max-h-[70vh]"
-          style={{ overscrollBehavior: 'contain', scrollBehavior: 'auto' }}
+          className="flex-1 p-4 overflow-auto"
         >
           <Card className="p-4 rounded-lg">
             <div dangerouslySetInnerHTML={{ __html: policy.content }} />

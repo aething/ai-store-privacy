@@ -31,24 +31,13 @@ export default function ScrollToTopButton({
     size === "lg" ? "px-8 py-3" : "px-6 py-2";
   
   const handleClick = () => {
-    // Используем плавную прокрутку только для контентного div, если он передан
+    // Если передан ref на скроллящийся контейнер, просто скроллим его
     if (contentRef?.current) {
-      // Получаем высоту прокрутки элемента
-      const scrollTop = contentRef.current.scrollTop;
-      
-      // Если есть что прокручивать (элемент не в самом верху)
-      if (scrollTop > 0) {
-        // Используем плавную прокрутку только для контейнера контента
-        contentRef.current.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-        return; // Выходим, чтобы избежать конфликтов с общей прокруткой
-      }
+      contentRef.current.scrollTop = 0;
+    } else {
+      // В противном случае используем простую прокрутку страницы
+      window.scrollTo(0, 0);
     }
-    
-    // Используем глобальную утилиту для прокрутки самой страницы
-    scrollToTop(true);
   };
   
   return (
