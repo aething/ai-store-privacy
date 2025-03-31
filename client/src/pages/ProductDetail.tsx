@@ -12,6 +12,11 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+// Импортируем изображения продуктов
+import image1 from "@assets/11111111 Medium Small.jpeg";
+import image2 from "@assets/2222222 Small.jpeg";
+import image3 from "@assets/333333 Medium.jpeg";
+
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
   const [, setLocation] = useLocation();
@@ -88,6 +93,20 @@ export default function ProductDetail() {
     setLocation(`/checkout/${product.id}`);
   };
   
+  // Функция для получения соответствующего изображения продукта на основе ID
+  const getProductImage = (productId: number) => {
+    switch (productId) {
+      case 1:
+        return image1;
+      case 2:
+        return image2;
+      case 3:
+        return image3;
+      default:
+        return product.imageUrl;
+    }
+  };
+  
   return (
     <SwipeBack onSwipeBack={() => setLocation("/")}>
       <div>
@@ -110,7 +129,7 @@ export default function ProductDetail() {
         {/* Image Section */}
         <div className="h-64 bg-surface mb-4 rounded-lg overflow-hidden">
           <img 
-            src={product.imageUrl} 
+            src={getProductImage(product.id)} 
             alt={product.title} 
             className="w-full h-full object-cover"
           />
