@@ -6,7 +6,6 @@ export const infoPages: InfoPage[] = [
     title: "AI-Driven Solutions Professional Environments",
     description: "Discover how our AI-driven chatbot solution on the NVIDIA Jetson Orin Nano platform delivers domain-specific solutions across various professional environments.",
     content: `
-      <h2>AI-Driven Solutions Professional Environments</h2>
       <p>The AI-driven chatbot solution built on this platform is well-suited for a variety of professional tasks across multiple industries, leveraging its capacity to process significant volumes of data and deliver tailored, domain-specific solutions. Below is an analysis of its capabilities in terms of data processing volume and professional applications:</p>
       
       <h3>Data Processing Volume</h3>
@@ -65,7 +64,6 @@ export const infoPages: InfoPage[] = [
     title: "ML Systems Professional Environments",
     description: "Explore how our Machine Learning Systems leveraging the NVIDIA DGX Spark platform deliver sophisticated solutions for diverse professional domains.",
     content: `
-      <h2>ML Systems Professional Environments</h2>
       <p>The ML Systems leveraging this platform are designed to tackle sophisticated tasks across diverse professional domains, harnessing significant computational power and data processing capacity to deliver industry-specific solutions. Below is an analysis of its capabilities in terms of data processing volume and professional applications:</p>
       
       <h3>Data Processing Volume</h3>
@@ -138,7 +136,6 @@ export const infoPages: InfoPage[] = [
     title: "Intelligent Automation Systems Professional Environments",
     description: "Learn how our Intelligent Automation Systems based on NVIDIA's Founders Edition RTX 6000 platform optimize workflows across various industries.",
     content: `
-      <h2>Intelligent Automation Systems Professional Environments</h2>
       <p>Our Intelligent Automation Systems powered by NVIDIA's Founders Edition RTX 6000 deliver comprehensive automation solutions for enterprise environments across multiple sectors.</p>
       
       <h3>Professional Applications</h3>
