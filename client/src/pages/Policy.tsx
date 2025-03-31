@@ -23,16 +23,28 @@ export default function Policy() {
   
   // Скроллим содержимое страницы в начало при загрузке
   useEffect(() => {
-    // Принудительно скроллим страницу в начало
-    window.scrollTo({ top: 0, behavior: 'auto' });
-    
-    // Сбрасываем позицию скролла контента, если он существует
-    if (contentRef.current) {
-      contentRef.current.scrollTop = 0;
-    }
+    // Сначала устанавливаем таймер для принудительного скролла к началу страницы
+    // небольшая задержка нужна, чтобы DOM успел обновиться
+    const timer = setTimeout(() => {
+      // Скроллим окно (весь документ) в начало
+      window.scrollTo({
+        top: 0,
+        behavior: 'auto'
+      });
+      
+      // Также сбрасываем позицию скролла контента, если он существует
+      if (contentRef.current) {
+        contentRef.current.scrollTop = 0;
+      }
+      
+      console.log('Policy page scrolled to top');
+    }, 50);
     
     // Компонент будет возвращать сохраненную позицию скролла при размонтировании
     return () => {
+      // Очищаем таймер при размонтировании компонента
+      clearTimeout(timer);
+      
       // Функция очистки - восстанавливаем позицию на странице Account
       restoreScrollPosition();
     };

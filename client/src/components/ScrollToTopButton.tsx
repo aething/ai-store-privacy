@@ -30,15 +30,27 @@ export default function ScrollToTopButton({
     size === "lg" ? "px-8 py-3" : "px-6 py-2";
   
   const handleClick = () => {
+    console.log('ScrollToTopButton clicked', contentRef?.current ? 'with ref' : 'no ref');
+    
     // Если передан ref на скроллящийся контейнер, просто скроллим его
     if (contentRef?.current) {
+      // Сначала скроллим к началу контейнера
       contentRef.current.scrollTop = 0;
+      console.log('Scrolled container to top');
+      
+      // Затем убеждаемся, что весь документ также в начале
+      // (особенно важно для мобильных устройств)
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     } else {
       // В противном случае используем плавную прокрутку страницы
       window.scrollTo({
         top: 0,
         behavior: 'smooth'
       });
+      console.log('Scrolled window to top');
     }
   };
   
