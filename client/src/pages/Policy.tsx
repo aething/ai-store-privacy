@@ -1,12 +1,12 @@
 import React, { useMemo, useRef, useEffect, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { getPolicyById } from "@/constants/policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
 import { X } from "lucide-react";
-import SimpleScrollToTop from "@/components/SimpleScrollToTop";
-import { scrollToTop, scrollContainerToTop, saveScrollPositionForPath } from "@/lib/scrollUtils";
+import { saveScrollPositionForPath } from "@/lib/scrollUtils";
 
 export default function Policy() {
   const [match, params] = useRoute("/policy/:id");
