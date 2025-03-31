@@ -72,16 +72,9 @@ export default function Policy() {
   useEffect(() => {
     return () => {
       // Вызывается при размонтировании компонента
-      // Если мы возвращаемся на страницу Account, восстанавливаем позицию скролла
-      if (window.location.pathname.startsWith('/account')) {
-        console.log('[Policy] Returning to Account page, will restore scroll position');
-        
-        // Восстанавливаем позицию для страницы Account
-        restoreScrollPosition({
-          pathOverride: '/account',
-          delay: 100
-        });
-      }
+      // Если мы возвращаемся на страницу Account, позиция будет восстановлена
+      // автоматически на странице Account в useEffect
+      console.log('[Policy] Component unmounting, preparing to return to previous page');
     };
   }, []);
   

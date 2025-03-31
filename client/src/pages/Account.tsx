@@ -15,7 +15,8 @@ import { ChevronRight, Trash2, RefreshCw, Settings } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
 import { 
   saveScrollPosition, 
-  restoreScrollPosition, 
+  restoreAccountScrollPosition, 
+  saveAccountScrollPosition, 
   trackNavigation 
 } from "@/lib/scrollUtils";
 
@@ -37,19 +38,12 @@ export default function Account() {
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useLocale();
   
-  // Добавляем страницу в историю навигации и восстанавливаем позицию скролла при монтировании
+  // Восстанавливаем позицию скролла страницы Account при монтировании
   useEffect(() => {
     console.log('[Account] Component mounted');
     
-    // Добавляем текущую страницу в историю навигации
-    trackNavigation();
-    
-    // Восстанавливаем позицию скролла с задержкой после загрузки компонента
-    // Это важно для корректного восстановления при возврате со страницы Policy
-    restoreScrollPosition({ 
-      delay: 100, 
-      defaultToTop: false // Не скроллить автоматически в начало, если нет сохраненной позиции
-    });
+    // Простое восстановление позиции скролла
+    restoreAccountScrollPosition();
   }, []);
   
   const { register, handleSubmit, formState: { errors } } = useForm<UpdateUserForm>({
@@ -209,7 +203,8 @@ export default function Account() {
   // Навигация к политике с сохранением текущей позиции скролла
   const navigateToPolicy = (policyId: string) => {
     // Сохраняем текущую позицию скролла перед переходом
-    saveScrollPosition();
+    saveAccountScrollPosition();
+    console.log(`[Account] Сохраняем позицию скролла перед переходом к политике ${policyId}`);
     
     // Переходим на страницу политики
     setLocation(`/policy/${policyId}`);

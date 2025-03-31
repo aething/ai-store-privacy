@@ -33,31 +33,41 @@ export default function ScrollToTopButton({
   const handleClick = () => {
     console.log('[ScrollToTopButton] Clicked', contentRef?.current ? 'with ref' : 'no ref');
     
-    // Очищаем сохраненную позицию скролла для текущего пути
-    clearScrollPosition();
-    
-    if (contentRef?.current) {
-      // Если есть специальный контейнер (например, для Policy страницы)
-      scrollContainerToTop(contentRef, true); // true для плавного скролла
-    } else {
-      // Для обычных страниц используем scrollToTop
-      scrollToTop(true); // true для плавного скролла
+    // На странице Account кнопка не используется, но на всякий случай
+    if (window.location.pathname === '/account') {
+      scrollToTop(true);
+      return;
     }
     
-    // Дополнительно для Policy страницы - проверяем наличие якоря
-    if (window.location.pathname.includes('/policy/') && (window as any).policyTopAnchor) {
-      setTimeout(() => {
-        console.log('[ScrollToTopButton] Scrolling to policy top anchor');
-        try {
-          (window as any).policyTopAnchor.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        } catch (e) {
-          console.error('[ScrollToTopButton] Error scrolling to anchor:', e);
-        }
-      }, 100);
+    // Для страницы Policy используем особую логику
+    if (window.location.pathname.includes('/policy/')) {
+      // Если есть контейнер, скроллим его наверх
+      if (contentRef?.current) {
+        scrollContainerToTop(contentRef, true);
+      } else {
+        scrollToTop(true);
+      }
+      
+      // Дополнительно для Policy страницы - проверяем наличие якоря
+      if ((window as any).policyTopAnchor) {
+        setTimeout(() => {
+          console.log('[ScrollToTopButton] Scrolling to policy top anchor');
+          try {
+            (window as any).policyTopAnchor.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          } catch (e) {
+            console.error('[ScrollToTopButton] Error scrolling to anchor:', e);
+          }
+        }, 100);
+      }
+      
+      return;
     }
+    
+    // Для других страниц просто скроллим наверх
+    scrollToTop(true);
   };
   
   return (
