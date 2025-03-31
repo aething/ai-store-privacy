@@ -44,8 +44,9 @@ export default function Policy() {
   
   return (
     <SwipeBack onSwipeBack={() => {
-      // При свайпе назад возвращаемся на страницу Account
-      setLocation("/account");
+      // При свайпе назад используем history.back() для работы 
+      // с механизмом восстановления позиции скролла
+      window.history.back();
     }}>
       <div id="policy-root" className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
         {/* Header with close button */}
@@ -54,8 +55,9 @@ export default function Policy() {
           <button 
             className="p-2 rounded-full hover:bg-gray-100"
             onClick={() => {
-              // Возвращаемся на страницу Account
-              setLocation("/account");
+              // Возвращаемся на страницу Account с помощью history.back()
+              // для правильной работы с механизмом восстановления позиции скролла
+              window.history.back();
             }}
             aria-label="Close"
           >

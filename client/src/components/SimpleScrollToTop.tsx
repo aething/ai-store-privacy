@@ -34,8 +34,19 @@ export default function SimpleScrollToTop({
   const scrollToTop = useCallback(() => {
     console.log('[SimpleScrollToTop] Прокрутка наверх');
     
-    // Скроллим окно браузера
+    // Принудительно скроллим окно браузера и тело документа
     window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+    
+    // Также скроллим html и body элементы
+    document.documentElement.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+    
+    document.body.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
