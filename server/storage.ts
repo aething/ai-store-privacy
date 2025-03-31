@@ -389,11 +389,372 @@ export class MemStorage implements IStorage {
         }
       }
       
+      // Если у нас нет продуктов из Stripe или есть ошибка получения, создадим базовые продукты
+      if (updatedProducts.length === 0) {
+        console.log("No products received from Stripe, creating default products");
+        
+        // Информация об аппаратном обеспечении для первого продукта
+        const hardwareInfo1 = `
+Module: Jetson Orin Nano 8GB System-on-Module (SoM).
+Processor: 6-core ARM Cortex-A78AE v8.2 64-bit CPU, operating at 1.5 GHz (up to 1.7 GHz in MAXN mode).
+Graphics Processing Unit: NVIDIA Ampere GPU featuring 1024 CUDA cores and 32 Tensor Cores.
+Memory: 8 GB 128-bit LPDDR5 with a bandwidth of 102 GB/s.
+Storage: MicroSD slot or NVMe SSD via M.2 Key M (optional).
+Interfaces: 4x USB 3.2 Gen 2 ports, 2x CSI camera connectors, DisplayPort 1.4, Gigabit Ethernet, and an M.2 Key E slot.
+Cooling: Pre-installed thermal solution (heatsink) with an active fan.
+Power: Configurable power consumption ranging from 7 to 25 watts, adjustable via power modes.
+`;
+
+        // Информация о программном обеспечении для первого продукта
+        const softwareInfo1 = `
+Language Model:
+Parameter Size: Approximately 2–7 billion parameters, ensuring a balance between performance and resource efficiency.
+Precision: Supports 4-bit quantization (e.g., INT8 or GGUF format) to fit within the 8 GB RAM constraint while maintaining quality.
+Context Window: Configurable up to 4096–8192 tokens (~3000–6000 words, equivalent to 10–20 pages of A4 text).
+Performance: Capable of generating 5–10 tokens per second during inference, suitable for sequential processing of user queries.
+Licensing: Fully open-source with permissive licensing (e.g., MIT or Apache 2.0).
+
+Additional Software Components:
+Inference Engine: A lightweight runtime environment optimized for GPU acceleration, leveraging CUDA and tensor core capabilities.
+Text Processing Framework: A modular toolkit for tokenization, embedding generation, and text preprocessing.
+Knowledge Base Integration: A retrieval-augmented generation (RAG) system that indexes and retrieves relevant textual data.
+Networking Layer: A secure, local server framework (e.g., RESTful API) for handling user queries within the enterprise intranet.
+`;
+
+        // Информация об аппаратном обеспечении для второго продукта (улучшенная версия)
+        const hardwareInfo2 = `
+Module: Jetson AGX Orin 32GB SoM
+Processor: 12-core ARM Cortex-A78AE v8.2 64-bit CPU, operating at 2.2 GHz.
+Graphics Processing Unit: NVIDIA Ampere GPU with 2048 CUDA cores and 64 Tensor Cores.
+Memory: 32 GB 256-bit LPDDR5 with 204 GB/s bandwidth.
+Storage: NVMe SSD via M.2 Key M (included).
+Interfaces: Multiple USB 3.2 Gen 2 ports, CSI camera connectors, DisplayPort 1.4, 10 Gigabit Ethernet.
+Cooling: Advanced thermal solution with precision-engineered heatsink and dual fans.
+Power: Configurable power consumption modes optimized for high-performance computing.
+`;
+
+        // Информация о программном обеспечении для второго продукта (улучшенная версия)
+        const softwareInfo2 = `
+Machine Learning Model:
+Parameter Size: Approximately 13–20 billion parameters, providing robust performance for automation and NLP tasks.
+Precision: Supports mixed precision (FP16 or INT8), optimizing memory usage within the 32 GB GDDR6X constraint.
+Context Window: Configurable up to 16,384–65,536 tokens (~12,000–48,000 words, equivalent to 40–160 A4 pages).
+Performance: Capable of generating 30–60 tokens per second during inference, supporting real-time interactions.
+Multimodal Capabilities: Integrates speech-to-text (STT) and text-to-speech (TTS) with low latency processing.
+
+Additional Software Components:
+Inference Engine: A GPU-accelerated runtime leveraging CUDA and Tensor Cores for high-speed inference.
+Automation Framework: A modular system for designing, executing, and monitoring workflows with enterprise integrations.
+Speech Processing Framework: A real-time audio processing suite for STT and TTS, supporting multilingual inputs.
+Knowledge Base Integration: A RAG system indexing up to 2 TB of unstructured data for enterprise access.
+Networking Layer: A secure server framework for handling text, voice, and automation requests within an enterprise intranet.
+`;
+
+        // Информация об аппаратном обеспечении для третьего продукта (премиум версия)
+        const hardwareInfo3 = `
+Module: NVIDIA RTX A6000 Enterprise GPU
+Processor: Server-grade CPU with 24 cores / 48 threads.
+Graphics Processing Unit: NVIDIA Ampere architecture with 10,752 CUDA cores and 336 Tensor Cores.
+Memory: 48 GB GDDR6 with ECC, 768 GB/s memory bandwidth.
+Storage: 2TB NVMe SSD in RAID configuration.
+Interfaces: Multiple high-speed network interfaces, including 100 Gigabit Ethernet.
+Cooling: Enterprise-grade liquid cooling solution for maximum performance under sustained loads.
+Power: Advanced power management system with redundant power supplies.
+`;
+
+        // Информация о программном обеспечении для третьего продукта (премиум версия)
+        const softwareInfo3 = `
+Enterprise AI System:
+Parameter Size: Supports models with 40–70 billion parameters for advanced reasoning and generation capabilities.
+Precision: Full FP16/BF16 precision with selective FP32 operations for maximum accuracy in critical workloads.
+Context Window: Extended context processing up to 128K tokens for comprehensive document analysis and generation.
+Performance: Achieves 100+ tokens per second for real-time inference across multiple concurrent sessions.
+Multimodal Processing: Comprehensive vision, audio, and text processing capabilities with real-time integration.
+
+Enterprise Software Suite:
+Distributed Inference Engine: Scalable architecture supporting multiple concurrent model instances for enterprise workloads.
+Advanced Orchestration: Enterprise-grade workflow management with high-availability features and failover capabilities.
+Security Framework: Role-based access control, audit logging, and encrypted communications for sensitive enterprise data.
+Integration Platform: Pre-built connectors for major enterprise systems including SAP, Oracle, and Microsoft environments.
+Management Console: Comprehensive monitoring, analytics, and management interface for IT administrators.
+`;
+
+        // Создаем базовые продукты, если у нас их нет из Stripe
+        const defaultProducts = [
+          {
+            title: "AI Assistant Basic",
+            description: "Edge AI solution with NVIDIA Jetson Orin Nano 8GB. Ideal for small business automation and basic AI applications.",
+            price: 1799,
+            priceEUR: 1599,
+            imageUrl: "https://storage.googleapis.com/aething-images/jetson-nano-product.jpg",
+            category: "AI Solutions",
+            features: [
+              "NVIDIA Jetson Orin Nano 8GB SoM",
+              "7B Parameter LLM for Edge Deployment",
+              "Enterprise Knowledge Base Integration",
+              "Low-Latency Text Interactions",
+              "Local Data Processing for Privacy"
+            ],
+            specifications: [
+              "6-core ARM CPU @ 1.5 GHz",
+              "1024 CUDA cores, 32 Tensor Cores",
+              "8 GB LPDDR5 Memory",
+              "Up to 40 TOPS AI Performance",
+              "7-25W Power Consumption"
+            ],
+            hardwareInfo: hardwareInfo1,
+            softwareInfo: softwareInfo1,
+            currency: "usd"
+          },
+          {
+            title: "AI Assistant Professional",
+            description: "Advanced edge computing solution with NVIDIA Jetson AGX Orin. Perfect for medium-sized enterprise automation and multimodal AI.",
+            price: 3999,
+            priceEUR: 3599,
+            imageUrl: "https://storage.googleapis.com/aething-images/jetson-orin-product.jpg",
+            category: "AI Solutions",
+            features: [
+              "NVIDIA Jetson AGX Orin 32GB",
+              "13-20B Parameter AI Model",
+              "Voice Assistant Capabilities",
+              "Intelligent Process Automation",
+              "Enterprise API Integration"
+            ],
+            specifications: [
+              "12-core ARM CPU @ 2.2 GHz",
+              "2048 CUDA cores, 64 Tensor Cores",
+              "32 GB LPDDR5 Memory",
+              "Up to 200 TOPS AI Performance",
+              "Advanced Thermal Management"
+            ],
+            hardwareInfo: hardwareInfo2,
+            softwareInfo: softwareInfo2,
+            currency: "usd"
+          },
+          {
+            title: "AI Assistant Enterprise",
+            description: "Enterprise-grade AI computing platform with NVIDIA RTX A6000. Designed for large-scale enterprise deployment and advanced AI workloads.",
+            price: 9999,
+            priceEUR: 8999,
+            imageUrl: "https://storage.googleapis.com/aething-images/rtx-a6000-product.jpg",
+            category: "AI Solutions",
+            features: [
+              "NVIDIA RTX A6000 Enterprise GPU",
+              "40-70B Parameter Enterprise Models",
+              "Multimodal Processing Capabilities",
+              "End-to-End Enterprise Automation",
+              "Advanced Security & Compliance"
+            ],
+            specifications: [
+              "Server-grade 24-core CPU",
+              "10,752 CUDA cores, 336 Tensor Cores",
+              "48 GB GDDR6 with ECC",
+              "Up to 309.7 TFLOPS (FP32)",
+              "Enterprise-grade Cooling Solution"
+            ],
+            hardwareInfo: hardwareInfo3,
+            softwareInfo: softwareInfo3,
+            currency: "usd"
+          }
+        ];
+        
+        for (const productData of defaultProducts) {
+          const createdProduct = await this.createProduct(productData);
+          updatedProducts.push(createdProduct);
+          console.log(`Created default product: ${createdProduct.title}`);
+          console.log(`  Price USD: ${createdProduct.price}, Price EUR: ${createdProduct.priceEUR}`);
+        }
+      }
+      
       return updatedProducts;
     } catch (error) {
       console.error('Error syncing products with Stripe:', error);
-      // В случае ошибки возвращаем текущие продукты
-      return Array.from(this.products.values());
+      
+      // В случае ошибки и отсутствия продуктов создаем три базовых продукта
+      const existingProducts = Array.from(this.products.values());
+      
+      if (existingProducts.length === 0) {
+        console.log("No existing products, creating default products");
+        
+        // Информация об аппаратном обеспечении для первого продукта
+        const hardwareInfo1 = `
+Module: Jetson Orin Nano 8GB System-on-Module (SoM).
+Processor: 6-core ARM Cortex-A78AE v8.2 64-bit CPU, operating at 1.5 GHz (up to 1.7 GHz in MAXN mode).
+Graphics Processing Unit: NVIDIA Ampere GPU featuring 1024 CUDA cores and 32 Tensor Cores.
+Memory: 8 GB 128-bit LPDDR5 with a bandwidth of 102 GB/s.
+Storage: MicroSD slot or NVMe SSD via M.2 Key M (optional).
+Interfaces: 4x USB 3.2 Gen 2 ports, 2x CSI camera connectors, DisplayPort 1.4, Gigabit Ethernet, and an M.2 Key E slot.
+Cooling: Pre-installed thermal solution (heatsink) with an active fan.
+Power: Configurable power consumption ranging from 7 to 25 watts, adjustable via power modes.
+`;
+
+        // Информация о программном обеспечении для первого продукта
+        const softwareInfo1 = `
+Language Model:
+Parameter Size: Approximately 2–7 billion parameters, ensuring a balance between performance and resource efficiency.
+Precision: Supports 4-bit quantization (e.g., INT8 or GGUF format) to fit within the 8 GB RAM constraint while maintaining quality.
+Context Window: Configurable up to 4096–8192 tokens (~3000–6000 words, equivalent to 10–20 pages of A4 text).
+Performance: Capable of generating 5–10 tokens per second during inference, suitable for sequential processing of user queries.
+Licensing: Fully open-source with permissive licensing (e.g., MIT or Apache 2.0).
+
+Additional Software Components:
+Inference Engine: A lightweight runtime environment optimized for GPU acceleration, leveraging CUDA and tensor core capabilities.
+Text Processing Framework: A modular toolkit for tokenization, embedding generation, and text preprocessing.
+Knowledge Base Integration: A retrieval-augmented generation (RAG) system that indexes and retrieves relevant textual data.
+Networking Layer: A secure, local server framework (e.g., RESTful API) for handling user queries within the enterprise intranet.
+`;
+
+        // Информация об аппаратном обеспечении для второго продукта (улучшенная версия)
+        const hardwareInfo2 = `
+Module: Jetson AGX Orin 32GB SoM
+Processor: 12-core ARM Cortex-A78AE v8.2 64-bit CPU, operating at 2.2 GHz.
+Graphics Processing Unit: NVIDIA Ampere GPU with 2048 CUDA cores and 64 Tensor Cores.
+Memory: 32 GB 256-bit LPDDR5 with 204 GB/s bandwidth.
+Storage: NVMe SSD via M.2 Key M (included).
+Interfaces: Multiple USB 3.2 Gen 2 ports, CSI camera connectors, DisplayPort 1.4, 10 Gigabit Ethernet.
+Cooling: Advanced thermal solution with precision-engineered heatsink and dual fans.
+Power: Configurable power consumption modes optimized for high-performance computing.
+`;
+
+        // Информация о программном обеспечении для второго продукта (улучшенная версия)
+        const softwareInfo2 = `
+Machine Learning Model:
+Parameter Size: Approximately 13–20 billion parameters, providing robust performance for automation and NLP tasks.
+Precision: Supports mixed precision (FP16 or INT8), optimizing memory usage within the 32 GB GDDR6X constraint.
+Context Window: Configurable up to 16,384–65,536 tokens (~12,000–48,000 words, equivalent to 40–160 A4 pages).
+Performance: Capable of generating 30–60 tokens per second during inference, supporting real-time interactions.
+Multimodal Capabilities: Integrates speech-to-text (STT) and text-to-speech (TTS) with low latency processing.
+
+Additional Software Components:
+Inference Engine: A GPU-accelerated runtime leveraging CUDA and Tensor Cores for high-speed inference.
+Automation Framework: A modular system for designing, executing, and monitoring workflows with enterprise integrations.
+Speech Processing Framework: A real-time audio processing suite for STT and TTS, supporting multilingual inputs.
+Knowledge Base Integration: A RAG system indexing up to 2 TB of unstructured data for enterprise access.
+Networking Layer: A secure server framework for handling text, voice, and automation requests within an enterprise intranet.
+`;
+
+        // Информация об аппаратном обеспечении для третьего продукта (премиум версия)
+        const hardwareInfo3 = `
+Module: NVIDIA RTX A6000 Enterprise GPU
+Processor: Server-grade CPU with 24 cores / 48 threads.
+Graphics Processing Unit: NVIDIA Ampere architecture with 10,752 CUDA cores and 336 Tensor Cores.
+Memory: 48 GB GDDR6 with ECC, 768 GB/s memory bandwidth.
+Storage: 2TB NVMe SSD in RAID configuration.
+Interfaces: Multiple high-speed network interfaces, including 100 Gigabit Ethernet.
+Cooling: Enterprise-grade liquid cooling solution for maximum performance under sustained loads.
+Power: Advanced power management system with redundant power supplies.
+`;
+
+        // Информация о программном обеспечении для третьего продукта (премиум версия)
+        const softwareInfo3 = `
+Enterprise AI System:
+Parameter Size: Supports models with 40–70 billion parameters for advanced reasoning and generation capabilities.
+Precision: Full FP16/BF16 precision with selective FP32 operations for maximum accuracy in critical workloads.
+Context Window: Extended context processing up to 128K tokens for comprehensive document analysis and generation.
+Performance: Achieves 100+ tokens per second for real-time inference across multiple concurrent sessions.
+Multimodal Processing: Comprehensive vision, audio, and text processing capabilities with real-time integration.
+
+Enterprise Software Suite:
+Distributed Inference Engine: Scalable architecture supporting multiple concurrent model instances for enterprise workloads.
+Advanced Orchestration: Enterprise-grade workflow management with high-availability features and failover capabilities.
+Security Framework: Role-based access control, audit logging, and encrypted communications for sensitive enterprise data.
+Integration Platform: Pre-built connectors for major enterprise systems including SAP, Oracle, and Microsoft environments.
+Management Console: Comprehensive monitoring, analytics, and management interface for IT administrators.
+`;
+
+        // Создаем базовые продукты, если у нас их нет из Stripe
+        const defaultProducts = [
+          {
+            title: "AI Assistant Basic",
+            description: "Edge AI solution with NVIDIA Jetson Orin Nano 8GB. Ideal for small business automation and basic AI applications.",
+            price: 1799,
+            priceEUR: 1599,
+            imageUrl: "https://storage.googleapis.com/aething-images/jetson-nano-product.jpg",
+            category: "AI Solutions",
+            features: [
+              "NVIDIA Jetson Orin Nano 8GB SoM",
+              "7B Parameter LLM for Edge Deployment",
+              "Enterprise Knowledge Base Integration",
+              "Low-Latency Text Interactions",
+              "Local Data Processing for Privacy"
+            ],
+            specifications: [
+              "6-core ARM CPU @ 1.5 GHz",
+              "1024 CUDA cores, 32 Tensor Cores",
+              "8 GB LPDDR5 Memory",
+              "Up to 40 TOPS AI Performance",
+              "7-25W Power Consumption"
+            ],
+            hardwareInfo: hardwareInfo1,
+            softwareInfo: softwareInfo1,
+            currency: "usd"
+          },
+          {
+            title: "AI Assistant Professional",
+            description: "Advanced edge computing solution with NVIDIA Jetson AGX Orin. Perfect for medium-sized enterprise automation and multimodal AI.",
+            price: 3999,
+            priceEUR: 3599,
+            imageUrl: "https://storage.googleapis.com/aething-images/jetson-orin-product.jpg",
+            category: "AI Solutions",
+            features: [
+              "NVIDIA Jetson AGX Orin 32GB",
+              "13-20B Parameter AI Model",
+              "Voice Assistant Capabilities",
+              "Intelligent Process Automation",
+              "Enterprise API Integration"
+            ],
+            specifications: [
+              "12-core ARM CPU @ 2.2 GHz",
+              "2048 CUDA cores, 64 Tensor Cores",
+              "32 GB LPDDR5 Memory",
+              "Up to 200 TOPS AI Performance",
+              "Advanced Thermal Management"
+            ],
+            hardwareInfo: hardwareInfo2,
+            softwareInfo: softwareInfo2,
+            currency: "usd"
+          },
+          {
+            title: "AI Assistant Enterprise",
+            description: "Enterprise-grade AI computing platform with NVIDIA RTX A6000. Designed for large-scale enterprise deployment and advanced AI workloads.",
+            price: 9999,
+            priceEUR: 8999,
+            imageUrl: "https://storage.googleapis.com/aething-images/rtx-a6000-product.jpg",
+            category: "AI Solutions",
+            features: [
+              "NVIDIA RTX A6000 Enterprise GPU",
+              "40-70B Parameter Enterprise Models",
+              "Multimodal Processing Capabilities",
+              "End-to-End Enterprise Automation",
+              "Advanced Security & Compliance"
+            ],
+            specifications: [
+              "Server-grade 24-core CPU",
+              "10,752 CUDA cores, 336 Tensor Cores",
+              "48 GB GDDR6 with ECC",
+              "Up to 309.7 TFLOPS (FP32)",
+              "Enterprise-grade Cooling Solution"
+            ],
+            hardwareInfo: hardwareInfo3,
+            softwareInfo: softwareInfo3,
+            currency: "usd"
+          }
+        ];
+        
+        const createdProducts = [];
+        
+        for (const productData of defaultProducts) {
+          const createdProduct = await this.createProduct(productData);
+          createdProducts.push(createdProduct);
+          console.log(`Created default product: ${createdProduct.title}`);
+          console.log(`  Price USD: ${createdProduct.price}, Price EUR: ${createdProduct.priceEUR}`);
+        }
+        
+        return createdProducts;
+      }
+      
+      // Возвращаем существующие продукты, если они есть
+      return existingProducts;
     }
   }
   

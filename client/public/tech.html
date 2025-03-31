@@ -139,6 +139,14 @@
   </div>
   
   <div class="card">
+    <h2>Управление продуктами</h2>
+    <p>Инструменты для управления продуктами и синхронизации со Stripe.</p>
+    <button id="syncProductsBtn">Синхронизировать со Stripe</button>
+    <button id="resetProductsBtn">Сбросить продукты</button>
+    <div id="productsLog" class="log"></div>
+  </div>
+  
+  <div class="card">
     <h2>Проверка производительности</h2>
     <button id="perfTestBtn">Запустить тест</button>
     <div id="perfLog" class="log"></div>
@@ -165,6 +173,121 @@
     } else {
       document.getElementById('storageInfo').textContent = 'Недоступно';
     }
+    
+    // Функция для синхронизации продуктов со Stripe
+    async function syncProductsWithStripe() {
+      try {
+        const response = await fetch('/api/stripe/sync-products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return {
+            success: true,
+            products: data.products,
+            message: `Успешно синхронизировано ${data.products.length} продуктов`
+          };
+        } else {
+          const errorData = await response.json();
+          return {
+            success: false,
+            message: errorData.message || 'Ошибка синхронизации продуктов'
+          };
+        }
+      } catch (error) {
+        return {
+          success: false,
+          message: `Ошибка: ${error.message}`
+        };
+      }
+    }
+    
+    // Функция для сброса и создания дефолтных продуктов
+    async function resetProducts() {
+      try {
+        // Пока у нас нет отдельного API для сброса продуктов, используем синхронизацию со Stripe
+        // Это будет работать в обоих случаях - если Stripe настроен, синхронизирует с ним,
+        // если Stripe не настроен, создаст дефолтные продукты
+        const response = await fetch('/api/stripe/sync-products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return {
+            success: true,
+            message: `Успешно сброшены продукты. Теперь доступно ${data.products.length} продуктов`
+          };
+        } else {
+          const errorData = await response.json();
+          return {
+            success: false,
+            message: errorData.message || 'Ошибка сброса продуктов'
+          };
+        }
+      } catch (error) {
+        return {
+          success: false,
+          message: `Ошибка: ${error.message}`
+        };
+      }
+    }
+    
+    // Обработчики для кнопок управления продуктами
+    document.getElementById('syncProductsBtn').addEventListener('click', async () => {
+      const log = document.getElementById('productsLog');
+      log.textContent = 'Синхронизация продуктов со Stripe...';
+      
+      try {
+        const result = await syncProductsWithStripe();
+        if (result.success) {
+          log.textContent += `\nУспех: ${result.message}`;
+          
+          // Обновляем страницу, чтобы увидеть изменения
+          setTimeout(() => {
+            log.textContent += '\nОбновление страницы...';
+            window.location.reload();
+          }, 2000);
+        } else {
+          log.textContent += `\nОшибка: ${result.message}`;
+        }
+      } catch (error) {
+        log.textContent += `\nОшибка: ${error.message}`;
+      }
+    });
+    
+    document.getElementById('resetProductsBtn').addEventListener('click', async () => {
+      const log = document.getElementById('productsLog');
+      log.textContent = 'Сброс продуктов...';
+      
+      try {
+        if (confirm('Вы уверены, что хотите сбросить все продукты? Это создаст базовые продукты, но может удалить настроенные ранее.')) {
+          const result = await resetProducts();
+          if (result.success) {
+            log.textContent += `\nУспех: ${result.message}`;
+            
+            // Обновляем страницу, чтобы увидеть изменения
+            setTimeout(() => {
+              log.textContent += '\nОбновление страницы...';
+              window.location.reload();
+            }, 2000);
+          } else {
+            log.textContent += `\nОшибка: ${result.message}`;
+          }
+        } else {
+          log.textContent += '\nОперация отменена пользователем';
+        }
+      } catch (error) {
+        log.textContent += `\nОшибка: ${error.message}`;
+      }
+    });
     
     // Управление кэшем
     document.getElementById('clearCacheBtn').addEventListener('click', async () => {
