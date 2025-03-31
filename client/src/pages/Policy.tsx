@@ -21,21 +21,45 @@ export default function Policy() {
     return getPolicyById(policyId);
   }, [policyId]);
   
+  // Функция сброса прокрутки (в стиле InfoPage)
+  const resetScrollPosition = () => {
+    // Сбрасываем глобальный скролл страницы
+    window.scrollTo(0, 0);
+    
+    // Сбрасываем скролл контента
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+    
+    // Дополнительно используем утилиты скролла
+    scrollContainerToTop(contentRef, false);
+    scrollToTop(false);
+    
+    // Сохраняем текущую позицию скролла для возврата
+    saveScrollPositionForPath('/account');
+    saveScrollPositionForPath('/');
+    
+    console.log('[Policy] Прокрутили страницу и контент наверх');
+  };
+
   // При монтировании компонента и изменении policyId скроллим страницу и контент наверх
   useEffect(() => {
     if (policy) {
-      // Используем прокрутку контейнера
-      if (contentRef.current) {
-        scrollContainerToTop(contentRef, false);
-      } else {
-        scrollToTop(false);
-      }
+      // Сразу сбрасываем прокрутку
+      resetScrollPosition();
       
-      // Сохраняем текущую позицию скролла для возврата
-      saveScrollPositionForPath('/account');
-      saveScrollPositionForPath('/');
+      // Дополнительный сброс с таймерами для надежности (как в InfoPage)
+      const timer1 = setTimeout(resetScrollPosition, 50);
+      const timer2 = setTimeout(resetScrollPosition, 150);
+      const timer3 = setTimeout(resetScrollPosition, 300);
+      const timer4 = setTimeout(resetScrollPosition, 500);
       
-      console.log('[Policy] Прокрутили страницу и контент наверх');
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+        clearTimeout(timer4);
+      };
     }
   }, [policyId, policy]);
   
@@ -84,11 +108,7 @@ export default function Policy() {
           </button>
         </div>
         
-        {/* Вспомогательная подсказка для свайпа */}
-        <div className="text-gray-400 text-xs text-center py-1 border-b">
-          <MoveLeft size={14} className="inline mr-1" />
-          {t("swipeRightToGoBack")}
-        </div>
+        {/* Удалили подсказку для свайпа, так как она может влиять на скроллинг */}
         
         {/* Scrollable content area без ограничения по высоте */}
         <div 
