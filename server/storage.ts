@@ -104,7 +104,127 @@ export class MemStorage implements IStorage {
           "Power: AC Adapter (included)",
           "Warranty: 2 years limited"
         ],
-        hardwareInfo: "The Machine Learning Systems (ML Systems) leveraging the NVIDIA DGX Spark utilize a high-performance, compact supercomputing platform tailored for advanced AI workloads. The kit is based on the NVIDIA DGX Spark (previously Project Digits), featuring the GB10 Grace Blackwell Superchip. This includes a 20-core ARMv9 CPU (10 Cortex-X925 + 10 Cortex-A725) and a Blackwell GPU with 5th-generation Tensor Cores and 4th-generation RT Cores, delivering up to 1 petaflop (1000 TOPS) in FP4 precision. It is equipped with 128 GB of unified LPDDR5x memory (273 GB/s bandwidth) and 1 TB NVMe SSD storage in the base configuration (expandable to 4 TB). Connectivity includes 4x USB4 (Type-C, 40 Gbit/s), HDMI 2.1a, 10GbE Ethernet, Wi-Fi 7, Bluetooth 5.3, and a ConnectX-7 (200 Gbit/s RDMA) interface for clustering. Power consumption is approximately 170 watts, supplied via USB-C, and the system operates on NVIDIA DGX OS (Ubuntu-based) with a pre-installed NVIDIA AI stack (PyTorch, NeMo, RAPIDS). This hardware provides a robust foundation for deploying a dual-purpose chatbot and voice assistant system within enterprise or organizational settings.",
+        hardwareInfo: `<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-blue-100 p-4 rounded-lg border-l-4 border-blue-600">
+    <h3 class="text-lg font-semibold text-blue-800 mb-3">NVIDIA DGX Spark Platform</h3>
+    <ul class="space-y-2">
+      <li class="flex items-start gap-2">
+        <div class="bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Processor:</span> 20-core ARMv9 CPU (10 Cortex-X925 + 10 Cortex-A725)</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">GPU Architecture:</span> NVIDIA GB10 Grace Blackwell Superchip</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Performance:</span> Up to 1 petaflop (1000 TOPS) in FP4 precision</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Cores:</span> 5th-generation Tensor Cores & 4th-generation RT Cores</span>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="bg-indigo-100 p-4 rounded-lg border-l-4 border-indigo-600">
+    <h3 class="text-lg font-semibold text-indigo-800 mb-3">Memory & Storage</h3>
+    <ul class="space-y-2">
+      <li class="flex items-start gap-2">
+        <div class="bg-indigo-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">RAM:</span> 128 GB unified LPDDR5x memory</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-indigo-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Memory Bandwidth:</span> 273 GB/s</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-indigo-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Storage:</span> 1 TB NVMe SSD (base configuration)</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-indigo-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Expandable:</span> Up to 4 TB storage capacity</span>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="bg-purple-100 p-4 rounded-lg border-l-4 border-purple-600">
+    <h3 class="text-lg font-semibold text-purple-800 mb-3">Connectivity & Interfaces</h3>
+    <ul class="space-y-2">
+      <li class="flex items-start gap-2">
+        <div class="bg-purple-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">USB:</span> 4× USB4 (Type-C, 40 Gbit/s)</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-purple-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Display:</span> HDMI 2.1a</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-purple-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Network:</span> 10GbE Ethernet, Wi-Fi 7, Bluetooth 5.3</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-purple-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Clustering:</span> ConnectX-7 (200 Gbit/s RDMA)</span>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="bg-green-100 p-4 rounded-lg border-l-4 border-green-600">
+    <h3 class="text-lg font-semibold text-green-800 mb-3">Power & Software</h3>
+    <ul class="space-y-2">
+      <li class="flex items-start gap-2">
+        <div class="bg-green-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Power Consumption:</span> Approximately 170 watts</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-green-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Power Supply:</span> USB-C power delivery</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-green-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Operating System:</span> NVIDIA DGX OS (Ubuntu-based)</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-green-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">AI Stack:</span> Pre-installed NVIDIA AI stack (PyTorch, NeMo, RAPIDS)</span>
+      </li>
+    </ul>
+  </div>
+</div>`,
         softwareInfo: "The ML system deployed on this platform employs an advanced, open-source machine learning model optimized for natural language processing and multimodal capabilities, supported by a comprehensive software ecosystem. Below is a depersonalized specification reflecting the system's capabilities without identifying specific vendors or developers:\n\nMachine Learning Model:\n• Parameter Size: Approximately 7–13 billion parameters, balancing computational efficiency with high-quality language understanding and generation.\n• Precision: Supports mixed precision (e.g., FP16 or 4-bit quantization such as INT8/GGUF), enabling operation within 128 GB memory while maximizing throughput.\n• Context Window: Configurable up to 8192–32,768 tokens (~6000–24,000 words, equivalent to 20–80 A4 pages), facilitating extensive contextual analysis for complex queries leveraging a robust knowledge base.\n• Performance: Capable of generating 20–50 tokens per second during inference, supporting real-time text and voice interactions with minimal latency.\n• Multimodal Capabilities: Integrates speech-to-text (STT) and text-to-speech (TTS) functionalities, processing audio inputs in real-time (0.5–1 second latency) and synthesizing natural-sounding speech outputs (<200 ms latency).\n• Licensing: Fully open-source with permissive licensing (e.g., MIT or Apache 2.0), permitting unrestricted use, modification, and commercial deployment.\n\nAdditional Software Components:\n• Inference Engine: A high-performance runtime optimized for GPU acceleration, utilizing advanced tensor computation and parallel processing to enhance inference speed and efficiency.\n• Speech Processing Framework: A modular system for real-time audio capture, speech recognition, and voice synthesis, supporting multiple languages and customizable voice profiles.\n• Knowledge Base Integration: A retrieval-augmented generation (RAG) system capable of indexing and querying up to 1 TB of unstructured data (approximately 400 million A4 pages), enabling dynamic access to enterprise knowledge repositories.\n• Networking Layer: A secure, intranet-compatible server framework (e.g., RESTful or WebSocket API) for handling simultaneous text and voice queries, ensuring data privacy and scalability within organizational networks.\n• Installation Requirements: Compatible with a Linux-based operating system, requiring approximately 50–100 GB of storage for the OS, model weights, speech modules, and supporting libraries."
       },
       {
@@ -128,7 +248,151 @@ export class MemStorage implements IStorage {
           "Battery: Up to 12 hours",
           "Warranty: 1 year limited"
         ],
-        hardwareInfo: "The Intelligent Automation Systems platform is built on NVIDIA's Founders Edition hardware, featuring the NVIDIA RTX™ 6000 Ada Generation GPU. This high-performance computing system is powered by an Ada Lovelace architecture with 18,176 CUDA® cores, 568 4th-generation Tensor Cores, and 142 3rd-generation RT cores. It provides 142 TFLOPS of FP32 performance and 568 TFLOPS of Tensor performance in FP16, enabling advanced AI-driven automation capabilities. The system is equipped with 48 GB of GDDR6 memory with ECC support, delivering a bandwidth of 864 GB/s, complemented by a 256-bit memory interface. For storage, it includes a 2 TB NVMe SSD with read speeds up to 7,000 MB/s. Connectivity options include 4× DisplayPort 1.4 outputs, PCIe 4.0 ×16 interface, USB 3.2 Type-C with DisplayPort 1.4a Alt Mode, and 10 Gigabit Ethernet. The system operates with a thermal design power (TDP) of 300W, managed by an advanced active cooling solution, and measures 267mm × 112mm × 52mm. This hardware foundation provides exceptional computational resources for enterprise automation tasks, robotic process automation (RPA), and voice assistance functionality.",
+        hardwareInfo: `<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-rose-100 p-4 rounded-lg border-l-4 border-rose-600">
+    <h3 class="text-lg font-semibold text-rose-800 mb-3">NVIDIA Founders Edition</h3>
+    <ul class="space-y-2">
+      <li class="flex items-start gap-2">
+        <div class="bg-rose-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">GPU:</span> NVIDIA RTX™ 6000 Ada Generation</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-rose-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Architecture:</span> Ada Lovelace</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-rose-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">CUDA® Cores:</span> 18,176</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-rose-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Tensor Cores:</span> 568 (4th-generation)</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-rose-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">RT Cores:</span> 142 (3rd-generation)</span>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="bg-amber-100 p-4 rounded-lg border-l-4 border-amber-600">
+    <h3 class="text-lg font-semibold text-amber-800 mb-3">Performance & Memory</h3>
+    <ul class="space-y-2">
+      <li class="flex items-start gap-2">
+        <div class="bg-amber-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">FP32 Performance:</span> 142 TFLOPS</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-amber-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Tensor Performance (FP16):</span> 568 TFLOPS</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-amber-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Memory:</span> 48 GB GDDR6 with ECC</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-amber-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Memory Bandwidth:</span> 864 GB/s</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-amber-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Memory Interface:</span> 256-bit</span>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="bg-emerald-100 p-4 rounded-lg border-l-4 border-emerald-600">
+    <h3 class="text-lg font-semibold text-emerald-800 mb-3">Storage & Connectivity</h3>
+    <ul class="space-y-2">
+      <li class="flex items-start gap-2">
+        <div class="bg-emerald-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Storage:</span> 2 TB NVMe SSD</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-emerald-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Read Speed:</span> Up to 7,000 MB/s</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-emerald-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Display Outputs:</span> 4× DisplayPort 1.4</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-emerald-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Interface:</span> PCIe 4.0 ×16</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-emerald-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">USB:</span> USB 3.2 Type-C with DisplayPort 1.4a Alt Mode</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-emerald-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Network:</span> 10 Gigabit Ethernet</span>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="bg-sky-100 p-4 rounded-lg border-l-4 border-sky-600">
+    <h3 class="text-lg font-semibold text-sky-800 mb-3">Physical Specifications</h3>
+    <ul class="space-y-2">
+      <li class="flex items-start gap-2">
+        <div class="bg-sky-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Dimensions:</span> 267mm × 112mm × 52mm</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-sky-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Thermal Design Power:</span> 300W</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-sky-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Cooling:</span> Advanced active cooling solution</span>
+      </li>
+      <li class="flex items-start gap-2">
+        <div class="bg-sky-600 rounded-full w-5 h-5 flex items-center justify-center mt-1">
+          <span class="text-white text-xs font-bold">✓</span>
+        </div>
+        <span><span class="font-medium">Applications:</span> Enterprise automation, RPA, voice assistance</span>
+      </li>
+    </ul>
+  </div>
+</div>`,
         softwareInfo: "The AI-driven platform employs an advanced, open-source machine learning model and a suite of supporting software tailored for intelligent automation, text-based interactions, and voice assistance. Below is a depersonalized specification reflecting the system's capabilities without identifying specific vendors or developers:\n\nMachine Learning Model:\n• Parameter Size: Approximately 13–20 billion parameters, providing robust performance for automation, natural language understanding, and generation tasks.\n• Precision: Supports mixed precision (e.g., FP16 or 4-bit quantization like INT8), optimizing memory usage within the 24 GB GDDR6X constraint while maintaining high throughput.\n• Context Window: Configurable up to 16,384–65,536 tokens (~12,000–48,000 words, equivalent to 40–160 A4 pages), enabling deep contextual analysis for automation workflows and multi-turn dialogues.\n• Performance: Capable of generating 30–60 tokens per second during inference, supporting real-time text and voice interactions with low latency.\n• Multimodal Capabilities: Integrates speech-to-text (STT) and text-to-speech (TTS) with processing latencies of 0.3–0.8 seconds for STT and <150 ms for TTS, facilitating seamless voice-driven automation.\n• Licensing: Fully open-source with permissive licensing (e.g., MIT or Apache 2.0), allowing unrestricted enterprise customization and deployment.\n\nAdditional Software Components:\n• Inference Engine: A GPU-accelerated runtime leveraging CUDA and Tensor Cores for high-speed inference, optimized for the Ada Lovelace architecture to maximize automation and chatbot performance.\n• Automation Framework: A modular system for designing, executing, and monitoring workflows, capable of integrating with enterprise APIs, robotic process automation (RPA), and IoT devices for end-to-end process automation.\n• Speech Processing Framework: A real-time audio processing suite for STT and TTS, supporting multilingual inputs and customizable voice outputs for voice assistant functionality.\n• Knowledge Base Integration: A retrieval-augmented generation (RAG) system indexing up to 2 TB of unstructured data (~800 million A4 pages), enabling dynamic access to enterprise repositories for automation and query resolution.\n• Networking Layer: A secure, local server framework (e.g., RESTful or WebSocket API) for handling text, voice, and automation requests within an enterprise intranet, ensuring privacy and scalability.\n• Installation Requirements: Compatible with a Linux-based OS (e.g., Ubuntu), requiring ~50–100 GB of storage for the OS, model weights, automation scripts, and libraries."
       },
       {
