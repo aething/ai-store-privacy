@@ -159,9 +159,13 @@ export default function ProductDetail() {
         <div className="mb-4">
           <div className="h-64 bg-surface mb-1 rounded-lg overflow-hidden">
             <img 
-              src={getProductImage(product.id)} 
+              src={product.imageUrl || getProductImage(product.id)} 
               alt={product.title} 
               className="w-full h-full object-cover"
+              onError={(e) => {
+                // Если не удалось загрузить изображение по URL, используем локальное изображение
+                e.currentTarget.src = getProductImage(product.id);
+              }}
             />
           </div>
           <p className="text-xs text-gray-500 italic text-center">

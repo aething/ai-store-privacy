@@ -4,6 +4,7 @@ import {
   orders, type Order, type InsertOrder
 } from "@shared/schema";
 import crypto from "crypto";
+import type Stripe from 'stripe';
 
 export interface IStorage {
   // User methods
@@ -381,7 +382,7 @@ export class MemStorage implements IStorage {
         }
         
         // Получаем цену из Stripe
-        const price = stripeProduct.default_price;
+        const price = stripeProduct.default_price as Stripe.Price;
         
         // Проверяем наличие цены
         if (!price || !price.unit_amount) {
@@ -394,10 +395,39 @@ export class MemStorage implements IStorage {
         console.log(`Product ${stripeProduct.name} - price: ${priceAmount}, currency: ${price.currency}`);
         
         // Проверяем наличие метаданных для priceEUR
+        console.log(`Checking metadata for ${stripeProduct.name}:`, stripeProduct.metadata);
+        
         if (stripeProduct.metadata && stripeProduct.metadata.priceEUR) {
-          console.log(`Product ${stripeProduct.name} has EUR price in metadata: ${stripeProduct.metadata.priceEUR}`);
+          console.log(`✅ Product ${stripeProduct.name} has EUR price in metadata: ${stripeProduct.metadata.priceEUR}`);
         } else {
-          console.log(`Product ${stripeProduct.name} has no EUR price in metadata`);
+          console.log(`❌ Product ${stripeProduct.name} has no EUR price in metadata`);
+          
+          // Если у нас нет цены в евро в метаданных, попробуем найти цену в евро через API Stripe
+          try {
+            console.log(`Attempting to find EUR price for product ${stripeProduct.id} via Stripe API...`);
+            
+            const prices = await stripe.prices.list({
+              product: stripeProduct.id,
+              active: true,
+              currency: 'eur'
+            });
+            
+            if (prices.data.length > 0) {
+              const eurPrice = prices.data[0];
+              console.log(`✅ Found EUR price via Stripe API: ${eurPrice.unit_amount ? eurPrice.unit_amount / 100 : 'undefined'}`);
+              
+              // Если у нас есть цена в EUR из API, используем ее вместо метаданных
+              if (eurPrice.unit_amount) {
+                stripeProduct.metadata = stripeProduct.metadata || {};
+                stripeProduct.metadata.priceEUR = String(eurPrice.unit_amount / 100);
+                console.log(`✅ Updated EUR price in metadata to: ${stripeProduct.metadata.priceEUR}`);
+              }
+            } else {
+              console.log(`❌ No EUR prices found via Stripe API for product ${stripeProduct.id}`);
+            }
+          } catch (error) {
+            console.error(`Error finding EUR price via Stripe API: ${error}`);
+          }
         }
         
         if (product) {

@@ -41,9 +41,13 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Изображение продукта - фиксированная высота */}
       <div className="h-48 bg-surface">
         <img 
-          src={getProductImage(product.id)} 
+          src={product.imageUrl || getProductImage(product.id)} 
           alt={product.title} 
           className="w-full h-full object-cover"
+          onError={(e) => {
+            // Если не удалось загрузить изображение по URL, используем локальное изображение
+            e.currentTarget.src = getProductImage(product.id);
+          }}
         />
       </div>
       
