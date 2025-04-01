@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Product } from "../../shared/schema";
 
 export function useProductsSync() {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -21,12 +22,18 @@ export function useProductsSync() {
       return response.json();
     },
     onSuccess: (data) => {
-      // Инвалидируем кеш продуктов, чтобы при следующем запросе получить свежие данные
+      // Немедленно обновляем кеш продуктов с новыми данными из ответа
+      const updatedProducts = data.products as Product[];
+      
+      // Обновляем кеш напрямую
+      queryClient.setQueryData(["/api/products"], updatedProducts);
+      
+      // Также инвалидируем кеш для обеспечения получения актуальных данных при следующем запросе
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
       
       toast({
         title: "Sync Successful",
-        description: `${data.products.length} products synchronized with Stripe`,
+        description: `${updatedProducts.length} products synchronized with Stripe`,
       });
     },
     onError: (error: Error) => {
@@ -41,8 +48,18 @@ export function useProductsSync() {
     }
   });
 
-  const syncProducts = () => {
-    syncMutation.mutate();
+  // Функция для запуска синхронизации 
+  const syncProducts = async () => {
+    // Запускаем синхронизацию и ждем результата
+    try {
+      await syncMutation.mutateAsync();
+      
+      // После успешного завершения обновляем страницу (опционально)
+      return true;
+    } catch (error) {
+      console.error("Sync error:", error);
+      return false;
+    }
   };
 
   return {

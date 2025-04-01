@@ -359,8 +359,21 @@ export class MemStorage implements IStorage {
       
       // Обновляем существующие и добавляем новые продукты
       for (const stripeProduct of stripeProducts.data) {
-        // Ищем продукт в нашей базе по Stripe ID
+        // Сначала ищем продукт по Stripe ID (точное совпадение)
         let product = existingProducts.find(p => p.stripeProductId === stripeProduct.id);
+        
+        // Если не найдено по Stripe ID, пробуем найти по названию (неточное совпадение)
+        if (!product) {
+          const stripeTitle = stripeProduct.name.toLowerCase().trim();
+          product = existingProducts.find(p => {
+            const productTitle = p.title.toLowerCase().trim();
+            return productTitle.includes(stripeTitle) || stripeTitle.includes(productTitle);
+          });
+          
+          if (product) {
+            console.log(`Found product match by name: "${product.title}" matches "${stripeProduct.name}"`);
+          }
+        }
         
         // Получаем цену из Stripe
         const price = stripeProduct.default_price;
