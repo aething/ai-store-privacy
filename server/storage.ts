@@ -324,7 +324,7 @@ export class MemStorage implements IStorage {
       // Используем динамический импорт вместо require
       const Stripe = await import('stripe').then(module => module.default);
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-        apiVersion: '2023-10-16', // Используем последнюю версию API
+        apiVersion: '2025-02-24.acacia', // Используем актуальную версию API
         telemetry: false // Отключаем телеметрию для лучшей производительности
       });
       
