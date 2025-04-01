@@ -172,10 +172,23 @@ export default function Account() {
       // Обновляем пользователя в контексте
       setUser({ ...user, ...updatedUser });
       
+      // Проверяем, изменилась ли страна пользователя
+      const countryChanged = user.country !== updatedUser.country;
+      
       toast({
         title: "Success",
-        description: "Your information has been updated.",
+        description: countryChanged 
+          ? "Your country has been updated. Page will reload to apply changes." 
+          : "Your information has been updated.",
       });
+      
+      // Если изменилась страна, после небольшой задержки перезагружаем страницу
+      if (countryChanged) {
+        console.log(`Country changed from ${user.country} to ${updatedUser.country}. Reloading page in 2 seconds...`);
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      }
     } catch (error: any) {
       console.error("Account update error:", error);
       toast({
