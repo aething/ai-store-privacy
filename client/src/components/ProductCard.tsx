@@ -1,10 +1,10 @@
 import { useLocation } from "wouter";
-import { useEffect, useState } from "react";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
-import { getProductImage, preloadImages, areImagesLoaded } from "@/lib/imagePreloader";
+import { getProductImage } from "@/lib/imagePreloader";
+import { useProductImage } from "@/hooks/useProductImage";
 import { saveScrollPosition } from "@/lib/scrollUtils";
 
 interface ProductCardProps {
@@ -14,32 +14,9 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const [, setLocation] = useLocation();
   const { user } = useAppContext();
-  const [imageLoaded, setImageLoaded] = useState(areImagesLoaded());
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
   
-  // При монтировании компонента определяем источник изображения
-  useEffect(() => {
-    // Функция загрузки изображений и установки источника
-    async function loadAndSetImage() {
-      try {
-        // Загрузка изображений
-        await preloadImages();
-        setImageLoaded(true);
-        
-        // Установка источника изображения
-        const imageSrc = product.imageUrl || getProductImage(product.id);
-        setImageSrc(imageSrc);
-      } catch (error) {
-        console.error('Ошибка загрузки изображений:', error);
-        // Даже в случае ошибки устанавливаем источник
-        const imageSrc = product.imageUrl || getProductImage(product.id);
-        setImageSrc(imageSrc);
-      }
-    }
-    
-    // Запускаем загрузку
-    loadAndSetImage();
-  }, [product.id, product.imageUrl]);
+  // Используем наш новый хук для загрузки изображения
+  const { imageSrc, isLoaded } = useProductImage(product.id, product.imageUrl);
   
   const handleClick = () => {
     // Сохраняем позицию скролла перед переходом на страницу детального просмотра

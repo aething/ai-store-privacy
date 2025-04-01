@@ -11,8 +11,9 @@ import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getProductImage, preloadImages, areImagesLoaded } from "@/lib/imagePreloader";
-import { scrollToTop, saveScrollPositionForPath, restoreScrollPositionForPath } from "@/lib/scrollUtils";
+import { useProductImage } from "@/hooks/useProductImage";
+import { getProductImage } from "@/lib/imagePreloader";
+import { scrollToTop, saveScrollPositionForPath } from "@/lib/scrollUtils";
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
@@ -21,8 +22,16 @@ export default function ProductDetail() {
   const { user } = useAppContext();
   const { t } = useLocale();
   const [couponCode, setCouponCode] = useState('');
-  const [imageLoaded, setImageLoaded] = useState(areImagesLoaded());
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  
+  const productId = match ? parseInt(params.id) : null;
+  
+  // Используем наш новый хук для загрузки изображения
+  const { imageSrc, isLoaded } = useProductImage(productId || 0, null);
+  
+  const { data: product, isLoading, error } = useQuery<Product>({
+    queryKey: [`/api/products/${productId}`],
+    enabled: !!productId,
+  });
   
   // При монтировании компонента скроллим наверх и добавляем обработчик сохранения позиции
   useEffect(() => {
@@ -53,13 +62,6 @@ export default function ProductDetail() {
     // Используем history.back() для корректной работы системы восстановления позиции скролла
     window.history.back();
   };
-  
-  const productId = match ? parseInt(params.id) : null;
-  
-  const { data: product, isLoading, error } = useQuery<Product>({
-    queryKey: [`/api/products/${productId}`],
-    enabled: !!productId,
-  });
   
   if (isLoading) {
     return (
@@ -135,33 +137,6 @@ export default function ProductDetail() {
     
     setLocation(`/checkout/${product.id}`);
   };
-  
-  // Используем функцию из сервиса предварительной загрузки для получения изображения
-  // При монтировании компонента загружаем изображение и устанавливаем источник
-  useEffect(() => {
-    // Функция загрузки изображений и установки источника
-    async function loadAndSetImage() {
-      try {
-        // Загрузка изображений
-        await preloadImages();
-        setImageLoaded(true);
-        
-        // Установка источника изображения
-        if (product) {
-          setImageSrc(product.imageUrl || getProductImage(product.id));
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки изображений:', error);
-        // Даже в случае ошибки, устанавливаем источник
-        if (product) {
-          setImageSrc(product.imageUrl || getProductImage(product.id));
-        }
-      }
-    }
-    
-    // Запускаем загрузку
-    loadAndSetImage();
-  }, [product?.id, product?.imageUrl]);
   
   return (
     <SwipeBack onSwipeBack={handleGoBack}>
@@ -358,126 +333,115 @@ export default function ProductDetail() {
                       <div className="grid gap-3 md:grid-cols-2">
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-emerald-500 p-1 rounded text-white">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                            <div className="h-8 w-8 flex items-center justify-center bg-emerald-100 rounded-full">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="8" y1="20" x2="8.01" y2="20"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="22" x2="12.01" y2="22"/><line x1="16" y1="16" x2="16.01" y2="16"/><line x1="16" y1="20" x2="16.01" y2="20"/></svg>
                             </div>
-                            <h4 className="font-medium text-emerald-800">Operating System</h4>
+                            <span className="font-medium">Cloud Integration</span>
                           </div>
-                          <p className="text-emerald-700">AethingOS 2.5 with real-time capabilities for AI processing</p>
+                          <p className="text-sm text-gray-600">Seamless integration with major cloud platforms for scalable data processing and model training</p>
                         </div>
                         
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-emerald-500 p-1 rounded text-white">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+                            <div className="h-8 w-8 flex items-center justify-center bg-emerald-100 rounded-full">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                             </div>
-                            <h4 className="font-medium text-emerald-800">AI Engine</h4>
+                            <span className="font-medium">Data Pipelines</span>
                           </div>
-                          <p className="text-emerald-700">Aether Voice Assistant 4.0 with offline processing capabilities</p>
+                          <p className="text-sm text-gray-600">Robust ETL pipelines with advanced data transformation and feature engineering capabilities</p>
                         </div>
                         
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-emerald-500 p-1 rounded text-white">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"></path><line x1="2" y1="20" x2="2" y2="20"></line></svg>
+                            <div className="h-8 w-8 flex items-center justify-center bg-emerald-100 rounded-full">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
                             </div>
-                            <h4 className="font-medium text-emerald-800">Connectivity</h4>
+                            <span className="font-medium">Containers</span>
                           </div>
-                          <p className="text-emerald-700">Wi-Fi 6, Bluetooth 5.0, and Thread for smart home integration</p>
+                          <p className="text-sm text-gray-600">Docker containerization with Kubernetes orchestration for deployment flexibility</p>
                         </div>
                         
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-emerald-500 p-1 rounded text-white">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <div className="h-8 w-8 flex items-center justify-center bg-emerald-100 rounded-full">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
                             </div>
-                            <h4 className="font-medium text-emerald-800">Settings</h4>
+                            <span className="font-medium">APIs</span>
                           </div>
-                          <p className="text-emerald-700">Adaptive configuration with voice and app-based controls</p>
+                          <p className="text-sm text-gray-600">RESTful and GraphQL APIs with comprehensive SDK support for easy integration</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
+                      <h3 className="text-lg font-semibold text-violet-700 mb-3">AI Framework Support</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <h4 className="font-medium text-violet-900 mb-2">Deep Learning</h4>
+                          <ul className="space-y-1 text-sm">
+                            <li className="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <span>PyTorch 2.0+</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <span>TensorFlow 2.12+</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <span>ONNX Runtime</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <span>JAX</span>
+                            </li>
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-medium text-violet-900 mb-2">Machine Learning</h4>
+                          <ul className="space-y-1 text-sm">
+                            <li className="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <span>scikit-learn</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <span>XGBoost</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <span>LightGBM</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <span>Spark ML</span>
+                            </li>
+                          </ul>
                         </div>
                       </div>
                     </div>
                     
                     <div className="bg-amber-50 rounded-lg p-4 border-l-4 border-amber-500">
-                      <h3 className="text-lg font-semibold text-amber-700 mb-3">Features & Compatibility</h3>
-                      
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-amber-500 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold">1</div>
-                          <div>
-                            <h4 className="font-medium text-amber-900">Supported Languages</h4>
-                            <p className="text-amber-700">Русский, English, Deutsch, Français, Español, Italiano, 日本語, 中文</p>
-                          </div>
+                      <h3 className="text-lg font-semibold text-amber-700 mb-2">Edge Computing</h3>
+                      <p className="text-amber-800 mb-3">
+                        {product.softwareInfo}
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                        <div className="bg-white rounded p-3 shadow-sm border border-amber-100">
+                          <h4 className="font-medium flex items-center gap-2 text-amber-900 mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><path d="m9 18 6-6-6-6"/></svg>
+                            Model Optimization
+                          </h4>
+                          <p className="text-sm text-gray-600">TensorRT, TF-TRT, and OpenVINO support with INT8 quantization and weight pruning</p>
                         </div>
                         
-                        <div className="flex items-center gap-3">
-                          <div className="bg-amber-500 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold">2</div>
-                          <div>
-                            <h4 className="font-medium text-amber-900">Media Services</h4>
-                            <p className="text-amber-700">Spotify, YouTube Music, Netflix, Яндекс.Музыка, and more</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <div className="bg-amber-500 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold">3</div>
-                          <div>
-                            <h4 className="font-medium text-amber-900">Smart Home Protocols</h4>
-                            <p className="text-amber-700">HomeKit, Google Home, Яндекс.Умный дом, and other major platforms</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <div className="bg-amber-500 rounded-full w-8 h-8 flex items-center justify-center text-white font-bold">4</div>
-                          <div>
-                            <h4 className="font-medium text-amber-900">Updates & Maintenance</h4>
-                            <p className="text-amber-700">Automatic OTA updates and self-diagnostic capabilities</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4">
-                      <h3 className="text-lg font-semibold text-purple-700 mb-3">Security Features</h3>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-white rounded-lg p-3 shadow-sm border border-purple-100 flex gap-3 items-center">
-                          <div className="bg-purple-600 p-2 rounded-full text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-purple-900">AES-256 Encryption</h4>
-                            <p className="text-sm text-purple-600">For all stored and transmitted data</p>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-white rounded-lg p-3 shadow-sm border border-purple-100 flex gap-3 items-center">
-                          <div className="bg-purple-600 p-2 rounded-full text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 11V7a5 5 0 0 0-5-5v0a5 5 0 0 0-5 5v4"/><path d="M11 7h2v3h-2z"/><path d="M19 19a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-purple-900">Voice Authentication</h4>
-                            <p className="text-sm text-purple-600">Biometric voice recognition for secure access</p>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-white rounded-lg p-3 shadow-sm border border-purple-100 flex gap-3 items-center">
-                          <div className="bg-purple-600 p-2 rounded-full text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M2 16.92A9 9 0 0 0 12 21a9 9 0 0 0 10-4.08"/><path d="M17 9h-3a5 5 0 0 0-10 0H1"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-purple-900">Privacy Mode</h4>
-                            <p className="text-sm text-purple-600">Complete microphone disconnection with hardware switch</p>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-white rounded-lg p-3 shadow-sm border border-purple-100 flex gap-3 items-center">
-                          <div className="bg-purple-600 p-2 rounded-full text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1 2-2c2 0 2 4 4 4a2 2 0 0 0 2-2"/><path d="M12 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-purple-900">Secure Boot</h4>
-                            <p className="text-sm text-purple-600">Verified boot sequence and integrity checking</p>
-                          </div>
+                        <div className="bg-white rounded p-3 shadow-sm border border-amber-100">
+                          <h4 className="font-medium flex items-center gap-2 text-amber-900 mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><path d="m9 18 6-6-6-6"/></svg>
+                            Real-time Processing
+                          </h4>
+                          <p className="text-sm text-gray-600">Process data streams with latency as low as 15ms for real-time applications</p>
                         </div>
                       </div>
                     </div>
@@ -489,12 +453,73 @@ export default function ProductDetail() {
                 )}
               </TabsContent>
             </Tabs>
-            
-            {/* Примечание по изображениям */}
-            <div className="text-gray-400 text-xs text-center mt-4 italic">
-              Images are for illustration purposes only. Refer to the description for full specifications.
-            </div>
           </Card>
+          
+          {/* Reviews Section */}
+          <div className="mb-4">
+            <h2 className="text-lg font-medium mb-3">Customer Reviews</h2>
+            <div className="space-y-4">
+              <div className="p-4 bg-surface rounded-lg">
+                <div className="flex items-center mb-2">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <svg 
+                        key={i} 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="16" 
+                        height="16" 
+                        viewBox="0 0 24 24" 
+                        fill={i < 5 ? "currentColor" : "none"}
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        className={i < 5 ? "text-yellow-400" : "text-gray-300"}
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="ml-2 text-gray-700 font-medium">Research Institute</span>
+                </div>
+                <p className="text-gray-600">
+                  "This AI platform has revolutionized our research capabilities. The optimized machine learning models run flawlessly on the hardware, and we've seen a 40% increase in processing speed for our computer vision tasks."
+                </p>
+              </div>
+              
+              <div className="p-4 bg-surface rounded-lg">
+                <div className="flex items-center mb-2">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <svg 
+                        key={i} 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="16" 
+                        height="16" 
+                        viewBox="0 0 24 24" 
+                        fill={i < 4 ? "currentColor" : "none"}
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        className={i < 4 ? "text-yellow-400" : "text-gray-300"}
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="ml-2 text-gray-700 font-medium">Tech Startup</span>
+                </div>
+                <p className="text-gray-600">
+                  "Impressive energy efficiency while still delivering top-tier AI performance. The documentation could be more comprehensive, but overall we're very satisfied with the product."
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Related Products */}
+          <div>
+            <h2 className="text-lg font-medium mb-3">You Might Also Like</h2>
+            <div className="text-gray-500 text-center p-4 border border-dashed rounded-lg">
+              Related products will be displayed here
+            </div>
+          </div>
         </div>
       </div>
     </SwipeBack>
