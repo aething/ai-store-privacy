@@ -800,8 +800,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const customer = await stripe.customers.create({
           email: user.email,
           name: user.name || user.username,
+          address: user.country ? {
+            country: user.country
+          } : undefined,
           metadata: {
-            userId: user.id.toString()
+            userId: user.id.toString(),
+            country: user.country || 'unknown'
           }
         });
         
