@@ -37,6 +37,8 @@ export interface IStorage {
   getOrder(id: number): Promise<Order | undefined>;
 }
 
+import * as googleSheets from './google-sheets';
+
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private products: Map<number, Product>;
@@ -44,6 +46,7 @@ export class MemStorage implements IStorage {
   private userIdCounter: number;
   private productIdCounter: number;
   private orderIdCounter: number;
+  private googleSheetsAvailable: boolean;
 
   constructor() {
     this.users = new Map();
@@ -52,6 +55,7 @@ export class MemStorage implements IStorage {
     this.userIdCounter = 1;
     this.productIdCounter = 1;
     this.orderIdCounter = 1;
+    this.googleSheetsAvailable = false;
 
     // Initialize with some products
     const productsList: InsertProduct[] = [
@@ -893,6 +897,60 @@ Management Console: Comprehensive monitoring, analytics, and management interfac
 
   async getOrder(id: number): Promise<Order | undefined> {
     return this.orders.get(id);
+  }
+  
+  /**
+   * Загружает пользователей из Google Sheets
+   */
+  async loadUsersFromGoogleSheets(): Promise<void> {
+    try {
+      const users = await googleSheets.getAllUsers();
+      
+      // Для всех успешно загруженных пользователей
+      for (const user of users) {
+        if (user.id) {
+          // Если пользователь с таким ID уже существует, обновляем данные, иначе добавляем нового
+          if (this.users.has(user.id)) {
+            // Сохраняем пароль, так как его нет в Google Sheets
+            const existingPassword = this.users.get(user.id)?.password || '';
+            this.users.set(user.id, {
+              ...user,
+              password: existingPassword
+            });
+          } else {
+            // Для нового пользователя устанавливаем пароль по умолчанию, если пользователь "testuser"
+            if (user.username === 'testuser') {
+              user.password = 'Test123!';
+              this.users.set(user.id, user);
+            } else {
+              // В реальной системе пароли не должны загружаться из Sheets, 
+              // но для демонстрации будем считать, что для новых пользователей 
+              // надо сбросить пароль или в системе есть другой механизм аутентификации
+              user.password = crypto.randomBytes(16).toString('hex'); // Случайный пароль
+              this.users.set(user.id, user);
+            }
+          }
+          
+          // Обновляем счетчик ID, если загруженный ID больше
+          if (user.id >= this.userIdCounter) {
+            this.userIdCounter = user.id + 1;
+          }
+        }
+      }
+      
+      console.log(`Loaded ${users.length} users from Google Sheets to MemStorage`);
+      
+      // Выводим всех загруженных пользователей для отладки
+      console.log("Loaded users:", Array.from(this.users.values()).map(u => ({ 
+        id: u.id, 
+        username: u.username, 
+        email: u.email,
+        password: u.password ? '[SET]' : '[NOT SET]'
+      })));
+    } catch (error) {
+      console.error('Error loading users from Google Sheets:', error);
+      console.log('Continuing with existing in-memory users');
+    }
   }
 }
 

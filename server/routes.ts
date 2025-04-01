@@ -96,6 +96,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     await googleSheets.initializeGoogleSheets();
     console.log("Google Sheets initialized successfully");
     googleSheetsAvailable = true;
+    
+    // Загружаем пользователей из Google Sheets в память
+    await (storage as MemStorage).loadUsersFromGoogleSheets();
   } catch (error) {
     console.error("Failed to initialize Google Sheets:", error);
     console.log("Continuing without Google Sheets integration. User and order data will only be stored in memory.");

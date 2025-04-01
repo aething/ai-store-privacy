@@ -142,6 +142,50 @@ export async function initializeGoogleSheets(): Promise<void> {
   }
 }
 
+/**
+ * Загрузка всех пользователей из Google Sheets
+ * @returns Массив пользователей
+ */
+export async function getAllUsers(): Promise<User[]> {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${SHEETS.USERS}!A2:L`,
+    });
+
+    const rows = response.data.values || [];
+    const users: User[] = [];
+
+    for (const row of rows) {
+      if (row.length >= 4) { // Минимальные необходимые поля
+        // Создаем объект пользователя из данных строки
+        const user: User = {
+          id: parseInt(row[0]),
+          username: row[1],
+          email: row[2],
+          password: '', // Пароль не хранится в Google Sheets из соображений безопасности
+          isVerified: row[3] === 'true',
+          name: row[4] || null,
+          phone: row[5] || null,
+          country: row[6] || null,
+          street: row[7] || null,
+          house: row[8] || null,
+          apartment: row[9] || null,
+          stripeCustomerId: row[10] || null,
+          stripeSubscriptionId: null
+        };
+        users.push(user);
+      }
+    }
+
+    console.log(`Loaded ${users.length} users from Google Sheets`);
+    return users;
+  } catch (error) {
+    console.error('Error loading users from Google Sheets:', error);
+    return [];
+  }
+}
+
 
 
 /**
