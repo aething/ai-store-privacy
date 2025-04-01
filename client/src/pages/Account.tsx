@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import LanguageSelector from "@/components/LanguageSelector";
 import OrdersList from "@/components/OrdersList";
 import { useLocale } from "@/context/LocaleContext";
-import { ChevronRight, Trash2, RefreshCw, Settings, ShoppingBag } from "lucide-react";
+import { ChevronRight, Trash2, RefreshCw, Settings, ShoppingBag, Mail, Lock, LogIn, LogOut } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
 
 const updateUserSchema = z.object({
@@ -25,11 +25,31 @@ const updateUserSchema = z.object({
 
 type UpdateUserForm = z.infer<typeof updateUserSchema>;
 
+// Схема для логина
+const loginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
+
+// Схема для регистрации
+const registerSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  name: z.string().optional(),
+  country: z.string().optional(),
+});
+
+type RegisterForm = z.infer<typeof registerSchema>;
+
 export default function Account() {
-  const { user, setUser } = useAppContext();
+  const { user, setUser, login, logout } = useAppContext();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(true); // true = login, false = register
   const { t } = useLocale();
   
   // Отображаем страницу Account
@@ -210,23 +230,270 @@ export default function Account() {
   // Hook для синхронизации продуктов со Stripe
   const { syncProducts, isSyncing } = useProductsSync();
 
+  // Формы для логина и регистрации
+  const {
+    register: registerLogin,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors }
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema)
+  });
+
+  const {
+    register: registerSignup,
+    handleSubmit: handleSignupSubmit,
+    formState: { errors: signupErrors }
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema)
+  });
+
+  // Функция для обработки входа
+  const handleLogin = async (data: LoginForm) => {
+    setIsLoading(true);
+    
+    try {
+      const response = await apiRequest("POST", "/api/users/login", {
+        username: data.username,
+        password: data.password
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error during login");
+      }
+      
+      const userData = await response.json();
+      
+      // Используем контекст для сохранения данных о пользователе
+      login(userData);
+      
+      toast({
+        title: "Success",
+        description: "You have been logged in successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Login Error",
+        description: error.message || "Failed to log in. Please check your credentials.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Функция для обработки регистрации
+  const handleRegister = async (data: RegisterForm) => {
+    setIsLoading(true);
+    
+    try {
+      const response = await apiRequest("POST", "/api/users/register", data);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error during registration");
+      }
+      
+      const userData = await response.json();
+      
+      // Используем контекст для сохранения данных о пользователе
+      login(userData);
+      
+      toast({
+        title: "Registration Successful",
+        description: "Your account has been created successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Registration Error",
+        description: error.message || "Failed to create an account.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Функция для выхода из системы
+  const handleLogout = async () => {
+    setIsLoading(true);
+    
+    try {
+      const response = await apiRequest("POST", "/api/users/logout");
+      
+      if (!response.ok) {
+        throw new Error("Failed to log out");
+      }
+      
+      // Очищаем данные пользователя
+      logout();
+      
+      toast({
+        title: "Logged Out",
+        description: "You have been logged out successfully.",
+      });
+      
+      // Перенаправляем на главную страницу
+      setLocation('/');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Проверка, является ли пользователь администратором (для демо используем email admin@example.com)
   const isAdmin = user?.email === 'admin@example.com';
   
-  // Mock user if not logged in (for demo)
-  const mockUser = {
-    email: "user@example.com",
-    isVerified: false,
-  };
+  // Если пользователь не авторизован, показываем формы логина/регистрации
+  if (!user) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold mb-6">{showLoginForm ? "Login" : "Create Account"}</h1>
+        
+        <Card className="p-6 mb-4">
+          {showLoginForm ? (
+            <form onSubmit={handleLoginSubmit(handleLogin)}>
+              <div className="space-y-4">
+                <div>
+                  <div className="relative">
+                    <MaterialInput
+                      id="username"
+                      label="Username"
+                      register={registerLogin("username")}
+                      error={loginErrors.username?.message}
+                    />
+                    <div className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400">
+                      <Mail size={18} />
+                    </div>
+                    <div className="pl-10"></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="relative">
+                    <MaterialInput
+                      id="password"
+                      type="password"
+                      label="Password"
+                      register={registerLogin("password")}
+                      error={loginErrors.password?.message}
+                    />
+                    <div className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400">
+                      <Lock size={18} />
+                    </div>
+                    <div className="pl-10"></div>
+                  </div>
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-blue-600 text-white w-full py-2 rounded-full hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+                >
+                  <LogIn className="mr-2" size={18} />
+                  {isLoading ? "Logging in..." : "Login"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleSignupSubmit(handleRegister)}>
+              <div className="space-y-4">
+                <div>
+                  <MaterialInput
+                    id="signup-username"
+                    label="Username"
+                    register={registerSignup("username")}
+                    error={signupErrors.username?.message}
+                  />
+                </div>
+                
+                <div>
+                  <MaterialInput
+                    id="signup-email"
+                    type="email"
+                    label="Email"
+                    register={registerSignup("email")}
+                    error={signupErrors.email?.message}
+                  />
+                </div>
+                
+                <div>
+                  <MaterialInput
+                    id="signup-password"
+                    type="password"
+                    label="Password"
+                    register={registerSignup("password")}
+                    error={signupErrors.password?.message}
+                  />
+                </div>
+                
+                <div>
+                  <MaterialInput
+                    id="signup-name"
+                    label="Full Name (optional)"
+                    register={registerSignup("name")}
+                    error={signupErrors.name?.message}
+                  />
+                </div>
+                
+                <div>
+                  <MaterialInput
+                    id="signup-country"
+                    label="Country (optional)"
+                    register={registerSignup("country")}
+                    error={signupErrors.country?.message}
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-blue-600 text-white w-full py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isLoading ? "Creating Account..." : "Create Account"}
+                </button>
+              </div>
+            </form>
+          )}
+          
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={() => setShowLoginForm(!showLoginForm)}
+              className="text-blue-600 hover:underline"
+            >
+              {showLoginForm ? "Don't have an account? Sign up" : "Already have an account? Log in"}
+            </button>
+          </div>
+        </Card>
+        
+        {/* Тестовый аккаунт - для удобства тестирования */}
+        <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+          <h3 className="font-medium mb-2">Test Account</h3>
+          <p className="text-sm mb-1">Username: <span className="font-medium">testuser</span></p>
+          <p className="text-sm mb-1">Password: <span className="font-medium">Test123!</span></p>
+          <p className="text-sm">Country: <span className="font-medium">DE (Germany)</span></p>
+        </div>
+      </div>
+    );
+  }
   
-  const currentUser = user || mockUser;
+  // Если пользователь авторизован, показываем его профиль
+  const currentUser = user;
   
   return (
     <div>
       {/* Account Verification */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium">{t("account")}</h2>
+          <div className="flex items-center">
+            <h2 className="text-lg font-medium">{t("account")}</h2>
+          </div>
           <div className="flex items-center">
             <span 
               className={`h-3 w-3 rounded-full ${currentUser.isVerified ? "bg-green-500" : "bg-red-500"} mr-2`}
@@ -245,13 +512,23 @@ export default function Account() {
             defaultValue={currentUser.email}
             readOnly
           />
-          <button 
-            className="bg-blue-600 text-white w-full py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
-            onClick={handleVerifyEmail}
-            disabled={isLoading || currentUser.isVerified}
-          >
-            {isLoading ? t("submit") + "..." : t("verifyEmail")}
-          </button>
+          <div className="flex items-center gap-3 mt-3">
+            <button 
+              className="bg-blue-600 text-white flex-grow py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
+              onClick={handleVerifyEmail}
+              disabled={isLoading || currentUser.isVerified}
+            >
+              {isLoading ? t("submit") + "..." : t("verifyEmail")}
+            </button>
+            <button
+              className="bg-gray-200 text-gray-800 py-2 px-4 rounded-full hover:bg-gray-300 flex items-center"
+              onClick={handleLogout}
+              disabled={isLoading}
+            >
+              <LogOut className="mr-2" size={18} />
+              {t("logout") || "Logout"}
+            </button>
+          </div>
         </Card>
       </div>
       
