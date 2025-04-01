@@ -13,7 +13,7 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 
 // Основные параметры
-const API_URL = 'http://localhost:5000';
+const API_URL = 'http://localhost:5000'; // Локальный URL для использования внутри Replit
 const COOKIE_FILE = 'user-cookie.txt';
 const BROWSER_SCRIPT_FILE = 'user-update.js';
 const USERNAME = 'testuser';
