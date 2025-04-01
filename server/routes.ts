@@ -31,10 +31,20 @@ const stripe = new Stripe(stripeSecretKey);
 
 /**
  * Determine if the country should use EUR as currency
- * @param country Country name
+ * @param country Country name or country code
  * @returns true if country should use EUR, false otherwise
  */
 function shouldUseEUR(country: string): boolean {
+  if (!country) return false;
+  
+  // Коды стран Европейского Союза (в верхнем регистре)
+  const eurCountryCodes = [
+    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR',
+    'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
+    'SI', 'ES', 'SE'
+  ];
+  
+  // Названия стран Европейского Союза
   const eurCountries = [
     'Austria', 'Belgium', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech Republic',
     'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary',
@@ -42,6 +52,12 @@ function shouldUseEUR(country: string): boolean {
     'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia', 'Spain', 'Sweden'
   ];
   
+  // Проверка на код страны (если длина 2 символа)
+  if (country.length === 2) {
+    return eurCountryCodes.includes(country.toUpperCase());
+  }
+  
+  // Проверка на полное название страны
   return eurCountries.includes(country);
 }
 

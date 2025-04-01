@@ -30,14 +30,56 @@ const europeanCountries = [
   // Include other European countries as needed
 ];
 
+// Коды стран Европейского Союза
+const europeanCountryCodes = [
+  'at', // Austria
+  'be', // Belgium
+  'bg', // Bulgaria
+  'hr', // Croatia
+  'cy', // Cyprus
+  'cz', // Czech Republic
+  'dk', // Denmark
+  'ee', // Estonia
+  'fi', // Finland
+  'fr', // France
+  'de', // Germany
+  'gr', // Greece
+  'hu', // Hungary
+  'ie', // Ireland
+  'it', // Italy
+  'lv', // Latvia
+  'lt', // Lithuania
+  'lu', // Luxembourg
+  'mt', // Malta
+  'nl', // Netherlands
+  'pl', // Poland
+  'pt', // Portugal
+  'ro', // Romania
+  'sk', // Slovakia
+  'si', // Slovenia
+  'es', // Spain
+  'se', // Sweden
+];
+
 /**
  * Determine if the country should use EUR as currency
- * @param country Country name
+ * @param country Country name or country code
  * @returns true if country should use EUR, false otherwise
  */
 export function shouldUseEUR(country: string | undefined | null): boolean {
   if (!country) return false;
-  return europeanCountries.includes(country.trim().toLowerCase());
+  
+  const normalizedCountry = country.trim().toLowerCase();
+  
+  // Проверяем, является ли это кодом страны (например, 'DE')
+  if (normalizedCountry.length === 2) {
+    console.log(`Checking if country code ${normalizedCountry} is in European country codes`);
+    return europeanCountryCodes.includes(normalizedCountry);
+  }
+  
+  // Проверяем полное название страны
+  console.log(`Checking if country ${normalizedCountry} is in European countries`);
+  return europeanCountries.includes(normalizedCountry);
 }
 
 /**
