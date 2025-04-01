@@ -187,7 +187,7 @@ export default function Checkout() {
       <div className="flex items-center mb-4">
         <button 
           className="p-1 mr-2"
-          onClick={() => setLocation("/")}
+          onClick={() => window.history.back()}
         >
           <ArrowLeft size={24} />
         </button>
@@ -235,9 +235,9 @@ export default function Checkout() {
               <div className="space-y-2">
                 <button 
                   className="bg-gray-700 text-white w-full py-3 rounded-full font-medium hover:bg-gray-800"
-                  onClick={() => setLocation("/")}
+                  onClick={() => window.history.back()}
                 >
-                  Return to Home
+                  Return to Previous Page
                 </button>
                 <button 
                   className="bg-blue-600 text-white w-full py-3 rounded-full font-medium hover:bg-blue-700"
