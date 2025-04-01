@@ -185,6 +185,16 @@ export default function Account() {
       // Если изменилась страна, после небольшой задержки перезагружаем страницу
       if (countryChanged) {
         console.log(`Country changed from ${user.country} to ${updatedUser.country}. Reloading page in 2 seconds...`);
+        
+        // Обновляем localStorage перед перезагрузкой страницы, чтобы не потерять учетные данные
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        
+        // Выводим предупреждение пользователю
+        toast({
+          title: "Перезагрузка страницы",
+          description: "Страна изменена. Перезагружаем страницу для применения изменений...",
+        });
+        
         setTimeout(() => {
           window.location.reload();
         }, 2000);

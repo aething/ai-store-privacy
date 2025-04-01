@@ -6,10 +6,10 @@ import { clearUserCache, clearAllCache, reloadPage, clearCacheAndReload } from "
 // Инициализация отладочных функций
 if (typeof window !== 'undefined') {
   window.appDebug = {
-    clearUserCache,
+    clearUserCache: (preserveCountry = false) => clearUserCache(preserveCountry),
     clearAllCache,
     reloadPage,
-    clearCacheAndReload
+    clearCacheAndReload: (preserveCountry = false) => clearCacheAndReload(preserveCountry)
   };
   
   console.log("🔍 Отладочные функции доступны через window.appDebug");
