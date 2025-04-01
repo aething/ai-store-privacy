@@ -223,72 +223,8 @@ export default function ProductDetail() {
                 {product.hardwareInfo ? (
                   <div className="space-y-6">
                     <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                      <h3 className="text-lg font-semibold text-blue-700 mb-2">Installed Components</h3>
-                      <div className="grid gap-3 md:grid-cols-2">
-                        <div className="flex gap-2 items-start">
-                          <div className="bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center mt-0.5">
-                            <span className="text-white text-xs font-bold">1</span>
-                          </div>
-                          <div>
-                            <span className="font-medium">Module:</span> Jetson Orin Nano 8GB System-on-Module (SoM)
-                          </div>
-                        </div>
-                        <div className="flex gap-2 items-start">
-                          <div className="bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center mt-0.5">
-                            <span className="text-white text-xs font-bold">2</span>
-                          </div>
-                          <div>
-                            <span className="font-medium">Processor:</span> 6-core ARM Cortex-A78AE v8.2 64-bit CPU, 1.5 GHz (up to 1.7 GHz in MAXN mode)
-                          </div>
-                        </div>
-                        <div className="flex gap-2 items-start">
-                          <div className="bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center mt-0.5">
-                            <span className="text-white text-xs font-bold">3</span>
-                          </div>
-                          <div>
-                            <span className="font-medium">GPU:</span> NVIDIA Ampere with 1024 CUDA cores and 32 Tensor Cores
-                          </div>
-                        </div>
-                        <div className="flex gap-2 items-start">
-                          <div className="bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center mt-0.5">
-                            <span className="text-white text-xs font-bold">4</span>
-                          </div>
-                          <div>
-                            <span className="font-medium">Memory:</span> 8 GB 128-bit LPDDR5 (102 GB/s bandwidth)
-                          </div>
-                        </div>
-                        <div className="flex gap-2 items-start">
-                          <div className="bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center mt-0.5">
-                            <span className="text-white text-xs font-bold">5</span>
-                          </div>
-                          <div>
-                            <span className="font-medium">Storage:</span> MicroSD slot or NVMe SSD via M.2 Key M
-                          </div>
-                        </div>
-                        <div className="flex gap-2 items-start">
-                          <div className="bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center mt-0.5">
-                            <span className="text-white text-xs font-bold">6</span>
-                          </div>
-                          <div>
-                            <span className="font-medium">Interfaces:</span> 4× USB 3.2, 2× CSI cameras, DisplayPort 1.4, Gigabit Ethernet
-                          </div>
-                        </div>
-                        <div className="flex gap-2 items-start">
-                          <div className="bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center mt-0.5">
-                            <span className="text-white text-xs font-bold">7</span>
-                          </div>
-                          <div>
-                            <span className="font-medium">Cooling:</span> Pre-installed heatsink with active fan
-                          </div>
-                        </div>
-                        <div className="flex gap-2 items-start">
-                          <div className="bg-blue-500 rounded-full w-5 h-5 flex items-center justify-center mt-0.5">
-                            <span className="text-white text-xs font-bold">8</span>
-                          </div>
-                          <div>
-                            <span className="font-medium">Power:</span> 7-25 watts, adjustable via power modes
-                          </div>
-                        </div>
+                      <div className="text-blue-900 prose">
+                        {product.hardwareInfo}
                       </div>
                     </div>
 
