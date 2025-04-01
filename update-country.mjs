@@ -1,107 +1,113 @@
 /**
- * Скрипт для обновления страны пользователя
+ * Скрипт для обновления страны пользователя с поддержкой ES модулей
  * 
  * Использование:
  * node update-country.mjs US - обновить страну пользователя на США
  * node update-country.mjs DE - обновить страну пользователя на Германию
  */
-import fs from 'fs';
-import { request } from 'http';
 
-// Тестовый пользователь (всегда с ID=1)
-const TEST_USER_ID = 1;
+import { readFileSync } from 'fs';
+import { Buffer } from 'buffer';
+import fetch from 'node-fetch';
 
-// Проверяем аргументы командной строки
+// Получение кода страны из параметров командной строки
 const countryCode = process.argv[2];
 
 if (!countryCode) {
-  console.log("Укажите код страны. Например:");
-  console.log("node update-country.mjs US - для США (цены в USD)");
-  console.log("node update-country.mjs DE - для Германии (цены в EUR)");
+  console.error("Ошибка: код страны не указан.");
+  console.log("Использование: node update-country.mjs COUNTRY_CODE");
+  console.log("Например: node update-country.mjs DE");
   process.exit(1);
 }
 
-console.log(`Обновляем страну пользователя с ID ${TEST_USER_ID} на ${countryCode}...`);
-
-// Читаем содержимое cookie.txt
-// В cookie.txt строки имеют формат с табуляцией как разделителем
-// domain, httpOnly, path, secure, expiry, name, value
-let cookieHeader = '';
-try {
-  const cookieContent = fs.readFileSync('./cookie.txt', 'utf8');
+// Проверяем, является ли страна европейской
+function isEuropeanCountry(countryCode) {
+  const euCountries = [
+    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 
+    'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 
+    'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
+  ];
   
-  // Ищем строку с именем connect.sid, это наша сессионная куки
-  const connectSidMatch = cookieContent.match(/(#HttpOnly_)?[^\s]+\s+[^\s]+\s+[^\s]+\s+[^\s]+\s+[^\s]+\s+connect\.sid\s+([^\s]+)/);
+  // Приводим код страны к верхнему регистру для надежного сравнения
+  const normalizedCode = countryCode.toUpperCase();
   
-  if (connectSidMatch && connectSidMatch[2]) {
-    cookieHeader = `connect.sid=${connectSidMatch[2]}`;
-    console.log("Cookie найден:", cookieHeader);
-  } else {
-    throw new Error("Не удалось найти cookie connect.sid в файле");
-  }
-} catch (err) {
-  console.error("Ошибка при чтении cookie.txt:", err.message);
-  console.log("Выполните сначала вход в систему:");
-  console.log("curl -c cookie.txt -X POST http://localhost:5000/api/users/login -H \"Content-Type: application/json\" -d '{\"username\":\"testuser\",\"password\":\"Test123!\"}'");
-  process.exit(1);
+  return euCountries.includes(normalizedCode);
 }
 
-// Опции запроса
-const options = {
-  hostname: 'localhost',
-  port: 5000,
-  path: `/api/users/${TEST_USER_ID}`,
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json',
-    'Cookie': cookieHeader
-  }
-};
-
-// Данные запроса
-const requestData = JSON.stringify({
-  country: countryCode
-});
-
-// Отправляем запрос
-const req = request(options, (res) => {
-  let data = '';
-  
-  res.on('data', (chunk) => {
-    data += chunk;
-  });
-  
-  res.on('end', () => {
-    if (res.statusCode === 200) {
-      try {
-        const userData = JSON.parse(data);
-        console.log("=== ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ ОБНОВЛЕН ===");
-        console.log("User ID:", userData.id);
-        console.log("Username:", userData.username);
-        console.log("Country:", userData.country || "Не указана");
-        
-        if (userData.country === "DE" || userData.country === "FR" || userData.country === "IT" || userData.country === "ES") {
-          console.log("Валюта: EUR (евро)");
-        } else {
-          console.log("Валюта: USD (доллары США)");
-        }
-        
-        console.log("\nОбновите страницу приложения, чтобы увидеть изменения.");
-      } catch (e) {
-        console.error("Ошибка при разборе ответа:", e.message);
-        console.log("Ответ сервера:", data);
-      }
-    } else {
-      console.error(`Ошибка: ${res.statusCode} ${res.statusMessage}`);
-      console.log("Ответ сервера:", data);
+// Главная функция для обновления страны
+async function updateUserCountry() {
+  try {
+    console.log(`Обновляем страну пользователя с ID 1 на ${countryCode}...`);
+    
+    // Читаем файл cookie для авторизации
+    let cookieContent;
+    try {
+      cookieContent = readFileSync('cookie.txt', 'utf8');
+    } catch (err) {
+      console.error("Ошибка чтения cookie файла:", err.message);
+      console.log("Убедитесь, что файл cookie.txt существует и содержит cookies авторизации");
+      console.log("Для создания cookie.txt выполните команду:");
+      console.log("curl -c cookie.txt -X POST http://localhost:5000/api/users/login -H \"Content-Type: application/json\" -d '{\"username\":\"testuser\",\"password\":\"Test123!\"}'");
+      process.exit(1);
     }
-  });
-});
+    
+    // Ищем строку с cookie 'connect.sid'
+    const connectSidLine = cookieContent.split('\n').find(line => line.includes('connect.sid'));
+    if (!connectSidLine) {
+      console.error("Ошибка: cookie 'connect.sid' не найден в файле cookie.txt");
+      process.exit(1);
+    }
+    
+    // Извлекаем значение cookie
+    const cookieValue = connectSidLine.split(/\s+/).pop();
+    console.log(`Cookie найден: connect.sid=${cookieValue}`);
+    
+    // Формируем данные для обновления профиля
+    const userData = {
+      name: '',
+      phone: '',
+      country: countryCode,
+      street: '',
+      house: '',
+      apartment: ''
+    };
+    
+    // Отправляем запрос на обновление профиля пользователя
+    const response = await fetch('http://localhost:5000/api/users/1', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': `connect.sid=${cookieValue}`
+      },
+      body: JSON.stringify(userData)
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Сервер вернул ошибку: ${response.status} ${response.statusText}\n${errorText}`);
+    }
+    
+    const updatedUser = await response.json();
+    
+    // Определяем валюту на основе страны
+    let currencyInfo = "USD (доллары США)";
+    if (isEuropeanCountry(countryCode)) {
+      currencyInfo = "EUR (евро)";
+    }
+    
+    // Выводим информацию о результате
+    console.log("=== ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ ОБНОВЛЕН ===");
+    console.log(`User ID: ${updatedUser.id}`);
+    console.log(`Username: ${updatedUser.username}`);
+    console.log(`Country: ${updatedUser.country}`);
+    console.log(`Валюта: ${currencyInfo}`);
+    console.log("\nОбновите страницу приложения, чтобы увидеть изменения.");
+    
+  } catch (error) {
+    console.error("Ошибка при обновлении страны пользователя:", error.message);
+    process.exit(1);
+  }
+}
 
-req.on('error', (error) => {
-  console.error("Ошибка при отправке запроса:", error.message);
-});
-
-// Отправляем данные
-req.write(requestData);
-req.end();
+// Запускаем обновление
+updateUserCountry();

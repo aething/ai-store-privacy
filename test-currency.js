@@ -1,87 +1,103 @@
 /**
- * Тестовый скрипт для проверки логики определения валюты
- * 
- * Используйте этот скрипт в консоли браузера для проверки, как система
- * определяет валюту для различных стран
+ * Утилита для проверки логики определения валюты по стране
  */
 
-// Список европейских стран для валюты EUR
-const europeanCountries = [
-  'austria', 'belgium', 'bulgaria', 'croatia', 'cyprus', 'czech republic',
-  'denmark', 'estonia', 'finland', 'france', 'germany', 'greece',
-  'hungary', 'ireland', 'italy', 'latvia', 'lithuania', 'luxembourg',
-  'malta', 'netherlands', 'poland', 'portugal', 'romania', 'slovakia',
-  'slovenia', 'spain', 'sweden'
-];
-
-// Коды стран Европейского Союза
-const europeanCountryCodes = [
-  'at', 'be', 'bg', 'hr', 'cy', 'cz', 'dk', 'ee', 'fi', 'fr', 'de', 'gr',
-  'hu', 'ie', 'it', 'lv', 'lt', 'lu', 'mt', 'nl', 'pl', 'pt', 'ro', 'sk',
-  'si', 'es', 'se'
-];
-
-// Функция для определения, нужно ли использовать EUR
+// Функция определения, должна ли использоваться валюта EUR для страны
 function shouldUseEUR(country) {
   if (!country) return false;
   
-  const normalizedCountry = country.trim().toLowerCase();
+  // Список кодов стран Европейского Союза
+  const euCountries = [
+    // Используем двухбуквенные коды стран (ISO 3166-1 alpha-2)
+    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 
+    'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 
+    'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
+  ];
   
-  // Проверяем, является ли это кодом страны (например, 'DE')
-  if (normalizedCountry.length === 2) {
-    console.log(`Проверяем, является ли код страны ${normalizedCountry} европейским кодом`);
-    return europeanCountryCodes.includes(normalizedCountry);
-  }
+  // Соответствие полных названий стран их кодам
+  const countryNameToCode = {
+    'Austria': 'AT',
+    'Belgium': 'BE',
+    'Bulgaria': 'BG',
+    'Croatia': 'HR',
+    'Cyprus': 'CY',
+    'Czech Republic': 'CZ',
+    'Denmark': 'DK',
+    'Estonia': 'EE',
+    'Finland': 'FI',
+    'France': 'FR',
+    'Germany': 'DE',
+    'Greece': 'GR',
+    'Hungary': 'HU',
+    'Ireland': 'IE',
+    'Italy': 'IT',
+    'Latvia': 'LV',
+    'Lithuania': 'LT',
+    'Luxembourg': 'LU',
+    'Malta': 'MT',
+    'Netherlands': 'NL',
+    'Poland': 'PL',
+    'Portugal': 'PT',
+    'Romania': 'RO',
+    'Slovakia': 'SK',
+    'Slovenia': 'SI',
+    'Spain': 'ES',
+    'Sweden': 'SE'
+  };
   
-  // Проверяем полное название страны
-  console.log(`Проверяем, является ли страна ${normalizedCountry} европейской страной`);
-  return europeanCountries.includes(normalizedCountry);
+  // Если country - полное название страны, конвертируем его в код
+  const countryCode = countryNameToCode[country] || country;
+  
+  // Проверяем, входит ли страна в список стран ЕС
+  return euCountries.includes(countryCode.toUpperCase());
 }
 
 // Функция для получения валюты по стране
 function getCurrencyForCountry(country) {
-  return shouldUseEUR(country) ? 'EUR' : 'USD';
+  return shouldUseEUR(country) ? "EUR" : "USD";
 }
 
-// Функция для тестирования различных стран
+// Функция тестирования для набора стран
 function testCurrency(countries) {
-  console.log("=== ТЕСТ ОПРЕДЕЛЕНИЯ ВАЛЮТЫ ПО СТРАНАМ ===");
-  console.log("Тестируем логику определения валюты для разных стран:\n");
+  console.log("\nТестирование определения валюты:\n");
   
   for (const country of countries) {
     const currency = getCurrencyForCountry(country);
-    const result = currency === 'EUR' ? '✅ EUR (€)' : '💵 USD ($)';
-    console.log(`${country}: ${result}`);
+    const isEur = shouldUseEUR(country);
+    console.log(`${country}: ${currency} (${isEur ? 'Европа' : 'Не Европа'})`);
   }
 }
 
-// Список стран для теста
-const testCountries = [
-  'US',         // США - должен быть USD
-  'DE',         // Германия - должен быть EUR
-  'FR',         // Франция - должен быть EUR
-  'UK',         // Великобритания - должен быть USD
-  'RU',         // Россия - должен быть USD
-  'Germany',    // Германия полное название - должен быть EUR
-  'United States', // США полное название - должен быть USD
-  'Italy',      // Италия - должен быть EUR
-  'Japan',      // Япония - должен быть USD
-  'China',      // Китай - должен быть USD
-  'es',         // Испания (код) - должен быть EUR
-  'ca',         // Канада (код) - должен быть USD
-  ''            // Пустая строка - должен быть USD по умолчанию
-];
-
-// Запускаем тест
-testCurrency(testCountries);
-
-// Функция для проверки конкретной страны
+// Проверка для конкретной страны
 function checkCountry(country) {
   const currency = getCurrencyForCountry(country);
-  console.log(`\nСтрана: ${country || 'не указана'}`);
-  console.log(`Валюта: ${currency === 'EUR' ? '€ (EUR)' : '$ (USD)'}`);
-  return currency;
+  const isEur = shouldUseEUR(country);
+  
+  console.log(`\nСтрана: ${country}`);
+  console.log(`Валюта: ${currency}`);
+  console.log(`Европейская страна: ${isEur ? 'Да' : 'Нет'}`);
 }
 
-console.log("\nДля проверки конкретной страны используйте функцию checkCountry()");
-console.log("Примеры: checkCountry('US'), checkCountry('DE'), checkCountry('France')");
+// Получаем список стран для проверки из аргументов командной строки
+const args = process.argv.slice(2);
+
+if (args.length === 0) {
+  // Если страны не указаны, проверяем несколько примеров
+  testCurrency(['US', 'DE', 'FR', 'GB', 'JP', 'CA', 'AU', 'IT', 'ES', 'PL']);
+} else if (args.length === 1 && args[0] === 'all') {
+  // Проверяем все страны ЕС и несколько других стран
+  const euCountries = [
+    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 
+    'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 
+    'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
+  ];
+  
+  const otherCountries = ['US', 'GB', 'CA', 'AU', 'CN', 'JP', 'RU', 'BR', 'IN', 'ZA'];
+  
+  testCurrency([...euCountries, ...otherCountries]);
+} else {
+  // Проверяем указанные страны
+  for (const country of args) {
+    checkCountry(country);
+  }
+}
