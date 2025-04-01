@@ -204,7 +204,18 @@ export class MemStorage implements IStorage {
     const user = this.users.get(id);
     if (!user) return undefined;
     
-    const updatedUser = { ...user, ...userData };
+    console.log("Storage: Updating user", id, "with data:", userData);
+    
+    // Проверяем страну и убеждаемся, что она не пустая строка
+    const country = userData.country === "" ? null : userData.country;
+    
+    const updatedUser = { 
+      ...user, 
+      ...userData,
+      country
+    };
+    
+    console.log("Storage: Updated user data:", updatedUser);
     this.users.set(id, updatedUser);
     return updatedUser;
   }

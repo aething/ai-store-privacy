@@ -144,22 +144,43 @@ export default function Account() {
       return;
     }
     
+    console.log("Submitting user update with data:", data);
+    
     setIsLoading(true);
     
     try {
-      const response = await apiRequest("PUT", `/api/users/${user.id}`, data);
-      const updatedUser = await response.json();
+      // Добавляем проверку country перед отправкой
+      const submitData = {
+        ...data,
+        // Убедимся, что country всегда является строкой и не null/undefined
+        country: data.country || ""
+      };
       
+      console.log("Prepared data for API request:", submitData);
+      
+      const response = await apiRequest("PUT", `/api/users/${user.id}`, submitData);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response from server:", errorText);
+        throw new Error(errorText || "Failed to update user information");
+      }
+      
+      const updatedUser = await response.json();
+      console.log("Updated user data received:", updatedUser);
+      
+      // Обновляем пользователя в контексте
       setUser({ ...user, ...updatedUser });
       
       toast({
         title: "Success",
         description: "Your information has been updated.",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Account update error:", error);
       toast({
         title: "Error",
-        description: "Failed to update your information",
+        description: error.message || "Failed to update your information",
         variant: "destructive",
       });
     } finally {

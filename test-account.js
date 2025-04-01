@@ -22,7 +22,7 @@ async function updateUserCountry(userId, country) {
     console.log(`Обновляем страну пользователя с ID ${userId} на ${country}...`);
     
     // Импортируем fs для чтения файла cookie
-    import fs from 'fs';
+    const fs = require('fs');
     
     // Читаем содержимое cookie.txt
     // Формат куки: domain\ttrue\tpath\ttrue\texpiry\tname\tvalue

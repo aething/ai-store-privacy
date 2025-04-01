@@ -282,39 +282,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/users/:id", async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.id);
-      const userData = updateUserSchema.parse(req.body);
+      console.log("Update user request for ID:", userId, "with data:", req.body);
       
       // Проверка авторизации пользователя
       if (!req.isAuthenticated() || !req.user || req.user.id !== userId) {
+        console.log("Unauthorized update attempt. Auth status:", req.isAuthenticated(), "User:", req.user?.id);
         return res.status(401).json({ message: "Unauthorized" });
       }
       
-      const updatedUser = await storage.updateUser(userId, userData);
-      
-      if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
+      try {
+        const userData = updateUserSchema.parse(req.body);
+        console.log("Data after validation:", userData);
+        
+        const updatedUser = await storage.updateUser(userId, userData);
+        
+        if (!updatedUser) {
+          console.log("User not found:", userId);
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        // Update user in Google Sheets
+        await safeGoogleSheetsCall(googleSheets.updateUser, updatedUser);
+        
+        const responseData = {
+          id: updatedUser.id,
+          username: updatedUser.username,
+          email: updatedUser.email,
+          isVerified: updatedUser.isVerified,
+          name: updatedUser.name,
+          phone: updatedUser.phone,
+          country: updatedUser.country,
+          street: updatedUser.street,
+          house: updatedUser.house,
+          apartment: updatedUser.apartment
+        };
+        
+        console.log("User updated successfully:", responseData);
+        res.json(responseData);
+      } catch (validationError) {
+        if (validationError instanceof ZodError) {
+          console.error("Validation error:", validationError.errors);
+          return res.status(400).json({ message: "Invalid user data", errors: validationError.errors });
+        }
+        throw validationError; // Rethrow for the outer catch block
       }
-      
-      // Update user in Google Sheets
-      await safeGoogleSheetsCall(googleSheets.updateUser, updatedUser);
-      
-      res.json({
-        id: updatedUser.id,
-        username: updatedUser.username,
-        email: updatedUser.email,
-        isVerified: updatedUser.isVerified,
-        name: updatedUser.name,
-        phone: updatedUser.phone,
-        country: updatedUser.country,
-        street: updatedUser.street,
-        house: updatedUser.house,
-        apartment: updatedUser.apartment
-      });
     } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(400).json({ message: "Invalid user data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Error updating user" });
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Error updating user", error: String(error) });
     }
   });
   

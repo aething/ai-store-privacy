@@ -27,22 +27,40 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
 }) => {
   // Обработчик изменения значения
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onChange(e.target.value);
+    const selectedValue = e.target.value;
+    console.log('CountrySelect - selected value:', selectedValue);
+    
+    // Передаем выбранное значение родительскому компоненту
+    onChange(selectedValue);
   };
 
   // Находим страну по коду или имени
   const getSelectedValue = () => {
     if (!value) return '';
     
+    console.log('CountrySelect - current value:', value);
+    
     // Сначала пробуем найти по коду (предполагаем, что значение - это код)
     const foundByCode = countries.find(c => c.code.toLowerCase() === value.toLowerCase());
-    if (foundByCode) return foundByCode.code;
+    if (foundByCode) {
+      console.log('CountrySelect - found by code:', foundByCode.code);
+      return foundByCode.code;
+    }
     
     // Если не нашли по коду, пробуем найти по имени
     const foundByName = countries.find(c => c.name.toLowerCase() === value.toLowerCase());
-    if (foundByName) return foundByName.code;
+    if (foundByName) {
+      console.log('CountrySelect - found by name:', foundByName.code);
+      return foundByName.code;
+    }
     
-    // Если не нашли, возвращаем пустую строку
+    // Если не нашли, но значение не пустое, выводим предупреждение и возвращаем исходное значение
+    if (value) {
+      console.warn('CountrySelect - country not found in list:', value);
+      return value;
+    }
+    
+    // Если значение пустое, возвращаем пустую строку
     return '';
   };
 

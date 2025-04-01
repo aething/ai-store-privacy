@@ -79,6 +79,13 @@ export const updateUserSchema = createInsertSchema(users).omit({
   verificationToken: true,
   stripeCustomerId: true,
   stripeSubscriptionId: true,
+}).extend({
+  country: z.string().optional().transform(val => val || null),
+  name: z.string().optional().transform(val => val || null),
+  phone: z.string().optional().transform(val => val || null),
+  street: z.string().optional().transform(val => val || null),
+  house: z.string().optional().transform(val => val || null),
+  apartment: z.string().optional().transform(val => val || null),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
