@@ -38,7 +38,7 @@ async function createTestAccount() {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            email: userData.email,
+            username: userData.username,
             password: userData.password
           })
         });
@@ -89,8 +89,10 @@ async function createTestAccount() {
 createTestAccount().then(user => {
   if (user) {
     console.log("=== ТЕСТОВЫЙ АККАУНТ ГОТОВ ===");
+    console.log("Username:", "testuser");
     console.log("Email:", "test@example.com");
     console.log("Password:", "Test123!");
+    console.log("Country:", "DE (Germany)");
     console.log("Используйте эти данные для входа в приложение.");
   } else {
     console.log("Не удалось создать тестовый аккаунт.");
