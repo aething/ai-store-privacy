@@ -13,8 +13,8 @@
  * 3. Новая страна (DE для Германии, US для США и т.д.)
  */
 
-const fetch = require('node-fetch');
-const fs = require('fs');
+import fetch from 'node-fetch';
+import fs from 'fs';
 
 // Константы
 const API_BASE_URL = 'http://localhost:5000';

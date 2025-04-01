@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Shop from "@/pages/Shop";
 import Account from "@/pages/Account";
 import ProductDetail from "@/pages/ProductDetail";
+import ProductDetailDebug from "@/pages/ProductDetail.debug";
 import Policy from "@/pages/Policy";
 import InfoPage from "@/pages/InfoPage";
 import Checkout from "@/pages/Checkout";
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/" component={Shop} />
       <Route path="/account" component={Account} />
       <Route path="/product/:id" component={ProductDetail} />
+      <Route path="/product-debug/:id" component={ProductDetailDebug} />
       <Route path="/policy/:id" component={Policy} />
       <Route path="/info/:id" component={InfoPage} />
       <Route path="/checkout/:id" component={Checkout} />
