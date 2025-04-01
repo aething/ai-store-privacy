@@ -213,13 +213,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { username, password } = req.body;
       
+      console.log("[DEBUG] Login attempt:", { username, passwordLength: password ? password.length : 0 });
+      
       if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
         return res.status(400).json({ message: "Username and password are required and must be strings" });
       }
       
+      // Получаем всех пользователей для отладки
+      const allUsers = Array.from((storage as any).users.values());
+      console.log("[DEBUG] All users:", allUsers.map(u => ({ id: u.id, username: u.username, password: u.password })));
+      
       const user = await storage.getUserByUsername(username);
+      console.log("[DEBUG] Found user:", user);
       
       if (!user || user.password !== password) {
+        console.log("[DEBUG] Password comparison:", {
+          userExists: !!user,
+          providedPassword: password,
+          storedPassword: user?.password,
+          match: user?.password === password
+        });
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
