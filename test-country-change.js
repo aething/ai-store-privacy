@@ -1,127 +1,112 @@
+/**
+ * Скрипт для авторизации и изменения страны пользователя
+ * 
+ * Использование:
+ * node test-country-change.js DE - изменить страну на Германию
+ * node test-country-change.js US - изменить страну на США
+ */
 
-const http = require('http');
+import fetch from 'node-fetch';
 
-// Логин и пароль тестового пользователя
-const TEST_USER = {
-  username: 'testuser',
-  password: 'Test123!'
-};
+// Тестовые учетные данные
+const USERNAME = "testuser";
+const PASSWORD = "Test123!";
 
-// Функция для выполнения HTTP-запроса
-function makeRequest(options, data = null) {
-  return new Promise((resolve, reject) => {
-    const req = http.request(options, (res) => {
-      let responseData = '';
-      
-      res.on('data', (chunk) => {
-        responseData += chunk;
-      });
-      
-      res.on('end', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          try {
-            const jsonData = JSON.parse(responseData);
-            resolve({ statusCode: res.statusCode, data: jsonData, headers: res.headers });
-          } catch (e) {
-            resolve({ statusCode: res.statusCode, data: responseData, headers: res.headers });
-          }
-        } else {
-          reject({ statusCode: res.statusCode, data: responseData });
-        }
-      });
-    });
-    
-    req.on('error', (error) => {
-      reject(error);
-    });
-    
-    if (data) {
-      req.write(JSON.stringify(data));
-    }
-    
-    req.end();
-  });
+// Базовый URL API
+const API_URL = "http://localhost:5000/api";
+
+// Получаем код страны из аргументов командной строки
+const countryCode = process.argv[2];
+if (!countryCode) {
+  console.error("Ошибка: необходимо указать код страны");
+  console.log("Пример использования: node test-country-change.js DE");
+  process.exit(1);
 }
 
-// Основная функция для теста смены страны
-async function testCountryChange(newCountry) {
-  if (!newCountry) {
-    console.log('Пожалуйста, укажите код страны. Например:');
-    console.log('node test-country-change.js US - для США (цены в USD)');
-    console.log('node test-country-change.js DE - для Германии (цены в EUR)');
-    process.exit(1);
-  }
-  
-  console.log(`=== ТЕСТИРОВАНИЕ СМЕНЫ СТРАНЫ НА ${newCountry} ===`);
-  
+// Функция, которая выполняет авторизацию и обновление страны
+async function loginAndUpdateCountry(country) {
   try {
-    // Шаг 1: Вход в систему
-    console.log('Вход в систему...');
-    const loginOptions = {
-      hostname: 'localhost',
-      port: 5000,
-      path: '/api/users/login',
+    console.log(`Авторизуемся как ${USERNAME}...`);
+    
+    // Шаг 1: Авторизация
+    const loginResponse = await fetch(`${API_URL}/users/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      }
-    };
+      },
+      body: JSON.stringify({
+        username: USERNAME,
+        password: PASSWORD
+      })
+    });
     
-    const loginResponse = await makeRequest(loginOptions, TEST_USER);
-    console.log(`Вход успешен! ID пользователя: ${loginResponse.data.id}`);
+    if (!loginResponse.ok) {
+      const errorText = await loginResponse.text();
+      throw new Error(`Ошибка авторизации: ${loginResponse.status} ${errorText}`);
+    }
     
-    // Сохраняем cookie для следующего запроса
-    const cookies = loginResponse.headers['set-cookie'];
+    const userData = await loginResponse.json();
+    console.log(`Успешная авторизация! ID пользователя: ${userData.id}`);
     
+    // Получаем cookie из ответа
+    const cookies = loginResponse.headers.get('set-cookie');
     if (!cookies) {
-      throw new Error('Cookie не получены после логина. Возможно, сессия не создается на сервере.');
+      console.warn("Предупреждение: не получены cookies после авторизации");
     }
     
     // Шаг 2: Обновление страны пользователя
-    console.log(`Обновляем страну на ${newCountry}...`);
-    const updateOptions = {
-      hostname: 'localhost',
-      port: 5000,
-      path: `/api/users/${loginResponse.data.id}`,
+    console.log(`Обновляем страну пользователя на ${country}...`);
+    
+    const updateResponse = await fetch(`${API_URL}/users/${userData.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Cookie': cookies
-      }
-    };
+      },
+      body: JSON.stringify({
+        name: userData.name || "",
+        phone: userData.phone || "",
+        country: country,
+        street: userData.street || "",
+        house: userData.house || "",
+        apartment: userData.apartment || ""
+      }),
+      credentials: 'include'
+    });
     
-    const updateData = {
-      country: newCountry
-    };
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      throw new Error(`Ошибка обновления страны: ${updateResponse.status} ${errorText}`);
+    }
     
-    const updateResponse = await makeRequest(updateOptions, updateData);
-    console.log('Страна успешно обновлена!');
-    console.log('Данные пользователя:', updateResponse.data);
+    const updatedUserData = await updateResponse.json();
     
-    // Определяем валюту по стране
-    const eurCountries = [
+    // Определяем валюту
+    const isEuropeanCountry = [
       'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 
-      'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
+      'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 
       'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
-    ];
+    ].includes(country.toUpperCase());
     
-    const currency = eurCountries.includes(newCountry) ? 'EUR' : 'USD';
+    const currency = isEuropeanCountry ? "EUR" : "USD";
     
-    console.log(`\n=== РЕЗУЛЬТАТ ===`);
-    console.log(`Пользователь: ${updateResponse.data.username}`);
-    console.log(`Страна: ${updateResponse.data.country}`);
-    console.log(`Используемая валюта: ${currency}`);
-    console.log(`\nТеперь откройте приложение в браузере, и вы должны увидеть цены в ${currency}`);
+    console.log(`
+=== ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ ОБНОВЛЕН ===
+User ID: ${updatedUserData.id}
+Username: ${updatedUserData.username}
+Email: ${updatedUserData.email}
+Country: ${updatedUserData.country}
+Текущая валюта: ${currency}
+
+✅ Операция выполнена успешно!
+➡️ Обновите страницу браузера, чтобы увидеть изменения.
+    `);
     
   } catch (error) {
-    console.error('Ошибка:', error);
-    if (error.statusCode) {
-      console.error(`Статус ошибки: ${error.statusCode}`);
-      console.error('Ответ сервера:', error.data);
-    }
+    console.error("Произошла ошибка:", error.message);
+    process.exit(1);
   }
 }
 
-// Запуск функции с аргументом командной строки
-const newCountry = process.argv[2];
-testCountryChange(newCountry);
+// Запускаем функцию с указанным кодом страны
+loginAndUpdateCountry(countryCode);
