@@ -50,6 +50,43 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     } else {
       console.log("[AppContext] No user found in localStorage");
     }
+    
+    // При монтировании компонента проверяем сессию на сервере
+    const checkServerSession = async () => {
+      try {
+        console.log("[AppContext] Checking server session...");
+        const response = await fetch('/api/users/me');
+        
+        if (response.ok) {
+          const serverUserData = await response.json();
+          console.log("[AppContext] Server session data:", {
+            id: serverUserData.id,
+            username: serverUserData.username,
+            country: serverUserData.country
+          });
+          
+          // Если данные из API отличаются от localStorage, обновляем
+          if (serverUserData.id) {
+            const localUser = storedUser ? JSON.parse(storedUser) : null;
+            
+            if (!localUser || serverUserData.id !== localUser.id ||
+                serverUserData.country !== localUser.country) {
+              console.log("[AppContext] Sync mismatch between server and localStorage, updating...");
+              setUser(serverUserData);
+              localStorage.setItem("user", JSON.stringify(serverUserData));
+            }
+          }
+        } else if (response.status === 401) {
+          console.log("[AppContext] No active server session (401 Unauthorized)");
+        } else {
+          console.warn("[AppContext] Server session check failed:", response.status, response.statusText);
+        }
+      } catch (error) {
+        console.error("[AppContext] Error checking server session:", error);
+      }
+    };
+    
+    checkServerSession();
   }, []);
   
   const isAuthenticated = !!user;

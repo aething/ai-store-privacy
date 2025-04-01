@@ -455,71 +455,7 @@ export default function ProductDetail() {
             </Tabs>
           </Card>
           
-          {/* Reviews Section */}
-          <div className="mb-4">
-            <h2 className="text-lg font-medium mb-3">Customer Reviews</h2>
-            <div className="space-y-4">
-              <div className="p-4 bg-surface rounded-lg">
-                <div className="flex items-center mb-2">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <svg 
-                        key={i} 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill={i < 5 ? "currentColor" : "none"}
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        className={i < 5 ? "text-yellow-400" : "text-gray-300"}
-                      >
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                      </svg>
-                    ))}
-                  </div>
-                  <span className="ml-2 text-gray-700 font-medium">Research Institute</span>
-                </div>
-                <p className="text-gray-600">
-                  "This AI platform has revolutionized our research capabilities. The optimized machine learning models run flawlessly on the hardware, and we've seen a 40% increase in processing speed for our computer vision tasks."
-                </p>
-              </div>
-              
-              <div className="p-4 bg-surface rounded-lg">
-                <div className="flex items-center mb-2">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <svg 
-                        key={i} 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill={i < 4 ? "currentColor" : "none"}
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        className={i < 4 ? "text-yellow-400" : "text-gray-300"}
-                      >
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                      </svg>
-                    ))}
-                  </div>
-                  <span className="ml-2 text-gray-700 font-medium">Tech Startup</span>
-                </div>
-                <p className="text-gray-600">
-                  "Impressive energy efficiency while still delivering top-tier AI performance. The documentation could be more comprehensive, but overall we're very satisfied with the product."
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Related Products */}
-          <div>
-            <h2 className="text-lg font-medium mb-3">You Might Also Like</h2>
-            <div className="text-gray-500 text-center p-4 border border-dashed rounded-lg">
-              Related products will be displayed here
-            </div>
-          </div>
+
         </div>
       </div>
     </SwipeBack>
