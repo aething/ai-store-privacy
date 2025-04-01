@@ -139,11 +139,12 @@ export default function ProductDetail() {
   // Используем функцию из сервиса предварительной загрузки для получения изображения
   // При монтировании компонента загружаем изображение
   useEffect(() => {
-    if (!product) return;
-    
     // Функция для установки источника изображения
     const setImageSource = () => {
-      setImageSrc(product.imageUrl || getProductImage(product.id));
+      // Устанавливаем источник только если у нас есть product
+      if (product) {
+        setImageSrc(product.imageUrl || getProductImage(product.id));
+      }
     };
     
     // Всегда пытаемся загрузить изображения
@@ -158,7 +159,7 @@ export default function ProductDetail() {
         // В случае ошибки при загрузке также устанавливаем источник
         setImageSource();
       });
-  }, [product]);
+  }, [product?.id, product?.imageUrl]);
   
   return (
     <SwipeBack onSwipeBack={handleGoBack}>

@@ -19,23 +19,19 @@ export default function ProductCard({ product }: ProductCardProps) {
   
   // При монтировании компонента определяем источник изображения
   useEffect(() => {
-    // Функция для установки источника изображения
-    const setImageSource = () => {
-      setImageSrc(product.imageUrl || getProductImage(product.id));
-    };
+    // Всегда определяем источник изображения
+    const imageSrc = product.imageUrl || getProductImage(product.id);
     
-    // Всегда пытаемся загрузить изображения
-    // Это обеспечивает, что хуки всегда вызываются в одном и том же порядке
+    // Всегда пытаемся загрузить изображения и обновить состояние
     preloadImages()
       .then(() => {
-        // После загрузки устанавливаем флаг и источник
+        // Устанавливаем состояния в одинаковом порядке при каждом рендере
         setImageLoaded(true);
-        setImageSource();
+        setImageSrc(imageSrc);
       })
       .catch(() => {
-        // В случае ошибки при загрузке также устанавливаем источник
-        // Это может произойти, если проблема с предзагрузкой
-        setImageSource();
+        // Даже при ошибке устанавливаем источник, но не меняем флаг загрузки
+        setImageSrc(imageSrc);
       });
   }, [product.id, product.imageUrl]);
   
