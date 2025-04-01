@@ -115,18 +115,18 @@ export function formatCurrency(
   const currencyCode = currency.toLowerCase();
   
   if (currencyCode === 'eur') {
-    return `€${value.toFixed(2)}`;
+    return `€${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   } else if (currencyCode === 'gbp') {
-    return `£${value.toFixed(2)}`;
+    return `£${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   } else if (currencyCode === 'jpy') {
-    return `¥${Math.round(value)}`; // JPY typically doesn't use decimals
+    return `¥${Math.round(value).toLocaleString('en-US')}`; // JPY typically doesn't use decimals
   } else if (currencyCode === 'rub') {
-    return `₽${value.toFixed(2)}`;
+    return `₽${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   } else if (currencyCode === 'cny' || currencyCode === 'rmb') {
-    return `¥${value.toFixed(2)}`;
+    return `¥${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   } else {
     // Default to USD
-    return `$${value.toFixed(2)}`;
+    return `$${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   }
 }
 
