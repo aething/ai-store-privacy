@@ -252,9 +252,18 @@ export default function Account() {
     setIsLoading(true);
     
     try {
+      // Удаляем лишние пробелы в начале и конце
+      const cleanUsername = data.username.trim();
+      const cleanPassword = data.password.trim();
+      
+      console.log("Login attempt:", { 
+        username: cleanUsername, 
+        passwordLength: cleanPassword.length 
+      });
+      
       const response = await apiRequest("POST", "/api/users/login", {
-        username: data.username,
-        password: data.password
+        username: cleanUsername,
+        password: cleanPassword
       });
       
       if (!response.ok) {
