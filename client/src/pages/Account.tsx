@@ -328,14 +328,16 @@ export default function Account() {
     setIsLoading(true);
     
     try {
-      const response = await apiRequest("POST", "/api/users/logout");
-      
-      if (!response.ok) {
-        throw new Error("Failed to log out");
-      }
-      
-      // Очищаем данные пользователя
+      // Сначала выполняем локальный выход
       logout();
+      
+      // Затем пытаемся выполнить выход на сервере (но это не критично для пользовательского опыта)
+      try {
+        await apiRequest("POST", "/api/users/logout");
+      } catch (e) {
+        // Игнорируем ошибки сервера при выходе, так как локальный выход уже выполнен
+        console.log("Server logout failed but local logout succeeded");
+      }
       
       toast({
         title: "Logged Out",
@@ -478,14 +480,6 @@ export default function Account() {
             </button>
           </div>
         </Card>
-        
-        {/* Тестовый аккаунт - для удобства тестирования */}
-        <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-          <h3 className="font-medium mb-2">Test Account</h3>
-          <p className="text-sm mb-1">Username: <span className="font-medium">testuser</span></p>
-          <p className="text-sm mb-1">Password: <span className="font-medium">Test123!</span></p>
-          <p className="text-sm">Country: <span className="font-medium">DE (Germany)</span></p>
-        </div>
       </div>
     );
   }
