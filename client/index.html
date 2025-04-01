@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Store by Aething</title>
+  
+  <!-- Метатеги для PWA -->
+  <meta name="description" content="Advanced tech products with international user experience">
+  <meta name="theme-color" content="#3b82f6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Aething Store">
+  
+  <!-- Иконки для PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+  <link rel="shortcut icon" href="/icons/icon-192x192.png">
+  
   <!-- Скрипты для управления кэшем и отладки -->
   <script src="/maintenance.js"></script>
   <script src="/scroll-test.js"></script>
@@ -109,10 +122,64 @@
     .card:hover {
       box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
     }
+    
+    /* Стили для оффлайн страницы */
+    .offline-message {
+      text-align: center;
+      padding: 20px;
+      margin: 20px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
   </style>
+  
+  <!-- Скрипт для оффлайн проверки -->
+  <script>
+    window.addEventListener('online', () => {
+      document.documentElement.classList.remove('offline');
+      document.documentElement.classList.add('online');
+    });
+    
+    window.addEventListener('offline', () => {
+      document.documentElement.classList.remove('online');
+      document.documentElement.classList.add('offline');
+    });
+    
+    // Проверка при загрузке
+    if (navigator.onLine) {
+      document.documentElement.classList.add('online');
+    } else {
+      document.documentElement.classList.add('offline');
+    }
+  </script>
 </head>
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  
+  <!-- Сообщение когда офлайн -->
+  <div id="offline-message" class="offline-message" style="display: none;">
+    <h2>You are currently offline</h2>
+    <p>Some features may be unavailable until you reconnect to the internet.</p>
+  </div>
+  
+  <script>
+    // Показываем/скрываем офлайн сообщение
+    function updateOfflineMessage() {
+      const offlineMessage = document.getElementById('offline-message');
+      if (!navigator.onLine && offlineMessage) {
+        offlineMessage.style.display = 'block';
+      } else if (offlineMessage) {
+        offlineMessage.style.display = 'none';
+      }
+    }
+    
+    window.addEventListener('online', updateOfflineMessage);
+    window.addEventListener('offline', updateOfflineMessage);
+    
+    // Инициализация
+    updateOfflineMessage();
+  </script>
 </body>
 </html>

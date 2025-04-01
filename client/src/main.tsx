@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { clearUserCache, clearAllCache, reloadPage, clearCacheAndReload } from "./utils/clearCache";
+import * as serviceWorker from './registerServiceWorker';
 
 // Инициализация отладочных функций
 if (typeof window !== 'undefined') {
@@ -17,3 +18,6 @@ if (typeof window !== 'undefined') {
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+// Регистрация Service Worker для PWA функциональности
+serviceWorker.register();
