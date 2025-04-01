@@ -1205,21 +1205,41 @@ export const termsPolicy: MultilingualPolicy = {
     },
     // Немецкая версия
     de: {
-      title: "Nutzungsbedingungen",
+      title: "Allgemeine Geschäftsbedingungen (AGB)",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Zuletzt aktualisiert:</strong> 1. April 2025</p>
           
-          <h4 class="font-medium mb-2">Nutzungsbedingungen</h4>
+          <h4 class="font-medium mb-2">Allgemeine Geschäftsbedingungen (AGB)</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Bestellungen:</h5>
-            <p class="text-text-secondary">Vorauszahlung erforderlich. Keine Stornierungen nach dem Versand.</p>
+            <h5 class="font-medium mb-1">§ 1 Geltungsbereich:</h5>
+            <p class="text-text-secondary">Diese Bedingungen gelten für alle Käufe über die Aething-App.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Lieferung:</h5>
-            <p class="text-text-secondary">Regionsspezifische Zeitrahmen. Sendungsverfolgung wird bereitgestellt.</p>
+            <h5 class="font-medium mb-1">§ 2 Streitbeilegung:</h5>
+            <p class="text-text-secondary">Online-Streitbeilegung (OS-Plattform der EU): 
+              <a href="https://ec.europa.eu/consumers/odr/" class="underline" target="_blank">ec.europa.eu/consumers/odr</a>
+            </p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">§ 3 Bestellungen:</h5>
+            <p class="text-text-secondary">Vorauszahlung erforderlich. Keine Stornierungen nach dem Versand.</p>
+          </div>
+          
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Widerrufshinweis:</h5>
+            <p class="text-text-secondary">Sie haben ein 14-tägiges Widerrufsrecht gemäß § 355 BGB. 
+              Details finden Sie in unserer <a href="/policy/return-policy" class="underline">Widerrufsbelehrung</a>.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Wichtiger Hinweis:</h5>
+            <p class="text-text-secondary">
+              Für Österreich/Schweiz: Es gelten abweichende MwSt.-Sätze gemäß lokaler Gesetzgebung.
+            </p>
           </div>
         </div>
       `
