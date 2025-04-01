@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
@@ -13,6 +13,7 @@ import OrdersList from "@/components/OrdersList";
 import { useLocale } from "@/context/LocaleContext";
 import { ChevronRight, Trash2, RefreshCw, Settings, ShoppingBag, Mail, Lock, LogIn, LogOut } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
+import CountrySelect from "@/components/CountrySelect";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),
@@ -55,7 +56,7 @@ export default function Account() {
   // Отображаем страницу Account
   // Позиция скролла теперь управляется через компонент ScrollManager
   
-  const { register, handleSubmit, formState: { errors } } = useForm<UpdateUserForm>({
+  const { register, handleSubmit, formState: { errors }, control } = useForm<UpdateUserForm>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       name: user?.name || "",
@@ -242,7 +243,8 @@ export default function Account() {
   const {
     register: registerSignup,
     handleSubmit: handleSignupSubmit,
-    formState: { errors: signupErrors }
+    formState: { errors: signupErrors },
+    control: signupControl
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema)
   });
@@ -451,11 +453,19 @@ export default function Account() {
                 </div>
                 
                 <div>
-                  <MaterialInput
-                    id="signup-country"
-                    label="Country"
-                    register={registerSignup("country")}
-                    error={signupErrors.country?.message}
+                  <Controller
+                    name="country"
+                    control={signupControl}
+                    render={({ field }) => (
+                      <CountrySelect
+                        id="signup-country"
+                        label="Country"
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        error={signupErrors.country?.message}
+                        required={true}
+                      />
+                    )}
                   />
                 </div>
                 
@@ -560,11 +570,18 @@ export default function Account() {
               register={register("phone")}
               error={errors.phone?.message}
             />
-            <MaterialInput
-              id="country"
-              label={t("country") || "Country"}
-              register={register("country")}
-              error={errors.country?.message}
+            <Controller
+              name="country"
+              control={control}
+              render={({ field }) => (
+                <CountrySelect
+                  id="country"
+                  label={t("country") || "Country"}
+                  value={field.value || ''}
+                  onChange={field.onChange}
+                  error={errors.country?.message}
+                />
+              )}
             />
             <MaterialInput
               id="street"
