@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/currency";
 import { useAppContext } from "@/context/AppContext";
+import { getProductImage } from "@/lib/imagePreloader";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -128,7 +129,7 @@ export default function ProductDetail() {
               <div className="relative">
                 <div className="aspect-video md:aspect-square w-full overflow-hidden bg-gray-100 flex items-center justify-center">
                   <img
-                    src={product.imageUrl}
+                    src={getProductImage(product.id)}
                     alt={product.title}
                     className="object-cover w-full h-full"
                   />
@@ -182,12 +183,29 @@ export default function ProductDetail() {
                     </ul>
                   </div>
                   
-                  <div className="mb-4">
+                  <div className="space-y-4">
+                    {/* Поле для ввода купона */}
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        placeholder="Promo code or coupon" 
+                        className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="absolute right-1 top-1 h-8"
+                        onClick={() => alert('Promo code applied!')}
+                      >
+                        Apply
+                      </Button>
+                    </div>
+                    
+                    {/* Кнопка добавления в корзину */}
                     <Button 
                       className="w-full" 
                       onClick={() => {
-                        // Добавление в корзину будет реализовано в другом задании
-                        alert('Товар добавлен в корзину');
+                        alert('Product added to cart!');
                       }}
                     >
                       Add to Cart
