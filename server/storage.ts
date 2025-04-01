@@ -402,7 +402,9 @@ export class MemStorage implements IStorage {
             title: stripeProduct.name,
             description: stripeProduct.description || product.description,
             price: priceAmount,
-            priceEUR: stripeProduct.metadata?.priceEUR ? Number(stripeProduct.metadata.priceEUR) : product.priceEUR, // Обновляем цену в EUR, если она есть в метаданных
+            priceEUR: stripeProduct.metadata?.priceEUR 
+              ? Number(stripeProduct.metadata.priceEUR) 
+              : Math.round(priceAmount * 0.92), // Конвертируем USD в EUR если нет в метаданных
             imageUrl: stripeProduct.images && stripeProduct.images.length > 0 
               ? stripeProduct.images[0] 
               : product.imageUrl,
