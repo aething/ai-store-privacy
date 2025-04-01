@@ -45,9 +45,53 @@ function shouldUseEUR(country: string): boolean {
   return eurCountries.includes(country);
 }
 
+/**
+ * Функция для синхронизации продуктов со Stripe
+ * Вызывается при запуске приложения и периодически по таймеру
+ */
+async function syncProductsWithStripeBackend() {
+  try {
+    console.log("Starting automatic Stripe products synchronization...");
+    const products = await storage.syncStripeProducts();
+    console.log(`Successfully synchronized ${products.length} products with Stripe`);
+    return products;
+  } catch (error) {
+    console.error("Error during automatic Stripe product synchronization:", error);
+    return [];
+  }
+}
+
+// Интервал синхронизации: 12 часов (в миллисекундах)
+const SYNC_INTERVAL = 12 * 60 * 60 * 1000;
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Инициализация Google Sheets
   let googleSheetsAvailable = false;
+  
+  // Запускаем первичную синхронизацию со Stripe при старте приложения
+  try {
+    if (process.env.STRIPE_SECRET_KEY) {
+      console.log("STRIPE_SECRET_KEY found, performing initial product synchronization with Stripe...");
+      await syncProductsWithStripeBackend();
+    } else {
+      console.warn("STRIPE_SECRET_KEY not found, skipping product synchronization with Stripe");
+    }
+  } catch (error) {
+    console.error("Error during initial Stripe product synchronization:", error);
+  }
+  
+  // Настройка периодической синхронизации со Stripe
+  if (process.env.STRIPE_SECRET_KEY) {
+    setInterval(async () => {
+      try {
+        console.log(`Running scheduled Stripe product synchronization (interval: ${SYNC_INTERVAL/1000/60/60} hours)...`);
+        await syncProductsWithStripeBackend();
+      } catch (error) {
+        console.error("Error during scheduled Stripe product synchronization:", error);
+      }
+    }, SYNC_INTERVAL);
+    console.log(`Scheduled Stripe product synchronization every ${SYNC_INTERVAL/1000/60/60} hours`);
+  }
   try {
     await googleSheets.initializeGoogleSheets();
     console.log("Google Sheets initialized successfully");
