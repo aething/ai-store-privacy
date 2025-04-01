@@ -12,20 +12,40 @@ import fetch from 'node-fetch';
 /**
  * ВАЖНО: Для работы с обновлением страны пользователя необходимо:
  * 1. Войти на сайт как тестовый пользователь (testuser / Test123!)
- * 2. После успешного входа зайти в консоль браузера и найти токен в localStorage
- * 3. Вставить этот токен в переменную AUTH_TOKEN ниже 
+ * 2. Этот скрипт теперь использует cookies, сохраненные в файле cookie.txt
+ *    Предварительно запустите команду для сохранения cookie:
+ *    curl -c cookie.txt -X POST http://localhost:5000/api/users/login -H "Content-Type: application/json" -d '{"username":"testuser","password":"Test123!"}'
  */
-const AUTH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInVzZXJuYW1lIjoidGVzdHVzZXIiLCJpYXQiOjE3MTM3MjA3MjIsImV4cCI6MTcxNDMyNTUyMn0.B-ItMxwJO-blkDH3pMZXeJkJ3TW-NbXsZahGh7WwzXw';
 
 async function updateUserCountry(userId, country) {
   try {
     console.log(`Обновляем страну пользователя с ID ${userId} на ${country}...`);
     
+    // Импортируем fs для чтения файла cookie
+    import fs from 'fs';
+    
+    // Читаем содержимое cookie.txt
+    // Формат куки: domain\ttrue\tpath\ttrue\texpiry\tname\tvalue
+    const cookieContent = fs.readFileSync('./cookie.txt', 'utf8');
+    const cookieLines = cookieContent.split('\n').filter(line => !line.startsWith('#') && line.trim());
+    
+    // Создаем строку Cookie для заголовка
+    let cookieHeader = '';
+    for (const line of cookieLines) {
+      const parts = line.split('\t');
+      if (parts.length >= 7) {
+        const name = parts[5];
+        const value = parts[6];
+        if (cookieHeader) cookieHeader += '; ';
+        cookieHeader += `${name}=${value}`;
+      }
+    }
+    
     const updateResponse = await fetch(`http://localhost:5000/api/users/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AUTH_TOKEN}`
+        'Cookie': cookieHeader
       },
       body: JSON.stringify({
         country: country

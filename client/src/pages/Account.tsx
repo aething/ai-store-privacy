@@ -39,7 +39,7 @@ const registerSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   name: z.string().optional(),
-  country: z.string().optional(),
+  country: z.string().min(1, "Country is required to determine currency"),
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
@@ -453,7 +453,7 @@ export default function Account() {
                 <div>
                   <MaterialInput
                     id="signup-country"
-                    label="Country (optional)"
+                    label="Country"
                     register={registerSignup("country")}
                     error={signupErrors.country?.message}
                   />
