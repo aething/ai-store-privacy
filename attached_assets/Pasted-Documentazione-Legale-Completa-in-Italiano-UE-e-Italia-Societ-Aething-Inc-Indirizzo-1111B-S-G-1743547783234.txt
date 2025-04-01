@@ -1,0 +1,97 @@
+Documentazione Legale Completa in Italiano (UE e Italia)
+
+Società: Aething Inc.
+Indirizzo: 1111B S Governors Ave #6113, Dover, DE 19904, USA
+Contatto: support@aething.com
+Responsabile Protezione Dati (RPD): Alex Bernshtein
+
+1. Diritto di Recesso e Reso
+
+Decreto Legislativo 21/2014 (Art. 52-67)
+
+Termine: 14 giorni dalla ricezione del prodotto.
+Esclusioni:
+
+Software attivato/licenze digitali.
+PC configurati su misura (salvo difetti).
+Danni causati dal cliente.
+Procedura:
+
+Inviare email a support@aething.com con:
+Numero d'ordine.
+Foto del prodotto (se danneggiato).
+Forniremo etichetta di reso (per difetti) o indirizzo per la spedizione.
+Costi:
+
+Difetti: A carico di Aething Inc.
+Recesso: A carico del cliente.
+Rimborso:
+
+Entro 7 giorni lavorativi dalla ricezione del reso.
+2. Modalità di Pagamento
+
+Metodi Accettati:
+
+Stripe (carte, opzioni per paese).
+Pagamento anticipato (100% all'ordine).
+Sicurezza:
+
+Crittografia PCI-DSS.
+Nessun archivio di dati bancari sui nostri server.
+3. Garanzia Legale e Commerciale
+
+Codice del Consumo (Art. 128-135):
+
+24 mesi per prodotti nuovi.
+12 mesi per prodotti usati.
+Esclusioni:
+
+Danni fisici (cadute, acqua).
+Modifiche apportate dal cliente.
+4. Privacy Policy (GDPR/ Codice Privacy)
+
+Regolamento UE 2016/679 e D.Lgs. 101/2018
+
+Titolare:
+Aething Inc., rappresentato dal RPD Alex Bernshtein (support@aething.com).
+Dati Raccolti:
+Nome, indirizzo di spedizione.
+Dati di pagamento (tramite Stripe).
+Indirizzo IP (antifrode).
+Diritti dell'Utente:
+Cancellazione: Email con oggetto "GDPR Cancellazione".
+Portabilità: Richiesta scritta.
+Conservazione Dati:
+Ordini: 10 anni (Art. 2220 Codice Civile).
+Pagamenti: 30 giorni post-transazione.
+5. Condizioni di Consegna
+
+Aree:
+
+UE: Prezzo IVA inclusa.
+USA: Prezzo esente IVA.
+Tempi:
+
+Standard: 3-7 giorni lavorativi dopo pagamento.
+Espresso: Su richiesta (+costo).
+Passaggio Rischio:
+
+Alla consegna al vettore (Incoterms 2023: FCA).
+6. Termini e Condizioni Generali
+
+Campo di Applicazione:
+
+Valido per tutti gli ordini effettuati tramite app Aething.
+Risoluzione Controversie:
+
+Piattaforma ODR UE: [link].
+Requisiti Specifici per l'Italia
+
+Informazioni Obbligatorie:
+P.IVA (se operante in Italia).
+Numero REA (opzionale per società estere).
+Clausole Trasparenti:
+Evidenziare il diritto di recesso in grassetto.
+Includere modulo di recesso (Allegato I, D.Lgs. 21/2014).
+Google Play:
+La Privacy Policy deve essere accessibile prima dell'installazione.

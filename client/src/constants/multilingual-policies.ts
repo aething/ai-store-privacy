@@ -483,135 +483,244 @@ export const returnPolicy: MultilingualPolicy = {
     },
     // Французская версия
     fr: {
-      title: "Politique de Retour et d'Échange",
+      title: "Politique de Retour et Rétractation",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Dernière mise à jour:</strong> 1 avril 2025</p>
           
-          <h4 class="font-medium mb-2">Politique de Retour et d'Échange</h4>
+          <h4 class="font-medium mb-2">Politique de Retour et Rétractation</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">Conditions générales:</h5>
-            <p class="text-text-secondary">Fenêtre de retour: 14 jours à compter de la livraison.</p>
-            <p class="text-text-secondary">Articles non retournables: Logiciels ouverts, PC personnalisés, marchandises endommagées par le client.</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Article L221-18 du Code de la Consommation:</h5>
+            <p class="text-text-secondary">Droit de rétractation : 14 jours à compter de la réception du produit.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Articles défectueux:</h5>
-            <p class="text-text-secondary">Frais de retour gratuits si le défaut est confirmé. Fournir une preuve via support@aething.com dans les 7 jours.</p>
+            <h5 class="font-medium mb-1">Exceptions:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Logiciels activés/licences numériques.</li>
+              <li>Configurations PC sur mesure (sauf défaut).</li>
+              <li>Produits endommagés par le client.</li>
+            </ul>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Retours standard:</h5>
-            <p class="text-text-secondary">Le client couvre les frais de retour. Remboursement sous 5 à 7 jours ouvrables.</p>
+            <h5 class="font-medium mb-1">Procédure:</h5>
+            <p class="text-text-secondary">Envoyer un email à support@aething.com avec:</p>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Numéro de commande.</li>
+              <li>Photos du produit (si endommagé).</li>
+            </ul>
+            <p class="text-text-secondary">Nous fournissons une étiquette de retour (pour les défauts) ou l'adresse d'expédition.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Frais de Retour:</h5>
+            <p class="text-text-secondary">Défauts: Pris en charge par Aething Inc.</p>
+            <p class="text-text-secondary">Rétractation: À la charge du client.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Remboursement:</h5>
+            <p class="text-text-secondary">Sous 7 jours ouvrables après réception du retour.</p>
           </div>
         </div>
       `
     },
     // Испанская версия
     es: {
-      title: "Política de Devolución y Cambio",
+      title: "Política de Devoluciones y Derecho de Desistimiento",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Última actualización:</strong> 1 de abril de 2025</p>
           
-          <h4 class="font-medium mb-2">Política de Devolución y Cambio</h4>
+          <h4 class="font-medium mb-2">Política de Devoluciones y Derecho de Desistimiento</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">Condiciones generales:</h5>
-            <p class="text-text-secondary">Ventana de devolución: 14 días desde la entrega.</p>
-            <p class="text-text-secondary">Artículos no retornables: Software abierto, PC personalizados, mercancías dañadas por el cliente.</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Ley General 3/2014 (Art. 71-108):</h5>
+            <p class="text-text-secondary"><strong>Plazo:</strong> 14 días naturales desde la recepción del producto.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Artículos defectuosos:</h5>
-            <p class="text-text-secondary">Envío de devolución gratuito si se confirma el defecto. Proporcione prueba a través de support@aething.com dentro de los 7 días.</p>
+            <h5 class="font-medium mb-1">Excepciones:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Software activado/licencias digitales.</li>
+              <li>Equipos personalizados (salvo defectos).</li>
+              <li>Daños causados por el cliente.</li>
+            </ul>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Devoluciones estándar:</h5>
-            <p class="text-text-secondary">El cliente cubre el envío de devolución. Reembolso en 5-7 días hábiles.</p>
+            <h5 class="font-medium mb-1">Procedimiento:</h5>
+            <p class="text-text-secondary">Enviar email a support@aething.com con:</p>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Número de pedido.</li>
+              <li>Fotos del producto (si está dañado).</li>
+            </ul>
+            <p class="text-text-secondary">Proporcionaremos etiqueta de devolución (para defectos) o dirección de retorno.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Costes:</h5>
+            <p class="text-text-secondary">Defectos: A cargo de Aething Inc.</p>
+            <p class="text-text-secondary">Desistimiento: A cargo del cliente.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Reembolso:</h5>
+            <p class="text-text-secondary">En un plazo de 7 días hábiles tras recibir el producto.</p>
           </div>
         </div>
       `
     },
     // Итальянская версия
     it: {
-      title: "Politica di Reso e Cambio",
+      title: "Diritto di Recesso e Reso",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Ultimo aggiornamento:</strong> 1 aprile 2025</p>
           
-          <h4 class="font-medium mb-2">Politica di Reso e Cambio</h4>
+          <h4 class="font-medium mb-2">Diritto di Recesso e Reso</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">Condizioni generali:</h5>
-            <p class="text-text-secondary">Finestra di reso: 14 giorni dalla consegna.</p>
-            <p class="text-text-secondary">Articoli non restituibili: Software aperto, PC personalizzati, merce danneggiata dal cliente.</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Decreto Legislativo 21/2014 (Art. 52-67):</h5>
+            <p class="text-text-secondary"><strong>Termine:</strong> 14 giorni dalla ricezione del prodotto.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Articoli difettosi:</h5>
-            <p class="text-text-secondary">Spedizione di reso gratuita se il difetto è confermato. Fornire prova tramite support@aething.com entro 7 giorni.</p>
+            <h5 class="font-medium mb-1">Esclusioni:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Software attivato/licenze digitali.</li>
+              <li>PC configurati su misura (salvo difetti).</li>
+              <li>Danni causati dal cliente.</li>
+            </ul>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Resi standard:</h5>
-            <p class="text-text-secondary">Il cliente copre la spedizione di reso. Rimborso in 5-7 giorni lavorativi.</p>
+            <h5 class="font-medium mb-1">Procedura:</h5>
+            <p class="text-text-secondary">Inviare email a support@aething.com con:</p>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Numero d'ordine.</li>
+              <li>Foto del prodotto (se danneggiato).</li>
+            </ul>
+            <p class="text-text-secondary">Forniremo etichetta di reso (per difetti) o indirizzo per la spedizione.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Costi:</h5>
+            <p class="text-text-secondary">Difetti: A carico di Aething Inc.</p>
+            <p class="text-text-secondary">Recesso: A carico del cliente.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Rimborso:</h5>
+            <p class="text-text-secondary">Entro 7 giorni lavorativi dalla ricezione del reso.</p>
           </div>
         </div>
       `
     },
     // Японская версия
     ja: {
-      title: "返品・交換ポリシー",
+      title: "返品・返金ポリシー",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>最終更新日:</strong> 2025年4月1日</p>
           
-          <h4 class="font-medium mb-2">返品・交換ポリシー</h4>
+          <h4 class="font-medium mb-2">返品・返金ポリシー</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">一般条件:</h5>
-            <p class="text-text-secondary">返品期間: 配達から14日間。</p>
-            <p class="text-text-secondary">返品不可品: 開封済みソフトウェア、カスタムPC、お客様による損傷品。</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">消費者契約法（第6条）及び特定商取引法（第15条）:</h5>
+            <p class="text-text-secondary"><strong>返品期間：</strong>商品到着後14日間。</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">不良品:</h5>
-            <p class="text-text-secondary">不良が確認された場合、返送料は無料。7日以内にsupport@aething.comに証拠を提出してください。</p>
+            <h5 class="font-medium mb-1">返品条件:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>未使用品に限る</li>
+              <li>オリジナルパッケージ必須</li>
+            </ul>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">標準返品:</h5>
-            <p class="text-text-secondary">返送料はお客様負担。返金は5〜7営業日以内。</p>
+            <h5 class="font-medium mb-1">返品不可商品:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>開封済みソフトウェア/ライセンスキー</li>
+              <li>カスタムPC（不良品を除く）</li>
+              <li>お客様による損傷</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">返品手順:</h5>
+            <p class="text-text-secondary">support@aething.com へ以下を送付：</p>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>注文番号</li>
+              <li>商品状態の写真（破損の場合）</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">費用負担:</h5>
+            <p class="text-text-secondary">不良品：当社負担</p>
+            <p class="text-text-secondary">お客様都合：送料お客様負担</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">返金処理:</h5>
+            <p class="text-text-secondary">返品受領後7営業日以内</p>
           </div>
         </div>
       `
     },
     // Китайская версия
     zh: {
-      title: "退货和换货政策",
+      title: "退换货政策",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>最后更新:</strong> 2025年4月1日</p>
           
-          <h4 class="font-medium mb-2">退货和换货政策</h4>
+          <h4 class="font-medium mb-2">退换货政策</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">一般条件:</h5>
-            <p class="text-text-secondary">退货窗口: 自交付之日起14天。</p>
-            <p class="text-text-secondary">不可退货物品: 已开封软件、定制PC、客户损坏的商品。</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">依据《电子商务法》第20条、《消费者权益保护法》第25条:</h5>
+            <p class="text-text-secondary"><strong>退货期限:</strong> 签收后14天内</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">有缺陷的物品:</h5>
-            <p class="text-text-secondary">如果确认缺陷，免费退货运费。在7天内通过support@aething.com提供证明。</p>
+            <h5 class="font-medium mb-1">退货条件:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>商品未使用</li>
+              <li>保留原包装及配件</li>
+            </ul>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">标准退货:</h5>
-            <p class="text-text-secondary">客户承担退货运费。5-7个工作日内退款。</p>
+            <h5 class="font-medium mb-1">不适用退货商品:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>已激活的软件/数字产品</li>
+              <li>定制类商品（除非存在质量问题）</li>
+              <li>人为损坏商品</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">退货流程:</h5>
+            <p class="text-text-secondary">发送邮件至 support@aething.com 并提供:</p>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>订单号</li>
+              <li>商品问题照片（如破损）</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">费用承担:</h5>
+            <p class="text-text-secondary">质量问题：我方承担运费</p>
+            <p class="text-text-secondary">无理由退货：客户承担运费</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">退款时间:</h5>
+            <p class="text-text-secondary">收到退货后7个工作日内</p>
           </div>
         </div>
       `
@@ -687,18 +796,20 @@ export const paymentTermsPolicy: MultilingualPolicy = {
           <h4 class="font-medium mb-2">Conditions de Paiement</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Méthodes:</h5>
-            <p class="text-text-secondary">Stripe (options selon votre pays).</p>
+            <h5 class="font-medium mb-1">Méthodes Acceptées:</h5>
+            <p class="text-text-secondary">Stripe (cartes bancaires, options par pays).</p>
+            <p class="text-text-secondary">Paiement anticipé (100% à la commande).</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Prépaiement:</h5>
-            <p class="text-text-secondary">Requis pour toutes les commandes.</p>
+            <h5 class="font-medium mb-1">Sécurité:</h5>
+            <p class="text-text-secondary">Cryptage conforme PCI-DSS.</p>
+            <p class="text-text-secondary">Aucun stockage des données bancaires sur nos serveurs.</p>
           </div>
           
           <div class="mb-3">
             <h5 class="font-medium mb-1">Remboursements:</h5>
-            <p class="text-text-secondary">Traités dans un délai de 7 jours ouvrables.</p>
+            <p class="text-text-secondary">Traités dans un délai de 7 jours ouvrables après réception du retour.</p>
           </div>
         </div>
       `
@@ -713,18 +824,20 @@ export const paymentTermsPolicy: MultilingualPolicy = {
           <h4 class="font-medium mb-2">Términos de Pago</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Métodos:</h5>
-            <p class="text-text-secondary">Stripe (opciones dependen de su país).</p>
+            <h5 class="font-medium mb-1">Métodos Aceptados:</h5>
+            <p class="text-text-secondary">Stripe (tarjetas, opciones por país).</p>
+            <p class="text-text-secondary">Pago anticipado (100% al realizar el pedido).</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Pago anticipado:</h5>
-            <p class="text-text-secondary">Requerido para todos los pedidos.</p>
+            <h5 class="font-medium mb-1">Seguridad:</h5>
+            <p class="text-text-secondary">Cifrado PCI-DSS.</p>
+            <p class="text-text-secondary">No almacenamos datos bancarios en nuestros servidores.</p>
           </div>
           
           <div class="mb-3">
             <h5 class="font-medium mb-1">Reembolsos:</h5>
-            <p class="text-text-secondary">Procesados dentro de 7 días hábiles.</p>
+            <p class="text-text-secondary">Procesados dentro de 7 días hábiles tras recibir el producto devuelto.</p>
           </div>
         </div>
       `
@@ -765,18 +878,20 @@ export const paymentTermsPolicy: MultilingualPolicy = {
           <h4 class="font-medium mb-2">支払い条件</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">方法:</h5>
-            <p class="text-text-secondary">Stripe（オプションはお住まいの国によって異なります）。</p>
+            <h5 class="font-medium mb-1">対応決済方法:</h5>
+            <p class="text-text-secondary">Stripe（クレジットカード、国別オプション）</p>
+            <p class="text-text-secondary">前払い（注文時100%）</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">前払い:</h5>
-            <p class="text-text-secondary">すべての注文に必要です。</p>
+            <h5 class="font-medium mb-1">セキュリティ:</h5>
+            <p class="text-text-secondary">PCI DSS準拠の暗号化</p>
+            <p class="text-text-secondary">カードデータ非保存</p>
           </div>
           
           <div class="mb-3">
             <h5 class="font-medium mb-1">返金:</h5>
-            <p class="text-text-secondary">7営業日以内に処理されます。</p>
+            <p class="text-text-secondary">返品受領後7営業日以内に処理</p>
           </div>
         </div>
       `
@@ -791,18 +906,20 @@ export const paymentTermsPolicy: MultilingualPolicy = {
           <h4 class="font-medium mb-2">支付条款</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">方式:</h5>
-            <p class="text-text-secondary">Stripe（选项取决于您所在的国家）。</p>
+            <h5 class="font-medium mb-1">支付方式:</h5>
+            <p class="text-text-secondary">Stripe（支持信用卡/地区特定支付方式）</p>
+            <p class="text-text-secondary">预付全款</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">预付款:</h5>
-            <p class="text-text-secondary">所有订单均需预付款。</p>
+            <h5 class="font-medium mb-1">安全措施:</h5>
+            <p class="text-text-secondary">PCI DSS标准加密</p>
+            <p class="text-text-secondary">不存储银行卡信息</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">退款:</h5>
-            <p class="text-text-secondary">在7个工作日内处理。</p>
+            <h5 class="font-medium mb-1">退款处理:</h5>
+            <p class="text-text-secondary">收到退货后7个工作日内完成退款</p>
           </div>
         </div>
       `
@@ -862,46 +979,64 @@ export const warrantyPolicy: MultilingualPolicy = {
     },
     // Французская версия
     fr: {
-      title: "Garantie et Responsabilité",
+      title: "Garantie Légale & Commerciale",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Dernière mise à jour:</strong> 1 avril 2025</p>
           
-          <h4 class="font-medium mb-2">Garantie et Responsabilité</h4>
+          <h4 class="font-medium mb-2">Garantie Légale & Commerciale</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">Couverture:</h5>
-            <p class="text-text-secondary">USA: 12 mois.</p>
-            <p class="text-text-secondary">UE: 24 mois.</p>
-            <p class="text-text-secondary">Autres: 12 mois.</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Garantie Légale (Art. L217-4 à L217-14 du Code de la Consommation):</h5>
+            <p class="text-text-secondary">24 mois pour les produits neufs.</p>
+            <p class="text-text-secondary">12 mois pour les produits d'occasion.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Invalide si:</h5>
-            <p class="text-text-secondary">Dommages mécaniques/électriques, réparations non autorisées.</p>
+            <h5 class="font-medium mb-1">Exclusions:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Dommages physiques (chutes, exposition à l'eau).</li>
+              <li>Modifications par le client.</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Couverture Géographique:</h5>
+            <p class="text-text-secondary">USA: 12 mois.</p>
+            <p class="text-text-secondary">UE: 24 mois (conformément à la directive européenne).</p>
+            <p class="text-text-secondary">Autres: 12 mois.</p>
           </div>
         </div>
       `
     },
     // Испанская версия
     es: {
-      title: "Garantía y Responsabilidad",
+      title: "Garantía Legal y Comercial",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Última actualización:</strong> 1 de abril de 2025</p>
           
-          <h4 class="font-medium mb-2">Garantía y Responsabilidad</h4>
+          <h4 class="font-medium mb-2">Garantía Legal y Comercial</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">Cobertura:</h5>
-            <p class="text-text-secondary">EE.UU.: 12 meses.</p>
-            <p class="text-text-secondary">UE: 24 meses.</p>
-            <p class="text-text-secondary">Otros: 12 meses.</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Ley 23/2003 de Garantías (Art. 114-126):</h5>
+            <p class="text-text-secondary">24 meses para productos nuevos.</p>
+            <p class="text-text-secondary">12 meses para productos de segunda mano.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Nula si:</h5>
-            <p class="text-text-secondary">Daño mecánico/eléctrico, reparaciones no autorizadas.</p>
+            <h5 class="font-medium mb-1">Exclusiones:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Daños físicos (caídas, exposición al agua).</li>
+              <li>Modificaciones realizadas por el cliente.</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Cobertura Geográfica:</h5>
+            <p class="text-text-secondary">EE.UU.: 12 meses.</p>
+            <p class="text-text-secondary">UE: 24 meses (conforme a directiva europea).</p>
+            <p class="text-text-secondary">Otros: 12 meses.</p>
           </div>
         </div>
       `
@@ -954,23 +1089,38 @@ export const warrantyPolicy: MultilingualPolicy = {
     },
     // Китайская версия
     zh: {
-      title: "保修和责任",
+      title: "保修条款",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>最后更新:</strong> 2025年4月1日</p>
           
-          <h4 class="font-medium mb-2">保修和责任</h4>
+          <h4 class="font-medium mb-2">保修条款</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">保修范围:</h5>
-            <p class="text-text-secondary">美国：12个月。</p>
-            <p class="text-text-secondary">欧盟：24个月。</p>
-            <p class="text-text-secondary">其他：12个月。</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">依据《产品质量法》第40条:</h5>
+            <p class="text-text-secondary"><strong>保修期限</strong></p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">保修失效条件:</h5>
-            <p class="text-text-secondary">机械/电气损坏，未经授权的维修。</p>
+            <h5 class="font-medium mb-1">保修期限:</h5>
+            <p class="text-text-secondary">全新商品：12个月</p>
+            <p class="text-text-secondary">二手商品：6个月</p>
+            <p class="text-text-secondary">欧盟地区：24个月（符合欧盟法规）</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">免责情况:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>人为损坏（摔坏、进水）</li>
+              <li>私自拆修</li>
+              <li>未按说明书操作导致的损坏</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">保修流程:</h5>
+            <p class="text-text-secondary">联系客服 support@aething.com，提供订单号和问题描述</p>
+            <p class="text-text-secondary">我们将在24小时内回复处理方案</p>
           </div>
         </div>
       `
@@ -1054,45 +1204,77 @@ export const privacyPolicy: MultilingualPolicy = {
           
           <h4 class="font-medium mb-2">Politique de Confidentialité (RGPD)</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">Données collectées:</h5>
-            <p class="text-text-secondary">Nom, email, adresse de livraison, détails de paiement.</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Conformité au Règlement UE 2016/679:</h5>
+            <p class="text-text-secondary">Cette politique est conforme au Règlement Général sur la Protection des Données de l'Union Européenne.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Droits RGPD:</h5>
-            <p class="text-text-secondary">Demande de suppression via support@aething.com (objet: "RGPD").</p>
+            <h5 class="font-medium mb-1">Responsable du traitement:</h5>
+            <p class="text-text-secondary">Aething Inc., représenté par le DPO Alex Bernshtein (support@aething.com).</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">DPO:</h5>
-            <p class="text-text-secondary">Alex Bernshtein.</p>
+            <h5 class="font-medium mb-1">Données Collectées:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Nom, adresse de livraison.</li>
+              <li>Données de paiement (via Stripe).</li>
+              <li>Adresse IP (pour prévention des fraudes).</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Droits des Utilisateurs:</h5>
+            <p class="text-text-secondary">Droit à l'oubli: Email avec l'objet "RGPD Suppression".</p>
+            <p class="text-text-secondary">Portabilité des données: Sur demande écrite.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Durée de Conservation:</h5>
+            <p class="text-text-secondary">Données de commande: 10 ans (obligation légale).</p>
+            <p class="text-text-secondary">Données de paiement: 30 jours après transaction.</p>
           </div>
         </div>
       `
     },
     // Испанская версия
     es: {
-      title: "Política de Privacidad (RGPD)",
+      title: "Política de Privacidad (RGPD/LOPDGDD)",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Última actualización:</strong> 1 de abril de 2025</p>
           
-          <h4 class="font-medium mb-2">Política de Privacidad (RGPD)</h4>
+          <h4 class="font-medium mb-2">Política de Privacidad (RGPD/LOPDGDD)</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">Datos recopilados:</h5>
-            <p class="text-text-secondary">Nombre, correo electrónico, dirección de envío, detalles de pago.</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Reglamento UE 2016/679 y Ley Orgánica 3/2018:</h5>
+            <p class="text-text-secondary">Esta política cumple con la normativa europea y española de protección de datos.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Derechos RGPD:</h5>
-            <p class="text-text-secondary">Solicite eliminación a través de support@aething.com (asunto: "RGPD").</p>
+            <h5 class="font-medium mb-1">Responsable:</h5>
+            <p class="text-text-secondary">Aething Inc., representado por el DPD Alex Bernshtein (support@aething.com).</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">DPO:</h5>
-            <p class="text-text-secondary">Alex Bernshtein.</p>
+            <h5 class="font-medium mb-1">Datos Recopilados:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Nombre, dirección de envío.</li>
+              <li>Datos de pago (procesados por Stripe).</li>
+              <li>Dirección IP (prevención de fraudes).</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Derechos del Usuario:</h5>
+            <p class="text-text-secondary">Derecho al Olvido: Email con asunto "RGPD Eliminación".</p>
+            <p class="text-text-secondary">Portabilidad: Solicitud por escrito.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Conservación de Datos:</h5>
+            <p class="text-text-secondary">Pedidos: 6 años (Art. 30 Código de Comercio).</p>
+            <p class="text-text-secondary">Pagos: 30 días post-transacción.</p>
           </div>
         </div>
       `
@@ -1151,26 +1333,43 @@ export const privacyPolicy: MultilingualPolicy = {
     },
     // Китайская версия
     zh: {
-      title: "隐私政策（GDPR）",
+      title: "隐私政策",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>最后更新:</strong> 2025年4月1日</p>
           
-          <h4 class="font-medium mb-2">隐私政策（GDPR）</h4>
+          <h4 class="font-medium mb-2">隐私政策</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">收集的数据:</h5>
-            <p class="text-text-secondary">姓名、电子邮件、送货地址、支付详情。</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">《个人信息保护法》第13-28条:</h5>
+            <p class="text-text-secondary">本隐私政策符合中国和国际数据保护标准</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">GDPR权利:</h5>
-            <p class="text-text-secondary">通过support@aething.com（主题："GDPR"）请求删除。</p>
+            <h5 class="font-medium mb-1">数据控制方:</h5>
+            <p class="text-text-secondary">Aething Inc.（数据保护官：Alex Bernshtein）</p>
+            <p class="text-text-secondary">联系方式：support@aething.com</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">数据保护官:</h5>
-            <p class="text-text-secondary">亚历克斯·伯恩斯坦。</p>
+            <h5 class="font-medium mb-1">收集信息类型:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>姓名、收货地址</li>
+              <li>支付信息（通过Stripe处理）</li>
+              <li>IP地址（用于反欺诈）</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">用户权利:</h5>
+            <p class="text-text-secondary">删除数据：发送邮件至support@aething.com，标题注明"GDPR删除请求"</p>
+            <p class="text-text-secondary">数据迁移：书面申请</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">数据保存期限:</h5>
+            <p class="text-text-secondary">订单数据：5年（《电子商务法》要求）</p>
+            <p class="text-text-secondary">支付数据：30天</p>
           </div>
         </div>
       `
@@ -1246,42 +1445,70 @@ export const termsPolicy: MultilingualPolicy = {
     },
     // Французская версия
     fr: {
-      title: "Conditions d'Utilisation",
+      title: "Conditions Générales de Vente (CGV)",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Dernière mise à jour:</strong> 1 avril 2025</p>
           
-          <h4 class="font-medium mb-2">Conditions d'Utilisation</h4>
+          <h4 class="font-medium mb-2">Conditions Générales de Vente (CGV)</h4>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Champ d'Application:</h5>
+            <p class="text-text-secondary">Applicables à toutes les commandes passées via l'application Aething.</p>
+          </div>
+          
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Droit de Rétractation (Article L221-18):</h5>
+            <p class="text-text-secondary">Vous disposez d'un délai de 14 jours pour exercer votre droit de rétractation.
+              Consultez notre <a href="/policy/return-policy" class="underline">Politique de Retour</a> pour plus de détails.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Règlement des Litiges:</h5>
+            <p class="text-text-secondary">Plateforme de Règlement en Ligne des Litiges (UE): 
+              <a href="https://ec.europa.eu/consumers/odr/" class="underline" target="_blank">ec.europa.eu/consumers/odr</a>
+            </p>
+          </div>
           
           <div class="mb-3">
             <h5 class="font-medium mb-1">Commandes:</h5>
             <p class="text-text-secondary">Prépaiement requis. Pas d'annulations après expédition.</p>
-          </div>
-          
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">Livraison:</h5>
-            <p class="text-text-secondary">Délais spécifiques à la région. Suivi fourni.</p>
           </div>
         </div>
       `
     },
     // Испанская версия
     es: {
-      title: "Términos de Servicio",
+      title: "Términos y Condiciones Generales",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Última actualización:</strong> 1 de abril de 2025</p>
           
-          <h4 class="font-medium mb-2">Términos de Servicio</h4>
+          <h4 class="font-medium mb-2">Términos y Condiciones Generales</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Pedidos:</h5>
-            <p class="text-text-secondary">Pago anticipado requerido. No hay cancelaciones después del envío.</p>
+            <h5 class="font-medium mb-1">Ámbito de Aplicación:</h5>
+            <p class="text-text-secondary">Aplicable a todos los pedidos realizados mediante la app Aething.</p>
+          </div>
+          
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">Derecho de Desistimiento:</h5>
+            <p class="text-text-secondary"><strong>Tiene un plazo de 14 días</strong> para ejercer su derecho de desistimiento desde la recepción del producto.
+              Consulte nuestra <a href="/policy/return-policy" class="underline">Política de Devoluciones</a> para más detalles.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Entrega:</h5>
-            <p class="text-text-secondary">Plazos específicos según la región. Seguimiento proporcionado.</p>
+            <h5 class="font-medium mb-1">Resolución de Conflictos:</h5>
+            <p class="text-text-secondary">Plataforma de Resolución de Litigios en Línea (UE): 
+              <a href="https://ec.europa.eu/consumers/odr/" class="underline" target="_blank">ec.europa.eu/consumers/odr</a>
+            </p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Condiciones de Entrega:</h5>
+            <p class="text-text-secondary">UE: Precio con IVA incluido.</p>
+            <p class="text-text-secondary">EE.UU.: Precio sin impuestos.</p>
+            <p class="text-text-secondary">Plazos estándar: 3-7 días laborables tras confirmación de pago.</p>
           </div>
         </div>
       `
@@ -1330,21 +1557,39 @@ export const termsPolicy: MultilingualPolicy = {
     },
     // Китайская версия
     zh: {
-      title: "服务条款",
+      title: "用户协议",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>最后更新:</strong> 2025年4月1日</p>
           
-          <h4 class="font-medium mb-2">服务条款</h4>
+          <h4 class="font-medium mb-2">用户协议</h4>
           
-          <div class="mb-3">
-            <h5 class="font-medium mb-1">订单:</h5>
-            <p class="text-text-secondary">需要预付款。发货后不可取消。</p>
+          <div class="mb-3 bg-primary-50 dark:bg-primary-950 p-3 rounded-md border border-primary-200 dark:border-primary-800">
+            <h5 class="font-medium mb-1 text-primary-800 dark:text-primary-300">依据《网络安全法》第41条:</h5>
+            <p class="text-text-secondary">用户注册即视为同意本协议</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">交付:</h5>
-            <p class="text-text-secondary">地区特定的时间表。提供跟踪信息。</p>
+            <h5 class="font-medium mb-1">争议解决:</h5>
+            <p class="text-text-secondary">美国特拉华州法院管辖</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">配送范围:</h5>
+            <p class="text-text-secondary">中国大陆：含税价格</p>
+            <p class="text-text-secondary">国际订单：可能产生关税（由客户承担）</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">配送时间:</h5>
+            <p class="text-text-secondary">标准配送：3-7个工作日（支付确认后）</p>
+            <p class="text-text-secondary">加急配送：需额外付费</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">特别说明:</h5>
+            <p class="text-text-secondary">跨境购物可能需自行申报海关</p>
+            <p class="text-text-secondary">虚拟商品不支持7天无理由退货</p>
           </div>
         </div>
       `
