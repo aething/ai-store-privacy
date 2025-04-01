@@ -11,7 +11,7 @@ import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getProductImage } from "@/lib/imagePreloader";
+import { getProductImage, preloadImages, areImagesLoaded } from "@/lib/imagePreloader";
 import { scrollToTop, saveScrollPositionForPath, restoreScrollPositionForPath } from "@/lib/scrollUtils";
 
 export default function ProductDetail() {
@@ -21,6 +21,8 @@ export default function ProductDetail() {
   const { user } = useAppContext();
   const { t } = useLocale();
   const [couponCode, setCouponCode] = useState('');
+  const [imageLoaded, setImageLoaded] = useState(areImagesLoaded());
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
   
   // При монтировании компонента скроллим наверх и добавляем обработчик сохранения позиции
   useEffect(() => {
@@ -135,6 +137,21 @@ export default function ProductDetail() {
   };
   
   // Используем функцию из сервиса предварительной загрузки для получения изображения
+  // При монтировании компонента загружаем изображение
+  useEffect(() => {
+    if (!product) return;
+
+    // Если изображения еще не загружены, загружаем их
+    if (!imageLoaded) {
+      preloadImages().then(() => {
+        setImageLoaded(true);
+        setImageSrc(product.imageUrl || getProductImage(product.id));
+      });
+    } else {
+      // Изображения уже загружены, устанавливаем источник
+      setImageSrc(product.imageUrl || getProductImage(product.id));
+    }
+  }, [product, imageLoaded]);
   
   return (
     <SwipeBack onSwipeBack={handleGoBack}>
@@ -157,16 +174,29 @@ export default function ProductDetail() {
         
         {/* Image Section */}
         <div className="mb-4">
-          <div className="h-64 bg-surface mb-1 rounded-lg overflow-hidden">
-            <img 
-              src={product.imageUrl || getProductImage(product.id)} 
-              alt={product.title} 
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                // Если не удалось загрузить изображение по URL, используем локальное изображение
-                e.currentTarget.src = getProductImage(product.id);
-              }}
-            />
+          <div className="h-64 bg-surface mb-1 rounded-lg overflow-hidden relative">
+            {/* Placeholder/skeleton во время загрузки */}
+            {!imageSrc && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="animate-pulse rounded-md bg-gray-200 h-full w-full"></div>
+              </div>
+            )}
+            
+            {/* Отображаем изображение, если оно загружено */}
+            {imageSrc && (
+              <img 
+                src={imageSrc}
+                alt={product.title} 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Если не удалось загрузить изображение по URL, используем локальное изображение
+                  const fallbackImage = getProductImage(product.id);
+                  if (e.currentTarget.src !== fallbackImage) {
+                    e.currentTarget.src = fallbackImage;
+                  }
+                }}
+              />
+            )}
           </div>
           <p className="text-xs text-gray-500 italic text-center">
             Images are for illustration purposes only. Refer to the description for full specifications.

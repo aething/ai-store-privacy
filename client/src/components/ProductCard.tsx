@@ -1,9 +1,10 @@
 import { useLocation } from "wouter";
+import { useEffect, useState } from "react";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
-import { getProductImage } from "@/lib/imagePreloader";
+import { getProductImage, preloadImages, areImagesLoaded } from "@/lib/imagePreloader";
 import { saveScrollPosition } from "@/lib/scrollUtils";
 
 interface ProductCardProps {
@@ -13,6 +14,23 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const [, setLocation] = useLocation();
   const { user } = useAppContext();
+  const [imageLoaded, setImageLoaded] = useState(areImagesLoaded());
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  
+  // При монтировании компонента определяем источник изображения
+  useEffect(() => {
+    // Если предварительно загруженные изображения ещё не готовы, загружаем их
+    if (!imageLoaded) {
+      preloadImages().then(() => {
+        setImageLoaded(true);
+        // Затем устанавливаем источник изображения
+        setImageSrc(product.imageUrl || getProductImage(product.id));
+      });
+    } else {
+      // Изображения уже предзагружены, просто устанавливаем источник
+      setImageSrc(product.imageUrl || getProductImage(product.id));
+    }
+  }, [product.id, product.imageUrl, imageLoaded]);
   
   const handleClick = () => {
     // Сохраняем позицию скролла перед переходом на страницу детального просмотра
@@ -33,22 +51,38 @@ export default function ProductCard({ product }: ProductCardProps) {
   // Обрезаем описание до фиксированной длины и добавляем многоточие
   const shortDescription = product.description.substring(0, 60) + "...";
   
+  // Определяем CSS для фона во время загрузки изображения
+  const bgStyle = !imageSrc ? { backgroundColor: '#f3f4f6' } : {};
+  
   return (
     <Card 
       className="product-card flex-none w-64 rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow flex flex-col"
       onClick={handleClick}
     >
       {/* Изображение продукта - фиксированная высота */}
-      <div className="h-48 bg-surface">
-        <img 
-          src={product.imageUrl || getProductImage(product.id)} 
-          alt={product.title} 
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            // Если не удалось загрузить изображение по URL, используем локальное изображение
-            e.currentTarget.src = getProductImage(product.id);
-          }}
-        />
+      <div className="h-48 bg-surface relative" style={bgStyle}>
+        {/* Индикатор загрузки, если изображение еще не загружено */}
+        {!imageSrc && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-pulse rounded-md bg-gray-200 h-full w-full"></div>
+          </div>
+        )}
+        
+        {/* Само изображение с проверкой на наличие источника */}
+        {imageSrc && (
+          <img 
+            src={imageSrc}
+            alt={product.title} 
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Если не удалось загрузить изображение по URL, используем локальное изображение
+              const fallbackImage = getProductImage(product.id);
+              if (e.currentTarget.src !== fallbackImage) {
+                e.currentTarget.src = fallbackImage;
+              }
+            }}
+          />
+        )}
       </div>
       
       {/* Содержимое карточки - фиксированная высота */}
