@@ -140,18 +140,25 @@ export default function ProductDetail() {
   // При монтировании компонента загружаем изображение
   useEffect(() => {
     if (!product) return;
-
-    // Если изображения еще не загружены, загружаем их
-    if (!imageLoaded) {
-      preloadImages().then(() => {
-        setImageLoaded(true);
-        setImageSrc(product.imageUrl || getProductImage(product.id));
-      });
-    } else {
-      // Изображения уже загружены, устанавливаем источник
+    
+    // Функция для установки источника изображения
+    const setImageSource = () => {
       setImageSrc(product.imageUrl || getProductImage(product.id));
-    }
-  }, [product, imageLoaded]);
+    };
+    
+    // Всегда пытаемся загрузить изображения
+    // Это обеспечивает, что хуки всегда вызываются в одном и том же порядке
+    preloadImages()
+      .then(() => {
+        // После загрузки устанавливаем флаг и источник
+        setImageLoaded(true);
+        setImageSource();
+      })
+      .catch(() => {
+        // В случае ошибки при загрузке также устанавливаем источник
+        setImageSource();
+      });
+  }, [product]);
   
   return (
     <SwipeBack onSwipeBack={handleGoBack}>

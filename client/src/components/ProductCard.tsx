@@ -19,18 +19,25 @@ export default function ProductCard({ product }: ProductCardProps) {
   
   // При монтировании компонента определяем источник изображения
   useEffect(() => {
-    // Если предварительно загруженные изображения ещё не готовы, загружаем их
-    if (!imageLoaded) {
-      preloadImages().then(() => {
-        setImageLoaded(true);
-        // Затем устанавливаем источник изображения
-        setImageSrc(product.imageUrl || getProductImage(product.id));
-      });
-    } else {
-      // Изображения уже предзагружены, просто устанавливаем источник
+    // Функция для установки источника изображения
+    const setImageSource = () => {
       setImageSrc(product.imageUrl || getProductImage(product.id));
-    }
-  }, [product.id, product.imageUrl, imageLoaded]);
+    };
+    
+    // Всегда пытаемся загрузить изображения
+    // Это обеспечивает, что хуки всегда вызываются в одном и том же порядке
+    preloadImages()
+      .then(() => {
+        // После загрузки устанавливаем флаг и источник
+        setImageLoaded(true);
+        setImageSource();
+      })
+      .catch(() => {
+        // В случае ошибки при загрузке также устанавливаем источник
+        // Это может произойти, если проблема с предзагрузкой
+        setImageSource();
+      });
+  }, [product.id, product.imageUrl]);
   
   const handleClick = () => {
     // Сохраняем позицию скролла перед переходом на страницу детального просмотра
