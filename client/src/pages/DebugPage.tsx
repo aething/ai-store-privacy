@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { clearUserCache, clearAllCache, reloadPage } from '@/utils/clearCache';
 import { useLocation } from 'wouter';
 import { useAppContext } from '@/context/AppContext';
+import DebugCountrySelect from '@/components/DebugCountrySelect';
 
 export default function DebugPage() {
   const [, setLocation] = useLocation();
@@ -184,27 +185,23 @@ export default function DebugPage() {
         
         <div className="space-y-4">
           <div>
-            <Label htmlFor="country">Новая страна (код ISO-2):</Label>
-            <div className="flex mt-1 gap-2">
-              <Input 
-                id="country" 
-                value={newCountry} 
-                onChange={(e) => setNewCountry(e.target.value.toUpperCase())}
-                placeholder="US, DE, FR..."
-                maxLength={2}
-                className="uppercase"
+            <Label htmlFor="country">Новая страна:</Label>
+            <div className="mt-1 mb-3">
+              <DebugCountrySelect
+                id="debug-country"
+                value={newCountry}
+                onChange={setNewCountry}
+                label="Выберите страну для тестирования"
               />
-              <Button 
-                onClick={handleUpdateCountry} 
-                disabled={loading || !sessionInfo.apiUser}
-              >
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Обновить страну
-              </Button>
             </div>
-            <p className="mt-1 text-sm text-gray-500">
-              Примеры: US (США, USD), DE (Германия, EUR), FR (Франция, EUR)
-            </p>
+            <Button 
+              onClick={handleUpdateCountry} 
+              disabled={loading || !sessionInfo.apiUser}
+              className="mt-2"
+            >
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Обновить страну
+            </Button>
           </div>
         </div>
       </Card>
