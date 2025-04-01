@@ -1,99 +1,127 @@
 /**
- * Утилита для очистки кэша localStorage
- * 
- * Примечание: Эта утилита создана для отладки и может быть удалена в продакшн-версии
+ * Утилита для очистки кэша приложения и обновления страны пользователя
+ * Эта функция используется для принудительного обновления данных пользователя
+ * из localStorage и сервера, гарантируя правильное отображение цен в валюте
+ * соответствующей стране пользователя.
  */
 
+import { User } from "@shared/schema";
+import { clearAllCaches } from "@/lib/cache-utils";
+
+// Вспомогательная функция для перезагрузки страницы 
+export function reloadPage() {
+  console.log('[clearCache] Reloading page...');
+  setTimeout(() => {
+    window.location.reload();
+  }, 300);
+}
+
+// Экспортируем функцию clearAllCache для совместимости с существующим кодом
+export const clearAllCache = clearAllCaches;
+
 /**
- * Очистка кэша пользователя в localStorage
+ * Очищает данные пользователя в localStorage, сохраняя настройки страны
+ * @param preserveCountry Если true, сохраняем настройку страны пользователя
  */
-export function clearUserCache(preserveCountry: boolean = false): void {
+export function clearUserCache(preserveCountry = false) {
+  console.log('[clearCache] Clearing user cache...');
+  
+  // Сохраняем страну, если нужно
+  let country = null;
   if (preserveCountry) {
-    // Сохраняем данные пользователя перед очисткой
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        const country = user.country;
-        
-        // Очищаем и сохраняем только страну
-        localStorage.removeItem('user');
-        
-        if (country) {
-          // Получаем текущего пользователя с сервера
-          fetch('/api/users/me')
-            .then(response => {
-              if (response.ok) {
-                return response.json();
-              }
-              throw new Error('Не удалось получить данные пользователя');
-            })
-            .then(currentUser => {
-              // Обновляем страну и сохраняем обратно
-              currentUser.country = country;
-              localStorage.setItem('user', JSON.stringify(currentUser));
-              console.log(`🧹 Кэш пользователя обновлен с сохранением страны: ${country}`);
-            })
-            .catch(error => {
-              console.error('Ошибка при обновлении кэша:', error);
-            });
-        }
-      } catch (error) {
-        console.error('Ошибка при обработке данных пользователя:', error);
-        localStorage.removeItem('user');
+    try {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      country = userData.country || null;
+    } catch (e) {
+      console.error('[clearCache] Error preserving country', e);
+    }
+  }
+  
+  // Удаляем данные пользователя
+  localStorage.removeItem('user');
+  sessionStorage.clear();
+  
+  // Восстанавливаем страну, если нужно
+  if (preserveCountry && country) {
+    try {
+      localStorage.setItem('country', country);
+      console.log(`[clearCache] Preserved country: ${country}`);
+    } catch (e) {
+      console.error('[clearCache] Error saving country', e);
+    }
+  }
+  
+  console.log('[clearCache] User cache cleared');
+}
+
+/**
+ * Очищает все кэши и перезагружает страницу
+ * @param preserveCountry Если true, сохраняем настройку страны пользователя
+ */
+export function clearCacheAndReload(preserveCountry = false) {
+  clearUserCache(preserveCountry);
+  clearAllCaches().then(() => reloadPage());
+}
+
+/**
+ * Очищает кэш приложения и запускает перезагрузку страницы
+ * @param countryCode Код страны, который нужно установить (опционально)
+ */
+export async function clearAppCache(countryCode?: string): Promise<void> {
+  console.log('[clearCache] Clearing application cache...');
+  
+  // Сохраняем данные пользователя, чтобы не потерять авторизацию
+  let userData: User | null = null;
+  try {
+    const userJson = localStorage.getItem('user');
+    if (userJson) {
+      userData = JSON.parse(userJson);
+      
+      // Если указан код страны, обновляем его в данных пользователя
+      if (countryCode && userData) {
+        userData.country = countryCode;
+        console.log(`[clearCache] Updated user country to: ${countryCode}`);
       }
     }
-  } else {
-    localStorage.removeItem('user');
-    console.log('🧹 Кэш пользователя очищен в localStorage');
+  } catch (e) {
+    console.error('[clearCache] Error parsing user data:', e);
   }
-}
-
-/**
- * Полная очистка localStorage
- */
-export function clearAllCache(): void {
+  
+  // Очищаем все кэши приложения через общую утилиту
+  try {
+    await clearAllCaches();
+    console.log('[clearCache] Application caches cleared');
+  } catch (e) {
+    console.error('[clearCache] Error clearing caches:', e);
+  }
+  
+  // Очищаем localStorage и sessionStorage
   localStorage.clear();
-  console.log('🧹 Весь localStorage очищен');
-}
-
-/**
- * Перезагрузка страницы
- */
-export function reloadPage(): void {
-  console.log('🔄 Перезагрузка страницы...');
-  window.location.reload();
-}
-
-/**
- * Очистка кэша и перезагрузка страницы
- * @param preserveCountry Если true, то сохраняет информацию о стране пользователя
- */
-export function clearCacheAndReload(preserveCountry: boolean = false): void {
-  clearUserCache(preserveCountry);
-  setTimeout(() => {
-    reloadPage();
-  }, 500);
-}
-
-// Инициализация глобального объекта для отладки
-declare global {
-  interface Window {
-    appDebug: {
-      clearUserCache: (preserveCountry?: boolean) => void;
-      clearAllCache: () => void;
-      reloadPage: () => void;
-      clearCacheAndReload: (preserveCountry?: boolean) => void;
-    };
+  sessionStorage.clear();
+  
+  // Восстанавливаем данные пользователя, если они были
+  if (userData) {
+    localStorage.setItem('user', JSON.stringify(userData));
+    console.log('[clearCache] Restored user data with updated country');
   }
+  
+  // Перезагружаем страницу
+  console.log('[clearCache] Reloading page...');
+  setTimeout(() => {
+    window.location.reload();
+  }, 300);
 }
 
-// Добавляем функции в глобальный объект окна для вызова из консоли
-if (typeof window !== 'undefined') {
-  window.appDebug = {
-    clearUserCache,
-    clearAllCache,
-    reloadPage,
-    clearCacheAndReload
-  };
+/**
+ * Обновляет страну пользователя на указанную и перезагружает приложение
+ * @param countryCode Код страны (например, 'US' или 'DE')
+ */
+export async function updateUserCountry(countryCode: string): Promise<void> {
+  if (!countryCode || countryCode.length !== 2) {
+    console.error('[updateUserCountry] Invalid country code:', countryCode);
+    return;
+  }
+  
+  console.log(`[updateUserCountry] Updating user country to: ${countryCode}`);
+  await clearAppCache(countryCode);
 }
