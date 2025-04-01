@@ -219,13 +219,11 @@ export default function ProductDetail() {
               </TabsList>
               <TabsContent value="hardware" className="p-2">
                 {product.hardwareInfo ? (
-                  <div className="space-y-6">
-                    <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                      <div 
-                        className="prose max-w-none text-blue-800" 
-                        dangerouslySetInnerHTML={{ __html: product.hardwareInfo.replace(/\n/g, '<br/>') }}
-                      ></div>
-                    </div>
+                  <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                    <div 
+                      className="prose max-w-none text-blue-800" 
+                      dangerouslySetInnerHTML={{ __html: product.hardwareInfo.replace(/\n/g, '<br/>') }}
+                    ></div>
                   </div>
                 ) : (
                   <div className="text-gray-400 text-center py-4">
@@ -235,13 +233,11 @@ export default function ProductDetail() {
               </TabsContent>
               <TabsContent value="software" className="p-2">
                 {product.softwareInfo ? (
-                  <div className="space-y-6">
-                    <div className="bg-emerald-50 rounded-lg p-4 border-l-4 border-emerald-500">
-                      <div 
-                        className="prose max-w-none text-emerald-800" 
-                        dangerouslySetInnerHTML={{ __html: product.softwareInfo.replace(/\n/g, '<br/>') }}
-                      ></div>
-                    </div>
+                  <div className="bg-emerald-50 rounded-lg p-4 border-l-4 border-emerald-500">
+                    <div 
+                      className="prose max-w-none text-emerald-800" 
+                      dangerouslySetInnerHTML={{ __html: product.softwareInfo.replace(/\n/g, '<br/>') }}
+                    ></div>
                   </div>
                 ) : (
                   <div className="text-gray-400 text-center py-4">
