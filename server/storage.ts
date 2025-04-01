@@ -311,18 +311,50 @@ export class MemStorage implements IStorage {
   
   async syncStripeProducts(): Promise<Product[]> {
     try {
-      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      console.log("Starting Stripe products synchronization...");
+      console.log("Using Stripe secret key:", process.env.STRIPE_SECRET_KEY ? "Key exists (redacted)" : "Key is missing!");
+      
+      // Проверка наличия ключа Stripe
+      if (!process.env.STRIPE_SECRET_KEY) {
+        console.error("STRIPE_SECRET_KEY is not set. Cannot sync products with Stripe.");
+        throw new Error("STRIPE_SECRET_KEY is not set");
+      }
+      
+      // Импортируем Stripe с расширенным логированием
+      // Используем динамический импорт вместо require
+      const Stripe = await import('stripe').then(module => module.default);
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+        apiVersion: '2023-10-16', // Используем последнюю версию API
+        telemetry: false // Отключаем телеметрию для лучшей производительности
+      });
+      
+      console.log("Stripe client initialized. Fetching products...");
       
       // Получаем все продукты из Stripe
       const stripeProducts = await stripe.products.list({
         active: true,
-        expand: ['data.default_price']
+        expand: ['data.default_price'],
+        limit: 100 // Увеличиваем лимит для получения большего количества продуктов
       });
       
       console.log(`Received ${stripeProducts.data.length} products from Stripe`);
       
+      // Логирование полученных продуктов
+      if (stripeProducts.data.length > 0) {
+        console.log("First Stripe product details:");
+        console.log("- ID:", stripeProducts.data[0].id);
+        console.log("- Name:", stripeProducts.data[0].name);
+        console.log("- Description:", stripeProducts.data[0].description?.substring(0, 50) + "...");
+        console.log("- Default price object:", 
+          stripeProducts.data[0].default_price ? "Present" : "Missing");
+      } else {
+        console.log("No products found in Stripe. Please create products in Stripe dashboard first.");
+      }
+      
       // Получаем существующие продукты
       const existingProducts = Array.from(this.products.values());
+      console.log(`Found ${existingProducts.length} existing products in the application`);
+      
       const updatedProducts: Product[] = [];
       
       // Обновляем существующие и добавляем новые продукты
@@ -330,10 +362,18 @@ export class MemStorage implements IStorage {
         // Ищем продукт в нашей базе по Stripe ID
         let product = existingProducts.find(p => p.stripeProductId === stripeProduct.id);
         
+        // Получаем цену из Stripe
         const price = stripeProduct.default_price;
-        const priceAmount = price ? price.unit_amount / 100 : 0; // Stripe хранит цены в центах
         
-        console.log(`Product ${stripeProduct.name} - price: ${priceAmount}, currency: ${price?.currency}`);
+        // Проверяем наличие цены
+        if (!price || !price.unit_amount) {
+          console.log(`Warning: Product ${stripeProduct.name} (${stripeProduct.id}) has no price. Skipping.`);
+          continue;
+        }
+        
+        const priceAmount = price.unit_amount / 100; // Stripe хранит цены в центах
+        
+        console.log(`Product ${stripeProduct.name} - price: ${priceAmount}, currency: ${price.currency}`);
         
         // Проверяем наличие метаданных для priceEUR
         if (stripeProduct.metadata && stripeProduct.metadata.priceEUR) {
@@ -353,15 +393,16 @@ export class MemStorage implements IStorage {
             imageUrl: stripeProduct.images && stripeProduct.images.length > 0 
               ? stripeProduct.images[0] 
               : product.imageUrl,
-            category: product.category,
+            category: stripeProduct.metadata?.category || product.category,
             hardwareInfo: stripeProduct.metadata?.hardwareInfo || product.hardwareInfo,
             softwareInfo: stripeProduct.metadata?.softwareInfo || product.softwareInfo,
-            currency: price ? price.currency : 'usd'
+            currency: price.currency,
+            stripeProductId: stripeProduct.id  // Обязательно обновляем идентификатор продукта Stripe
           };
           
           this.products.set(product.id, updatedProduct);
           updatedProducts.push(updatedProduct);
-          console.log(`Updated existing product: ${updatedProduct.title}`);
+          console.log(`Updated existing product: ${updatedProduct.title} (ID: ${product.id}, Stripe ID: ${stripeProduct.id})`);
           console.log(`  Price USD: ${updatedProduct.price}, Price EUR: ${updatedProduct.priceEUR}, Currency: ${updatedProduct.currency}`);
         } else {
           // Создаем новый продукт
@@ -369,29 +410,29 @@ export class MemStorage implements IStorage {
             title: stripeProduct.name,
             description: stripeProduct.description || 'New product from Stripe',
             price: priceAmount,
-            priceEUR: stripeProduct.metadata?.priceEUR ? Number(stripeProduct.metadata.priceEUR) : 0, // Цена в EUR из метаданных
+            priceEUR: stripeProduct.metadata?.priceEUR ? Number(stripeProduct.metadata.priceEUR) : Math.round(priceAmount * 0.92), // Примерная конвертация EUR если нет метаданных
             imageUrl: stripeProduct.images && stripeProduct.images.length > 0 
               ? stripeProduct.images[0] 
               : 'https://placehold.co/600x400?text=Product',
             category: stripeProduct.metadata?.category || 'other',
-            currency: price ? price.currency : 'usd',
+            currency: price.currency,
             features: stripeProduct.metadata?.features ? JSON.parse(stripeProduct.metadata.features) : [],
             specifications: stripeProduct.metadata?.specifications ? JSON.parse(stripeProduct.metadata.specifications) : [],
             hardwareInfo: stripeProduct.metadata?.hardwareInfo || null,
             softwareInfo: stripeProduct.metadata?.softwareInfo || null,
-            stripeProductId: stripeProduct.id
+            stripeProductId: stripeProduct.id  // Устанавливаем идентификатор продукта Stripe
           };
           
           const createdProduct = await this.createProduct(newProduct);
           updatedProducts.push(createdProduct);
-          console.log(`Created new product: ${createdProduct.title}`);
+          console.log(`Created new product: ${createdProduct.title} (ID: ${createdProduct.id}, Stripe ID: ${stripeProduct.id})`);
           console.log(`  Price USD: ${createdProduct.price}, Price EUR: ${createdProduct.priceEUR}, Currency: ${createdProduct.currency}`);
         }
       }
       
       // Если у нас нет продуктов из Stripe или есть ошибка получения, создадим базовые продукты
       if (updatedProducts.length === 0) {
-        console.log("No products received from Stripe, creating default products");
+        console.log("No products received from Stripe or no updates needed, keeping default products");
         
         // Информация об аппаратном обеспечении для первого продукта
         const hardwareInfo1 = `
@@ -569,6 +610,13 @@ Management Console: Comprehensive monitoring, analytics, and management interfac
       return updatedProducts;
     } catch (error) {
       console.error('Error syncing products with Stripe:', error);
+      
+      // В случае ошибки детализируем ее для облегчения диагностики
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
       
       // В случае ошибки и отсутствия продуктов создаем три базовых продукта
       const existingProducts = Array.from(this.products.values());
