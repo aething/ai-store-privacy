@@ -165,4 +165,70 @@ export async function syncProductsWithStripe() {
   return response.json();
 }
 
+/**
+ * Create a price for a product in Stripe
+ * @param productId The ID of the product
+ * @param amount The amount in cents/pennies
+ * @param currency The currency code (usd, eur, etc.)
+ * @param recurring Whether this is a recurring price (subscription)
+ */
+export async function createPrice(
+  productId: number,
+  amount: number,
+  currency: string = 'usd',
+  recurring: boolean = false
+) {
+  const response = await apiRequest('POST', '/api/stripe/create-price', {
+    productId,
+    amount,
+    currency,
+    recurring
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to create price in Stripe');
+  }
+  
+  return response.json();
+}
+
+/**
+ * Get or create a subscription for the current user
+ * @param priceId The Stripe price ID to subscribe to
+ * @param currency The currency code (usd, eur, etc.)
+ */
+export async function getOrCreateSubscription(
+  priceId: string,
+  currency: string = 'usd'
+) {
+  const response = await apiRequest('POST', '/api/get-or-create-subscription', {
+    priceId,
+    currency
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to create subscription');
+  }
+  
+  return response.json();
+}
+
+/**
+ * Manage an existing subscription (cancel, reactivate, etc.)
+ * @param action The action to perform ('cancel', 'reactivate', 'cancel_immediately')
+ */
+export async function manageSubscription(
+  action: 'cancel' | 'reactivate' | 'cancel_immediately'
+) {
+  const response = await apiRequest('POST', '/api/manage-subscription', {
+    action
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to ${action} subscription`);
+  }
+  
+  return response.json();
+}
+
 export default stripePromise;

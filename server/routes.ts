@@ -444,6 +444,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error fetching products" });
     }
   });
+
+  // Endpoint для создания цены в Stripe
+  app.post("/api/stripe/create-price", async (req: Request, res: Response) => {
+    try {
+      const { productId, currency = "usd", amount, recurring = false } = req.body;
+      
+      if (!productId || !amount) {
+        return res.status(400).json({ message: "Product ID and amount are required" });
+      }
+      
+      // Get the product
+      const product = await storage.getProduct(Number(productId));
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      
+      if (!product.stripeProductId) {
+        return res.status(400).json({ message: "Product does not have a Stripe product ID. Please sync products first." });
+      }
+      
+      // Импортируем Stripe динамически
+      const Stripe = await import('stripe').then(module => module.default);
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+        apiVersion: '2023-10-16',
+        telemetry: false
+      });
+      
+      // Create a price in Stripe
+      const priceData: any = {
+        product: product.stripeProductId,
+        currency,
+        unit_amount: amount,
+      };
+      
+      if (recurring) {
+        priceData.recurring = {
+          interval: 'month'
+        };
+      }
+      
+      const price = await stripe.prices.create(priceData);
+      
+      res.json({ 
+        success: true, 
+        price: {
+          id: price.id,
+          product: price.product,
+          currency: price.currency,
+          unit_amount: price.unit_amount,
+          recurring: price.recurring
+        }
+      });
+    } catch (error) {
+      console.error("Error creating price:", error);
+      res.status(500).json({ message: "Error creating price" });
+    }
+  });
   
   app.get("/api/products/:id", async (req: Request, res: Response) => {
     try {

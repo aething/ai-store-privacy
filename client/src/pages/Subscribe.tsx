@@ -6,6 +6,12 @@ import { useToast } from '../hooks/use-toast';
 import { apiRequest } from '../lib/queryClient';
 import { useLocation } from 'wouter';
 import stripePromise from '@/lib/stripe';
+import { createPrice, getOrCreateSubscription, manageSubscription } from '@/lib/stripe';
+import { useLocale } from '@/context/LocaleContext';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, CheckCircle, AlertCircle, RefreshCcw } from 'lucide-react';
 
 const SubscribeForm = () => {
   const stripe = useStripe();
@@ -99,9 +105,17 @@ export default function Subscribe() {
   const [clientSecret, setClientSecret] = useState('');
   const [stripeLoadError, setStripeLoadError] = useState(false);
   const [subscriptionError, setSubscriptionError] = useState(false);
+  const [isCreatingPrice, setIsCreatingPrice] = useState(false);
+  const [priceId, setPriceId] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentStep, setCurrentStep] = useState<'select' | 'payment'>('select');
+  const [subscription, setSubscription] = useState<any>(null);
+  
   const { user } = useAppContext();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { t } = useLocale();
 
   // Проверка загрузки Stripe
   useEffect(() => {
@@ -110,61 +124,105 @@ export default function Subscribe() {
       if (!stripePromise) {
         setStripeLoadError(true);
         toast({
-          title: "Платежная система недоступна",
-          description: "Платежная система временно недоступна. Пожалуйста, попробуйте позже.",
+          title: t("paymentSystemUnavailable") || "Платежная система недоступна",
+          description: t("tryAgainLater") || "Платежная система временно недоступна. Пожалуйста, попробуйте позже.",
           variant: "destructive",
         });
       }
     }, 5000);
 
     return () => clearTimeout(stripeLoadTimeout);
-  }, [toast]);
+  }, [toast, t]);
 
+  // Если пользователь авторизован и у него есть подписка, проверяем ее статус
   useEffect(() => {
+    if (user?.stripeSubscriptionId) {
+      // Получаем информацию о текущей подписке
+      apiRequest('POST', '/api/get-or-create-subscription', {})
+        .then(res => res.json())
+        .then(data => {
+          setSubscription(data);
+        })
+        .catch(error => {
+          console.error('Error fetching subscription data:', error);
+        });
+    }
+  }, [user]);
+
+  // Функция для создания цены в Stripe
+  const handleCreatePrice = async (productId: number, amount: number) => {
+    setIsCreatingPrice(true);
+    setSelectedPlan(productId);
+    
+    try {
+      // Создаем recurring цену для подписки
+      const result = await createPrice(productId, amount, 'usd', true);
+      
+      if (result.success && result.price) {
+        setPriceId(result.price.id);
+        toast({
+          title: t("priceCreated") || "Цена создана",
+          description: t("proceedToSubscription") || "Теперь вы можете оформить подписку",
+        });
+        
+        // После создания цены переходим к оформлению подписки
+        handleStartSubscription(result.price.id);
+      }
+    } catch (error) {
+      console.error('Error creating price:', error);
+      toast({
+        title: t("error") || "Ошибка",
+        description: t("failedToCreatePrice") || "Не удалось создать цену. Попробуйте позже.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreatingPrice(false);
+    }
+  };
+
+  // Функция для начала процесса подписки
+  const handleStartSubscription = async (priceId: string) => {
     // Если пользователь не авторизован, перенаправляем на главную
     if (!user) {
       toast({
-        title: 'Требуется авторизация',
-        description: 'Для оформления подписки необходимо войти в аккаунт',
+        title: t("authRequired") || 'Требуется авторизация',
+        description: t("loginRequired") || 'Для оформления подписки необходимо войти в аккаунт',
         variant: 'destructive',
       });
       setLocation('/');
       return;
     }
 
-    // PRICE_ID должен быть создан в панели управления Stripe и привязан к продукту
-    // В реальном проекте его нужно получать из конфигурации или из API
-    const PRICE_ID = 'price_test123'; // Замените на реальный price_id из Stripe
+    setIsProcessing(true);
 
-    // Создаем или получаем существующую подписку для пользователя
-    apiRequest('POST', '/api/get-or-create-subscription', { priceId: PRICE_ID })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to create subscription');
-        return res.json();
-      })
-      .then((data) => {
-        if (data.clientSecret) {
-          setClientSecret(data.clientSecret);
-          setSubscriptionError(false);
-        } else {
-          // Если нет clientSecret, значит подписка уже активна
-          toast({
-            title: 'Подписка активна',
-            description: 'У вас уже есть активная подписка',
-          });
-          setLocation('/account');
-        }
-      })
-      .catch((error) => {
-        console.error('Error creating subscription:', error);
-        setSubscriptionError(true);
+    try {
+      // Создаем или получаем существующую подписку для пользователя
+      const data = await getOrCreateSubscription(priceId);
+      
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+        setSubscriptionError(false);
+        setCurrentStep('payment');
+      } else {
+        // Если нет clientSecret, значит подписка уже активна
+        setSubscription(data);
         toast({
-          title: 'Ошибка',
-          description: 'Не удалось создать подписку. Попробуйте позже.',
-          variant: 'destructive',
+          title: t("subscriptionActive") || 'Подписка активна',
+          description: t("alreadySubscribed") || 'У вас уже есть активная подписка',
         });
+      }
+    } catch (error) {
+      console.error('Error creating subscription:', error);
+      setSubscriptionError(true);
+      toast({
+        title: t("error") || 'Ошибка',
+        description: t("failedToCreateSubscription") || 'Не удалось создать подписку. Попробуйте позже.',
+        variant: 'destructive',
       });
-  }, [user, toast, setLocation]);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   // Показываем запасной вариант при ошибке загрузки Stripe или создания подписки
   if (stripeLoadError || subscriptionError) {
