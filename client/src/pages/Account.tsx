@@ -367,10 +367,9 @@ export default function Account() {
                       register={registerLogin("username")}
                       error={loginErrors.username?.message}
                     />
-                    <div className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400">
+                    <div className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400">
                       <Mail size={18} />
                     </div>
-                    <div className="pl-10"></div>
                   </div>
                 </div>
                 
@@ -383,10 +382,9 @@ export default function Account() {
                       register={registerLogin("password")}
                       error={loginErrors.password?.message}
                     />
-                    <div className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-400">
+                    <div className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400">
                       <Lock size={18} />
                     </div>
-                    <div className="pl-10"></div>
                   </div>
                 </div>
                 
