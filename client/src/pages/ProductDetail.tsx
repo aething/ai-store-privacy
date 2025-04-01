@@ -137,28 +137,30 @@ export default function ProductDetail() {
   };
   
   // Используем функцию из сервиса предварительной загрузки для получения изображения
-  // При монтировании компонента загружаем изображение
+  // При монтировании компонента загружаем изображение и устанавливаем источник
   useEffect(() => {
-    // Функция для установки источника изображения
-    const setImageSource = () => {
-      // Устанавливаем источник только если у нас есть product
-      if (product) {
-        setImageSrc(product.imageUrl || getProductImage(product.id));
-      }
-    };
-    
-    // Всегда пытаемся загрузить изображения
-    // Это обеспечивает, что хуки всегда вызываются в одном и том же порядке
-    preloadImages()
-      .then(() => {
-        // После загрузки устанавливаем флаг и источник
+    // Функция загрузки изображений и установки источника
+    async function loadAndSetImage() {
+      try {
+        // Загрузка изображений
+        await preloadImages();
         setImageLoaded(true);
-        setImageSource();
-      })
-      .catch(() => {
-        // В случае ошибки при загрузке также устанавливаем источник
-        setImageSource();
-      });
+        
+        // Установка источника изображения
+        if (product) {
+          setImageSrc(product.imageUrl || getProductImage(product.id));
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки изображений:', error);
+        // Даже в случае ошибки, устанавливаем источник
+        if (product) {
+          setImageSrc(product.imageUrl || getProductImage(product.id));
+        }
+      }
+    }
+    
+    // Запускаем загрузку
+    loadAndSetImage();
   }, [product?.id, product?.imageUrl]);
   
   return (

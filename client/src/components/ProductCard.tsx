@@ -19,20 +19,26 @@ export default function ProductCard({ product }: ProductCardProps) {
   
   // При монтировании компонента определяем источник изображения
   useEffect(() => {
-    // Всегда определяем источник изображения
-    const imageSrc = product.imageUrl || getProductImage(product.id);
-    
-    // Всегда пытаемся загрузить изображения и обновить состояние
-    preloadImages()
-      .then(() => {
-        // Устанавливаем состояния в одинаковом порядке при каждом рендере
+    // Функция загрузки изображений и установки источника
+    async function loadAndSetImage() {
+      try {
+        // Загрузка изображений
+        await preloadImages();
         setImageLoaded(true);
+        
+        // Установка источника изображения
+        const imageSrc = product.imageUrl || getProductImage(product.id);
         setImageSrc(imageSrc);
-      })
-      .catch(() => {
-        // Даже при ошибке устанавливаем источник, но не меняем флаг загрузки
+      } catch (error) {
+        console.error('Ошибка загрузки изображений:', error);
+        // Даже в случае ошибки устанавливаем источник
+        const imageSrc = product.imageUrl || getProductImage(product.id);
         setImageSrc(imageSrc);
-      });
+      }
+    }
+    
+    // Запускаем загрузку
+    loadAndSetImage();
   }, [product.id, product.imageUrl]);
   
   const handleClick = () => {
