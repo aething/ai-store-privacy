@@ -65,11 +65,8 @@ export function formatPrice(
     return currency === 'eur' ? '€0.00' : '$0.00';
   }
   
-  // Проверяем, похоже ли это уже на цену в долларах
-  const isDollarAmount = !isStripePrice && price > 0 && price < 10000;
-  
-  // Конвертируем цены в центах в доллары/евро; если цена из Stripe или уже в долларах, не трогаем
-  const amount = (isStripePrice || isDollarAmount) ? price : price / 100;
+  // Всегда конвертируем цены в центах в доллары/евро, если это не цена из Stripe
+  const amount = isStripePrice ? price : price / 100;
   
   if (currency === 'eur') {
     return `€${amount.toFixed(2)}`;
@@ -112,11 +109,8 @@ export function formatCurrency(
     return getCurrencySymbol(currency) + '0.00';
   }
   
-  // Проверяем, похоже ли это уже на цену в долларах
-  const isDollarAmount = !isStripePrice && amount > 0 && amount < 10000;
-  
-  // Конвертируем цены в центах в доллары/евро; если цена из Stripe или уже в долларах, не трогаем
-  const value = (isStripePrice || isDollarAmount) ? amount : amount / 100;
+  // Всегда конвертируем цены в центах в доллары/евро, если это не цена из Stripe
+  const value = isStripePrice ? amount : amount / 100;
   
   const currencyCode = currency.toLowerCase();
   
