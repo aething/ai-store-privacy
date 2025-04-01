@@ -58,8 +58,10 @@ export default function ProductDetail() {
   
   const formatProductPrice = (product: any) => {
     // Определяем валюту в зависимости от страны пользователя
-    const currency = state.userCountry && 
-                    ["DE", "FR", "IT", "ES", "NL", "BE", "AT", "GR", "PT", "FI", "IE", "LU", "SK", "SI", "CY", "MT", "LV", "LT", "EE"].includes(state.userCountry) 
+    // Проверяем, что state и state.userCountry существуют
+    const userCountry = state?.userCountry || null;
+    const currency = userCountry && 
+                    ["DE", "FR", "IT", "ES", "NL", "BE", "AT", "GR", "PT", "FI", "IE", "LU", "SK", "SI", "CY", "MT", "LV", "LT", "EE"].includes(userCountry) 
                     ? "EUR" : "USD";
     
     const price = currency === "EUR" ? product.priceEUR : product.price;
