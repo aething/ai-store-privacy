@@ -28,6 +28,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const currency = getCurrencyForCountry(user?.country);
   const price = getPriceForCountry(product, user?.country);
   
+  // Добавляем отладочный вывод для определения валюты
+  console.log(`DEBUG ProductCard: User country=${user?.country}, Currency=${currency}, Product ID=${product.id}, Price=${price}`);
+  
   // Проверяем, является ли это ценой из Stripe (по наличию stripeProductId)
   const isStripePrice = !!product.stripeProductId;
   

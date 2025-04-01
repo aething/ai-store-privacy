@@ -474,6 +474,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if we should filter by country
       const country = req.query.country as string | undefined;
       
+      // Добавляем детальный вывод информации о запросе
+      console.log(`[DEBUG] GET /api/products - Query country param: ${country}, User session country: ${req.user?.country}`);
+      
+      // Если в запросе не указана страна, но пользователь аутентифицирован, используем его страну
+      const effectiveCountry = country || (req.isAuthenticated() ? req.user?.country : undefined);
+      console.log(`[DEBUG] Effective country for products: ${effectiveCountry}`);
+      
       // Optional sync with Stripe products (for demo purposes)
       const syncWithStripe = req.query.sync === 'true';
       
@@ -486,9 +493,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.syncStripeProducts();
       }
       
-      let products = country 
-        ? await storage.getProductsByCountry(country)
+      // Используем effectiveCountry вместо country
+      let products = effectiveCountry 
+        ? await storage.getProductsByCountry(effectiveCountry)
         : await storage.getProducts();
+        
+      // Добавляем вывод информации о ценах в разных валютах
+      if (products.length > 0) {
+        const shouldUseEuro = effectiveCountry ? shouldUseEUR(effectiveCountry) : false;
+        const currency = shouldUseEuro ? 'EUR' : 'USD';
+        console.log(`[DEBUG] Currency determined for country ${effectiveCountry}: ${currency}`);
+        
+        const sampleProduct = products[0];
+        console.log(`[DEBUG] Sample product prices - USD: ${sampleProduct.price}, EUR: ${sampleProduct.priceEUR}`);
+      }
       
       // Apply sorting if requested
       if (sortBy) {
@@ -498,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Handle different sort fields
           if (sortBy === 'price') {
             // Use the appropriate price based on country
-            if (country && shouldUseEUR(country)) {
+            if (effectiveCountry && shouldUseEUR(effectiveCountry)) {
               valueA = a.priceEUR;
               valueB = b.priceEUR;
             } else {

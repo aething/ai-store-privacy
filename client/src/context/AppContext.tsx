@@ -31,17 +31,35 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const userData = JSON.parse(storedUser);
+        console.log("[AppContext] Loading user from localStorage:", {
+          id: userData.id,
+          username: userData.username,
+          country: userData.country,
+          shouldUseEUR: userData.country ? [
+            'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 
+            'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 
+            'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
+          ].includes(userData.country) : false
+        });
+        setUser(userData);
       } catch (error) {
         console.error("Error parsing stored user:", error);
         localStorage.removeItem("user");
       }
+    } else {
+      console.log("[AppContext] No user found in localStorage");
     }
   }, []);
   
   const isAuthenticated = !!user;
   
   const login = (userData: User) => {
+    console.log("[AppContext] Login user:", {
+      id: userData.id,
+      username: userData.username,
+      country: userData.country
+    });
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
   };
