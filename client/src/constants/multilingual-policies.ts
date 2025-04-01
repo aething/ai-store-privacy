@@ -74,23 +74,30 @@ export const deliveryPolicy: MultilingualPolicy = {
           <h4 class="font-medium mb-2">Lieferrichtlinie</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Regionen:</h5>
-            <p class="text-text-secondary">EU & USA. EU-Preise inkl. MwSt. Zollgebühren außerhalb EU/USA möglich.</p>
+            <h5 class="font-medium mb-1">§ 1 Regionen:</h5>
+            <p class="text-text-secondary">EU: Preis inkl. MwSt.</p>
+            <p class="text-text-secondary">USA: Ohne Mehrwertsteuer.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Methoden:</h5>
-            <p class="text-text-secondary">Standard (3–7 Werktage). Kosten inklusive.</p>
+            <h5 class="font-medium mb-1">§ 2 Lieferzeiten:</h5>
+            <p class="text-text-secondary">Standard: 3-7 Werktage nach Zahlungseingang.</p>
+            <p class="text-text-secondary">Express: Auf Anfrage (+ Gebühr).</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Fristen:</h5>
+            <h5 class="font-medium mb-1">§ 3 Fristen:</h5>
             <p class="text-text-secondary">Bearbeitung 1–3 Tage. Max. 30 Tage in EU (Richtlinie 2011/83/EU).</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Beschädigungen:</h5>
+            <h5 class="font-medium mb-1">§ 4 Beschädigungen:</h5>
             <p class="text-text-secondary">Innerhalb 14 Tage (EU) melden. Kostenlose Rücksendung mit Foto.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">§ 5 Risikoübergang:</h5>
+            <p class="text-text-secondary">Mit Übergabe an den Spediteur (Incoterms 2023: FCA).</p>
           </div>
           
           <p class="text-text-secondary"><strong>Kontakt:</strong> support@aething.com</p>
@@ -429,27 +436,47 @@ export const returnPolicy: MultilingualPolicy = {
     },
     // Немецкая версия
     de: {
-      title: "Rückgabe- und Umtauschrichtlinie",
+      title: "Widerrufsbelehrung (Rückgabebedingungen)",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Zuletzt aktualisiert:</strong> 1. April 2025</p>
           
-          <h4 class="font-medium mb-2">Rückgabe- und Umtauschrichtlinie</h4>
+          <h4 class="font-medium mb-2">Widerrufsbelehrung (Rückgabebedingungen)</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Allgemeine Bedingungen:</h5>
-            <p class="text-text-secondary">Rückgabefrist: 14 Tage ab Lieferung.</p>
-            <p class="text-text-secondary">Nicht zurückgebbare Artikel: Geöffnete Software, kundenspezifische PCs, vom Kunden beschädigte Waren.</p>
+            <h5 class="font-medium mb-1">§ 1 Widerrufsrecht (Gemäß § 355 BGB)</h5>
+            <p class="text-text-secondary">Sie haben 14 Tage ab Erhalt der Ware, um den Kauf ohne Angabe von Gründen zu widerrufen.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Defekte Artikel:</h5>
-            <p class="text-text-secondary">Kostenloser Rückversand bei bestätigtem Defekt. Nachweis über support@aething.com innerhalb von 7 Tagen übermitteln.</p>
+            <h5 class="font-medium mb-1">§ 2 Ausnahmen</h5>
+            <p class="text-text-secondary">Kein Widerrufsrecht für:</p>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Aktivierte Software/Digitale Inhalte</li>
+              <li>Maßgefertigte PC-Konfigurationen</li>
+              <li>Beschädigte Ware durch unsachgemäße Handhabung</li>
+            </ul>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Standardrückgaben:</h5>
-            <p class="text-text-secondary">Kunde trägt die Kosten für den Rückversand. Erstattung innerhalb von 5–7 Werktagen.</p>
+            <h5 class="font-medium mb-1">§ 3 Verfahren</h5>
+            <p class="text-text-secondary">Schritt: Senden Sie eine E-Mail an support@aething.com mit:</p>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Bestellnummer</li>
+              <li>Foto des Originalzustands (bei Beschädigungen)</li>
+            </ul>
+            <p class="text-text-secondary">Schritt: Wir senden eine Rücksendeetikette (bei Defekten) oder Adresse für Eigenversand.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">§ 4 Kostentragung</h5>
+            <p class="text-text-secondary">Bei Defekten: Wir übernehmen die Rücksendekosten.</p>
+            <p class="text-text-secondary">Bei Widerruf: Sie tragen die direkten Kosten der Rücksendung.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">§ 5 Erstattung</h5>
+            <p class="text-text-secondary">Innerhalb von 7 Werktagen nach Wareneingang.</p>
           </div>
         </div>
       `
@@ -632,17 +659,19 @@ export const paymentTermsPolicy: MultilingualPolicy = {
           <h4 class="font-medium mb-2">Zahlungsbedingungen</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Methoden:</h5>
-            <p class="text-text-secondary">Stripe (Optionen abhängig von Ihrem Land).</p>
+            <h5 class="font-medium mb-1">§ 1 Akzeptierte Methoden:</h5>
+            <p class="text-text-secondary">Stripe (Kreditkarten, landesspezifische Optionen)</p>
+            <p class="text-text-secondary">Vorauskasse (100% bei Bestellung)</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Vorauszahlung:</h5>
-            <p class="text-text-secondary">Erforderlich für alle Bestellungen.</p>
+            <h5 class="font-medium mb-1">§ 2 Sicherheit:</h5>
+            <p class="text-text-secondary">PCI-DSS konforme Verschlüsselung.</p>
+            <p class="text-text-secondary">Keine Speicherung der Kartendaten auf unseren Servern.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Rückerstattungen:</h5>
+            <h5 class="font-medium mb-1">§ 3 Rückerstattungen:</h5>
             <p class="text-text-secondary">Werden innerhalb von 7 Werktagen bearbeitet.</p>
           </div>
         </div>
@@ -810,23 +839,23 @@ export const warrantyPolicy: MultilingualPolicy = {
     },
     // Немецкая версия
     de: {
-      title: "Garantie & Haftung",
+      title: "Garantie & Gewährleistung",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Zuletzt aktualisiert:</strong> 1. April 2025</p>
           
-          <h4 class="font-medium mb-2">Garantie & Haftung</h4>
+          <h4 class="font-medium mb-2">Garantie & Gewährleistung</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Deckung:</h5>
-            <p class="text-text-secondary">USA: 12 Monate.</p>
-            <p class="text-text-secondary">EU: 24 Monate.</p>
-            <p class="text-text-secondary">Andere: 12 Monate.</p>
+            <h5 class="font-medium mb-1">§ 1 Gesetzliche Gewährleistung (EU):</h5>
+            <p class="text-text-secondary">24 Monate für Neuware (Richtlinie 1999/44/EG).</p>
+            <p class="text-text-secondary">12 Monate für Gebrauchtware.</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Ungültig bei:</h5>
-            <p class="text-text-secondary">Mechanische/elektrische Beschädigung, unbefugte Reparaturen.</p>
+            <h5 class="font-medium mb-1">§ 2 Garantieausschlüsse:</h5>
+            <p class="text-text-secondary">Mechanische Beschädigungen (Stürze, Wasserschäden).</p>
+            <p class="text-text-secondary">Modifikationen durch Kunden.</p>
           </div>
         </div>
       `
@@ -981,26 +1010,37 @@ export const privacyPolicy: MultilingualPolicy = {
     },
     // Немецкая версия
     de: {
-      title: "Datenschutzrichtlinie (DSGVO)",
+      title: "Datenschutzerklärung (DSGVO-konform)",
       content: `
         <div class="mb-4">
           <p class="mb-2 text-text-secondary"><strong>Zuletzt aktualisiert:</strong> 1. April 2025</p>
           
-          <h4 class="font-medium mb-2">Datenschutzrichtlinie (DSGVO)</h4>
+          <h4 class="font-medium mb-2">Datenschutzerklärung (DSGVO-konform)</h4>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Erfasste Daten:</h5>
-            <p class="text-text-secondary">Name, E-Mail, Lieferadresse, Zahlungsdetails.</p>
+            <h5 class="font-medium mb-1">Art. 13 DSGVO - Verantwortlicher:</h5>
+            <p class="text-text-secondary">Aething Inc., vertreten durch DSB Alex Bernshtein (support@aething.com).</p>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">DSGVO-Rechte:</h5>
-            <p class="text-text-secondary">Löschung beantragen über support@aething.com (Betreff: "DSGVO").</p>
+            <h5 class="font-medium mb-1">Erhobene Daten:</h5>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li>Name, Lieferadresse</li>
+              <li>Zahlungsdaten (via Stripe)</li>
+              <li>IP-Adresse (für Betrugsprävention)</li>
+            </ul>
           </div>
           
           <div class="mb-3">
-            <h5 class="font-medium mb-1">Datenschutzbeauftragter:</h5>
-            <p class="text-text-secondary">Alex Bernshtein.</p>
+            <h5 class="font-medium mb-1">Rechte der Betroffenen:</h5>
+            <p class="text-text-secondary">Löschung: E-Mail mit Betreff "DSGVO Löschung".</p>
+            <p class="text-text-secondary">Datenportabilität: Anfrage per E-Mail.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Speicherdauer:</h5>
+            <p class="text-text-secondary">Bestelldaten: 10 Jahre (§ 257 HGB).</p>
+            <p class="text-text-secondary">Kontodaten: 30 Tage nach Transaktion.</p>
           </div>
         </div>
       `

@@ -1,0 +1,88 @@
+Vollständige Rechtliche Dokumentation auf Deutsch (Deutschland & EU)
+
+Firma: Aething Inc.
+Adresse: 1111B S Governors Ave #6113, Dover, DE 19904, USA
+Kontakt: support@aething.com
+Datenschutzbeauftragter (DSB): Alex Bernshtein
+
+1. Widerrufsbelehrung (Rückgabebedingungen)
+
+§ 1 Widerrufsrecht (Gemäß § 355 BGB)
+
+Sie haben 14 Tage ab Erhalt der Ware, um den Kauf ohne Angabe von Gründen zu widerrufen.
+§ 2 Ausnahmen
+Kein Widerrufsrecht für:
+
+Aktivierte Software/Digitale Inhalte
+Maßgefertigte PC-Konfigurationen
+Beschädigte Ware durch unsachgemäße Handhabung
+§ 3 Verfahren
+
+Schritt: Senden Sie eine E-Mail an support@aething.com mit:
+Bestellnummer
+Foto des Originalzustands (bei Beschädigungen)
+Schritt: Wir senden eine Rücksendeetikette (bei Defekten) oder Adresse für Eigenversand.
+§ 4 Kostentragung
+
+Bei Defekten: Wir übernehmen die Rücksendekosten.
+Bei Widerruf: Sie tragen die direkten Kosten der Rücksendung.
+§ 5 Erstattung
+
+Innerhalb von 7 Werktagen nach Wareneingang.
+2. Zahlungsbedingungen
+
+§ 1 Akzeptierte Methoden
+
+Stripe (Kreditkarten, landesspezifische Optionen)
+Vorauskasse (100% bei Bestellung)
+§ 2 Sicherheit
+
+PCI-DSS konforme Verschlüsselung.
+Keine Speicherung der Kartendaten auf unseren Servern.
+3. Garantie & Gewährleistung
+
+§ 1 Gesetzliche Gewährleistung (EU)
+
+24 Monate für Neuware (Richtlinie 1999/44/EG).
+12 Monate für Gebrauchtware.
+§ 2 Garantieausschlüsse
+
+Mechanische Beschädigungen (Stürze, Wasserschäden).
+Modifikationen durch Kunden.
+4. Datenschutzerklärung (DSGVO-konform)
+
+Art. 13 DSGVO
+
+Verantwortlicher:
+Aething Inc., vertreten durch DSB Alex Bernshtein (support@aething.com).
+Erhobene Daten:
+Name, Lieferadresse
+Zahlungsdaten (via Stripe)
+IP-Adresse (für Betrugsprävention)
+Rechte der Betroffenen:
+Löschung: E-Mail mit Betreff "DSGVO Löschung".
+Datenportabilität: Anfrage per E-Mail.
+Speicherdauer:
+Bestelldaten: 10 Jahre (§ 257 HGB).
+Kontodaten: 30 Tage nach Transaktion.
+5. Lieferbedingungen
+
+§ 1 Regionen
+
+EU: Preis inkl. MwSt.
+USA: Ohne Mehrwertsteuer.
+§ 2 Lieferzeiten
+
+Standard: 3-7 Werktage nach Zahlungseingang.
+Express: Auf Anfrage (+ Gebühr).
+§ 3 Risikoübergang
+
+Mit Übergabe an den Spediteur (Incoterms 2023: FCA).
+6. Allgemeine Geschäftsbedingungen (AGB)
+
+§ 1 Geltungsbereich
+
+Diese Bedingungen gelten für alle Käufe über die Aething-App.
+§ 2 Streitbeilegung
+
+Online-Streitbeilegung (OS-Plattform der EU): [Link].
