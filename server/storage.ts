@@ -186,13 +186,14 @@ export class MemStorage implements IStorage {
       verificationToken: this.generateRandomToken(),
       stripeCustomerId: null,
       stripeSubscriptionId: null,
-      name: null,
-      phone: null,
-      country: null,
-      street: null,
-      house: null,
-      apartment: null,
-      language: "en" // По умолчанию английский язык
+      // Используем значения из insertUser если они есть, иначе null
+      name: insertUser.name || null,
+      phone: insertUser.phone || null,
+      country: insertUser.country || null, // Важно для выбора валюты
+      street: insertUser.street || null,
+      house: insertUser.house || null,
+      apartment: insertUser.apartment || null,
+      language: insertUser.language || "en" // По умолчанию английский язык
     };
     this.users.set(id, user);
     return user;
