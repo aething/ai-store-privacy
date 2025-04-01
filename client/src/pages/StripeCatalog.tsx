@@ -1,16 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Layout from '../components/Layout';
 import { useToast } from '../hooks/use-toast';
 import { useProductsSync } from "../hooks/use-products-sync";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "../../shared/schema";
 import { Separator } from "@/components/ui/separator";
 import { useAppContext } from "../context/AppContext";
 import { ArrowLeft, CheckCircle2, RefreshCw, ShoppingBag, StoreIcon, XCircle } from "lucide-react";
 import { useLocation } from "wouter";
+import { formatCurrency } from "@/lib/currency";
 
 export default function StripeCatalog() {
   const { user } = useAppContext();
@@ -18,15 +19,39 @@ export default function StripeCatalog() {
   const [, setLocation] = useLocation();
   const { syncProducts, isSyncing } = useProductsSync();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [syncKey, setSyncKey] = useState(0); // Ключ для принудительного обновления компонента
+  const queryClient = useQueryClient();
 
   // Загружаем список продуктов
-  const { data: products, isLoading, error } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+  const { data: products, isLoading, error, refetch } = useQuery<Product[]>({
+    queryKey: ["/api/products", syncKey], // Добавляем syncKey в queryKey
+    staleTime: 0, // Данные всегда считаются устаревшими
   });
+
+  // После синхронизации обновляем выбранный продукт
+  useEffect(() => {
+    if (selectedProduct && products) {
+      const updatedProduct = products.find(p => p.id === selectedProduct.id);
+      if (updatedProduct) {
+        setSelectedProduct(updatedProduct);
+      }
+    }
+  }, [products, selectedProduct]);
 
   // Обработчик для синхронизации с Stripe
   const handleSync = async () => {
-    await syncProducts();
+    const success = await syncProducts();
+    if (success) {
+      // Принудительно запрашиваем свежие данные
+      await queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      await refetch();
+      setSyncKey(prev => prev + 1); // Инкрементируем ключ для обновления компонента
+      
+      toast({
+        title: "Данные обновлены",
+        description: "Информация о продуктах актуализирована",
+      });
+    }
   };
 
   // Возвращаемся на предыдущую страницу
@@ -170,11 +195,15 @@ export default function StripeCatalog() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <div className="text-sm text-muted-foreground">USD</div>
-                          <div className="text-lg font-bold">${selectedProduct.price.toFixed(2)}</div>
+                          <div className="text-lg font-bold">
+                            {formatCurrency(selectedProduct.price, 'usd', !!selectedProduct.stripeProductId)}
+                          </div>
                         </div>
                         <div>
                           <div className="text-sm text-muted-foreground">EUR</div>
-                          <div className="text-lg font-bold">€{selectedProduct.priceEUR.toFixed(2)}</div>
+                          <div className="text-lg font-bold">
+                            {formatCurrency(selectedProduct.priceEUR, 'eur', !!selectedProduct.stripeProductId)}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -246,9 +275,11 @@ export default function StripeCatalog() {
                             </Badge>
                           </div>
                           <div className="text-right">
-                            <div className="text-xl font-bold">${product.price.toFixed(2)}</div>
+                            <div className="text-xl font-bold">
+                              {formatCurrency(product.price, 'usd', !!product.stripeProductId)}
+                            </div>
                             <div className="text-sm text-muted-foreground">
-                              €{product.priceEUR.toFixed(2)}
+                              {formatCurrency(product.priceEUR, 'eur', !!product.stripeProductId)}
                             </div>
                           </div>
                         </div>

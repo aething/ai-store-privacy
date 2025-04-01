@@ -23,7 +23,12 @@ export default function ProductCard({ product }: ProductCardProps) {
   // Determine currency and price based on user's country
   const currency = getCurrencyForCountry(user?.country);
   const price = getPriceForCountry(product, user?.country);
-  const formattedPrice = formatPrice(price, currency);
+  
+  // Проверяем, является ли это ценой из Stripe
+  const isStripePrice = product.price > 0 && product.price < 10000 && product.stripeProductId;
+  
+  // Форматируем цену с учетом источника (Stripe или обычные данные)
+  const formattedPrice = formatPrice(price, currency, isStripePrice);
   
   // Обрезаем описание до фиксированной длины и добавляем многоточие
   const shortDescription = product.description.substring(0, 60) + "...";

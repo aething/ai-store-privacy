@@ -162,7 +162,11 @@ export default function ProductDetail() {
           {/* Price and Buy Button in one row */}
           <div className="flex justify-between items-center mb-4">
             <span className="text-lg font-medium">
-              {formatPrice(getPriceForCountry(product, user?.country), getCurrencyForCountry(user?.country))}
+              {formatPrice(
+                getPriceForCountry(product, user?.country), 
+                getCurrencyForCountry(user?.country),
+                !!product.stripeProductId
+              )}
             </span>
             <button 
               className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700"

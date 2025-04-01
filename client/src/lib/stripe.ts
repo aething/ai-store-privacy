@@ -132,9 +132,15 @@ export async function createPaymentIntent(
   // Use the appropriate price based on currency
   const amount = currency === 'eur' ? product.priceEUR : product.price;
   
+  // Check if this is a Stripe product (already in dollar/euro amounts, not cents)
+  const isStripePrice = !!product.stripeProductId;
+  
+  // For Stripe products, convert dollar/euro amounts to cents
+  const amountInCents = isStripePrice ? Math.round(amount * 100) : amount;
+  
   // Create the payment intent
   const paymentResponse = await apiRequest('POST', '/api/create-payment-intent', {
-    amount,
+    amount: amountInCents, // Use the amount in cents for Stripe
     userId,
     productId,
     currency,
@@ -168,7 +174,7 @@ export async function syncProductsWithStripe() {
 /**
  * Create a price for a product in Stripe
  * @param productId The ID of the product
- * @param amount The amount in cents/pennies
+ * @param amount The amount in dollars/euros (will be converted to cents for Stripe)
  * @param currency The currency code (usd, eur, etc.)
  * @param recurring Whether this is a recurring price (subscription)
  */
@@ -178,9 +184,12 @@ export async function createPrice(
   currency: string = 'usd',
   recurring: boolean = false
 ) {
+  // Convert dollar/euro amount to cents for Stripe
+  const amountInCents = Math.round(amount * 100);
+  
   const response = await apiRequest('POST', '/api/stripe/create-price', {
     productId,
-    amount,
+    amount: amountInCents,
     currency,
     recurring
   });

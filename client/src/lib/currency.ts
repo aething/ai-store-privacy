@@ -51,12 +51,18 @@ export function getCurrencyForCountry(country: string | undefined | null): 'usd'
 
 /**
  * Format price with appropriate currency symbol
- * @param price Price in cents (USD or EUR)
+ * @param price Price in cents (USD or EUR) or direct price if isStripePrice
  * @param currency Currency code ('usd' or 'eur')
+ * @param isStripePrice Whether the price is from Stripe (not in cents)
  * @returns Formatted price string with currency symbol
  */
-export function formatPrice(price: number, currency: 'usd' | 'eur' = 'usd'): string {
-  const amount = price / 100; // Convert cents to dollars/euros
+export function formatPrice(
+  price: number, 
+  currency: 'usd' | 'eur' = 'usd',
+  isStripePrice: boolean = false
+): string {
+  // Для Stripe цен не нужно делить на 100, так как они уже в долларах/евро
+  const amount = isStripePrice ? price : price / 100;
   
   if (currency === 'eur') {
     return `€${amount.toFixed(2)}`;
@@ -75,17 +81,33 @@ export function getPriceForCountry(
   product: { price: number; priceEUR: number }, 
   country: string | undefined | null
 ): number {
-  return shouldUseEUR(country) ? product.priceEUR : product.price;
+  // Проверяем, не является ли это ценой из Stripe
+  // Если цена из Stripe, она уже в долларах/евро, а не в центах
+  const isStripePrice = product.price > 0 && product.price < 10000 && product.stripeProductId;
+  
+  if (isStripePrice) {
+    // Цена из Stripe, не требует конвертации в центы
+    return shouldUseEUR(country) ? product.priceEUR : product.price;
+  } else {
+    // Обычная цена из каталога, возможно в центах
+    return shouldUseEUR(country) ? product.priceEUR : product.price;
+  }
 }
 
 /**
  * Format currency amount with appropriate currency symbol
- * @param amount Amount in cents (or smallest currency unit)
+ * @param amount Amount in cents (or smallest currency unit) or direct amount if isStripePrice
  * @param currency Currency code (e.g., 'usd', 'eur')
+ * @param isStripePrice Whether the amount is from Stripe (not in cents)
  * @returns Formatted currency string with symbol
  */
-export function formatCurrency(amount: number, currency: string = 'usd'): string {
-  const value = amount / 100; // Convert cents to dollars/euros/etc.
+export function formatCurrency(
+  amount: number, 
+  currency: string = 'usd', 
+  isStripePrice: boolean = false
+): string {
+  // Для Stripe цен не нужно делить на 100, так как они уже в долларах/евро
+  const value = isStripePrice ? amount : amount / 100;
   
   const currencyCode = currency.toLowerCase();
   
@@ -94,7 +116,7 @@ export function formatCurrency(amount: number, currency: string = 'usd'): string
   } else if (currencyCode === 'gbp') {
     return `£${value.toFixed(2)}`;
   } else if (currencyCode === 'jpy') {
-    return `¥${Math.round(value)}`; // JPY typically doesn't use decimals
+    return `¥${Math.round(isStripePrice ? value : value)}`; // JPY typically doesn't use decimals
   } else if (currencyCode === 'rub') {
     return `₽${value.toFixed(2)}`;
   } else if (currencyCode === 'cny' || currencyCode === 'rmb') {

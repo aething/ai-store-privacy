@@ -90,6 +90,9 @@ export default function Checkout() {
   // Determine currency and price based on user's country
   const currency = getCurrencyForCountry(user?.country);
   const price = product ? getPriceForCountry(product, user?.country) : 0;
+  
+  // Определяем источник цены (Stripe или обычные данные)
+  const isStripePrice = product?.stripeProductId ? true : false;
 
   // Проверка загрузки Stripe
   useEffect(() => {
@@ -200,14 +203,14 @@ export default function Checkout() {
           />
           <div>
             <h3 className="font-medium">{product.title}</h3>
-            <p className="text-lg">{formatPrice(price, currency)}</p>
+            <p className="text-lg">{formatPrice(price, currency, isStripePrice)}</p>
           </div>
         </div>
         
         <div className="border-t border-b py-3 my-3">
           <div className="flex justify-between mb-2">
             <span>Subtotal</span>
-            <span>{formatPrice(price, currency)}</span>
+            <span>{formatPrice(price, currency, isStripePrice)}</span>
           </div>
           <div className="flex justify-between mb-2">
             <span>Shipping</span>
@@ -215,7 +218,7 @@ export default function Checkout() {
           </div>
           <div className="flex justify-between font-medium">
             <span>Total</span>
-            <span>{formatPrice(price, currency)}</span>
+            <span>{formatPrice(price, currency, isStripePrice)}</span>
           </div>
         </div>
       </Card>
