@@ -404,7 +404,7 @@ export class MemStorage implements IStorage {
             price: priceAmount,
             priceEUR: stripeProduct.metadata?.priceEUR 
               ? Number(stripeProduct.metadata.priceEUR) 
-              : Math.round(priceAmount * 0.92), // Конвертируем USD в EUR если нет в метаданных
+              : product.priceEUR, // Сохраняем оригинальную цену, если нет в метаданных
             imageUrl: stripeProduct.images && stripeProduct.images.length > 0 
               ? stripeProduct.images[0] 
               : product.imageUrl,
@@ -425,7 +425,7 @@ export class MemStorage implements IStorage {
             title: stripeProduct.name,
             description: stripeProduct.description || 'New product from Stripe',
             price: priceAmount,
-            priceEUR: stripeProduct.metadata?.priceEUR ? Number(stripeProduct.metadata.priceEUR) : Math.round(priceAmount * 0.92), // Примерная конвертация EUR если нет метаданных
+            priceEUR: stripeProduct.metadata?.priceEUR ? Number(stripeProduct.metadata.priceEUR) : priceAmount, // Если нет EUR в метаданных, используем ту же цену что и USD
             imageUrl: stripeProduct.images && stripeProduct.images.length > 0 
               ? stripeProduct.images[0] 
               : 'https://placehold.co/600x400?text=Product',
