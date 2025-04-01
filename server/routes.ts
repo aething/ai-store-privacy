@@ -468,7 +468,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Импортируем Stripe динамически
       const Stripe = await import('stripe').then(module => module.default);
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-        apiVersion: '2023-10-16',
+        apiVersion: '2025-02-24.acacia',
         telemetry: false
       });
       
@@ -627,8 +627,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // In a real application, check if the user exists
-      const user = await storage.getUser(userId);
-      if (!user) {
+      const customerData = await storage.getUser(userId);
+      if (!customerData) {
         return res.status(404).json({ message: "User not found" });
       }
       
@@ -639,10 +639,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Create metadata object with optional coupon
+      // We already have user country info from customerData
+      const country = customerData?.country || null;
+      
       const metadata: Record<string, string> = {
         userId: userId.toString(),
         productId: productId.toString(),
-        currency
+        currency,
+        country: country || 'unknown'
       };
       
       // Add coupon to metadata if provided
@@ -653,7 +657,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Импортируем Stripe динамически
       const Stripe = await import('stripe').then(module => module.default);
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-        apiVersion: '2023-10-16',
+        apiVersion: '2025-02-24.acacia',
         telemetry: false
       });
       
@@ -708,7 +712,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Импортируем Stripe динамически
       const Stripe = await import('stripe').then(module => module.default);
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-        apiVersion: '2023-10-16',
+        apiVersion: '2025-02-24.acacia',
         telemetry: false
       });
       
@@ -762,7 +766,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user.stripeCustomerId = customer.id;
       }
       
-      // Создаем подписку
+      // Создаем подписку с информацией о стране пользователя
       const subscription = await stripe.subscriptions.create({
         customer: user.stripeCustomerId,
         items: [{ price: priceId }],
@@ -770,7 +774,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment_settings: { save_default_payment_method: 'on_subscription' },
         expand: ['latest_invoice.payment_intent'], // Получаем платежное намерение для клиентской стороны
         metadata: {
-          userId: user.id.toString()
+          userId: user.id.toString(),
+          country: user.country || 'unknown',
+          currency // Включаем информацию о валюте
         }
       });
       
@@ -823,7 +829,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Импортируем Stripe динамически
       const Stripe = await import('stripe').then(module => module.default);
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-        apiVersion: '2023-10-16',
+        apiVersion: '2025-02-24.acacia',
         telemetry: false
       });
       
@@ -936,7 +942,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Импортируем Stripe динамически
       const Stripe = await import('stripe').then(module => module.default);
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-        apiVersion: '2023-10-16',
+        apiVersion: '2025-02-24.acacia',
         telemetry: false
       });
       
