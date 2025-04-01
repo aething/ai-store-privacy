@@ -69,10 +69,10 @@ export function formatPrice(
   const amount = isStripePrice ? price : price / 100;
   
   if (currency === 'eur') {
-    return `€${amount.toFixed(2)}`;
+    return `€${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   }
   
-  return `$${amount.toFixed(2)}`;
+  return `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
 /**
