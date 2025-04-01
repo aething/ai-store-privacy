@@ -121,8 +121,8 @@ export default function ProductDetailDebug() {
   
   // Получение продукта по ID
   const { data: product, isLoading, error } = useQuery<Product>({
-    queryKey: ["/api/products", id],
-    enabled: !!id,
+    queryKey: ["/api/products", productId],
+    enabled: !!productId,
   });
   
   // Получение изображения продукта с проверкой ошибок и fallback
@@ -218,7 +218,7 @@ export default function ProductDetailDebug() {
         items={[
           { label: t("home"), path: "/" },
           { label: t("shop"), path: "/shop" },
-          { label: product?.title || t("product"), path: `/product/${id}` }
+          { label: product?.title || t("product"), path: `/product/${productId}` }
         ]} 
       />
       
