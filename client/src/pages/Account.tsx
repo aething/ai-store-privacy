@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import LanguageSelector from "@/components/LanguageSelector";
 import OrdersList from "@/components/OrdersList";
 import { useLocale } from "@/context/LocaleContext";
-import { ChevronRight, Trash2, RefreshCw, Settings } from "lucide-react";
+import { ChevronRight, Trash2, RefreshCw, Settings, ShoppingBag } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
 
 const updateUserSchema = z.object({
@@ -363,14 +363,23 @@ export default function Account() {
                 Synchronize products with Stripe to automatically add new products or update existing ones.
                 Any products created in Stripe will be automatically added to your catalog.
               </p>
-              <button
-                onClick={syncProducts}
-                disabled={isSyncing}
-                className="bg-blue-600 text-white w-full py-2 rounded-full hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
-              >
-                <RefreshCw className={`mr-2 ${isSyncing ? 'animate-spin' : ''}`} size={18} />
-                {isSyncing ? "Syncing with Stripe..." : "Sync Products with Stripe"}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={syncProducts}
+                  disabled={isSyncing}
+                  className="bg-blue-600 text-white py-2 px-4 rounded-full hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+                >
+                  <RefreshCw className={`mr-2 ${isSyncing ? 'animate-spin' : ''}`} size={18} />
+                  {isSyncing ? "Syncing..." : "Sync with Stripe"}
+                </button>
+                <button
+                  onClick={() => setLocation('/stripe-catalog')}
+                  className="bg-green-600 text-white py-2 px-4 rounded-full hover:bg-green-700 flex items-center justify-center"
+                >
+                  <ShoppingBag className="mr-2" size={18} />
+                  Stripe Catalog Manager
+                </button>
+              </div>
             </div>
           </Card>
         </div>

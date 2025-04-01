@@ -13,6 +13,7 @@ import Checkout from "@/pages/Checkout";
 import Confirmation from "@/pages/Confirmation";
 import Subscribe from "@/pages/Subscribe";
 import PlayMarket from "@/pages/PlayMarket";
+import StripeCatalog from "@/pages/StripeCatalog";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/confirmation" component={Confirmation} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/playmarket" component={PlayMarket} />
+      <Route path="/stripe-catalog" component={StripeCatalog} />
       <Route component={NotFound} />
     </Switch>
   );
