@@ -94,6 +94,20 @@ export default function ProductDetail() {
       </div>
     );
   }
+
+  // Отладочная информация
+  console.log("Product debug:", {
+    id: product.id,
+    title: product.title,
+    price: product.price,
+    priceEUR: product.priceEUR,
+    hasStripeId: !!product.stripeProductId,
+    formattedPrice: formatPrice(
+      getPriceForCountry(product, user?.country),
+      getCurrencyForCountry(user?.country),
+      !!product.stripeProductId
+    )
+  });
   
   const handleBuyNow = () => {
     if (!user) {
