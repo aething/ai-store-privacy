@@ -18,7 +18,7 @@ async function createTestAccount() {
     console.log("Регистрируем тестового пользователя...");
     
     // Регистрация пользователя
-    const registerResponse = await fetch('http://localhost:3000/api/users/register', {
+    const registerResponse = await fetch('http://localhost:5000/api/users/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -32,7 +32,7 @@ async function createTestAccount() {
         console.log("Пользователь уже существует, пробуем войти...");
 
         // Если пользователь существует, пробуем авторизоваться
-        const loginResponse = await fetch('http://localhost:3000/api/users/login', {
+        const loginResponse = await fetch('http://localhost:5000/api/users/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -67,7 +67,7 @@ async function createTestAccount() {
     if (!registerData.isVerified && registerData.verificationToken) {
       console.log("Верифицируем аккаунт с токеном:", registerData.verificationToken);
       
-      const verifyResponse = await fetch(`http://localhost:3000/api/users/${registerData.id}/verify?token=${registerData.verificationToken}`, {
+      const verifyResponse = await fetch(`http://localhost:5000/api/users/${registerData.id}/verify?token=${registerData.verificationToken}`, {
         method: 'GET'
       });
       

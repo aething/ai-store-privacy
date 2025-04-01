@@ -7,7 +7,7 @@
 const fetch = require('node-fetch');
 
 // URL API-эндпоинтов
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:5000/api';
 const REGISTER_URL = `${API_URL}/users/register`;
 const LOGIN_URL = `${API_URL}/users/login`;
 const USER_URL = `${API_URL}/users/me`;
