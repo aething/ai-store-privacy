@@ -1,6 +1,6 @@
-import image1 from "@assets/11111111 Medium Small.jpeg";
-import image2 from "@assets/2222222 Small.jpeg";
-import image3 from "@assets/333333 Medium.jpeg";
+import image1 from "@assets/11111.jpeg";
+import image2 from "@assets/22222.webp";
+import image3 from "@assets/33333.jpg";
 
 // Массив всех изображений, которые будут предварительно загружены
 const imagesToPreload = [
