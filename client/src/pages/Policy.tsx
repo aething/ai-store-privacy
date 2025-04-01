@@ -3,6 +3,7 @@ import { useRoute, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getPolicyById } from "@/constants/policies";
+import { getLocalizedPolicy } from "@/constants/multilingual-policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
 import { X } from "lucide-react";
@@ -13,15 +14,27 @@ export default function Policy() {
   const [, setLocation] = useLocation();
   const contentRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-  const { t } = useLocale();
+  const { t, currentLocale } = useLocale();
   const [mounted, setMounted] = useState(false);
   
   const policyId = match ? params.id : null;
   
   const policy = useMemo(() => {
     if (!policyId) return null;
+    
+    // Сначала проверяем наличие многоязычной версии политики
+    const localizedPolicy = getLocalizedPolicy(policyId, currentLocale);
+    if (localizedPolicy) {
+      return {
+        id: policyId,
+        title: localizedPolicy.title,
+        content: localizedPolicy.content
+      };
+    }
+    
+    // Если многоязычной версии нет, используем стандартную
     return getPolicyById(policyId);
-  }, [policyId]);
+  }, [policyId, currentLocale]);
   
   // Упрощённая функция сброса прокрутки для страницы с единым скроллингом
   const resetScrollPosition = () => {

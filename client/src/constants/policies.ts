@@ -5,17 +5,44 @@ const policies: Policy[] = [
     id: "delivery-policy",
     title: "Delivery Policy",
     content: `
-      <h3 class="font-medium text-lg mb-2">Delivery Policy</h3>
-      <p class="mb-4 text-text-secondary">Our delivery policy is designed to ensure that you receive your AI products in a timely and efficient manner.</p>
+      <h3 class="font-medium text-lg mb-2">Aething Inc. - Unified Policies</h3>
+      <p class="mb-4 text-text-secondary"><strong>Last Updated:</strong> April 1, 2025</p>
       
-      <h4 class="font-medium mb-2">Standard Delivery</h4>
-      <p class="mb-4 text-text-secondary">Standard delivery takes 3-5 business days for domestic orders and 7-14 business days for international orders. All orders are processed within 24 hours of payment confirmation.</p>
+      <h4 class="font-medium mb-2">1. Delivery Policy</h4>
+      <p class="mb-4 text-text-secondary">We comply with EU (Directive 2011/83/EU, GDPR) and US (FTC, UCC) laws.</p>
       
-      <h4 class="font-medium mb-2">Express Delivery</h4>
-      <p class="mb-4 text-text-secondary">Express delivery is available for an additional fee and ensures delivery within 1-2 business days for domestic orders and 3-5 business days for international orders.</p>
+      <h5 class="font-medium mb-2">Delivery Regions:</h5>
+      <ul class="list-disc pl-5 mb-4 text-text-secondary">
+        <li><strong>EU & USA</strong> only.</li>
+        <li>EU prices include VAT. Non-EU/US orders may incur customs fees (customer's responsibility).</li>
+      </ul>
       
-      <h4 class="font-medium mb-2">Tracking</h4>
-      <p class="text-text-secondary">All orders include tracking information which will be emailed to you once your order has been dispatched.</p>
+      <h5 class="font-medium mb-2">Methods:</h5>
+      <ul class="list-disc pl-5 mb-4 text-text-secondary">
+        <li>Standard (3–7 business days). Cost included in item price.</li>
+      </ul>
+      
+      <h5 class="font-medium mb-2">Timeframes:</h5>
+      <ul class="list-disc pl-5 mb-4 text-text-secondary">
+        <li>Processing: 1–3 days. Max 30 days to EU (per Directive 2011/83/EU). Delays notified via email.</li>
+      </ul>
+      
+      <h5 class="font-medium mb-2">Tracking:</h5>
+      <ul class="list-disc pl-5 mb-4 text-text-secondary">
+        <li>GDPR-compliant tracking link provided post-dispatch.</li>
+      </ul>
+      
+      <h5 class="font-medium mb-2">Damages:</h5>
+      <ul class="list-disc pl-5 mb-4 text-text-secondary">
+        <li>Report within 14 days (EU) or 7 days (USA). Free returns with photo proof.</li>
+      </ul>
+      
+      <h5 class="font-medium mb-2">Right of Withdrawal:</h5>
+      <ul class="list-disc pl-5 mb-4 text-text-secondary">
+        <li>Cancel within 14 days (see <a href="/policy/return-policy" class="text-blue-600 hover:underline">Returns</a>).</li>
+      </ul>
+      
+      <p class="text-text-secondary"><strong>Contact:</strong> support@aething.com</p>
     `
   },
   {
