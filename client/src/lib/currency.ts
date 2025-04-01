@@ -61,8 +61,15 @@ export function formatPrice(
   currency: 'usd' | 'eur' = 'usd',
   isStripePrice: boolean = false
 ): string {
-  // Для Stripe цен не нужно делить на 100, так как они уже в долларах/евро
-  const amount = isStripePrice ? price : price / 100;
+  if (price === 0) {
+    return currency === 'eur' ? '€0.00' : '$0.00';
+  }
+  
+  // Проверяем, похоже ли это уже на цену в долларах
+  const isDollarAmount = !isStripePrice && price > 0 && price < 10000;
+  
+  // Конвертируем цены в центах в доллары/евро; если цена из Stripe или уже в долларах, не трогаем
+  const amount = (isStripePrice || isDollarAmount) ? price : price / 100;
   
   if (currency === 'eur') {
     return `€${amount.toFixed(2)}`;
@@ -78,20 +85,15 @@ export function formatPrice(
  * @returns The price in the appropriate currency
  */
 export function getPriceForCountry(
-  product: { price: number; priceEUR: number }, 
+  product: { price: number; priceEUR: number; stripeProductId?: string }, 
   country: string | undefined | null
 ): number {
-  // Проверяем, не является ли это ценой из Stripe
-  // Если цена из Stripe, она уже в долларах/евро, а не в центах
-  const isStripePrice = product.price > 0 && product.price < 10000 && product.stripeProductId;
+  // Чтобы отличить цену из Stripe от обычной цены, проверяем наличие stripeProductId
+  // Stripe продукты уже имеют цену в долларах/евро, а не в центах
   
-  if (isStripePrice) {
-    // Цена из Stripe, не требует конвертации в центы
-    return shouldUseEUR(country) ? product.priceEUR : product.price;
-  } else {
-    // Обычная цена из каталога, возможно в центах
-    return shouldUseEUR(country) ? product.priceEUR : product.price;
-  }
+  // Для европейских стран всегда возвращаем цену в EUR
+  // Для других стран возвращаем цену в USD
+  return shouldUseEUR(country) ? product.priceEUR : product.price;
 }
 
 /**
@@ -106,8 +108,15 @@ export function formatCurrency(
   currency: string = 'usd', 
   isStripePrice: boolean = false
 ): string {
-  // Для Stripe цен не нужно делить на 100, так как они уже в долларах/евро
-  const value = isStripePrice ? amount : amount / 100;
+  if (amount === 0) {
+    return getCurrencySymbol(currency) + '0.00';
+  }
+  
+  // Проверяем, похоже ли это уже на цену в долларах
+  const isDollarAmount = !isStripePrice && amount > 0 && amount < 10000;
+  
+  // Конвертируем цены в центах в доллары/евро; если цена из Stripe или уже в долларах, не трогаем
+  const value = (isStripePrice || isDollarAmount) ? amount : amount / 100;
   
   const currencyCode = currency.toLowerCase();
   
@@ -116,7 +125,7 @@ export function formatCurrency(
   } else if (currencyCode === 'gbp') {
     return `£${value.toFixed(2)}`;
   } else if (currencyCode === 'jpy') {
-    return `¥${Math.round(isStripePrice ? value : value)}`; // JPY typically doesn't use decimals
+    return `¥${Math.round(value)}`; // JPY typically doesn't use decimals
   } else if (currencyCode === 'rub') {
     return `₽${value.toFixed(2)}`;
   } else if (currencyCode === 'cny' || currencyCode === 'rmb') {
@@ -124,5 +133,27 @@ export function formatCurrency(
   } else {
     // Default to USD
     return `$${value.toFixed(2)}`;
+  }
+}
+
+/**
+ * Get currency symbol for currency code
+ * @param currency Currency code
+ * @returns Currency symbol
+ */
+function getCurrencySymbol(currency: string = 'usd'): string {
+  const currencyCode = currency.toLowerCase();
+  
+  if (currencyCode === 'eur') {
+    return '€';
+  } else if (currencyCode === 'gbp') {
+    return '£';
+  } else if (currencyCode === 'jpy' || currencyCode === 'cny' || currencyCode === 'rmb') {
+    return '¥';
+  } else if (currencyCode === 'rub') {
+    return '₽';
+  } else {
+    // Default to USD
+    return '$';
   }
 }

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
-import { Product } from "../../shared/schema";
+import { Product } from "@/types";
 import { Separator } from "@/components/ui/separator";
 import { useAppContext } from "../context/AppContext";
 import { ArrowLeft, CheckCircle2, RefreshCw, ShoppingBag, StoreIcon, XCircle } from "lucide-react";
@@ -198,13 +198,28 @@ export default function StripeCatalog() {
                           <div className="text-lg font-bold">
                             {formatCurrency(selectedProduct.price, 'usd', !!selectedProduct.stripeProductId)}
                           </div>
+                          {selectedProduct.stripeProductId && (
+                            <Badge variant="outline" className="mt-1 bg-green-50 text-green-700 border-green-100">
+                              Stripe формат
+                            </Badge>
+                          )}
                         </div>
                         <div>
                           <div className="text-sm text-muted-foreground">EUR</div>
                           <div className="text-lg font-bold">
                             {formatCurrency(selectedProduct.priceEUR, 'eur', !!selectedProduct.stripeProductId)}
                           </div>
+                          {selectedProduct.stripeProductId && (
+                            <Badge variant="outline" className="mt-1 bg-green-50 text-green-700 border-green-100">
+                              Stripe формат
+                            </Badge>
+                          )}
                         </div>
+                      </div>
+                      <div className="mt-2 text-xs text-gray-500">
+                        {selectedProduct.stripeProductId 
+                          ? "Цены Stripe хранятся в формате долларов/евро, а не в центах" 
+                          : "Стандартные цены хранятся в центах и конвертируются при отображении"}
                       </div>
                     </div>
                     
@@ -223,7 +238,7 @@ export default function StripeCatalog() {
                 <div className="mt-6">
                   <h3 className="font-medium text-lg mb-2">Характеристики</h3>
                   <ul className="list-disc pl-5 space-y-1">
-                    {selectedProduct.specifications.map((spec, index) => (
+                    {selectedProduct.specifications.map((spec: string, index: number) => (
                       <li key={index}>{spec}</li>
                     ))}
                   </ul>
@@ -232,7 +247,7 @@ export default function StripeCatalog() {
                 <div className="mt-6">
                   <h3 className="font-medium text-lg mb-2">Особенности</h3>
                   <ul className="list-disc pl-5 space-y-1">
-                    {selectedProduct.features.map((feature, index) => (
+                    {selectedProduct.features.map((feature: string, index: number) => (
                       <li key={index}>{feature}</li>
                     ))}
                   </ul>
@@ -281,6 +296,11 @@ export default function StripeCatalog() {
                             <div className="text-sm text-muted-foreground">
                               {formatCurrency(product.priceEUR, 'eur', !!product.stripeProductId)}
                             </div>
+                            {product.stripeProductId && (
+                              <Badge variant="outline" className="mt-1 text-xs bg-green-50 text-green-700 border-green-100">
+                                Stripe цена
+                              </Badge>
+                            )}
                           </div>
                         </div>
                         

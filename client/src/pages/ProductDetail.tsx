@@ -167,6 +167,11 @@ export default function ProductDetail() {
                 getCurrencyForCountry(user?.country),
                 !!product.stripeProductId
               )}
+              {product.stripeProductId && (
+                <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                  Stripe Price
+                </span>
+              )}
             </span>
             <button 
               className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700"

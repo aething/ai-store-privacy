@@ -17,14 +17,16 @@ export interface Product {
   id: number;
   title: string;
   description: string;
-  price: number; // in USD cents
-  priceEUR: number; // in EUR cents
+  price: number; // in USD cents or USD depending on source (Stripe)
+  priceEUR: number; // in EUR cents or EUR depending on source (Stripe)
   imageUrl: string;
   category: string;
   features: string[];
   specifications: string[];
   hardwareInfo?: string;
   softwareInfo?: string;
+  stripeProductId?: string; // ID продукта в Stripe
+  stripePriceId?: string; // ID цены в Stripe
 }
 
 export interface Order {
