@@ -223,8 +223,15 @@ export default function ProductDetail() {
                 {product.hardwareInfo ? (
                   <div className="space-y-6">
                     <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                      <div className="text-blue-900 prose">
-                        {product.hardwareInfo}
+                      <h3 className="text-lg font-semibold text-blue-700 mb-2">Hardware Specifications</h3>
+                      <div className="space-y-4 text-blue-900">
+                        {product.hardwareInfo && product.hardwareInfo.split('. ').map((paragraph, index) => (
+                          paragraph.trim() && (
+                            <p key={index} className="text-blue-800">
+                              {paragraph.trim() + (paragraph.endsWith('.') ? '' : '.')}
+                            </p>
+                          )
+                        ))}
                       </div>
                     </div>
 
