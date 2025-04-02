@@ -10,6 +10,8 @@ interface TaxInfo {
 }
 
 const TaxTestPage: React.FC = () => {
+  console.log('TaxTestPage component rendering');
+  
   const [amount, setAmount] = useState<number>(1000);
   const [currency, setCurrency] = useState<string>('usd');
   const [country, setCountry] = useState<string>('US');
@@ -17,6 +19,9 @@ const TaxTestPage: React.FC = () => {
   const [taxInfo, setTaxInfo] = useState<TaxInfo | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
+  // Debug message
+  console.log('TaxTestPage state initialized');
 
   // Расчет налогов на основе страны
   const calculateTaxRate = (country: string) => {
@@ -88,6 +93,14 @@ const TaxTestPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Tax Calculation Test</h1>
+      
+      {/* Debugging information */}
+      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+        <p className="font-bold">Debug Info:</p>
+        <p>TaxDisplayBoxSimple component is imported: {typeof TaxDisplayBoxSimple === 'function' ? '✅' : '❌'}</p>
+        <p>TaxDisplayBox component is imported: {typeof TaxDisplayBox === 'function' ? '✅' : '❌'}</p>
+        <p>Current state: {JSON.stringify({amount, currency, country, loading})}</p>
+      </div>
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Configure Test Parameters</h2>

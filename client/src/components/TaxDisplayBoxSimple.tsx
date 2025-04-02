@@ -26,8 +26,11 @@ const TaxDisplayBoxSimple: React.FC<TaxDisplayBoxProps> = ({
   className = '',
   showDetails = true
 }) => {
+  console.log('TaxDisplayBoxSimple rendering:', { tax, subtotal, currency });
+  
   // Форматирование валюты
   const formatCurrency = (amount: number): string => {
+    console.log('Formatting currency:', amount, currency);
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency.toUpperCase()
