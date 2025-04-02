@@ -79,7 +79,7 @@ export default function Checkout() {
   const [clientSecret, setClientSecret] = useState("");
   const [stripeLoadingFailed, setStripeLoadingFailed] = useState(false);
   const [paymentIntentError, setPaymentIntentError] = useState(false);
-  const [taxInfo, setTaxInfo] = useState<{rate: number; label: string; amount: number} | null>(null);
+  const [taxInfo, setTaxInfo] = useState<{rate: number; label: string; amount: number}>({ rate: 0, label: 'Tax', amount: 0 });
   
   const productId = match ? parseInt(params.id) : null;
   
@@ -269,7 +269,7 @@ export default function Checkout() {
         <div className="border-t border-b py-3 my-3">
           <div className="flex justify-between mb-2">
             <span>Subtotal</span>
-            <span>{formatPrice(taxInfo ? price - taxInfo.amount : price, currency, isStripePrice)}</span>
+            <span>{formatPrice(taxInfo.rate > 0 ? price - taxInfo.amount : price, currency, isStripePrice)}</span>
           </div>
           <div className="flex justify-between mb-2">
             <span>{taxInfo?.label || 'Tax'}</span>
