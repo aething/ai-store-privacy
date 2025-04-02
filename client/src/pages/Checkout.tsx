@@ -81,6 +81,7 @@ export default function Checkout() {
   const [stripeLoadingFailed, setStripeLoadingFailed] = useState(false);
   const [paymentIntentError, setPaymentIntentError] = useState(false);
   const [taxInfo, setTaxInfo] = useState<{rate: number; label: string; amount: number}>({ rate: 0, label: 'Tax', amount: 0 });
+  const [stripeTaxInfo, setStripeTaxInfo] = useState<{amount: number; rate: number; label: string; display: string} | null>(null);
   
   const productId = match ? parseInt(params.id) : null;
   
@@ -204,6 +205,17 @@ export default function Checkout() {
         
         setClientSecret(data.clientSecret);
         setPaymentIntentError(false);
+        
+        // Сохраняем информацию о налогах, полученную от Stripe
+        if (data.tax) {
+          console.log('Получена налоговая информация от Stripe:', data.tax);
+          setStripeTaxInfo({
+            amount: data.tax.amount || 0,
+            rate: data.tax.rate || 0,
+            label: data.tax.label || 'Tax',
+            display: data.tax.label || 'Tax'
+          });
+        }
       } catch (error) {
         setPaymentIntentError(true);
         toast({
@@ -386,16 +398,19 @@ export default function Checkout() {
                 <td className="text-right pb-2">{formatPrice(price, currency, isStripePrice)}</td>
               </tr>
               
-              {/* Налоговая информация - всегда отображаем, используя запасные значения, если нужно */}
+              {/* Налоговая информация - всегда отображаем, используя данные Stripe, если они доступны, 
+                  или запасные значения в противном случае */}
               <tr className="mb-2 bg-yellow-50">
                 <td className="text-left pb-2 pt-2 font-medium">
                   <span className="flex items-center">
-                    {taxLabel}
+                    {stripeTaxInfo?.display || taxLabel}
                     <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || 'DE'}</span>
                   </span>
                 </td>
                 <td className="text-right pb-2 pt-2 font-medium">
-                  {formatPrice(taxAmount, currency, isStripePrice)}
+                  {stripeTaxInfo 
+                    ? formatPrice(stripeTaxInfo.amount, currency, true) 
+                    : formatPrice(taxAmount, currency, isStripePrice)}
                 </td>
               </tr>
               
@@ -418,7 +433,9 @@ export default function Checkout() {
               <tr className="font-bold text-lg bg-green-50">
                 <td className="text-left pt-2 pb-2 border-t">Total</td>
                 <td className="text-right pt-2 pb-2 border-t">
-                  {formatPrice(price + taxAmount, currency, isStripePrice)}
+                  {stripeTaxInfo 
+                    ? formatPrice(price + stripeTaxInfo.amount, currency, true) 
+                    : formatPrice(price + taxAmount, currency, isStripePrice)}
                 </td>
               </tr>
             </tbody>
@@ -434,9 +451,10 @@ export default function Checkout() {
               country={user?.country || 'DE'} 
               currency={currency}
               baseAmount={price}
-              taxAmount={taxAmount}
-              taxRate={taxRate}
-              taxLabel={taxLabel}
+              taxAmount={stripeTaxInfo?.amount || taxAmount}
+              taxRate={stripeTaxInfo?.rate || taxRate}
+              taxLabel={stripeTaxInfo?.display || taxLabel}
+              stripeData={stripeTaxInfo ? true : false}
               showDebugInfo={true} 
             />
           </div>

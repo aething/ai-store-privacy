@@ -8,6 +8,7 @@ interface TaxDisplayBoxSimpleProps {
   taxAmount: number;
   taxRate: number;
   taxLabel: string;
+  stripeData?: boolean; // флаг, указывающий, что данные получены от Stripe
   showDebugInfo?: boolean;
 }
 
@@ -24,6 +25,7 @@ export function TaxDisplayBoxSimple({
   taxAmount,
   taxRate,
   taxLabel,
+  stripeData = false,
   showDebugInfo = false
 }: TaxDisplayBoxSimpleProps) {
   // Даже если страна не указана, все равно показываем информацию о налогах
@@ -82,6 +84,11 @@ export function TaxDisplayBoxSimple({
           <div>Base Amount: {formattedBaseAmount}</div>
           <div>Tax Amount: {formattedTaxAmount}</div>
           <div>Total: {formattedTotalAmount}</div>
+          {stripeData && (
+            <div className="mt-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-sm text-xs font-mono">
+              ✓ Using tax data from Stripe
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1121,9 +1121,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Save order to Google Sheets
       await safeGoogleSheetsCall(googleSheets.saveOrder, order);
       
+      // Подготавливаем налоговую информацию для отправки клиенту
+      const taxInfo = {
+        amount: taxAmount,
+        rate: taxRate,
+        label: taxLabel,
+        display: taxLabel 
+      };
+      
       res.json({
         clientSecret: paymentIntent.client_secret,
-        orderId: order.id
+        orderId: order.id,
+        tax: taxInfo
       });
     } catch (error) {
       console.error("Error creating payment intent:", error);
