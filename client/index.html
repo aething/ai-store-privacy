@@ -17,25 +17,21 @@
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
   <link rel="shortcut icon" href="/icons/icon-192x192.png">
   
-  <!-- Принудительная регистрация Service Worker с немедленной активацией -->
+  <!-- Принудительная регистрация Service Worker без перезагрузки -->
   <script>
-    // Сначала проверяем, есть ли уже активный контроллер
-    if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
-      console.log('🚀 Экстренная регистрация Service Worker');
-      // Принудительно активируем на этой странице
-      navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
-        .then(reg => {
-          console.log('✅ Экстренная регистрация выполнена успешно');
-          if (reg.active) {
-            reg.active.postMessage({ type: 'SKIP_WAITING' });
-          }
-          if (reg.waiting) {
-            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
-          // Перезагрузка страницы для немедленной активации
-          window.location.reload();
-        })
-        .catch(err => console.error('❌ Ошибка экстренной регистрации:', err));
+    // Глобальная защита от повторной регистрации
+    window.swRegistered = false;
+    
+    // Проверка параметра в URL для предотвращения зацикливания
+    const urlParams = new URLSearchParams(window.location.search);
+    const skipRegister = urlParams.get('sw_skip') === 'true';
+    
+    // Регистрируем только если еще не регистрировали и нет параметра пропуска
+    if ('serviceWorker' in navigator && !window.swRegistered && !skipRegister) {
+      window.swRegistered = true;
+      console.log('🚀 Запуск регистрации Service Worker');
+      
+      // Без автоматической перезагрузки - теперь используем sw-installer.js
     }
   </script>
   <script src="/sw-installer.js"></script>
@@ -204,15 +200,31 @@
     // Инициализация
     updateOfflineMessage();
     
+    // Защита от чрезмерной перезагрузки
+    function isSafeToReload() {
+      // Проверяем, прошло ли достаточно времени с последней перезагрузки
+      const lastReload = parseInt(localStorage.getItem('sw_last_reload') || '0');
+      const now = Date.now();
+      const timeSinceLastReload = now - lastReload;
+      
+      // Если прошло менее 5 секунд - не перезагружаем
+      return timeSinceLastReload > 5000;
+    }
+    
     // Обработка контроллера для обновления страницы
     if ('serviceWorker' in navigator) {
       // Перезагрузка страницы при активации нового service worker
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
+        if (!refreshing && isSafeToReload()) {
           console.log('Service Worker контроллер изменился - перезагрузка страницы');
           refreshing = true;
-          window.location.reload();
+          // Сохраняем время перезагрузки
+          localStorage.setItem('sw_last_reload', Date.now().toString());
+          // Добавляем параметр для предотвращения зацикливания
+          window.location.href = window.location.pathname + '?sw_skip=true';
+        } else {
+          console.log('Предотвращена лишняя перезагрузка страницы');
         }
       });
       
