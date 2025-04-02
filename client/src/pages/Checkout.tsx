@@ -311,12 +311,12 @@ export default function Checkout() {
             <tr className="mb-2 bg-yellow-50">
               <td className="text-left pb-2 pt-2 font-medium">
                 <span className="flex items-center">
-                  {taxLabel}
-                  <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{defaultCountry}</span>
+                  {stripeTaxInfo?.display || taxLabel}
+                  <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || defaultCountry}</span>
                 </span>
               </td>
               <td className="text-right pb-2 pt-2 font-medium">
-                {formatPrice(taxAmount, currency, isStripePrice)}
+                {formatPrice(stripeTaxInfo?.amount || taxAmount, currency, isStripePrice)}
               </td>
             </tr>
             
@@ -336,6 +336,12 @@ export default function Checkout() {
               <td className="text-left pt-2 pb-2 border-t">Total</td>
               <td className="text-right pt-2 pb-2 border-t">
                 {formatPrice(price + taxAmount, currency, isStripePrice)}
+              </td>
+            </tr>
+            {/* Отладочная строка, показывающая как выполняется расчет итоговой суммы */}
+            <tr className="text-xs">
+              <td colSpan={2} className="text-center pt-1 text-green-700 italic">
+                ({formatPrice(price, currency, isStripePrice)} + {formatPrice(taxAmount, currency, isStripePrice)})
               </td>
             </tr>
           </tbody>
@@ -484,6 +490,12 @@ export default function Checkout() {
                   {stripeTaxInfo 
                     ? formatPrice(price + stripeTaxInfo.amount, currency, true) 
                     : formatPrice(price + (taxAmount || Math.round(price * 0.19)), currency, isStripePrice)}
+                </td>
+              </tr>
+              {/* Отладочная строка, показывающая как выполняется расчет итоговой суммы */}
+              <tr className="text-xs">
+                <td colSpan={2} className="text-center pt-1 text-green-700 italic">
+                  ({formatPrice(price, currency, isStripePrice)} + {formatPrice(stripeTaxInfo?.amount || taxAmount || Math.round(price * 0.19), currency, isStripePrice)})
                 </td>
               </tr>
             </tbody>
