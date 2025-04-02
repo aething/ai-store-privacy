@@ -43,6 +43,13 @@ export default {
   returns: "Returns & Refunds",
   shipping: "Shipping Policy",
   payment: "Payment Terms",
+  warranty: "Warranty & Liability",
+  deliveryPolicy: "Delivery Policy",
+  returnPolicy: "Return & Exchange Policy",
+  contactInfo: "Contact Information",
+  gdpr: "GDPR",
+  ftc: "FTC Rules",
+  dataSafety: "Data Safety for Google Play",
   
   // Checkout
   checkout: "Checkout",

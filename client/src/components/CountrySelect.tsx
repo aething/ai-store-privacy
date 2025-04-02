@@ -94,7 +94,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
           onChange={handleChange}
           className={`block w-full px-3 py-2 border ${error ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-gray-700`}
         >
-          <option value="">Выберите страну</option>
+          <option value="">Select a country</option>
           {countries.map(country => (
             <option key={country.code} value={country.code}>
               {country.name} ({country.code})

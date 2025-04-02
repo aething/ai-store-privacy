@@ -267,16 +267,16 @@ export default function Account() {
   };
   
   const policies = [
-    { id: "delivery-policy", title: "Delivery Policy" },
-    { id: "return-policy", title: "Return & Exchange Policy" },
-    { id: "contact-info", title: "Contact Information" },
-    { id: "privacy-policy", title: "Privacy Policy" },
-    { id: "payment-terms", title: "Payment Terms" },
-    { id: "warranty", title: "Warranty & Liability" },
-    { id: "terms", title: "Terms of Service" },
-    { id: "gdpr", title: "GDPR" },
-    { id: "ftc", title: "FTC Rules" },
-    { id: "data-safety", title: "Data Safety for Google Play" },
+    { id: "delivery-policy", title: t.deliveryPolicy },
+    { id: "return-policy", title: t.returnPolicy },
+    { id: "contact-info", title: t.contactInfo },
+    { id: "privacy-policy", title: t.privacy },
+    { id: "payment-terms", title: t.payment },
+    { id: "warranty", title: t.warranty },
+    { id: "terms", title: t.terms },
+    { id: "gdpr", title: t.gdpr },
+    { id: "ftc", title: t.ftc },
+    { id: "data-safety", title: t.dataSafety },
   ];
   
   // Hook для синхронизации продуктов со Stripe
