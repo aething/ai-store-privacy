@@ -79,6 +79,7 @@ export default function Checkout() {
   const [clientSecret, setClientSecret] = useState("");
   const [stripeLoadingFailed, setStripeLoadingFailed] = useState(false);
   const [paymentIntentError, setPaymentIntentError] = useState(false);
+  const [taxInfo, setTaxInfo] = useState<{rate: number; label: string; amount: number} | null>(null);
   
   const productId = match ? parseInt(params.id) : null;
   
@@ -93,6 +94,26 @@ export default function Checkout() {
   
   // Определяем источник цены (Stripe или обычные данные)
   const isStripePrice = product?.stripeProductId ? true : false;
+  
+  // Функция для определения ставки налога на основе страны пользователя
+  const calculateTaxRate = (country?: string | null) => {
+    if (!country) return { rate: 0, label: 'No VAT' };
+    
+    switch(country) {
+      case 'DE': // Германия
+        return { rate: 0.19, label: 'MwSt. 19%' };
+      case 'FR': // Франция 
+        return { rate: 0.20, label: 'TVA 20%' };
+      case 'ES': // Испания
+        return { rate: 0.21, label: 'IVA 21%' };
+      case 'IT': // Италия
+        return { rate: 0.22, label: 'IVA 22%' };
+      case 'GB': // Великобритания
+        return { rate: 0.20, label: 'VAT 20%' };
+      default:
+        return { rate: 0, label: 'No VAT' };
+    }
+  };
 
   // Проверка загрузки Stripe
   useEffect(() => {
@@ -111,6 +132,19 @@ export default function Checkout() {
     return () => clearTimeout(stripeLoadTimeout);
   }, [toast]);
   
+  // Вычисляем информацию о налоге при изменении цены или страны пользователя
+  useEffect(() => {
+    if (!user?.country || !price) return;
+    
+    const { rate, label } = calculateTaxRate(user.country);
+    if (rate > 0) {
+      const amount = Math.round(price * rate);
+      setTaxInfo({ rate, label, amount });
+    } else {
+      setTaxInfo(null);
+    }
+  }, [user?.country, price]);
+
   useEffect(() => {
     const getPaymentIntent = async () => {
       if (!productId || !user || !product) return;
@@ -210,8 +244,14 @@ export default function Checkout() {
         <div className="border-t border-b py-3 my-3">
           <div className="flex justify-between mb-2">
             <span>Subtotal</span>
-            <span>{formatPrice(price, currency, isStripePrice)}</span>
+            <span>{formatPrice(taxInfo ? price - taxInfo.amount : price, currency, isStripePrice)}</span>
           </div>
+          {taxInfo && (
+            <div className="flex justify-between mb-2">
+              <span>{taxInfo.label}</span>
+              <span>{formatPrice(taxInfo.amount, currency, isStripePrice)}</span>
+            </div>
+          )}
           <div className="flex justify-between mb-2">
             <span>Shipping</span>
             <span>Free</span>
@@ -220,6 +260,11 @@ export default function Checkout() {
             <span>Total</span>
             <span>{formatPrice(price, currency, isStripePrice)}</span>
           </div>
+          {taxInfo && (
+            <div className="mt-2 text-xs text-gray-500">
+              * Prices include {taxInfo.label} according to {user?.country} tax regulations
+            </div>
+          )}
         </div>
       </Card>
       

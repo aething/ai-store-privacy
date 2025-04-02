@@ -773,12 +773,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Using only the essential parameters to avoid errors
       console.log(`Creating PaymentIntent for amount: ${amount} ${currency}`);
       
+      // Рассчитываем НДС в зависимости от страны
+      // Используем стандартные ставки VAT для разных стран
+      let taxAmount = 0;
+      let taxRate = 0;
+      let taxLabel = '';
+      
+      // Определяем ставку НДС по стране
+      if (country) {
+        // Европейские страны с НДС
+        switch(country) {
+          case 'DE': // Германия
+            taxRate = 0.19;
+            taxLabel = 'MwSt. 19%';
+            break;
+          case 'FR': // Франция 
+            taxRate = 0.20;
+            taxLabel = 'TVA 20%';
+            break;
+          case 'ES': // Испания
+            taxRate = 0.21;
+            taxLabel = 'IVA 21%';
+            break;
+          case 'IT': // Италия
+            taxRate = 0.22;
+            taxLabel = 'IVA 22%';
+            break;
+          case 'GB': // Великобритания
+            taxRate = 0.20;
+            taxLabel = 'VAT 20%';
+            break;
+          // Добавьте другие страны по необходимости
+          default:
+            // Для стран не из списка, используем 0% НДС
+            taxRate = 0;
+            taxLabel = 'No VAT';
+        }
+      }
+      
+      // Если страна определена и налоговая ставка больше 0, сохраняем информацию о налоге
+      if (taxRate > 0) {
+        taxAmount = Math.round(amount * taxRate);
+        // Добавляем информацию о налоге в метаданные
+        metadata.taxRate = taxRate.toString();
+        metadata.taxAmount = taxAmount.toString();
+        metadata.taxLabel = taxLabel;
+      }
+      
       // Важно: не используем payment_method_types и automatic_payment_methods одновременно
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
         currency, // Use the currency from the request
         payment_method_types: ['card'],
-        metadata
+        metadata,
+        // Добавляем описание с информацией о налоге
+        description: taxRate > 0 ? `Order with ${taxLabel} included` : 'Order without VAT'
       });
       
       console.log(`Created PaymentIntent: ${paymentIntent.id} with amount: ${amount} ${currency}`);
