@@ -84,7 +84,21 @@ export default function Checkout() {
   const [taxInfo, setTaxInfo] = useState<{rate: number; label: string; amount: number}>({ rate: 0, label: 'Tax', amount: 0 });
   const [stripeTaxInfo, setStripeTaxInfo] = useState<{amount: number; rate: number; label: string; display: string} | null>(null);
   
-  const productId = match ? parseInt(params.id) : null;
+  // Получаем productId из URL-параметров или из query-строки
+  let productId: number | null = null;
+  
+  // Сначала проверяем параметр из route
+  if (match && params.id) {
+    productId = parseInt(params.id);
+  } 
+  // Если не найден, проверяем query-параметр
+  else {
+    const searchParams = new URLSearchParams(window.location.search);
+    const productIdParam = searchParams.get('productId');
+    if (productIdParam) {
+      productId = parseInt(productIdParam);
+    }
+  }
   
   const { data: product } = useQuery<Product>({
     queryKey: [`/api/products/${productId}`],
