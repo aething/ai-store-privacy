@@ -828,7 +828,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         } else {
           // Для европейских стран с НДС применяем ставки по правилам ЕС
-          // EU VAT - https://ec.europa.eu/taxation_customs/business/vat/eu-vat-rules-topic/vat-rates_en
+          // Актуальные данные от Tax Foundation: https://taxfoundation.org/data/all/eu/value-added-tax-vat-rates-europe/
           switch(country) {
             case 'AT': // Австрия
               taxRate = 0.20;
@@ -859,8 +859,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               taxLabel = 'MOMS 25%';
               break;
             case 'EE': // Эстония
-              taxRate = 0.20;
-              taxLabel = 'KM 20%';
+              taxRate = 0.22; // Обновлено с 20% на 22%
+              taxLabel = 'KM 22%';
               break;
             case 'FI': // Финляндия
               taxRate = 0.24;
@@ -899,8 +899,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               taxLabel = 'PVM 21%';
               break;
             case 'LU': // Люксембург
-              taxRate = 0.17;
-              taxLabel = 'TVA 17%';
+              taxRate = 0.16; // Обновлено с 17% на 16%
+              taxLabel = 'TVA 16%';
               break;
             case 'MT': // Мальта
               taxRate = 0.18;
