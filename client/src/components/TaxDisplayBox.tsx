@@ -23,7 +23,8 @@ export function TaxDisplayBox({
   
   // Определяем, является ли страна членом ЕС
   const isEUCountry = React.useMemo(() => {
-    if (!country) return false;
+    // Если страна не указана, считаем что это Германия (член ЕС)
+    if (!country) return true;
     
     const euCountries = [
       'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
@@ -36,7 +37,8 @@ export function TaxDisplayBox({
   
   // Определяем ставку налога в зависимости от страны
   const taxRate = React.useMemo(() => {
-    if (!country) return 0;
+    // Если страна не указана, используем ставку Германии по умолчанию
+    if (!country) return 0.19;
     
     if (isEUCountry) {
       // Разные ставки НДС для стран ЕС
@@ -67,7 +69,8 @@ export function TaxDisplayBox({
   
   // Определяем текст для отображения
   const getTaxLabel = (): string => {
-    if (!country) return t('tax.unknown');
+    // Если страна не указана, используем немецкий налог по умолчанию
+    if (!country) return 'MwSt. 19%';
     
     if (isEUCountry) {
       switch (country) {
@@ -94,7 +97,7 @@ export function TaxDisplayBox({
       <div className="flex justify-between font-medium">
         <span className="text-sm text-gray-600">{getTaxLabel()}</span>
         <span className="text-sm">
-          {taxAmount > 0 ? formatCurrency(taxAmount) : 'N/A'}
+          {formatCurrency(taxAmount)}
         </span>
       </div>
       

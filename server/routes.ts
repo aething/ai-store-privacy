@@ -1039,19 +1039,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Using tax rate ID: ${taxRateId} for PaymentIntent`);
       }
       
-      // Если страна не указана, используем Германию по умолчанию
-      if (!country) {
-        // Создаем локальную переменную для хранения страны по умолчанию
+      // Если страна не указана или это Германия, применяем немецкий НДС
+      if (!country || country === 'DE') {
+        // Устанавливаем значения для Германии
         const defaultCountry = 'DE';
         taxRate = 0.19;
         taxLabel = 'MwSt. 19%';
+        
+        // Вычисляем сумму налога
         taxAmount = Math.round(amount * taxRate);
+        
+        // Добавляем информацию о налогах в метаданные
         paymentIntentParams.metadata.tax_amount = taxAmount.toString();
         paymentIntentParams.metadata.tax_rate = '19%';
         paymentIntentParams.metadata.tax_label = taxLabel;
         paymentIntentParams.metadata.country_code = defaultCountry;
+        
+        // Увеличиваем общую сумму на размер налога
         paymentIntentParams.amount = amount + taxAmount;
+        
+        // Обновляем описание платежа
         paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
+        
+        console.log(`Applied German VAT: ${taxAmount} ${currency}`);
+      } else if (country === 'US') {
+        // Для США налоги не применяются
+        taxRate = 0;
+        taxLabel = 'No Sales Tax';
+        taxAmount = 0;
+        
+        // Добавляем информацию об отсутствии налога в метаданные
+        paymentIntentParams.metadata.tax_amount = '0';
+        paymentIntentParams.metadata.tax_rate = '0%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = country;
+        
+        // Сумма остается неизменной
+        paymentIntentParams.description = 'Order with no sales tax';
+        
+        console.log('No tax applied for US customer');
       }
       
       // Подробное логирование для отладки
