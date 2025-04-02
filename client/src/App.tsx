@@ -19,6 +19,7 @@ import DebugPage from "@/pages/DebugPage";
 import TaxTestPage from "@/pages/TaxTestPage";
 import SimpleTaxPage from "@/pages/SimpleTaxPage";
 import TaxTest from "@/pages/TaxTest";
+import ClearCache from "@/pages/ClearCache";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
@@ -37,7 +38,7 @@ function Router() {
       <Route path="/product-debug/:id" component={ProductDetailDebug} />
       <Route path="/policy/:id" component={Policy} />
       <Route path="/info/:id" component={InfoPage} />
-      <Route path="/checkout/:id" component={Checkout} />
+      <Route path="/checkout" component={Checkout} />
       <Route path="/confirmation" component={Confirmation} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/playmarket" component={PlayMarket} />
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/tax-test" component={TaxTestPage} />
       <Route path="/simple-tax" component={SimpleTaxPage} />
       <Route path="/tax-display-test" component={TaxTest} />
+      <Route path="/clear-cache" component={ClearCache} />
       <Route component={NotFound} />
     </Switch>
   );
