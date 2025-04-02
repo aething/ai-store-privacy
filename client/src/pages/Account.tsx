@@ -266,17 +266,22 @@ export default function Account() {
     setLocation(`/policy/${policyId}`);
   };
   
+  // Получаем доступ к объекту переводов
+  const { translations } = useLocale();
+  
+  // Определение политик с проверкой наличия ключей в локализации
+  // Если ключ не найден, используем fallback на английский
   const policies = [
-    { id: "delivery-policy", title: t.deliveryPolicy },
-    { id: "return-policy", title: t.returnPolicy },
-    { id: "contact-info", title: t.contactInfo },
-    { id: "privacy-policy", title: t.privacy },
-    { id: "payment-terms", title: t.payment },
-    { id: "warranty", title: t.warranty },
-    { id: "terms", title: t.terms },
-    { id: "gdpr", title: t.gdpr },
-    { id: "ftc", title: t.ftc },
-    { id: "data-safety", title: t.dataSafety },
+    { id: "delivery-policy", title: translations.deliveryPolicy || "Delivery Policy" },
+    { id: "return-policy", title: translations.returnPolicy || "Return & Exchange Policy" },
+    { id: "contact-info", title: translations.contactInfo || "Contact Information" },
+    { id: "privacy-policy", title: translations.privacy || "Privacy Policy" },
+    { id: "payment-terms", title: translations.payment || "Payment Terms" },
+    { id: "warranty", title: translations.warranty || "Warranty & Liability" },
+    { id: "terms", title: translations.terms || "Terms of Service" },
+    { id: "gdpr", title: translations.gdpr || "GDPR" },
+    { id: "ftc", title: translations.ftc || "FTC Rules" },
+    { id: "data-safety", title: translations.dataSafety || "Data Safety for Google Play" },
   ];
   
   // Hook для синхронизации продуктов со Stripe
