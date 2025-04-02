@@ -283,11 +283,12 @@ export default function Checkout() {
             <span>Total</span>
             <span>{formatPrice(price, currency, isStripePrice)}</span>
           </div>
-          {taxInfo && (
-            <div className="mt-2 text-xs text-gray-500">
-              * Prices include {taxInfo.label} according to {user?.country} tax regulations
-            </div>
-          )}
+          <div className="mt-2 text-xs text-gray-500">
+            {taxInfo && taxInfo.rate > 0 
+              ? `* Prices include ${taxInfo.label} according to ${user?.country} tax regulations` 
+              : `* No tax applied for ${user?.country} according to current regulations`
+            }
+          </div>
         </div>
       </Card>
       
