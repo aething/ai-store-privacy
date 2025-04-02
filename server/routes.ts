@@ -1026,12 +1026,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Using tax rate ID: ${taxRateId} for PaymentIntent`);
       }
       
+      // Подробное логирование для отладки
       console.log(`Creating PaymentIntent:`, {
         amount,
         currency,
         country: country || 'unknown',
         tax_behavior: 'exclusive', // Налог всегда добавляется сверху цены
-        tax_rate_applied: !!taxRateId
+        tax_rate_applied: !!taxRateId,
+        tax_details: {
+          country,
+          taxRate,
+          taxLabel,
+          taxRateId: taxRateId || null,
+          product_price: req.body.amount || null,
+          metadata: JSON.stringify(metadata)
+        }
       });
       
       const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);

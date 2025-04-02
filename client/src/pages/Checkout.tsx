@@ -11,6 +11,7 @@ import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/cu
 import { apiRequest } from "@/lib/queryClient";
 import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { ArrowLeft } from "lucide-react";
+import { TaxDisplayBox } from "@/components/TaxDisplayBox";
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
@@ -308,6 +309,14 @@ export default function Checkout() {
               </tr>
             </tbody>
           </table>
+          
+          {/* Используем компонент TaxDisplayBox для отображения информации о налоге */}
+          <TaxDisplayBox 
+            country={user?.country} 
+            currency={currency}
+            amount={price}
+            showDebugInfo={true} 
+          />
           
           {/* Пояснительный текст о налогах */}
           <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
