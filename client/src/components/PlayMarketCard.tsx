@@ -59,7 +59,7 @@ const PlayMarketCard: React.FC<PlayMarketCardProps> = ({
         {/* Шапка карточки в стиле Google Play */}
         <div className="flex items-start space-x-4 mb-4">
           {/* Иконка приложения */}
-          <div className="flex-shrink-0 w-16 h-16 bg-primary rounded-xl overflow-hidden shadow-lg flex items-center justify-center">
+          <div className="flex-shrink-0 w-16 h-16 bg-white rounded-xl overflow-hidden shadow-lg flex items-center justify-center">
             {typeof icon === 'string' ? (
               <img src={icon} alt={appName} className="w-full h-full object-cover" />
             ) : (

@@ -90,8 +90,8 @@ export default function PlayMarket() {
         >
           <ArrowLeft size={22} />
         </button>
-        <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg overflow-hidden shadow-md flex items-center justify-center mr-3">
-          <span className="text-white text-2xl font-bold">A</span>
+        <div className="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden shadow-md flex items-center justify-center mr-3">
+          <img src="/images/ai-store-icon-small.png" alt="AI Store" className="w-full h-full object-cover" />
         </div>
         <h2 className="text-lg font-medium">Google Play Market</h2>
       </div>
@@ -100,7 +100,7 @@ export default function PlayMarket() {
         <PlayMarketCard
           appName={appData.appName}
           developer={appData.developedBy}
-          icon={<span className="text-white text-3xl font-bold">A</span>}
+          icon={<img src="/images/ai-store-icon.png" alt="AI Store" className="w-full h-full object-cover" />}
           rating={appData.rating}
           reviews={3210}
           downloads={appData.downloads}
@@ -113,7 +113,12 @@ export default function PlayMarket() {
       
       <div className="my-6 px-4">
         <ScreenshotGallery 
-          screenshots={appData.screenshots} 
+          screenshots={[
+            '/images/app-screenshot.jpg',
+            '',
+            '',
+            ''
+          ]} 
           placeholderLabels={[
             "Home Screen",
             "Product Details",
