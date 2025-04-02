@@ -794,6 +794,25 @@ export default function Account() {
         </Card>
       </div>
       
+      {/* Google Play Market */}
+      <div className="mb-8">
+        <h2 className="text-lg font-medium mb-4">Google Play Market</h2>
+        <Card className="p-4 rounded-lg">
+          <p className="text-gray-600 mb-4">
+            {t("viewAppOnPlayStore") || "View our app on Google Play with detailed information about features, data safety, and more."}
+          </p>
+          <button
+            onClick={() => setLocation('/playmarket')}
+            className="bg-green-600 text-white w-full py-3 rounded-full hover:bg-green-700 flex items-center justify-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="mr-2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Google Play Market
+          </button>
+        </Card>
+      </div>
+
       {/* Close Account Button */}
       <div className="mb-10 mt-10">
         <div className="border-t pt-6">
