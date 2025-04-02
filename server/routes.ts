@@ -12,6 +12,43 @@ import nodemailer from "nodemailer";
 import { createPaymentIntentWithTaxInfo } from "./tax-demo-route";
 import taxDebugRoutes from "./routes/tax-debug";
 
+// Функция для получения полного названия страны по коду ISO
+function getFullCountryName(countryCode: string): string {
+  const countryMap: Record<string, string> = {
+    'AT': 'Austria',
+    'BE': 'Belgium',
+    'BG': 'Bulgaria',
+    'HR': 'Croatia',
+    'CY': 'Cyprus',
+    'CZ': 'Czech Republic',
+    'DK': 'Denmark',
+    'EE': 'Estonia',
+    'FI': 'Finland',
+    'FR': 'France',
+    'DE': 'Germany',
+    'GR': 'Greece',
+    'HU': 'Hungary',
+    'IE': 'Ireland',
+    'IT': 'Italy',
+    'LV': 'Latvia',
+    'LT': 'Lithuania',
+    'LU': 'Luxembourg',
+    'MT': 'Malta',
+    'NL': 'Netherlands',
+    'PL': 'Poland',
+    'PT': 'Portugal',
+    'RO': 'Romania',
+    'SK': 'Slovakia',
+    'SI': 'Slovenia',
+    'ES': 'Spain',
+    'SE': 'Sweden',
+    'GB': 'United Kingdom',
+    'US': 'United States'
+  };
+  
+  return countryMap[countryCode] || countryCode;
+}
+
 // Расширяем типы для Express.Request
 declare global {
   namespace Express {
@@ -959,6 +996,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         metadata.taxLabel = taxLabel;
       }
       
+      // Перевынесено из функции paymentIntent и добавлен экспорт
+// как вспомогательный модуль
+ // Пустая строка для корректного сопоставления
+      
       // Создаем или получаем TaxRate для страны пользователя
       let taxRateId = null;
       
@@ -981,10 +1022,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             taxRateId = existingRate.id;
             console.log(`Using existing tax rate: ${taxLabel} (${taxRateId})`);
           } else {
+            // Получаем полное название страны для Stripe
+            const fullCountryName = country ? getFullCountryName(country) : undefined;
+            
             // Создаем новую ставку налога
             const newTaxRate = await stripe.taxRates.create({
               display_name: taxLabel,
-              description: `${taxLabel} for ${country}`,
+              description: `${taxLabel} for ${fullCountryName || country}`,
               percentage: Math.round(taxRate * 100),
               inclusive: false, // НДС начисляется сверх цены
               country: country || undefined,
@@ -1110,11 +1154,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Applied ${country} tax (${taxLabel}): ${taxAmount} ${currency}`);
       }
       
+      // Получаем полное название страны для логирования
+      const fullCountryNameForLogs = country ? getFullCountryName(country) : 'unknown';
+      
       // Подробное логирование для отладки
       console.log(`Creating PaymentIntent:`, {
         amount,
         currency,
         country: country || 'unknown',
+        country_full: fullCountryNameForLogs,
         tax_behavior: 'exclusive', // Налог всегда добавляется сверху цены
         tax_rate_applied: !!taxRateId,
         tax_details: {
