@@ -369,7 +369,7 @@ export default function Checkout() {
         <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
           <div className="font-medium mb-1">Tax Information:</div>
           <div>* VAT is applied according to EU regulations.</div>
-          <div>* VAT ID: DE123456789</div>
+          <div>* VAT ID: {getVatIdForCountry(user?.country)}</div>
         </div>
       </div>
     </Card>
@@ -502,7 +502,7 @@ export default function Checkout() {
               <>
                 <div className="font-medium mb-1">Tax Information:</div>
                 <div>* VAT is applied according to EU regulations.</div>
-                <div>* VAT ID: DE123456789</div>
+                <div>* VAT ID: {getVatIdForCountry(user?.country)}</div>
               </>
             ) : user?.country === 'US' ? (
               <>
