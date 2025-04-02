@@ -114,7 +114,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     googleSheetsAvailable = true;
     
     // Загружаем пользователей из Google Sheets в память
-    await (storage as MemStorage).loadUsersFromGoogleSheets();
+    // Используем приведение типа к IStorage, так как метод должен быть доступен через интерфейс
+    await (storage as any).loadUsersFromGoogleSheets();
   } catch (error) {
     console.error("Failed to initialize Google Sheets:", error);
     console.log("Continuing without Google Sheets integration. User and order data will only be stored in memory.");
@@ -239,8 +240,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Получаем всех пользователей для отладки
-      const allUsers = Array.from((storage as any).users.values());
-      console.log("[DEBUG] All users:", allUsers.map(u => ({ id: u.id, username: u.username, password: u.password })));
+      // Используем приведение типа для отладочных целей
+      const allUsers = storage instanceof Object && 'users' in storage 
+        ? Array.from((storage as any).users.values()) 
+        : [];
+      
+      if (allUsers.length > 0) {
+        // Безопасный доступ к свойствам с проверкой типов
+        console.log("[DEBUG] All users:", allUsers.map(u => ({
+          id: typeof u === 'object' && u && 'id' in u ? u.id : 'unknown',
+          username: typeof u === 'object' && u && 'username' in u ? u.username : 'unknown',
+          password: typeof u === 'object' && u && 'password' in u ? u.password : 'unknown'
+        })));
+      } else {
+        console.log("[DEBUG] No users found in storage");
+      }
       
       const user = await storage.getUserByUsername(username);
       console.log("[DEBUG] Found user:", user);
@@ -778,36 +792,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let taxAmount = 0;
       let taxRate = 0;
       let taxLabel = '';
+      let nexusThresholdReached = false;
       
-      // Определяем ставку НДС по стране
+      // Определяем ставку НДС по стране и получаем дополнительную информацию о локации
       if (country) {
-        // Европейские страны с НДС
-        switch(country) {
-          case 'DE': // Германия
-            taxRate = 0.19;
-            taxLabel = 'MwSt. 19%';
-            break;
-          case 'FR': // Франция 
-            taxRate = 0.20;
-            taxLabel = 'TVA 20%';
-            break;
-          case 'ES': // Испания
-            taxRate = 0.21;
-            taxLabel = 'IVA 21%';
-            break;
-          case 'IT': // Италия
-            taxRate = 0.22;
-            taxLabel = 'IVA 22%';
-            break;
-          case 'GB': // Великобритания
-            taxRate = 0.20;
-            taxLabel = 'VAT 20%';
-            break;
-          // Добавьте другие страны по необходимости
-          default:
-            // Для стран не из списка, используем 0% НДС
+        // Для США - отдельная логика с учетом порогов nexus и информацией о штатах
+        if (country === 'US') {
+          // Получаем штат из адреса пользователя или из дополнительных данных, если они есть
+          // Учитывая текущую структуру данных, добавим базовую проверку
+          let state = 'unknown';
+          
+          // Если в метаданных запроса есть информация о штате, используем её
+          if (req.body.state) {
+            state = req.body.state;
+          }
+          
+          // Записываем информацию о штате в метаданные для будущего учета
+          metadata.state = state;
+          
+          // Примечание: в текущей реализации налоги для США не применяются,
+          // так как пороги nexus не достигнуты. Код ниже будет активирован
+          // после достижения пороговых значений.
+          
+          // Проверка достижения порогов nexus - в настоящий момент false
+          // В будущем эту проверку можно сделать зависимой от суммы продаж по штату
+          if (nexusThresholdReached) {
+            // Здесь будет логика применения ставок НДС по штатам
+            // после достижения порогов nexus
+            // В настоящий момент эта логика не активна, ставки настроены в Stripe Tax
+          } else {
             taxRate = 0;
-            taxLabel = 'No VAT';
+            taxLabel = 'No Sales Tax';
+          }
+        } else {
+          // Для европейских стран с НДС применяем ставки по правилам ЕС
+          // EU VAT - https://ec.europa.eu/taxation_customs/business/vat/eu-vat-rules-topic/vat-rates_en
+          switch(country) {
+            case 'AT': // Австрия
+              taxRate = 0.20;
+              taxLabel = 'MwSt. 20%';
+              break;
+            case 'BE': // Бельгия
+              taxRate = 0.21;
+              taxLabel = 'BTW 21%';
+              break;
+            case 'BG': // Болгария
+              taxRate = 0.20;
+              taxLabel = 'ДДС 20%';
+              break;
+            case 'HR': // Хорватия
+              taxRate = 0.25;
+              taxLabel = 'PDV 25%';
+              break;
+            case 'CY': // Кипр
+              taxRate = 0.19;
+              taxLabel = 'ΦΠΑ 19%';
+              break;
+            case 'CZ': // Чехия
+              taxRate = 0.21;
+              taxLabel = 'DPH 21%';
+              break;
+            case 'DK': // Дания
+              taxRate = 0.25;
+              taxLabel = 'MOMS 25%';
+              break;
+            case 'EE': // Эстония
+              taxRate = 0.20;
+              taxLabel = 'KM 20%';
+              break;
+            case 'FI': // Финляндия
+              taxRate = 0.24;
+              taxLabel = 'ALV 24%';
+              break;
+            case 'FR': // Франция 
+              taxRate = 0.20;
+              taxLabel = 'TVA 20%';
+              break;
+            case 'DE': // Германия
+              taxRate = 0.19;
+              taxLabel = 'MwSt. 19%';
+              break;
+            case 'GR': // Греция
+              taxRate = 0.24;
+              taxLabel = 'ΦΠΑ 24%';
+              break;
+            case 'HU': // Венгрия
+              taxRate = 0.27;
+              taxLabel = 'ÁFA 27%';
+              break;
+            case 'IE': // Ирландия
+              taxRate = 0.23;
+              taxLabel = 'VAT 23%';
+              break;
+            case 'IT': // Италия
+              taxRate = 0.22;
+              taxLabel = 'IVA 22%';
+              break;
+            case 'LV': // Латвия
+              taxRate = 0.21;
+              taxLabel = 'PVN 21%';
+              break;
+            case 'LT': // Литва
+              taxRate = 0.21;
+              taxLabel = 'PVM 21%';
+              break;
+            case 'LU': // Люксембург
+              taxRate = 0.17;
+              taxLabel = 'TVA 17%';
+              break;
+            case 'MT': // Мальта
+              taxRate = 0.18;
+              taxLabel = 'VAT 18%';
+              break;
+            case 'NL': // Нидерланды
+              taxRate = 0.21;
+              taxLabel = 'BTW 21%';
+              break;
+            case 'PL': // Польша
+              taxRate = 0.23;
+              taxLabel = 'VAT 23%';
+              break;
+            case 'PT': // Португалия
+              taxRate = 0.23;
+              taxLabel = 'IVA 23%';
+              break;
+            case 'RO': // Румыния
+              taxRate = 0.19;
+              taxLabel = 'TVA 19%';
+              break;
+            case 'SK': // Словакия
+              taxRate = 0.20;
+              taxLabel = 'DPH 20%';
+              break;
+            case 'SI': // Словения
+              taxRate = 0.22;
+              taxLabel = 'DDV 22%';
+              break;
+            case 'ES': // Испания
+              taxRate = 0.21;
+              taxLabel = 'IVA 21%';
+              break;
+            case 'SE': // Швеция
+              taxRate = 0.25;
+              taxLabel = 'MOMS 25%';
+              break;
+            case 'GB': // Великобритания
+              taxRate = 0.20;
+              taxLabel = 'VAT 20%';
+              break;
+            default:
+              // Для стран не из списка и не из США, используем 0% НДС
+              taxRate = 0;
+              taxLabel = 'No VAT';
+          }
         }
       }
       

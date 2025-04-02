@@ -97,22 +97,48 @@ export default function Checkout() {
   
   // Функция для определения ставки налога на основе страны пользователя
   const calculateTaxRate = (country?: string | null) => {
-    if (!country) return { rate: 0, label: 'No VAT' };
+    if (!country) return { rate: 0, label: 'No VAT/Tax' };
     
-    switch(country) {
-      case 'DE': // Германия
-        return { rate: 0.19, label: 'MwSt. 19%' };
-      case 'FR': // Франция 
-        return { rate: 0.20, label: 'TVA 20%' };
-      case 'ES': // Испания
-        return { rate: 0.21, label: 'IVA 21%' };
-      case 'IT': // Италия
-        return { rate: 0.22, label: 'IVA 22%' };
-      case 'GB': // Великобритания
-        return { rate: 0.20, label: 'VAT 20%' };
-      default:
-        return { rate: 0, label: 'No VAT' };
+    // Для США - специальная обработка
+    if (country === 'US') {
+      // В настоящий момент налоги для США не применяются, так как пороги nexus не достигнуты
+      return { rate: 0, label: 'No Sales Tax' };
     }
+    
+    // Для стран ЕС и других - НДС по правилам каждой страны
+    const euVatRates: Record<string, { rate: number; label: string }> = {
+      // Страны ЕС
+      'AT': { rate: 0.20, label: 'MwSt. 20%' }, // Австрия
+      'BE': { rate: 0.21, label: 'BTW 21%' },   // Бельгия
+      'BG': { rate: 0.20, label: 'ДДС 20%' },   // Болгария
+      'HR': { rate: 0.25, label: 'PDV 25%' },   // Хорватия
+      'CY': { rate: 0.19, label: 'ΦΠΑ 19%' },   // Кипр
+      'CZ': { rate: 0.21, label: 'DPH 21%' },   // Чехия
+      'DK': { rate: 0.25, label: 'MOMS 25%' },  // Дания
+      'EE': { rate: 0.20, label: 'KM 20%' },    // Эстония
+      'FI': { rate: 0.24, label: 'ALV 24%' },   // Финляндия
+      'FR': { rate: 0.20, label: 'TVA 20%' },   // Франция
+      'DE': { rate: 0.19, label: 'MwSt. 19%' }, // Германия
+      'GR': { rate: 0.24, label: 'ΦΠΑ 24%' },   // Греция
+      'HU': { rate: 0.27, label: 'ÁFA 27%' },   // Венгрия
+      'IE': { rate: 0.23, label: 'VAT 23%' },   // Ирландия
+      'IT': { rate: 0.22, label: 'IVA 22%' },   // Италия
+      'LV': { rate: 0.21, label: 'PVN 21%' },   // Латвия
+      'LT': { rate: 0.21, label: 'PVM 21%' },   // Литва
+      'LU': { rate: 0.17, label: 'TVA 17%' },   // Люксембург
+      'MT': { rate: 0.18, label: 'VAT 18%' },   // Мальта
+      'NL': { rate: 0.21, label: 'BTW 21%' },   // Нидерланды
+      'PL': { rate: 0.23, label: 'VAT 23%' },   // Польша
+      'PT': { rate: 0.23, label: 'IVA 23%' },   // Португалия
+      'RO': { rate: 0.19, label: 'TVA 19%' },   // Румыния
+      'SK': { rate: 0.20, label: 'DPH 20%' },   // Словакия
+      'SI': { rate: 0.22, label: 'DDV 22%' },   // Словения
+      'ES': { rate: 0.21, label: 'IVA 21%' },   // Испания
+      'SE': { rate: 0.25, label: 'MOMS 25%' },  // Швеция
+      'GB': { rate: 0.20, label: 'VAT 20%' },   // Великобритания
+    };
+    
+    return euVatRates[country] || { rate: 0, label: 'No VAT/Tax' };
   };
 
   // Проверка загрузки Stripe
