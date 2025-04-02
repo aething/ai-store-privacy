@@ -865,7 +865,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         } else {
           // Для европейских стран с НДС применяем ставки по правилам ЕС
-          // Актуальные данные от Tax Foundation: https://taxfoundation.org/data/all/eu/value-added-tax-vat-rates-europe/
+          // Актуальные данные на 2025 год
           switch(country) {
             case 'AT': // Австрия
               taxRate = 0.20;
@@ -896,16 +896,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
               taxLabel = 'MOMS 25%';
               break;
             case 'EE': // Эстония
-              taxRate = 0.22; // Обновлено с 20% на 22%
+              taxRate = 0.22;
               taxLabel = 'KM 22%';
               break;
             case 'FI': // Финляндия
-              taxRate = 0.24;
-              taxLabel = 'ALV 24%';
+              taxRate = 0.255; // Обновлено на 25.5%
+              taxLabel = 'ALV 25.5%';
               break;
             case 'FR': // Франция 
               taxRate = 0.20;
               taxLabel = 'TVA 20%';
+              break;
+            case 'GE': // Грузия
+              taxRate = 0.18;
+              taxLabel = 'VAT 18%';
               break;
             case 'DE': // Германия
               taxRate = 0.19;
@@ -918,6 +922,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             case 'HU': // Венгрия
               taxRate = 0.27;
               taxLabel = 'ÁFA 27%';
+              break;
+            case 'IS': // Исландия
+              taxRate = 0.24;
+              taxLabel = 'VSK 24%';
               break;
             case 'IE': // Ирландия
               taxRate = 0.23;
@@ -936,16 +944,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
               taxLabel = 'PVM 21%';
               break;
             case 'LU': // Люксембург
-              taxRate = 0.16; // Обновлено с 17% на 16%
+              taxRate = 0.16; // Обновлено на 2025 год
               taxLabel = 'TVA 16%';
               break;
             case 'MT': // Мальта
               taxRate = 0.18;
               taxLabel = 'VAT 18%';
               break;
+            case 'MD': // Молдова
+              taxRate = 0.20;
+              taxLabel = 'TVA 20%';
+              break;
             case 'NL': // Нидерланды
               taxRate = 0.21;
               taxLabel = 'BTW 21%';
+              break;
+            case 'NO': // Норвегия
+              taxRate = 0.25;
+              taxLabel = 'MVA 25%';
               break;
             case 'PL': // Польша
               taxRate = 0.23;
@@ -960,8 +976,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               taxLabel = 'TVA 19%';
               break;
             case 'SK': // Словакия
-              taxRate = 0.20;
-              taxLabel = 'DPH 20%';
+              taxRate = 0.23; // Обновлено с 20% на 23%
+              taxLabel = 'DPH 23%';
               break;
             case 'SI': // Словения
               taxRate = 0.22;
@@ -974,6 +990,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             case 'SE': // Швеция
               taxRate = 0.25;
               taxLabel = 'MOMS 25%';
+              break;
+            case 'CH': // Швейцария
+              taxRate = 0.081;
+              taxLabel = 'MWST 8.1%';
+              break;
+            case 'TR': // Турция
+              taxRate = 0.20;
+              taxLabel = 'KDV 20%';
+              break;
+            case 'UA': // Украина
+              taxRate = 0.20;
+              taxLabel = 'ПДВ 20%';
               break;
             case 'GB': // Великобритания
               taxRate = 0.20;
