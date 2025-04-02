@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TaxDisplayBoxSimple } from '../components/TaxDisplayBoxSimple';
+import { TaxDisplayBox } from '../components/TaxDisplayBox';
 
 interface TaxInfo {
   amount: number;
