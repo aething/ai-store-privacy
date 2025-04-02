@@ -83,13 +83,16 @@ export default function PlayMarket() {
   
   return (
     <div className="pb-16">
-      <div className="flex items-center mb-4 sticky top-0 bg-white z-10 p-2 shadow-sm">
+      <div className="flex items-center mb-4 sticky top-0 bg-white z-10 p-3 shadow-sm">
         <button 
-          className="mr-2 p-1"
+          className="mr-3 p-2 hover:bg-gray-100 rounded-full"
           onClick={() => setLocation("/")}
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={22} />
         </button>
+        <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg overflow-hidden shadow-md flex items-center justify-center mr-3">
+          <span className="text-white text-2xl font-bold">A</span>
+        </div>
         <h2 className="text-lg font-medium">Google Play Market</h2>
       </div>
       
@@ -205,16 +208,7 @@ export default function PlayMarket() {
         </div>
       </Card>
       
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-500 mb-4">Get it on</p>
-        <div className="inline-block bg-black text-white py-2 px-4 rounded-lg flex items-center hover:bg-gray-800 transition cursor-pointer">
-          <Play className="mr-2" size={24} />
-          <div className="text-left">
-            <p className="text-xs">GET IT ON</p>
-            <p className="font-medium">Google Play</p>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 }
