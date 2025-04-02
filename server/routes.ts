@@ -1064,7 +1064,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Увеличиваем общую сумму на размер налога
         paymentIntentParams.amount = amount + taxAmount;
         
-        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency}`);
+        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
         
         // Обновляем описание платежа
         paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;

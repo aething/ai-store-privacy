@@ -277,7 +277,7 @@ export default function Checkout() {
             <tbody>
               <tr className="mb-2">
                 <td className="text-left pb-2">Subtotal</td>
-                <td className="text-right pb-2">{formatPrice(user?.country === 'DE' ? price - Math.round(price * 0.19) : price, currency, isStripePrice)}</td>
+                <td className="text-right pb-2">{formatPrice(price, currency, isStripePrice)}</td>
               </tr>
               
               {/* Налоговая информация - рассчитываем на основе информации о стране */}
@@ -350,7 +350,7 @@ export default function Checkout() {
             {user?.country === 'DE' ? (
               <>
                 <div className="font-medium mb-1">Tax Information:</div>
-                <div>* Prices include 19% German VAT (MwSt.) in compliance with EU VAT Directive 2006/112/EC.</div>
+                <div>* Prices exclude 19% German VAT (MwSt.), which is added at checkout.</div>
                 <div>* VAT ID: DE123456789</div>
               </>
             ) : user?.country === 'US' ? (
