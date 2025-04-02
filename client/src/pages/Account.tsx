@@ -276,6 +276,7 @@ export default function Account() {
     { id: "terms", title: "Terms of Service" },
     { id: "gdpr", title: "GDPR" },
     { id: "ftc", title: "FTC Rules" },
+    { id: "data-safety", title: "Data Safety for Google Play" },
   ];
   
   // Hook для синхронизации продуктов со Stripe

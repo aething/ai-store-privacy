@@ -189,13 +189,23 @@ export default function PlayMarket() {
           <p className="text-blue-600 underline">support@aething.com</p>
         </div>
         
-        <div>
+        <div className="mb-4">
           <p className="text-gray-500 text-sm">Privacy policy</p>
           <button 
             className="text-blue-600 underline"
             onClick={() => setLocation("/policy/privacy")}
           >
             View privacy policy
+          </button>
+        </div>
+        
+        <div>
+          <p className="text-gray-500 text-sm">Data safety</p>
+          <button 
+            className="text-blue-600 underline"
+            onClick={() => setLocation("/policy/data-safety")}
+          >
+            View data safety information
           </button>
         </div>
       </Card>
