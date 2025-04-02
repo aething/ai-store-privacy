@@ -1,104 +1,168 @@
 /**
- * Модуль для расчета налогов на основе страны пользователя
+ * Утилиты для работы с налогами и валютами в зависимости от страны
  */
 
-// Налоговые ставки по странам (VAT для ЕС, Sales Tax для США)
-const TAX_RATES: Record<string, { rate: number; label: string }> = {
-  // Европейский Союз
-  'AT': { rate: 0.20, label: 'MwSt. 20%' }, // Австрия
-  'BE': { rate: 0.21, label: 'BTW 21%' },   // Бельгия
-  'BG': { rate: 0.20, label: 'ДДС 20%' },   // Болгария
-  'HR': { rate: 0.25, label: 'PDV 25%' },   // Хорватия
-  'CY': { rate: 0.19, label: 'ΦΠΑ 19%' },   // Кипр
-  'CZ': { rate: 0.21, label: 'DPH 21%' },   // Чехия
-  'DK': { rate: 0.25, label: 'MOMS 25%' },  // Дания
-  'EE': { rate: 0.20, label: 'KM 20%' },    // Эстония
-  'FI': { rate: 0.24, label: 'ALV 24%' },   // Финляндия
-  'FR': { rate: 0.20, label: 'TVA 20%' },   // Франция
-  'DE': { rate: 0.19, label: 'MwSt. 19%' }, // Германия
-  'GR': { rate: 0.24, label: 'ΦΠΑ 24%' },   // Греция
-  'HU': { rate: 0.27, label: 'ÁFA 27%' },   // Венгрия
-  'IE': { rate: 0.23, label: 'VAT 23%' },   // Ирландия
-  'IT': { rate: 0.22, label: 'IVA 22%' },   // Италия
-  'LV': { rate: 0.21, label: 'PVN 21%' },   // Латвия
-  'LT': { rate: 0.21, label: 'PVM 21%' },   // Литва
-  'LU': { rate: 0.17, label: 'TVA 17%' },   // Люксембург
-  'MT': { rate: 0.18, label: 'VAT 18%' },   // Мальта
-  'NL': { rate: 0.21, label: 'BTW 21%' },   // Нидерланды
-  'PL': { rate: 0.23, label: 'VAT 23%' },   // Польша
-  'PT': { rate: 0.23, label: 'IVA 23%' },   // Португалия
-  'RO': { rate: 0.19, label: 'TVA 19%' },   // Румыния
-  'SK': { rate: 0.20, label: 'DPH 20%' },   // Словакия
-  'SI': { rate: 0.22, label: 'DDV 22%' },   // Словения
-  'ES': { rate: 0.21, label: 'IVA 21%' },   // Испания
-  'SE': { rate: 0.25, label: 'MOMS 25%' },  // Швеция
-  
-  // Великобритания
-  'GB': { rate: 0.20, label: 'VAT 20%' },  // Великобритания
-  
-  // США - без налога (на текущий момент, пока не достигнуты пороги nexus)
-  'US': { rate: 0, label: 'No Sales Tax' },
-  
-  // Другие страны - без налога по умолчанию
-  'unknown': { rate: 0, label: 'No Tax' }
-};
-
 /**
- * Рассчитывает налоговую ставку на основе страны
- * @param country ISO код страны (DE, FR, US и т.д.)
- * @returns Объект с налоговой ставкой и названием налога
+ * Список стран Европейского Союза
  */
-export function calculateTaxRate(country: string): { rate: number; label: string } {
-  if (!country || country === 'unknown') {
-    return TAX_RATES['unknown'];
-  }
-  
-  // Приводим к верхнему регистру для соответствия формату ключей
-  const countryCode = country.toUpperCase();
-  
-  // Если для страны определена ставка НДС, возвращаем ее
-  if (TAX_RATES[countryCode]) {
-    return TAX_RATES[countryCode];
-  }
-  
-  // Для всех остальных стран налог не применяется
-  return TAX_RATES['unknown'];
-}
+export const EU_COUNTRIES = [
+  'AT', // Austria
+  'BE', // Belgium
+  'BG', // Bulgaria
+  'HR', // Croatia
+  'CY', // Cyprus
+  'CZ', // Czech Republic
+  'DK', // Denmark
+  'EE', // Estonia
+  'FI', // Finland
+  'FR', // France
+  'DE', // Germany
+  'GR', // Greece
+  'HU', // Hungary
+  'IE', // Ireland
+  'IT', // Italy
+  'LV', // Latvia
+  'LT', // Lithuania
+  'LU', // Luxembourg
+  'MT', // Malta
+  'NL', // Netherlands
+  'PL', // Poland
+  'PT', // Portugal
+  'RO', // Romania
+  'SK', // Slovakia
+  'SI', // Slovenia
+  'ES', // Spain
+  'SE', // Sweden
+];
 
 /**
- * Проверяет, относится ли страна к Европейскому Союзу
- * @param country ISO код страны
- * @returns true если страна входит в ЕС, иначе false
+ * Проверяет, является ли страна частью Европейского Союза
+ * @param country Код страны (ISO 3166-1 alpha-2)
+ * @returns Булево значение, указывающее, является ли страна частью ЕС
  */
 export function isEUCountry(country: string): boolean {
-  if (!country) return false;
-  
-  const countryCode = country.toUpperCase();
-  const euCountries = [
-    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 
-    'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 
-    'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'
-  ];
-  
-  return euCountries.includes(countryCode);
+  return EU_COUNTRIES.includes(country.toUpperCase());
 }
 
 /**
- * Определяет, должна ли использоваться валюта EUR для страны
- * @param country ISO код страны
- * @returns true если следует использовать EUR, иначе false
+ * Определяет, нужно ли использовать EUR в качестве валюты для данной страны
+ * @param country Код страны (ISO 3166-1 alpha-2)
+ * @returns Булево значение, указывающее, нужно ли использовать EUR
  */
 export function shouldUseEUR(country: string): boolean {
-  if (!country) return false;
-  
   return isEUCountry(country);
 }
 
 /**
- * Возвращает валюту для страны: EUR для стран ЕС, USD для остальных
- * @param country ISO код страны
- * @returns 'eur' или 'usd'
+ * Карта для налоговых ставок по странам ЕС
+ * Источник: https://ec.europa.eu/taxation_customs/vat-rates_en
+ */
+export const EU_VAT_RATES: Record<string, number> = {
+  'AT': 0.20, // Austria - 20%
+  'BE': 0.21, // Belgium - 21%
+  'BG': 0.20, // Bulgaria - 20%
+  'HR': 0.25, // Croatia - 25%
+  'CY': 0.19, // Cyprus - 19%
+  'CZ': 0.21, // Czech Republic - 21%
+  'DK': 0.25, // Denmark - 25%
+  'EE': 0.20, // Estonia - 20%
+  'FI': 0.24, // Finland - 24%
+  'FR': 0.20, // France - 20%
+  'DE': 0.19, // Germany - 19%
+  'GR': 0.24, // Greece - 24%
+  'HU': 0.27, // Hungary - 27%
+  'IE': 0.23, // Ireland - 23%
+  'IT': 0.22, // Italy - 22%
+  'LV': 0.21, // Latvia - 21%
+  'LT': 0.21, // Lithuania - 21%
+  'LU': 0.17, // Luxembourg - 17%
+  'MT': 0.18, // Malta - 18%
+  'NL': 0.21, // Netherlands - 21%
+  'PL': 0.23, // Poland - 23%
+  'PT': 0.23, // Portugal - 23%
+  'RO': 0.19, // Romania - 19%
+  'SK': 0.20, // Slovakia - 20%
+  'SI': 0.22, // Slovenia - 22%
+  'ES': 0.21, // Spain - 21%
+  'SE': 0.25, // Sweden - 25%
+};
+
+/**
+ * Стандартная налоговая ставка для США
+ * В США налог на продажу варьируется по штатам и городам
+ * По умолчанию используем 0, так как нет единого федерального налога с продаж
+ */
+export const US_TAX_RATE = 0;
+
+/**
+ * Получает налоговую ставку для указанной страны
+ * @param country Код страны (ISO 3166-1 alpha-2)
+ * @returns Налоговая ставка (от 0 до 1)
+ */
+export function getTaxRateForCountry(country: string): number {
+  const countryCode = country.toUpperCase();
+  
+  // Если страна в ЕС, используем ставку VAT
+  if (isEUCountry(countryCode)) {
+    return EU_VAT_RATES[countryCode] || 0.20; // Если ставка неизвестна, используем 20%
+  }
+  
+  // Для США используем налог с продаж (по умолчанию 0)
+  if (countryCode === 'US') {
+    return US_TAX_RATE;
+  }
+  
+  // Для других стран по умолчанию возвращаем 0
+  return 0;
+}
+
+/**
+ * Форматирует сумму в указанной валюте
+ * @param amount Сумма в наименьших единицах валюты (центы, евроценты)
+ * @param currency Валюта ('usd' или 'eur')
+ * @returns Форматированная строка с суммой и символом валюты
+ */
+export function formatCurrency(amount: number, currency: string = 'usd'): string {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: 2
+  });
+  
+  return formatter.format(amount / 100);
+}
+
+/**
+ * Рассчитывает сумму налога для указанной страны и суммы
+ * @param amount Сумма без налога
+ * @param country Код страны
+ * @returns Сумма налога
+ */
+export function calculateTaxAmount(amount: number, country: string): number {
+  const taxRate = getTaxRateForCountry(country);
+  return Math.round(amount * taxRate);
+}
+
+/**
+ * Определяет валюту для указанной страны
+ * @param country Код страны
+ * @returns Код валюты ('usd' или 'eur')
  */
 export function getCurrencyForCountry(country: string): string {
   return shouldUseEUR(country) ? 'eur' : 'usd';
+}
+
+/**
+ * Формирует подпись для отображения налога
+ * @param country Код страны
+ * @param taxRate Налоговая ставка
+ * @returns Строка с описанием налога
+ */
+export function getTaxLabel(country: string, taxRate: number): string {
+  if (isEUCountry(country)) {
+    return `VAT (${(taxRate * 100).toFixed(0)}%)`;
+  } else if (country === 'US') {
+    return 'Sales Tax';
+  }
+  return 'Tax';
 }
