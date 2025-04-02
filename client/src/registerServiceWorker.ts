@@ -1,122 +1,427 @@
-// Глобальный интерфейс для сервис-воркера
-declare global {
-  interface Window {
-    swUpdateReady: boolean;
-    swRegistration: ServiceWorkerRegistration | null;
-    promptUpdate: () => void;
-    checkForOfflineSupport: () => Promise<boolean>;
-    clearCache: () => Promise<boolean>;
-  }
+/**
+ * Модуль для регистрации и управления Service Worker
+ */
+
+// Версия приложения для отслеживания обновлений
+export const APP_VERSION = '3.0.0';
+
+// Конфигурация регистрации Service Worker
+interface ServiceWorkerConfig {
+  // Путь к скрипту Service Worker
+  scriptPath: string;
+  // Необходимо ли перезагружать страницу при обновлении Service Worker
+  reloadOnUpdate: boolean;
+  // Путь к оффлайн-странице
+  offlinePath: string;
+  // Путь к заглушке для изображений
+  imageFallbackPath: string;
+  // Включить расширенное логирование
+  debug: boolean;
 }
 
-export function register() {
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      const swUrl = '/service-worker.js';
-      
-      // Глобальные настройки для работы с сервис-воркером
-      window.swUpdateReady = false;
-      window.swRegistration = null;
-      
-      // Функция для обновления сервис-воркера
-      window.promptUpdate = () => {
-        if (window.swUpdateReady && window.swRegistration && window.swRegistration.waiting) {
-          window.swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
-          window.location.reload();
-          return true;
-        }
-        return false;
-      };
-      
-      // Функция для проверки поддержки оффлайн-режима
-      window.checkForOfflineSupport = async () => {
-        try {
-          const cache = await caches.open('ai-store-v1');
-          const offlinePage = await cache.match('/offline.html');
-          return !!offlinePage;
-        } catch (error) {
-          console.error('Error checking offline support:', error);
-          return false;
-        }
-      };
-      
-      // Функция для очистки кэша
-      window.clearCache = async () => {
-        try {
-          const keys = await caches.keys();
-          await Promise.all(keys.map(key => caches.delete(key)));
-          console.log('Cache cleared successfully');
-          return true;
-        } catch (error) {
-          console.error('Error clearing cache:', error);
-          return false;
-        }
-      };
-      
-      // Регистрация сервис-воркера
-      navigator.serviceWorker
-        .register(swUrl)
-        .then(registration => {
-          console.log('Service Worker registered: ', registration);
-          window.swRegistration = registration;
-          
-          // Мониторинг обновлений
-          registration.onupdatefound = () => {
-            const installingWorker = registration.installing;
-            if (installingWorker) {
-              installingWorker.onstatechange = () => {
-                if (installingWorker.state === 'installed') {
-                  if (navigator.serviceWorker.controller) {
-                    // Обновление доступно
-                    console.log('New content is available; please refresh.');
-                    window.swUpdateReady = true;
-                    
-                    // Здесь можно отобразить уведомление для пользователя
-                    if (confirm('Доступно обновление приложения. Установить сейчас?')) {
-                      window.promptUpdate();
-                    }
-                  } else {
-                    // Все закэшировано для использования офлайн
-                    console.log('Content is cached for offline use.');
-                    
-                    // Проверяем наличие офлайн-страницы
-                    window.checkForOfflineSupport().then(hasOfflineSupport => {
-                      if (hasOfflineSupport) {
-                        console.log('Offline page is available');
-                      } else {
-                        console.warn('Offline page is not cached');
-                      }
-                    });
-                  }
-                }
-              };
+// Настройки по умолчанию
+const defaultConfig: ServiceWorkerConfig = {
+  scriptPath: '/service-worker.js',
+  reloadOnUpdate: true,
+  offlinePath: '/offline.html',
+  imageFallbackPath: '/images/image-placeholder.svg',
+  debug: import.meta.env.DEV
+};
+
+/**
+ * Регистрирует Service Worker
+ */
+export async function registerServiceWorker(config: Partial<ServiceWorkerConfig> = {}): Promise<boolean> {
+  const mergedConfig = { ...defaultConfig, ...config };
+
+  // Проверяем поддержку Service Worker в браузере
+  if (!('serviceWorker' in navigator)) {
+    console.warn('Service Worker не поддерживается в этом браузере');
+    return false;
+  }
+
+  // Сохраняем версию приложения для отслеживания обновлений
+  localStorage.setItem('app-version', APP_VERSION);
+
+  try {
+    // Регистрируем Service Worker
+    const registration = await navigator.serviceWorker.register(mergedConfig.scriptPath);
+    
+    if (mergedConfig.debug) {
+      console.log('Service Worker успешно зарегистрирован с областью видимости:', registration.scope);
+    }
+
+    // Обработка обновлений
+    registration.onupdatefound = () => {
+      const installingWorker = registration.installing;
+      if (!installingWorker) return;
+
+      installingWorker.onstatechange = () => {
+        if (installingWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            // На этом этапе старый контент был очищен, новый контент загружен
+            if (mergedConfig.debug) {
+              console.log('Новая версия Service Worker доступна');
             }
-          };
-        })
-        .catch(error => {
-          console.error('Error during service worker registration:', error);
-        });
-      
-      // Обработка обновлений
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
+            
+            // Сохраняем версию Service Worker
+            localStorage.setItem('sw-version', APP_VERSION);
+
+            // Предлагаем перезагрузить страницу, если включена опция reloadOnUpdate
+            if (mergedConfig.reloadOnUpdate) {
+              if (confirm('Доступно обновление приложения. Обновить сейчас?')) {
+                window.location.reload();
+              }
+            }
+          } else {
+            // На этом этапе все было предварительно кэшировано
+            if (mergedConfig.debug) {
+              console.log('Контент кэширован для оффлайн использования');
+            }
+            
+            // Сохраняем версию Service Worker
+            localStorage.setItem('sw-version', APP_VERSION);
+          }
         }
-      });
+      };
+    };
+
+    // Настраиваем обработку сообщений от Service Worker
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      const message = event.data;
+      
+      if (mergedConfig.debug) {
+        console.log('Получено сообщение от Service Worker:', message);
+      }
+      
+      // Обрабатываем различные типы сообщений
+      switch (message.type) {
+        case 'CACHE_UPDATED':
+          if (mergedConfig.debug) {
+            console.log('Кэш обновлен:', message.payload);
+          }
+          break;
+          
+        case 'CACHE_ERROR':
+          console.error('Ошибка кэширования:', message.payload);
+          break;
+          
+        case 'OFFLINE_MODE':
+          // Обрабатываем переход в оффлайн режим
+          if (message.payload?.isOffline) {
+            if (mergedConfig.debug) {
+              console.log('Приложение перешло в оффлайн режим');
+            }
+            
+            // Здесь можно вызвать дополнительные функции для оффлайн режима
+            if (window.dispatchEvent) {
+              window.dispatchEvent(new CustomEvent('app-offline'));
+            }
+          }
+          break;
+          
+        case 'VERSION_INFO':
+          // Получаем информацию о версии Service Worker
+          if (message.payload?.version) {
+            localStorage.setItem('sw-version', message.payload.version);
+            
+            if (mergedConfig.debug) {
+              console.log('Версия Service Worker:', message.payload.version);
+            }
+          }
+          break;
+      }
     });
+
+    // Запрашиваем у Service Worker информацию о версии
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'GET_VERSION'
+      });
+    }
+    
+    // Настраиваем глобальный API для расширенной работы с Service Worker
+    setupGlobalServiceWorkerAPI(mergedConfig);
+
+    return true;
+  } catch (error) {
+    console.error('Ошибка при регистрации Service Worker:', error);
+    return false;
   }
 }
 
-export function unregister() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready
-      .then(registration => {
-        registration.unregister();
-      })
-      .catch(error => {
-        console.error(error.message);
-      });
+/**
+ * Отменяет регистрацию Service Worker
+ */
+export async function unregisterServiceWorker(): Promise<boolean> {
+  if (!('serviceWorker' in navigator)) {
+    return false;
+  }
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    
+    for (const registration of registrations) {
+      await registration.unregister();
+    }
+    
+    console.log('Service Worker успешно отменен');
+    return true;
+  } catch (error) {
+    console.error('Ошибка при отмене регистрации Service Worker:', error);
+    return false;
   }
 }
+
+/**
+ * Проверяет, активен ли Service Worker
+ */
+export async function isServiceWorkerActive(): Promise<boolean> {
+  if (!('serviceWorker' in navigator)) {
+    return false;
+  }
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    return registrations.length > 0 && !!navigator.serviceWorker.controller;
+  } catch (error) {
+    console.error('Ошибка при проверке статуса Service Worker:', error);
+    return false;
+  }
+}
+
+/**
+ * Отправляет сообщение в Service Worker
+ */
+export function sendMessageToServiceWorker(message: any): Promise<any> {
+  return new Promise((resolve, reject) => {
+    if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+      reject(new Error('Service Worker не активен'));
+      return;
+    }
+
+    // Создаем уникальный идентификатор для сообщения
+    const messageId = Date.now().toString();
+    const messageWithId = { ...message, messageId };
+
+    // Обработчик для получения ответа
+    const messageHandler = (event: MessageEvent) => {
+      if (event.data && event.data.messageId === messageId) {
+        navigator.serviceWorker.removeEventListener('message', messageHandler);
+        resolve(event.data);
+      }
+    };
+
+    // Подписываемся на сообщения
+    navigator.serviceWorker.addEventListener('message', messageHandler);
+
+    // Отправляем сообщение
+    navigator.serviceWorker.controller.postMessage(messageWithId);
+
+    // Таймаут для ответа
+    setTimeout(() => {
+      navigator.serviceWorker.removeEventListener('message', messageHandler);
+      reject(new Error('Таймаут ожидания ответа от Service Worker'));
+    }, 3000);
+  });
+}
+
+/**
+ * Настраивает глобальный API для работы с Service Worker
+ */
+function setupGlobalServiceWorkerAPI(config: ServiceWorkerConfig) {
+  // Создаем глобальный объект для отладки
+  const appDebug = {
+    /**
+     * Проверяет поддержку оффлайн-режима
+     */
+    checkOfflineSupport: async () => {
+      const result = {
+        serviceWorkerSupported: 'serviceWorker' in navigator,
+        cacheApiSupported: 'caches' in window,
+        serviceWorkerActive: false,
+        serviceWorkerVersion: null as string | null,
+        canWork: false
+      };
+      
+      if (result.serviceWorkerSupported) {
+        result.serviceWorkerActive = await isServiceWorkerActive();
+        result.serviceWorkerVersion = localStorage.getItem('sw-version');
+      }
+      
+      result.canWork = result.serviceWorkerSupported && 
+                      result.cacheApiSupported && 
+                      result.serviceWorkerActive;
+      
+      return result;
+    },
+    
+    /**
+     * Очищает кэш Service Worker
+     */
+    clearServiceWorkerCache: async () => {
+      if (!('caches' in window)) {
+        throw new Error('Cache API не поддерживается');
+      }
+      
+      const cacheNames = [
+        'ai-store-v3',
+        'ai-store-offline-v3',
+        'ai-store-dynamic-v3'
+      ];
+      
+      const promises = cacheNames.map(cacheName => caches.delete(cacheName));
+      await Promise.all(promises);
+      
+      return { success: true };
+    },
+    
+    /**
+     * Обновляет кэш Service Worker
+     */
+    refreshServiceWorkerCache: async () => {
+      if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+        throw new Error('Service Worker не активен');
+      }
+      
+      // Отправляем сообщение в Service Worker для обновления кэша
+      await sendMessageToServiceWorker({
+        type: 'UPDATE_CACHE'
+      });
+      
+      return { success: true };
+    },
+    
+    /**
+     * Проверяет статус сети
+     */
+    isOffline: () => {
+      return !navigator.onLine;
+    },
+    
+    /**
+     * Полностью сбрасывает кэш приложения
+     */
+    resetAppCache: async () => {
+      // Очищаем Service Worker кэш
+      await appDebug.clearServiceWorkerCache();
+      
+      // Очищаем localStorage
+      localStorage.clear();
+      
+      // Очищаем IndexedDB, если доступно
+      if ('indexedDB' in window) {
+        const databases = await window.indexedDB.databases();
+        databases.forEach(db => {
+          if (db.name) {
+            window.indexedDB.deleteDatabase(db.name);
+          }
+        });
+      }
+      
+      return { success: true };
+    },
+    
+    /**
+     * API для прямого взаимодействия с Service Worker
+     */
+    swAPI: {
+      /**
+       * Получает текущую версию Service Worker
+       */
+      getVersion: async () => {
+        try {
+          const response = await sendMessageToServiceWorker({
+            type: 'GET_VERSION'
+          });
+          return response.payload?.version || null;
+        } catch (error) {
+          console.error('Ошибка при получении версии Service Worker:', error);
+          return null;
+        }
+      },
+      
+      /**
+       * Получает информацию о кэше
+       */
+      getCacheInfo: async () => {
+        try {
+          const response = await sendMessageToServiceWorker({
+            type: 'GET_CACHE_INFO'
+          });
+          return response.payload || { count: 0, size: 0 };
+        } catch (error) {
+          console.error('Ошибка при получении информации о кэше:', error);
+          return { count: 0, size: 0 };
+        }
+      },
+      
+      /**
+       * Кэширует указанные URL-адреса
+       */
+      cacheUrls: async (urls: string[]) => {
+        try {
+          const response = await sendMessageToServiceWorker({
+            type: 'CACHE_URLS',
+            payload: { urls }
+          });
+          return response.payload || { success: 0, failed: 0 };
+        } catch (error) {
+          console.error('Ошибка при кэшировании URL-адресов:', error);
+          return { success: 0, failed: 0 };
+        }
+      },
+      
+      /**
+       * Проверяет наличие ресурса в кэше
+       */
+      checkResource: async (url: string) => {
+        try {
+          const response = await sendMessageToServiceWorker({
+            type: 'CHECK_RESOURCE',
+            payload: { url }
+          });
+          return response.payload?.cached || false;
+        } catch (error) {
+          console.error(`Ошибка при проверке ресурса ${url}:`, error);
+          return false;
+        }
+      }
+    }
+  };
+  
+  // Расширяем глобальный объект window
+  (window as any).appDebug = appDebug;
+  
+  // Расширяем глобальный объект window для отслеживания состояния сети
+  (window as any).networkStatus = {
+    isOnline: navigator.onLine,
+    
+    /**
+     * Подписка на изменения состояния сети
+     */
+    subscribe: (callback: (isOnline: boolean) => void) => {
+      const handleOnline = () => {
+        (window as any).networkStatus.isOnline = true;
+        callback(true);
+      };
+      
+      const handleOffline = () => {
+        (window as any).networkStatus.isOnline = false;
+        callback(false);
+      };
+      
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+      
+      // Возвращаем функцию для отписки
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
+    }
+  };
+}
+
+// Экспортируем настройки
+export const serviceWorkerConfig = defaultConfig;

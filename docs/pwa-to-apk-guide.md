@@ -1,312 +1,460 @@
 # Руководство по конвертации PWA в APK для Google Play
 
-В этом руководстве описывается процесс преобразования Progressive Web App (PWA) в формат APK для публикации в Google Play Store. Мы будем использовать подход Trusted Web Activity (TWA), который является рекомендуемым способом для публикации PWA в Google Play Store.
+Это руководство описывает процесс конвертации Progressive Web App (PWA) в APK-файл для публикации в Google Play Store.
 
-## Содержание
+## Требования
 
-1. [Предварительные требования](#предварительные-требования)
-2. [Подготовка PWA](#подготовка-pwa)
-3. [Проверка работоспособности PWA](#проверка-работоспособности-pwa)
-4. [Настройка Digital Asset Links](#настройка-digital-asset-links)
-5. [Создание проекта Android](#создание-проекта-android)
-6. [Настройка TWA](#настройка-twa)
-7. [Сборка APK](#сборка-apk)
-8. [Тестирование APK](#тестирование-apk)
-9. [Публикация в Google Play](#публикация-в-google-play)
-10. [Обновление приложения](#обновление-приложения)
-11. [Решение проблем](#решение-проблем)
+Для успешной конвертации PWA в APK необходимы:
 
-## Предварительные требования
+1. **Готовое PWA-приложение** с:
+   - Корректным `manifest.json`
+   - Service Worker для оффлайн-функциональности
+   - Отзывчивым дизайном для разных разрешений экрана
+   - Иконками разных размеров (минимум 512x512, 192x192, 144x144, 96x96, 72x72)
 
-Для успешной конвертации PWA в APK и публикации в Google Play вам потребуется:
+2. **Среда разработки**:
+   - Android Studio
+   - JDK 11 или выше
+   - Git
 
-- Работающее PWA, размещенное по HTTPS
-- Android Studio (последняя версия)
-- JDK 11 или новее
-- Аккаунт разработчика Google Play ($25 одноразовая оплата)
-- Доступ к DNS-настройкам домена для настройки Digital Asset Links
+3. **Учетная запись Google Play Developer** (платная регистрация)
 
-## Подготовка PWA
+## Подготовка PWA к конвертации
 
-Перед конвертацией убедитесь, что ваше PWA соответствует всем требованиям:
+### 1. Оптимизация для мобильных устройств
 
-1. PWA размещено на HTTPS
-2. Имеет действительный Web App Manifest (`manifest.json`)
-3. Имеет Service Worker для оффлайн-функциональности
-4. Проходит проверку через Lighthouse PWA с высоким процентом соответствия
-5. Имеет иконки всех необходимых размеров (особенно 512x512 и 192x192)
+- Убедитесь, что все страницы адаптивны для мобильных экранов
+- Используйте мета-тег viewport: `<meta name="viewport" content="width=device-width, initial-scale=1">`
+- Проверьте производительность с помощью Lighthouse в Chrome DevTools
+- Добавьте поддержку жестов для мобильных устройств
 
-### Необходимые настройки в manifest.json
+### 2. Проверка оффлайн-функциональности
 
-Убедитесь, что ваш manifest.json содержит следующие параметры:
+- Убедитесь, что важные ресурсы кэшируются Service Worker
+- Реализуйте стратегию кэширования для разных типов контента
+- Протестируйте работу в оффлайн-режиме
+- Создайте оффлайн-страницу для недоступных ресурсов
+
+### 3. Подготовка манифеста
+
+Убедитесь, что `manifest.json` содержит все необходимые поля:
 
 ```json
 {
-  "name": "AI Store by Aething",
+  "name": "AI Store",
   "short_name": "AI Store",
-  "description": "Browse and purchase AI-powered solutions with automatic tax calculation for your region",
-  "theme_color": "#6200ee",
-  "background_color": "#ffffff",
-  "display": "standalone",
-  "orientation": "portrait",
-  "scope": "/",
+  "description": "AI Store - магазин ИИ-инструментов",
   "start_url": "/",
-  "id": "ai-store-pwa",
-  "offline_enabled": true,
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6200ee",
+  "orientation": "portrait",
   "icons": [
-    // обязательно включить иконки 192x192 и 512x512
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
 ```
 
-## Проверка работоспособности PWA
+## Создание Android-проекта
 
-Перед созданием APK необходимо убедиться, что ваше PWA полностью функционально:
+### 1. Создание проекта в Android Studio
 
-1. Откройте Chrome DevTools (F12)
-2. Перейдите на вкладку Lighthouse
-3. Выберите категорию PWA
-4. Запустите проверку
-5. Убедитесь, что ваше PWA соответствует всем критериям
+1. Откройте Android Studio и создайте новый проект
+2. Выберите "Empty Activity" как шаблон
+3. Укажите имя приложения (например, "AI Store")
+4. Укажите package name (например, "com.aething.aistore")
+5. Выберите минимальную версию SDK (рекомендуется API 23: Android 6.0)
+6. Нажмите "Finish"
 
-Используйте встроенный инструмент тестирования оффлайн-режима `/offline-test` для детальной проверки оффлайн-функциональности.
+### 2. Настройка WebView в MainActivity
 
-## Настройка Digital Asset Links
-
-Digital Asset Links связывает ваше веб-приложение с приложением Android, обеспечивая безопасность:
-
-1. Создайте временный ключ для подписи APK:
-   ```bash
-   keytool -genkey -v -keystore my-release-key.keystore -alias alias_name -keyalg RSA -keysize 2048 -validity 10000
-   ```
-
-2. Извлеките SHA-256 отпечаток ключа:
-   ```bash
-   keytool -list -v -keystore my-release-key.keystore -alias alias_name
-   ```
-
-3. Создайте файл `/.well-known/assetlinks.json` на вашем веб-сервере:
-   ```json
-   [{
-     "relation": ["delegate_permission/common.handle_all_urls"],
-     "target": {
-       "namespace": "android_app",
-       "package_name": "com.aething.aistore",
-       "sha256_cert_fingerprints": ["SHA-256-отпечаток-из-шага-2"]
-     }
-   }]
-   ```
-
-4. Убедитесь, что файл доступен по адресу `https://[ваш-домен]/.well-known/assetlinks.json`
-
-## Создание проекта Android
-
-1. Откройте Android Studio
-2. Создайте новый проект: File > New > New Project
-3. Выберите "Empty Activity"
-4. Заполните информацию о проекте:
-   - Имя приложения: AI Store
-   - Имя пакета: com.aething.aistore
-   - Минимальный API Level: 23 (Android 6.0)
-5. Нажмите "Finish"
-
-## Настройка TWA
-
-Для использования TWA добавим зависимости и настроим проект:
-
-1. Откройте `app/build.gradle` и добавьте зависимость:
-   ```gradle
-   dependencies {
-     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.4.0'
-   }
-   ```
-
-2. В файле `AndroidManifest.xml` добавьте необходимые разрешения:
-   ```xml
-   <uses-permission android:name="android.permission.INTERNET" />
-   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-   ```
-
-3. Создайте папку `res/raw` и добавьте файл `twa_manifest.json`:
-   ```json
-   {
-     "packageId": "com.aething.aistore",
-     "host": "aistore.aething.com",
-     "name": "AI Store",
-     "launchUrl": "/",
-     "themeColor": "#6200EE",
-     "navigationColor": "#000000",
-     "navigationColorDark": "#000000",
-     "navigationDividerColor": "#000000",
-     "navigationDividerColorDark": "#000000",
-     "backgroundColor": "#FFFFFF",
-     "enableNotifications": true,
-     "startUrl": "/",
-     "iconUrl": "https://aistore.aething.com/icons/icon-512x512.png",
-     "maskableIconUrl": "https://aistore.aething.com/icons/maskable-icon.png",
-     "splashScreenFadeOutDuration": 300,
-     "signingKey": {
-       "path": "./app/my-release-key.keystore",
-       "alias": "alias_name"
-     },
-     "appVersionName": "1.0.0",
-     "appVersionCode": 1,
-     "shortcuts": [],
-     "generatorApp": "AI Store PWA",
-     "webManifestUrl": "https://aistore.aething.com/manifest.json",
-     "fallbackType": "customtabs",
-     "enableSiteSettingsShortcut": true,
-     "orientation": "portrait"
-   }
-   ```
-
-4. Создайте LauncherActivity, которая будет запускать TWA:
+Откройте `MainActivity.java` и замените содержимое следующим кодом:
 
 ```java
 package com.aething.aistore;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.webkit.ServiceWorkerClient;
+import android.webkit.ServiceWorkerController;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
 
-import com.google.androidbrowserhelper.trusted.LauncherActivity;
-import com.google.androidbrowserhelper.trusted.TwaLauncher;
+public class MainActivity extends AppCompatActivity {
+    private WebView webView;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private String baseUrl = "https://your-pwa-url.com"; // Замените на URL вашего PWA
+    private static final String TAG = "PWAWebView";
 
-public class MainActivity extends LauncherActivity {
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Настройка SwipeRefreshLayout
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(this::refreshWebView);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+
+        // Настройка WebView
+        webView = findViewById(R.id.webview);
+        setupWebView();
         
-        // Дополнительная проверка соединения для оффлайн-режима
-        if (!isNetworkAvailable() && isOfflinePageCached()) {
-            // Загрузить кэшированную страницу
-            loadOfflinePage();
+        // Загрузка PWA
+        if (isNetworkAvailable()) {
+            webView.loadUrl(baseUrl);
+        } else {
+            webView.loadUrl("file:///android_asset/offline.html");
+            Toast.makeText(this, "No internet connection. Loading offline mode.", Toast.LENGTH_LONG).show();
         }
     }
-    
-    // Определить доступность сети
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private void setupWebView() {
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setDatabaseEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setAppCacheEnabled(true); // Устарело, но может быть полезно для старых Android
+        webSettings.setAppCachePath(getApplicationContext().getCacheDir().getAbsolutePath());
+        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowContentAccess(true);
+        webSettings.setLoadsImagesAutomatically(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setSupportZoom(false);
+        webSettings.setSaveFormData(true);
+        
+        // Включаем Service Worker API
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            ServiceWorkerController controller = ServiceWorkerController.getInstance();
+            controller.setServiceWorkerClient(new ServiceWorkerClient() {
+                @Override
+                public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {
+                    return null;
+                }
+            });
+        }
+
+        // Настраиваем WebViewClient
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                swipeRefreshLayout.setRefreshing(false);
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                
+                // Обрабатываем только URL-ы, которые относятся к нашему домену
+                if (url.startsWith(baseUrl)) {
+                    return false; // Загружаем страницу в WebView
+                }
+                
+                // Для внешних ссылок можно использовать Intent для открытия в браузере
+                // Intent intent = new Intent(Intent.ACTION_VIEW, request.getUrl());
+                // startActivity(intent);
+                
+                return false; // По умолчанию загружаем все URL-ы в WebView
+            }
+        });
+    }
+
+    private void refreshWebView() {
+        if (isNetworkAvailable()) {
+            webView.reload();
+        } else {
+            swipeRefreshLayout.setRefreshing(false);
+            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private boolean isNetworkAvailable() {
-        // Реализация проверки соединения
-        return true; // Заглушка
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-    
-    // Проверить наличие кэшированной оффлайн-страницы
-    private boolean isOfflinePageCached() {
-        // Реализация проверки кэша
-        return false; // Заглушка
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // Обработка кнопки "Назад"
+        if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
+            webView.goBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
-    
-    // Загрузить оффлайн-страницу
-    private void loadOfflinePage() {
-        // Реализация загрузки оффлайн-страницы
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        webView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        webView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        webView.destroy();
+        super.onDestroy();
     }
 }
 ```
 
-## Сборка APK
+### 3. Создание макета с WebView
 
-1. Поместите файл ключа `my-release-key.keystore` в директорию `app/`
-2. Настройте подписывание APK в `app/build.gradle`:
+Откройте `res/layout/activity_main.xml` и замените содержимое:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/swipe_refresh_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+```
+
+### 4. Добавление разрешений в манифест
+
+Откройте `AndroidManifest.xml` и добавьте необходимые разрешения:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.aething.aistore">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+```
+
+### 5. Добавление оффлайн страницы
+
+1. Создайте директорию `assets` в папке `src/main`:
+   - `mkdir -p app/src/main/assets`
+
+2. Скопируйте вашу оффлайн-страницу в эту директорию:
+   - `cp client/public/offline.html app/src/main/assets/`
+
+### 6. Добавление иконок приложения
+
+1. Используйте Android Studio Asset Studio для генерации иконок:
+   - Правый клик на `res` > New > Image Asset
+   - Выберите ваш .png файл иконки размером 512x512
+   - Настройте параметры и нажмите Next, затем Finish
+
+### 7. Настройка темы и цветов
+
+Отредактируйте `res/values/colors.xml`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#5000C9</color>
+    <color name="colorAccent">#03DAC5</color>
+</resources>
+```
+
+## Сборка и публикация APK
+
+### 1. Настройка подписи приложения
+
+1. В Android Studio выберите Build > Generate Signed Bundle/APK
+2. Выберите APK и нажмите Next
+3. Создайте новый keystore или используйте существующий
+4. Заполните все необходимые поля и нажмите Next
+5. Выберите release build type и нажмите Finish
+
+### 2. Формирование релизной версии
+
+1. В файле `app/build.gradle` настройте версию:
    ```gradle
    android {
-     // Существующие настройки...
-     
-     signingConfigs {
-       release {
-         storeFile file('my-release-key.keystore')
-         storePassword 'ваш-пароль'
-         keyAlias 'alias_name'
-         keyPassword 'ваш-пароль'
+       defaultConfig {
+           // ...
+           versionCode 1
+           versionName "1.0.0"
+           // ...
        }
-     }
-     
-     buildTypes {
-       release {
-         signingConfig signingConfigs.release
-         minifyEnabled true
-         shrinkResources true
-         proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-       }
-     }
+       // ...
    }
    ```
 
-3. Запустите сборку APK-файла:
-   - Build > Generate Signed Bundle/APK
-   - Выберите "APK"
-   - Заполните информацию о ключе
-   - Выберите "release" build type
-   - Finish
+2. Соберите релизную версию:
+   - Build > Build Bundle(s) / APK(s) > Build APK(s)
 
-## Тестирование APK
+### 3. Тестирование APK
 
-Перед публикацией необходимо тщательно протестировать APK:
+1. Установите APK на реальное устройство
+2. Проверьте основные функции приложения
+3. Протестируйте оффлайн-функциональность
+4. Проверьте работу в разных условиях сети
 
-1. Установите APK на устройство Android
-2. Проверьте запуск и основную функциональность
-3. Переведите устройство в режим "Самолёт" для проверки оффлайн-функциональности
-4. Убедитесь, что оффлайн-страница отображается корректно
-5. Проверьте, что после восстановления соединения приложение работает нормально
+### 4. Публикация в Google Play
 
-## Публикация в Google Play
-
-1. Войдите в [Google Play Console](https://play.google.com/console/)
-2. Нажмите "Create app"
-3. Заполните всю необходимую информацию:
-   - Название приложения
-   - Краткое и полное описание
-   - Графические материалы (иконка, баннер, скриншоты)
-   - Категории и теги
+1. Войдите в [Google Play Console](https://play.google.com/console)
+2. Создайте новое приложение
+3. Заполните все необходимые данные:
+   - Описание приложения
+   - Графические материалы (скриншоты, баннеры)
+   - Категория и возрастной рейтинг
    - Политика конфиденциальности
-4. Загрузите подписанный APK или Bundle
-5. Установите цену (бесплатно или платно)
-6. Заполните опросник о контенте для возрастного рейтинга
-7. Нажмите "Start roll-out to Production"
+4. Загрузите подписанный APK в разделе Production
+5. Настройте публикацию и запустите процесс проверки
 
-Обработка заявки на публикацию обычно занимает от нескольких часов до нескольких дней.
+## Дополнительные улучшения
 
-## Обновление приложения
+### 1. Расширенная оффлайн функциональность
 
-Главное преимущество TWA в том, что большинство обновлений контента и функциональности происходят автоматически через веб-сайт. Однако вам может потребоваться обновить APK в следующих случаях:
+- Реализуйте синхронизацию данных при восстановлении соединения
+- Добавьте индикатор состояния сети в интерфейс приложения
+- Реализуйте кэширование API-запросов для оффлайн работы
 
-1. Изменение иконок или цветов темы
-2. Изменение настроек TWA
-3. Обновление версии библиотеки AndroidBrowserHelper
-4. Изменение доменного имени
+### 2. Push-уведомления
 
-Для обновления APK:
-1. Увеличьте `versionCode` и `versionName` в `build.gradle`
-2. Соберите новый подписанный APK
-3. Загрузите в Google Play Console
+- Реализуйте Firebase Cloud Messaging для поддержки push-уведомлений
+- Запрашивайте разрешение на отправку уведомлений при первом запуске
+- Создайте интерфейс для управления настройками уведомлений
 
-## Решение проблем
+### 3. Интеграция с нативными функциями
 
-### Не работает оффлайн-режим
+- Добавьте доступ к камере или микрофону (с запросом разрешений)
+- Используйте GPS для геолокации
+- Интегрируйте возможности биометрической аутентификации
 
-**Причина:** Возможно, Service Worker не настроен правильно или не кэшируются необходимые ресурсы.
+### 4. Оптимизация производительности
 
-**Решение:** 
-- Проверьте работу Service Worker в браузере
-- Убедитесь, что оффлайн-страница кэшируется
-- Используйте Lighthouse для диагностики PWA
+- Минимизируйте размер JavaScript и CSS файлов
+- Оптимизируйте изображения
+- Реализуйте lazy loading для контента
+- Используйте аппаратное ускорение для анимаций
 
-### Не активируется TWA (открывается в обычном Chrome)
+## Решение распространенных проблем
 
-**Причина:** Неверно настроены Digital Asset Links или проблема с цифровой подписью.
+### 1. CORS-ошибки
 
-**Решение:**
-- Проверьте правильность SHA-256 отпечатка в assetlinks.json
-- Убедитесь, что URL в LauncherActivity совпадает с URL в assetlinks.json
-- Проверьте, что assetlinks.json доступен по HTTPS
+Если API находится на другом домене, добавьте в `WebView`:
 
-### Приложение отклонено Google Play
+```java
+webSettings.setAllowUniversalAccessFromFileURLs(true);
+webSettings.setAllowFileAccessFromFileURLs(true);
+```
 
-**Причина:** Несоответствие политикам Google Play.
+### 2. Проблемы с Service Worker
 
-**Решение:**
-- Внимательно прочитайте причину отклонения
-- Убедитесь, что у вас есть политика конфиденциальности
-- Проверьте, что пользователи могут использовать основную функциональность без входа
-- Если используете оплаты, убедитесь, что они реализованы через Google Play Billing API
+Убедитесь, что в `AndroidManifest.xml` добавлено:
+
+```xml
+android:usesCleartextTraffic="true"
+```
+
+### 3. Проблемы с отображением
+
+Для HTML5-видео или специальных элементов добавьте:
+
+```java
+webSettings.setMediaPlaybackRequiresUserGesture(false);
+```
+
+### 4. Проблемы с кэшированием
+
+Очистка кэша при возникновении проблем:
+
+```java
+webView.clearCache(true);
+```
+
+## Заключение
+
+Конвертация PWA в APK с использованием WebView является экономичным способом публикации веб-приложения в Google Play Store. Хотя этот подход имеет ограничения по сравнению с нативной разработкой, он позволяет быстро создать мобильное приложение на основе существующего PWA с минимальными модификациями.

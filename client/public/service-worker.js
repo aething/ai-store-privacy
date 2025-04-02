@@ -1,356 +1,557 @@
-/* 
- * Service Worker для Progressive Web App (PWA)
- * Обеспечивает основную функциональность работы в оффлайн-режиме,
- * кэширование статических ресурсов и улучшение производительности
- * 
- * Обновленная версия для Google Play с улучшенной поддержкой оффлайн-режима
- * и более эффективными стратегиями кэширования.
+/**
+ * Service Worker для AI Store
+ * Обеспечивает оффлайн-функциональность и кэширование
  */
 
-const CACHE_NAME = 'ai-store-v2';
-const OFFLINE_CACHE = 'ai-store-offline';
-const DYNAMIC_CACHE = 'ai-store-dynamic';
+// Версия приложения (должна соответствовать APP_VERSION в registerServiceWorker.ts)
+const APP_VERSION = '3.0.0';
 
-// Версия для контроля обновлений
-const APP_VERSION = '2.0.1';
+// Префикс для кэшей
+const CACHE_PREFIX = 'ai-store';
 
-// Время жизни кэша (7 дней в миллисекундах)
-const CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+// Имена кэшей с учетом версии
+const CACHE_NAMES = {
+  static: `${CACHE_PREFIX}-v3`,
+  offline: `${CACHE_PREFIX}-offline-v3`,
+  dynamic: `${CACHE_PREFIX}-dynamic-v3`
+};
 
-// Лимит размера динамического кэша (примерно 50 MB)
-const DYNAMIC_CACHE_SIZE_LIMIT = 50 * 1024 * 1024;
+// Путь к оффлайн-странице
+const OFFLINE_PAGE = '/offline.html';
 
-// Основные ресурсы для работы приложения (обязательно кэшируются)
+// Путь к заглушке для изображений
+const IMAGE_FALLBACK = '/images/image-placeholder.svg';
+
+// Ключевые ресурсы, которые должны быть кэшированы при установке
 const CORE_ASSETS = [
   '/',
   '/index.html',
+  OFFLINE_PAGE,
+  IMAGE_FALLBACK,
   '/manifest.json',
-  '/offline.html',
-  '/images/image-placeholder.svg',
-  '/index.css',
-  '/favicon.ico'
+  '/index.css'
 ];
 
-// Расширенные ресурсы (кэшируются при наличии места)
-const STATIC_ASSETS = [
-  ...CORE_ASSETS,
-  '/offline-test.html',
-  '/offline-test.js',
-  '/pwa-tester.js',
-  '/icons/icon-72x72.png',
-  '/icons/icon-96x96.png',
-  '/icons/icon-128x128.png',
-  '/icons/icon-144x144.png',
-  '/icons/icon-152x152.png',
-  '/icons/icon-192x192.png',
-  '/icons/icon-384x384.png',
-  '/icons/icon-512x512.png'
-];
+// Регулярное выражение для определения API-запросов
+const API_URL_PATTERN = /\/api\//;
 
-// Вспомогательные функции
+// Регулярное выражение для определения изображений
+const IMAGE_URL_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
 
-// Проверка размера кэша
-async function getCacheSize(cacheName) {
-  const cache = await caches.open(cacheName);
-  const keys = await cache.keys();
-  let size = 0;
-  
-  for (const request of keys) {
-    const response = await cache.match(request);
-    if (response) {
-      const blob = await response.blob();
-      size += blob.size;
-    }
-  }
-  
-  return size;
-}
-
-// Очистка старых объектов из кэша
-async function trimCache(cacheName, maxItems) {
-  const cache = await caches.open(cacheName);
-  const keys = await cache.keys();
-  
-  if (keys.length > maxItems) {
-    // Удаляем старые элементы
-    for (let i = 0; i < keys.length - maxItems; i++) {
-      await cache.delete(keys[i]);
-    }
-    console.log(`[Service Worker] Trimmed ${keys.length - maxItems} items from ${cacheName}`);
-  }
-}
-
-// Добавление временной метки к кэшированному ответу
-function addTimestampToResponse(response) {
-  const headers = new Headers(response.headers);
-  headers.append('sw-cache-timestamp', Date.now().toString());
-  
-  return response.clone().blob().then(blob => {
-    return new Response(blob, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: headers
-    });
-  });
-}
-
-// Проверка актуальности кэша
-function isCacheValid(response, maxAge = CACHE_TTL) {
-  if (!response || !response.headers) {
-    return false;
-  }
-  
-  const timestamp = response.headers.get('sw-cache-timestamp');
-  if (!timestamp) return true; // Если нет метки, считаем действительным
-  
-  const cacheTime = parseInt(timestamp, 10);
-  const now = Date.now();
-  
-  return (now - cacheTime) < maxAge;
-}
-
-// Установка сервис-воркера
+// Обработчик события установки Service Worker
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Installing Service Worker v' + APP_VERSION);
+  self.skipWaiting(); // Принудительно активируем SW даже если есть активная старая версия
   
   event.waitUntil(
     Promise.all([
       // Кэшируем основные ресурсы
-      caches.open(CACHE_NAME)
-        .then(cache => {
-          console.log('[Service Worker] Caching core assets');
-          return cache.addAll(CORE_ASSETS);
-        }),
+      caches.open(CACHE_NAMES.static).then(cache => {
+        // Логируем процесс кэширования
+        console.log('Кэширование основных ресурсов...');
+        return cache.addAll(CORE_ASSETS);
+      }),
       
-      // Кэшируем оффлайн-ресурсы
-      caches.open(OFFLINE_CACHE)
-        .then(cache => {
-          console.log('[Service Worker] Caching offline resources');
-          return cache.addAll([
-            '/offline.html',
-            '/images/image-placeholder.svg'
-          ]);
-        }),
+      // Кэшируем оффлайн-страницу отдельно
+      caches.open(CACHE_NAMES.offline).then(cache => {
+        return cache.add(OFFLINE_PAGE);
+      }),
       
-      // Создаем динамический кэш
-      caches.open(DYNAMIC_CACHE)
-        .then(cache => {
-          console.log('[Service Worker] Created dynamic cache');
-        })
-    ])
-    .then(() => {
-      console.log('[Service Worker] Pre-caching completed');
-      return self.skipWaiting();
-    })
-    .catch(error => {
-      console.error('[Service Worker] Pre-caching failed:', error);
-      // Даже если произошла ошибка, пропускаем ожидание
-      return self.skipWaiting();
+      // Кэшируем заглушку для изображений
+      caches.open(CACHE_NAMES.offline).then(cache => {
+        return cache.add(IMAGE_FALLBACK);
+      })
+    ]).then(() => {
+      console.log('Установка Service Worker завершена');
     })
   );
 });
 
-// Активация сервис-воркера и удаление старых кэшей
+// Обработчик события активации Service Worker
 self.addEventListener('activate', event => {
-  console.log('[Service Worker] Activating Service Worker v' + APP_VERSION);
-  
+  // Очищаем старые кэши
   event.waitUntil(
-    caches.keys()
-      .then(keyList => {
-        // Список текущих кэшей, которые нужно оставить
-        const currentCaches = [CACHE_NAME, OFFLINE_CACHE, DYNAMIC_CACHE];
-        
-        // Удаляем устаревшие кэши
-        return Promise.all(
-          keyList.map(key => {
-            if (!currentCaches.includes(key)) {
-              console.log('[Service Worker] Removing old cache', key);
-              return caches.delete(key);
-            }
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(cacheName => 
+            cacheName.startsWith(CACHE_PREFIX) && 
+            !Object.values(CACHE_NAMES).includes(cacheName)
+          )
+          .map(cacheName => {
+            console.log(`Удаление устаревшего кэша: ${cacheName}`);
+            return caches.delete(cacheName);
           })
+      );
+    }).then(() => {
+      console.log('Service Worker активирован');
+      // Отправляем сообщение о версии в клиент
+      sendMessageToAllClients({
+        type: 'VERSION_INFO',
+        payload: { version: APP_VERSION }
+      });
+    }).catch(error => {
+      console.error('Ошибка при активации Service Worker:', error);
+    })
+  );
+});
+
+// Обработчик запросов
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  const url = new URL(request.url);
+  
+  // Если запрос идет к API, используем стратегию "только сеть" или возвращаем ошибку
+  if (API_URL_PATTERN.test(url.pathname)) {
+    return event.respondWith(
+      fetch(request).catch(error => {
+        console.log('Ошибка API-запроса в оффлайн-режиме:', error);
+        return new Response(
+          JSON.stringify({ error: 'Нет соединения с сервером' }),
+          {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+          }
         );
       })
-      .then(() => {
-        console.log('[Service Worker] Claiming clients');
-        return self.clients.claim();
-      })
-      .then(() => {
-        // Дополнительное кэширование статических ресурсов после активации
-        return caches.open(CACHE_NAME).then(cache => {
-          console.log('[Service Worker] Caching additional assets');
-          return cache.addAll(STATIC_ASSETS);
-        });
-      })
-      .catch(error => {
-        console.error('[Service Worker] Activation error:', error);
-      })
-  );
-});
-
-// Обработка запросов с улучшенными стратегиями кэширования
-self.addEventListener('fetch', event => {
-  // Пропускаем запросы к API, WebSocket и другие не-GET запросы
-  if (
-    event.request.method !== 'GET' ||
-    event.request.url.includes('/api/') ||
-    event.request.url.includes('/socket.io/') ||
-    !event.request.url.startsWith(self.location.origin)
-  ) {
-    return;
-  }
-  
-  // Проверяем состояние сети
-  const isOnline = navigator.onLine;
-  
-  // Разные стратегии кэширования в зависимости от типа запроса
-  
-  // 1. Оффлайн-режим: для запросов навигации показываем оффлайн-страницу
-  if (event.request.mode === 'navigate' && !isOnline) {
-    event.respondWith(
-      caches.match('/offline.html')
-        .then(response => {
-          if (response) {
-            console.log('[Service Worker] Serving offline page');
-            return response;
-          }
-          // Если оффлайн-страница не найдена, возвращаем кэшированную главную страницу
-          return caches.match('/');
-        })
     );
-    return;
   }
   
-  // 2. HTML-страницы: Network First, затем кэш, затем оффлайн-страница
-  if (
-    event.request.mode === 'navigate' ||
-    (event.request.headers.get('accept') && 
-     event.request.headers.get('accept').includes('text/html'))
-  ) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          // Проверяем ответ
-          if (!response || response.status !== 200) {
-            throw new Error('Invalid response');
-          }
-          
-          // Кэшируем новую версию с временной меткой
-          const clonedResponse = response.clone();
-          addTimestampToResponse(clonedResponse)
-            .then(timestampedResponse => {
-              caches.open(CACHE_NAME)
-                .then(cache => cache.put(event.request, timestampedResponse));
-            });
-          
-          return response;
-        })
-        .catch(error => {
-          console.log('[Service Worker] Network error, falling back to cache', error);
-          
-          return caches.match(event.request)
-            .then(cachedResponse => {
-              if (cachedResponse) {
-                return cachedResponse;
-              }
-              
-              // Если страница не найдена в кэше и нет сети
-              if (!isOnline) {
-                return caches.match('/offline.html');
-              }
-              
-              // В крайнем случае, возвращаем главную страницу
-              return caches.match('/');
-            });
-        })
-    );
-    return;
-  }
-  
-  // 3. Изображения: Cache First, затем сеть, затем заглушка
-  if (event.request.url.match(/\.(jpg|jpeg|png|gif|svg|webp)$/)) {
-    event.respondWith(
-      caches.match(event.request)
-        .then(cachedResponse => {
-          // Если есть в кэше и он актуален
-          if (cachedResponse && isCacheValid(cachedResponse)) {
-            return cachedResponse;
-          }
-          
-          // Если нет в кэше или устарел, запрашиваем из сети
-          return fetch(event.request)
-            .then(networkResponse => {
-              // Если получили ответ из сети, кэшируем его
-              const clonedResponse = networkResponse.clone();
-              addTimestampToResponse(clonedResponse)
-                .then(timestampedResponse => {
-                  caches.open(DYNAMIC_CACHE)
-                    .then(cache => {
-                      cache.put(event.request, timestampedResponse);
-                      
-                      // Проверяем и очищаем кэш при необходимости
-                      getCacheSize(DYNAMIC_CACHE).then(size => {
-                        if (size > DYNAMIC_CACHE_SIZE_LIMIT) {
-                          trimCache(DYNAMIC_CACHE, 100);
-                        }
-                      });
-                    });
-                });
-              
-              return networkResponse;
-            })
-            .catch(error => {
-              console.log('[Service Worker] Failed to fetch image', error);
-              
-              // Возвращаем заглушку для изображений при ошибке
-              return caches.match('/images/image-placeholder.svg');
-            });
-        })
-    );
-    return;
-  }
-  
-  // 4. CSS, JS и другие статические ресурсы: Stale-While-Revalidate стратегия
-  event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        // Создаем промис для получения данных из сети
-        const fetchPromise = fetch(event.request)
+  // Если запрос на изображение, используем стратегию "кэш, потом сеть, с заглушкой"
+  if (request.method === 'GET' && IMAGE_URL_PATTERN.test(url.pathname)) {
+    return event.respondWith(
+      caches.match(request).then(cachedResponse => {
+        // Возвращаем кэшированное изображение, если оно есть
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        
+        // Пытаемся получить изображение из сети и кэшируем его
+        return fetch(request)
           .then(networkResponse => {
-            // Обновляем кэш актуальными данными
-            const clonedResponse = networkResponse.clone();
-            addTimestampToResponse(clonedResponse)
-              .then(timestampedResponse => {
-                caches.open(CACHE_NAME)
-                  .then(cache => cache.put(event.request, timestampedResponse));
-              });
+            // Проверяем, что запрос успешен
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
+            }
+            
+            // Кэшируем копию ответа
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAMES.static).then(cache => {
+              cache.put(request, responseToCache);
+            });
             
             return networkResponse;
           })
-          .catch(error => {
-            console.error('[Service Worker] Failed to fetch resource', error);
-            return null;
+          .catch(() => {
+            // Если не удалось получить изображение, возвращаем заглушку
+            console.log('Возвращаем заглушку изображения для:', url.pathname);
+            return caches.match(IMAGE_FALLBACK);
           });
-        
-        // Возвращаем кэшированный ответ, если он есть, и параллельно обновляем кэш
-        return cachedResponse || fetchPromise;
       })
-      .catch(error => {
-        console.error('[Service Worker] Error in fetch handler', error);
-        // Для текстовых ресурсов можно вернуть простой ответ с ошибкой
-        return new Response('Ресурс недоступен в офлайн-режиме', {
-          status: 503,
-          statusText: 'Service Unavailable',
-          headers: new Headers({
-            'Content-Type': 'text/plain'
-          })
+    );
+  }
+  
+  // Для HTML-запросов используем стратегию "сеть, потом кэш, с оффлайн-страницей"
+  if (request.method === 'GET' && 
+      (request.headers.get('accept')?.includes('text/html') || 
+       url.pathname === '/' || 
+       url.pathname.endsWith('.html'))) {
+    return event.respondWith(
+      // Сначала пытаемся получить из сети
+      fetch(request)
+        .then(networkResponse => {
+          // Клонируем ответ для кэширования
+          const responseToCache = networkResponse.clone();
+          
+          // Асинхронно кэшируем ответ
+          caches.open(CACHE_NAMES.static).then(cache => {
+            cache.put(request, responseToCache);
+          });
+          
+          return networkResponse;
+        })
+        .catch(() => {
+          // При ошибке сети проверяем кэш
+          return caches.match(request).then(cachedResponse => {
+            // Если есть в кэше, возвращаем оттуда
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            
+            // Если нет в кэше, возвращаем оффлайн-страницу
+            console.log('Возвращаем оффлайн-страницу для:', url.pathname);
+            return caches.match(OFFLINE_PAGE);
+          });
+        })
+    );
+  }
+  
+  // Для остальных запросов используем стратегию "кэш, потом сеть"
+  event.respondWith(
+    caches.match(request).then(cachedResponse => {
+      // Возвращаем из кэша, если есть
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      
+      // В противном случае делаем сетевой запрос
+      return fetch(request)
+        .then(networkResponse => {
+          // Проверяем, что ответ валидный
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+            return networkResponse;
+          }
+          
+          // Клонируем ответ, чтобы сохранить его в кэше
+          const responseToCache = networkResponse.clone();
+          
+          // Асинхронно сохраняем в кэше
+          caches.open(CACHE_NAMES.static).then(cache => {
+            cache.put(request, responseToCache);
+          });
+          
+          return networkResponse;
+        })
+        .catch(error => {
+          console.error('Ошибка при получении ресурса', url.pathname, error);
+          // Возвращаем 503 для неизображений, когда нет сети и кэша
+          return new Response('Ресурс недоступен в оффлайн-режиме', { 
+            status: 503,
+            headers: { 'Content-Type': 'text/plain' }
+          });
         });
-      })
+    })
   );
 });
 
-// Слушаем сообщения от клиентского кода
+// Обработчик сообщений от клиента
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+  const message = event.data;
+  
+  console.log('Service Worker получил сообщение:', message);
+  
+  if (!message || !message.type) {
+    return;
+  }
+  
+  switch (message.type) {
+    case 'GET_VERSION':
+      // Отправляем информацию о версии
+      event.ports[0]?.postMessage({
+        messageId: message.messageId,
+        type: 'VERSION_INFO',
+        payload: { version: APP_VERSION }
+      }) || event.source?.postMessage({
+        messageId: message.messageId,
+        type: 'VERSION_INFO',
+        payload: { version: APP_VERSION }
+      });
+      break;
+      
+    case 'UPDATE_CACHE':
+      // Обновляем кэш основных ресурсов
+      updateCache().then(result => {
+        event.ports[0]?.postMessage({
+          messageId: message.messageId,
+          type: 'CACHE_UPDATED',
+          payload: result
+        }) || event.source?.postMessage({
+          messageId: message.messageId,
+          type: 'CACHE_UPDATED',
+          payload: result
+        });
+      }).catch(error => {
+        event.ports[0]?.postMessage({
+          messageId: message.messageId,
+          type: 'CACHE_ERROR',
+          payload: { error: error.message }
+        }) || event.source?.postMessage({
+          messageId: message.messageId,
+          type: 'CACHE_ERROR',
+          payload: { error: error.message }
+        });
+      });
+      break;
+      
+    case 'GET_CACHE_INFO':
+      // Получаем информацию о кэше
+      getCacheInfo().then(cacheInfo => {
+        event.ports[0]?.postMessage({
+          messageId: message.messageId,
+          type: 'CACHE_INFO',
+          payload: cacheInfo
+        }) || event.source?.postMessage({
+          messageId: message.messageId,
+          type: 'CACHE_INFO',
+          payload: cacheInfo
+        });
+      }).catch(error => {
+        event.ports[0]?.postMessage({
+          messageId: message.messageId,
+          type: 'CACHE_ERROR',
+          payload: { error: error.message }
+        }) || event.source?.postMessage({
+          messageId: message.messageId,
+          type: 'CACHE_ERROR',
+          payload: { error: error.message }
+        });
+      });
+      break;
+      
+    case 'CACHE_URLS':
+      // Кэшируем указанные URL-адреса
+      if (message.payload && Array.isArray(message.payload.urls)) {
+        cacheUrls(message.payload.urls).then(result => {
+          event.ports[0]?.postMessage({
+            messageId: message.messageId,
+            type: 'CACHE_UPDATED',
+            payload: result
+          }) || event.source?.postMessage({
+            messageId: message.messageId,
+            type: 'CACHE_UPDATED',
+            payload: result
+          });
+        }).catch(error => {
+          event.ports[0]?.postMessage({
+            messageId: message.messageId,
+            type: 'CACHE_ERROR',
+            payload: { error: error.message }
+          }) || event.source?.postMessage({
+            messageId: message.messageId,
+            type: 'CACHE_ERROR',
+            payload: { error: error.message }
+          });
+        });
+      }
+      break;
+      
+    case 'CHECK_RESOURCE':
+      // Проверяем наличие ресурса в кэше
+      if (message.payload && message.payload.url) {
+        checkResourceInCache(message.payload.url).then(cached => {
+          event.ports[0]?.postMessage({
+            messageId: message.messageId,
+            type: 'RESOURCE_STATUS',
+            payload: { url: message.payload.url, cached }
+          }) || event.source?.postMessage({
+            messageId: message.messageId,
+            type: 'RESOURCE_STATUS',
+            payload: { url: message.payload.url, cached }
+          });
+        }).catch(error => {
+          event.ports[0]?.postMessage({
+            messageId: message.messageId,
+            type: 'CACHE_ERROR',
+            payload: { error: error.message }
+          }) || event.source?.postMessage({
+            messageId: message.messageId,
+            type: 'CACHE_ERROR',
+            payload: { error: error.message }
+          });
+        });
+      }
+      break;
   }
 });
+
+// Обработчик события push для уведомлений
+self.addEventListener('push', event => {
+  console.log('Получено push-уведомление', event);
+  
+  // Убедимся, что у нас есть данные
+  if (!event.data) {
+    console.warn('Получено push-уведомление без данных');
+    return;
+  }
+  
+  try {
+    // Разбираем данные уведомления
+    const data = event.data.json();
+    
+    // Создаем уведомление
+    const options = {
+      body: data.body || 'Новое уведомление',
+      icon: data.icon || '/icons/icon-192x192.png',
+      badge: data.badge || '/icons/badge-72x72.png',
+      data: {
+        url: data.url || '/'
+      }
+    };
+    
+    event.waitUntil(
+      self.registration.showNotification(data.title || 'AI Store', options)
+    );
+  } catch (error) {
+    console.error('Ошибка при обработке push-уведомления:', error);
+  }
+});
+
+// Обработчик нажатия на уведомление
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  
+  // Получаем URL для открытия из данных уведомления
+  const url = event.notification.data.url || '/';
+  
+  // Открываем указанный URL или фокусируемся на открытом окне
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then(clientList => {
+      // Проверяем, есть ли уже открытое окно
+      for (const client of clientList) {
+        if (client.url === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      
+      // Если нет, открываем новое окно
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
+});
+
+// Обработчик изменения состояния синхронизации сети
+self.addEventListener('sync', event => {
+  if (event.tag === 'sync-data') {
+    event.waitUntil(
+      syncData().catch(error => {
+        console.error('Ошибка синхронизации данных:', error);
+      })
+    );
+  }
+});
+
+// Обработчик периодической синхронизации (для современных браузеров)
+self.addEventListener('periodicsync', event => {
+  if (event.tag === 'refresh-content') {
+    event.waitUntil(
+      updateCache().catch(error => {
+        console.error('Ошибка обновления кэша:', error);
+      })
+    );
+  }
+});
+
+// Вспомогательные функции
+
+/**
+ * Отправляет сообщение всем активным клиентам
+ */
+async function sendMessageToAllClients(message) {
+  const clients = await self.clients.matchAll({ includeUncontrolled: true });
+  clients.forEach(client => {
+    client.postMessage(message);
+  });
+}
+
+/**
+ * Обновляет кэш всех основных ресурсов
+ */
+async function updateCache() {
+  const cache = await caches.open(CACHE_NAMES.static);
+  
+  let successCount = 0;
+  let failedCount = 0;
+  
+  // Обновляем каждый ресурс
+  for (const url of CORE_ASSETS) {
+    try {
+      await cache.add(url);
+      successCount++;
+    } catch (error) {
+      console.error(`Ошибка при обновлении кэша для ${url}:`, error);
+      failedCount++;
+    }
+  }
+  
+  return { 
+    success: successCount, 
+    failed: failedCount,
+    timestamp: new Date().toISOString()
+  };
+}
+
+/**
+ * Получает информацию о кэше
+ */
+async function getCacheInfo() {
+  const cacheInfo = {};
+  
+  // Получаем информацию о каждом кэше
+  for (const cacheName of Object.values(CACHE_NAMES)) {
+    try {
+      const cache = await caches.open(cacheName);
+      const keys = await cache.keys();
+      cacheInfo[cacheName] = keys.length;
+    } catch (error) {
+      console.error(`Ошибка при получении информации о кэше ${cacheName}:`, error);
+      cacheInfo[cacheName] = -1;
+    }
+  }
+  
+  return {
+    caches: cacheInfo,
+    total: Object.values(cacheInfo).reduce((acc, val) => acc + (val > 0 ? val : 0), 0),
+    timestamp: new Date().toISOString()
+  };
+}
+
+/**
+ * Кэширует указанные URL-адреса
+ */
+async function cacheUrls(urls) {
+  if (!Array.isArray(urls) || urls.length === 0) {
+    return { success: 0, failed: 0 };
+  }
+  
+  const cache = await caches.open(CACHE_NAMES.static);
+  
+  let successCount = 0;
+  let failedCount = 0;
+  
+  // Кэшируем каждый URL
+  for (const url of urls) {
+    try {
+      await cache.add(new Request(url));
+      successCount++;
+    } catch (error) {
+      console.error(`Ошибка при кэшировании ${url}:`, error);
+      failedCount++;
+    }
+  }
+  
+  return { success: successCount, failed: failedCount };
+}
+
+/**
+ * Проверяет наличие ресурса в кэше
+ */
+async function checkResourceInCache(url) {
+  // Проверяем в каждом кэше
+  for (const cacheName of Object.values(CACHE_NAMES)) {
+    const cache = await caches.open(cacheName);
+    const response = await cache.match(new Request(url));
+    
+    if (response) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+/**
+ * Синхронизирует данные приложения при восстановлении соединения
+ */
+async function syncData() {
+  // Имитация синхронизации данных
+  console.log('Синхронизация данных...');
+  
+  // Отправка сообщения клиентам о синхронизации
+  sendMessageToAllClients({
+    type: 'SYNC_COMPLETED',
+    payload: { timestamp: new Date().toISOString() }
+  });
+  
+  return true;
+}

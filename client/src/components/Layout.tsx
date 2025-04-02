@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import BottomNav from "./BottomNav";
 import Header from "./Header";
+import OfflineIndicator from "./OfflineIndicator";
 
 interface LayoutProps {
   children: ReactNode;
@@ -21,6 +22,7 @@ export default function Layout({ children }: LayoutProps) {
           <main className="flex-1 px-4 pt-2 pb-20 overflow-y-auto">
             {children}
           </main>
+          <OfflineIndicator showDetails />
           <BottomNav />
         </div>
         

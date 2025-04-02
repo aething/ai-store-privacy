@@ -1,220 +1,326 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Store - Нет подключения к сети</title>
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="theme-color" content="#4263EB">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        }
-        
-        body {
-            background-color: #f8f9fa;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            padding: 0 1rem;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-            text-align: center;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .logo {
-            width: 120px;
-            height: auto;
-            margin: 0 auto 2rem;
-        }
-        
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #1a1a1a;
-        }
-        
-        p {
-            font-size: 1rem;
-            line-height: 1.5;
-            margin-bottom: 1.5rem;
-            color: #555;
-        }
-        
-        .icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            color: #4263EB;
-        }
-        
-        .card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .btn {
-            display: inline-block;
-            background-color: #4263EB;
-            color: white;
-            font-weight: 500;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            text-decoration: none;
-            transition: background-color 0.2s;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            margin: 0.5rem;
-        }
-        
-        .btn:hover {
-            background-color: #3a56ce;
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid #4263EB;
-            color: #4263EB;
-        }
-        
-        .btn-outline:hover {
-            background-color: #f0f4ff;
-        }
-        
-        .status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            font-weight: 500;
-        }
-        
-        .status-icon {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #ff6b6b;
-            margin-right: 0.5rem;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 1.5rem 0;
-            color: #777;
-            font-size: 0.875rem;
-        }
-        
-        .help-text {
-            font-size: 0.9rem;
-            background-color: #f0f4ff;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            text-align: left;
-        }
-        
-        .help-text ul {
-            margin-left: 1.5rem;
-            margin-top: 0.5rem;
-        }
-        
-        .help-text li {
-            margin-bottom: 0.5rem;
-        }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.5rem;
-            }
-            
-            .card {
-                padding: 1.5rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Store - Оффлайн режим</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    .offline-container {
+      max-width: 500px;
+      background-color: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .offline-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8f8f8;
+      border-radius: 50%;
+    }
+    
+    .wifi-icon {
+      position: relative;
+      width: 60px;
+      height: 40px;
+    }
+    
+    .wifi-circle {
+      position: absolute;
+      border: 3px solid #ddd;
+      border-radius: 50%;
+    }
+    
+    .wifi-circle-1 {
+      width: 50px;
+      height: 50px;
+      bottom: -20px;
+      left: 5px;
+      border-top-color: transparent;
+      transform: rotate(45deg);
+    }
+    
+    .wifi-circle-2 {
+      width: 30px;
+      height: 30px;
+      bottom: -10px;
+      left: 15px;
+      border-top-color: transparent;
+      transform: rotate(45deg);
+    }
+    
+    .wifi-circle-3 {
+      width: 10px;
+      height: 10px;
+      bottom: 0;
+      left: 25px;
+      background-color: #ddd;
+    }
+    
+    .strike {
+      position: absolute;
+      width: 70px;
+      height: 3px;
+      background-color: #ff5252;
+      transform: rotate(-45deg);
+      top: 20px;
+      left: -5px;
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
+    p {
+      margin-bottom: 20px;
+      color: #666;
+      line-height: 1.5;
+    }
+    
+    .button {
+      display: inline-block;
+      background-color: #6200ee;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .button:hover {
+      background-color: #5000ca;
+    }
+    
+    .button.secondary {
+      background-color: transparent;
+      border: 1px solid #6200ee;
+      color: #6200ee;
+      margin-right: 10px;
+    }
+    
+    .button.secondary:hover {
+      background-color: rgba(98, 0, 238, 0.1);
+    }
+    
+    .footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #888;
+    }
+    
+    .cached-resources {
+      margin-top: 30px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      background-color: #f8f8f8;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .cached-resources h3 {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    
+    .resource-list {
+      list-style: none;
+    }
+    
+    .resource-list li {
+      padding: 5px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .show-cached {
+      font-size: 14px;
+      color: #6200ee;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    @media (max-width: 480px) {
+      .offline-container {
+        padding: 20px;
+        margin: 10px;
+      }
+      
+      h1 {
+        font-size: 20px;
+      }
+      
+      .offline-icon {
+        width: 80px;
+        height: 80px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <div class="status">
-                <span class="status-icon"></span>
-                <span>Нет подключения к сети</span>
-            </div>
-            
-            <div class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a5 5 0 010-7.07m-2.121 7.07a1 1 0 11-1.414-1.414M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </div>
-            
-            <h1>AI Store работает офлайн</h1>
-            
-            <p>К сожалению, вы не можете получить доступ к данным AI Store, так как ваше устройство не подключено к интернету.</p>
-            
-            <div>
-                <button class="btn" onclick="window.location.reload()">Обновить страницу</button>
-                <button class="btn btn-outline" onclick="window.history.back()">Вернуться назад</button>
-            </div>
-            
-            <div class="help-text">
-                <strong>Что делать?</strong>
-                <ul>
-                    <li>Проверьте ваше подключение к Wi-Fi или мобильные данные</li>
-                    <li>Перезагрузите маршрутизатор или модем</li>
-                    <li>Повторите попытку через несколько минут</li>
-                </ul>
-            </div>
-        </div>
+  <div class="offline-container">
+    <div class="offline-icon">
+      <div class="wifi-icon">
+        <div class="wifi-circle wifi-circle-1"></div>
+        <div class="wifi-circle wifi-circle-2"></div>
+        <div class="wifi-circle wifi-circle-3"></div>
+        <div class="strike"></div>
+      </div>
     </div>
     
-    <footer>
-        <p>© 2025 AI Store by Aething. Все права защищены.</p>
-    </footer>
+    <h1>Вы сейчас вне сети</h1>
+    <p>Извините, но для доступа к этой странице требуется подключение к интернету. Некоторые функции приложения доступны в оффлайн-режиме.</p>
     
-    <script>
-        // Проверка состояния подключения
-        function checkOnlineStatus() {
-            if (navigator.onLine) {
-                console.log('Обнаружено подключение к сети!');
-                document.querySelector('.status-icon').style.backgroundColor = '#4caf50';
-                document.querySelector('.status').innerHTML = 
-                    '<span class="status-icon" style="background-color: #4caf50"></span>' +
-                    '<span>Подключение восстановлено</span>';
-            } else {
-                console.log('Всё ещё нет подключения к сети');
-            }
+    <div>
+      <button class="button secondary" id="try-cached-home">Перейти на главную</button>
+      <button class="button" id="retry-connection">Повторить попытку</button>
+    </div>
+    
+    <button class="show-cached" id="show-cached-btn">Показать доступные оффлайн страницы</button>
+    
+    <div class="cached-resources" id="cached-resources">
+      <h3>Доступные оффлайн страницы</h3>
+      <ul class="resource-list" id="resource-list">
+        <li>Загрузка списка...</li>
+      </ul>
+    </div>
+    
+    <div class="footer">
+      AI Store &copy; 2023-2025
+    </div>
+  </div>
+  
+  <script>
+    // Проверяем состояние сети при загрузке страницы
+    window.addEventListener('load', function() {
+      updateOnlineStatus();
+      
+      // Слушаем изменения состояния сети
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+      
+      // Кнопка повторной попытки
+      document.getElementById('retry-connection').addEventListener('click', function() {
+        if (navigator.onLine) {
+          window.location.reload();
+        } else {
+          alert('Интернет-соединение отсутствует. Пожалуйста, проверьте подключение к сети.');
         }
-        
-        // Событие восстановления подключения
-        window.addEventListener('online', function() {
-            checkOnlineStatus();
-            // Автоматически перенаправляем на главную через 2 секунды
-            setTimeout(function() {
-                window.location.href = '/';
-            }, 2000);
-        });
-        
-        // Начальная проверка при загрузке страницы
-        checkOnlineStatus();
-        
-        // Периодическая проверка статуса подключения
-        setInterval(checkOnlineStatus, 5000);
-    </script>
+      });
+      
+      // Кнопка перехода на главную
+      document.getElementById('try-cached-home').addEventListener('click', function() {
+        window.location.href = '/';
+      });
+      
+      // Кнопка показа кэшированных ресурсов
+      document.getElementById('show-cached-btn').addEventListener('click', function() {
+        const resourcesBlock = document.getElementById('cached-resources');
+        if (resourcesBlock.style.display === 'block') {
+          resourcesBlock.style.display = 'none';
+          this.textContent = 'Показать доступные оффлайн страницы';
+        } else {
+          resourcesBlock.style.display = 'block';
+          this.textContent = 'Скрыть доступные оффлайн страницы';
+          loadCachedResources();
+        }
+      });
+    });
+    
+    // Обновление статуса подключения
+    function updateOnlineStatus() {
+      if (navigator.onLine) {
+        document.getElementById('retry-connection').removeAttribute('disabled');
+      } else {
+        document.getElementById('retry-connection').setAttribute('disabled', 'disabled');
+      }
+    }
+    
+    // Получение списка кэшированных ресурсов
+    async function loadCachedResources() {
+      const resourceList = document.getElementById('resource-list');
+      resourceList.innerHTML = '<li>Загрузка списка...</li>';
+      
+      if ('caches' in window) {
+        try {
+          const cache = await caches.open('ai-store-v3');
+          const cachedRequests = await cache.keys();
+          
+          if (cachedRequests.length === 0) {
+            resourceList.innerHTML = '<li>Нет доступных кэшированных страниц</li>';
+            return;
+          }
+          
+          // Фильтруем только HTML-страницы
+          const htmlResources = cachedRequests.filter(request => {
+            const url = new URL(request.url);
+            return url.pathname.endsWith('.html') || url.pathname === '/' || 
+                  !url.pathname.includes('.') || url.pathname.endsWith('/');
+          });
+          
+          if (htmlResources.length === 0) {
+            resourceList.innerHTML = '<li>Нет доступных кэшированных страниц</li>';
+            return;
+          }
+          
+          // Отображаем HTML-страницы
+          resourceList.innerHTML = '';
+          htmlResources.forEach(request => {
+            const url = new URL(request.url);
+            let pathname = url.pathname;
+            
+            // Упрощаем отображение URL
+            if (pathname === '/') pathname = 'Главная страница';
+            else pathname = pathname.replace(/\.html$/, '').replace(/^\//, '');
+            
+            const li = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = url.pathname;
+            link.textContent = pathname.charAt(0).toUpperCase() + pathname.slice(1);
+            li.appendChild(link);
+            resourceList.appendChild(li);
+          });
+        } catch (error) {
+          resourceList.innerHTML = '<li>Ошибка при загрузке кэшированных страниц</li>';
+          console.error('Ошибка при получении кэшированных ресурсов:', error);
+        }
+      } else {
+        resourceList.innerHTML = '<li>Кэш браузера недоступен</li>';
+      }
+    }
+  </script>
 </body>
 </html>
