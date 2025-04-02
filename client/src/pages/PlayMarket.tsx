@@ -148,11 +148,6 @@ export default function PlayMarket() {
 
         <h4 className="font-medium mb-2">Description:</h4>
         <p className="text-gray-700 mb-4">
-          Готовые энтерпрайз решения для создания собственного чат-бота или голосового ассистента внутри компании. 
-          Создавайте собственные базы знаний и используйте в интранете безопасное решение для любых задач — от поддержки 
-          до общения с клиентами или анализа больших данных.
-        </p>
-        <p className="text-gray-700 mb-4">
           Ready-made enterprise solutions for creating your own chatbot or voice assistant within your company. 
           Build custom knowledge bases and deploy a secure intranet solution for any task — from support 
           to customer communication or big data analysis.
