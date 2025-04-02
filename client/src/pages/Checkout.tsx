@@ -243,8 +243,16 @@ export default function Checkout() {
         if (data.tax) {
           console.log('Получена налоговая информация от Stripe:', data.tax);
           
+          // Преобразование налоговой суммы из центов в основную валюту
+          // Если сумма больше цены товара, значит она в центах и нужно делить на 100
+          let taxAmountFixed = data.tax.amount || amount;
+          if (taxAmountFixed > price * 0.5) {
+            console.log('Конвертируем tax.amount из центов в основную валюту:', taxAmountFixed, '→', taxAmountFixed / 100);
+            taxAmountFixed = Math.round(taxAmountFixed / 100);
+          }
+          
           const stripeTax = {
-            amount: data.tax.amount || amount,
+            amount: taxAmountFixed,
             rate: data.tax.rate || rate,
             label: data.tax.label || label,
             display: data.tax.label || `${(rate * 100).toFixed(1)}% ${label} (${country})`
@@ -253,10 +261,11 @@ export default function Checkout() {
           setStripeTaxInfo(stripeTax);
           
           // Также обновляем базовую налоговую информацию данными от Stripe
+          // Используем уже преобразованную сумму taxAmountFixed вместо raw data.tax.amount
           setTaxInfo({
             rate: data.tax.rate || rate,
             label: data.tax.label || label,
-            amount: data.tax.amount || amount,
+            amount: taxAmountFixed, // Используем преобразованное значение
           });
           
           console.log('Tax information updated from Stripe:', stripeTax);
@@ -467,17 +476,7 @@ export default function Checkout() {
                 </td>
               </tr>
               
-              {/* Дополнительная строка с налогом для диагностики - будет отображаться всегда */}
-              <tr className="mb-2 bg-green-50 border-t border-b border-dashed border-green-300">
-                <td className="text-left pb-2 pt-2 text-green-700">
-                  <span className="flex items-center">
-                    <strong>Tax:</strong>
-                  </span>
-                </td>
-                <td className="text-right pb-2 pt-2 font-medium text-green-700">
-                  {formatPrice(Math.round(price * 0.19), currency, isStripePrice)}
-                </td>
-              </tr>
+              {/* Диагностическая строка с налогом удалена */}
               
               {/* Текст с информацией о НДС удален, так как дублируется ниже */}
               
