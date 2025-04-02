@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Calculation Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    .container {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .result {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      margin-top: 20px;
+    }
+    .result-row {
+      display: flex;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #f0f0f0;
+      padding-bottom: 8px;
+    }
+    .result-label {
+      width: 150px;
+      font-weight: bold;
+    }
+    .result-value {
+      flex: 1;
+    }
+    .error {
+      color: #d32f2f;
+      background-color: #ffebee;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #4CAF50;
+      padding-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tax Calculation Test</h1>
+  
+  <div class="container">
+    <h2>Test Parameters</h2>
+    <div class="form-group">
+      <label for="amount">Amount (in cents/pennies):</label>
+      <input type="number" id="amount" value="1000">
+    </div>
+    
+    <div class="form-group">
+      <label for="country">Country:</label>
+      <select id="country">
+        <option value="DE">Germany (19% VAT)</option>
+        <option value="FR">France (20% VAT)</option>
+        <option value="IT">Italy (22% VAT)</option>
+        <option value="ES">Spain (21% VAT)</option>
+        <option value="US">United States (0%)</option>
+        <option value="GB">United Kingdom (20% VAT)</option>
+      </select>
+    </div>
+    
+    <button id="calculate-btn">Calculate Tax</button>
+    <button id="create-payment-btn">Create Payment Intent</button>
+    
+    <div id="error" class="error" style="display: none;"></div>
+    
+    <div id="result" class="result" style="display: none;">
+      <h3>Tax Calculation Results</h3>
+      <div id="result-content"></div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // DOM элементы
+      const amountInput = document.getElementById('amount');
+      const countrySelect = document.getElementById('country');
+      const calculateBtn = document.getElementById('calculate-btn');
+      const createPaymentBtn = document.getElementById('create-payment-btn');
+      const resultDiv = document.getElementById('result');
+      const resultContent = document.getElementById('result-content');
+      const errorDiv = document.getElementById('error');
+      
+      // Функция форматирования валюты
+      function formatCurrency(amount, currency = 'EUR') {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: currency.toUpperCase()
+        }).format(amount / 100);
+      }
+      
+      // Функция отображения результата
+      function displayResult(data) {
+        resultContent.innerHTML = '';
+        
+        const rows = [
+          { label: 'Country', value: `${data.country} ${data.isEU ? '(EU)' : ''}` },
+          { label: 'Base Amount', value: formatCurrency(data.amount, data.currency) },
+          { label: 'Tax Rate', value: `${(data.taxRate * 100).toFixed(2)}%` },
+          { label: 'Tax Amount', value: formatCurrency(data.taxAmount, data.currency) },
+          { label: 'Tax Label', value: data.taxLabel },
+          { label: 'Total', value: formatCurrency(data.total, data.currency) },
+          { label: 'Currency', value: data.currency.toUpperCase() }
+        ];
+        
+        rows.forEach(row => {
+          const rowEl = document.createElement('div');
+          rowEl.className = 'result-row';
+          
+          const labelEl = document.createElement('div');
+          labelEl.className = 'result-label';
+          labelEl.textContent = row.label + ':';
+          
+          const valueEl = document.createElement('div');
+          valueEl.className = 'result-value';
+          valueEl.textContent = row.value;
+          
+          rowEl.appendChild(labelEl);
+          rowEl.appendChild(valueEl);
+          resultContent.appendChild(rowEl);
+        });
+        
+        resultDiv.style.display = 'block';
+      }
+      
+      // Функция отображения ошибки
+      function displayError(message) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+          errorDiv.style.display = 'none';
+        }, 5000); // Скрыть через 5 секунд
+      }
+      
+      // Функция расчета налогов
+      function calculateTax() {
+        const amount = amountInput.value;
+        const country = countrySelect.value;
+        
+        calculateBtn.disabled = true;
+        errorDiv.style.display = 'none';
+        resultDiv.style.display = 'none';
+        
+        fetch(`/api/tax-debug/calculate?amount=${amount}&country=${country}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Tax calculation result:', data);
+            displayResult(data);
+          })
+          .catch(error => {
+            console.error('Tax calculation error:', error);
+            displayError(`Error: ${error.message}`);
+          })
+          .finally(() => {
+            calculateBtn.disabled = false;
+          });
+      }
+      
+      // Функция создания PaymentIntent
+      function createPaymentIntent() {
+        const amount = amountInput.value;
+        const country = countrySelect.value;
+        
+        createPaymentBtn.disabled = true;
+        errorDiv.style.display = 'none';
+        resultDiv.style.display = 'none';
+        
+        fetch('/api/tax-debug/create-payment-intent', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            amount: parseInt(amount),
+            country: country
+          })
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('PaymentIntent created:', data);
+            
+            // Добавляем информацию о PaymentIntent в результаты
+            data.taxLabel = data.taxLabel || `Tax (${(data.taxRate * 100).toFixed(2)}%)`;
+            displayResult(data);
+            
+            // Добавим client_secret в результаты, если он есть
+            if (data.clientSecret) {
+              const rowEl = document.createElement('div');
+              rowEl.className = 'result-row';
+              
+              const labelEl = document.createElement('div');
+              labelEl.className = 'result-label';
+              labelEl.textContent = 'Client Secret:';
+              
+              const valueEl = document.createElement('div');
+              valueEl.className = 'result-value';
+              valueEl.style.wordBreak = 'break-all';
+              valueEl.textContent = data.clientSecret;
+              
+              rowEl.appendChild(labelEl);
+              rowEl.appendChild(valueEl);
+              resultContent.appendChild(rowEl);
+            }
+          })
+          .catch(error => {
+            console.error('PaymentIntent error:', error);
+            displayError(`Error: ${error.message}`);
+          })
+          .finally(() => {
+            createPaymentBtn.disabled = false;
+          });
+      }
+      
+      // Привязываем обработчики событий
+      calculateBtn.addEventListener('click', calculateTax);
+      createPaymentBtn.addEventListener('click', createPaymentIntent);
+      
+      // Выполняем расчет при загрузке страницы
+      calculateTax();
+    });
+  </script>
+</body>
+</html>

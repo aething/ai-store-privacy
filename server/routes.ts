@@ -1146,6 +1146,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Маршруты для отладки расчета налогов
   app.use("/api/tax-debug", taxDebugRoutes);
   
+  // Специальный маршрут для страницы тестирования налогов
+  app.get("/tax-test", (req, res) => {
+    res.sendFile("public/tax-test.html", { root: process.cwd() });
+  });
+  
   // Endpoint for creating or retrieving a subscription
   app.post("/api/get-or-create-subscription", async (req: Request, res: Response) => {
     try {
