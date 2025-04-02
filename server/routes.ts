@@ -998,23 +998,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Настраиваем параметры для PaymentIntent
+      // Настраиваем параметры для PaymentIntent с автоматическим расчетом налога
       const paymentIntentParams: any = {
         amount,
         currency,
         payment_method_types: ['card'],
         metadata,
-        description: taxRate > 0 ? `Order with ${taxLabel} included` : 'Order without VAT'
+        description: taxRate > 0 ? `Order with ${taxLabel} included` : 'Order without VAT',
+        // Включаем автоматический расчет налогов
+        automatic_tax: { enabled: true }
       };
       
-      // Добавляем автоматические налоги, если настроен Stripe Tax
-      // или используем tax_rates, если есть taxRateId
-      if (process.env.STRIPE_TAX_ENABLED === 'true') {
-        paymentIntentParams.automatic_tax = { enabled: true };
-      } else if (taxRateId) {
-        // Если нет Stripe Tax, но есть taxRateId, используем его напрямую
+      // Добавляем данные о местоположении для правильного расчета налогов
+      // Это важно для корректного определения налоговой юрисдикции
+      if (country) {
+        paymentIntentParams.customer_details = {
+          address: {
+            country: country
+          }
+        };
+        
+        // Добавляем штат для США, если доступен
+        if (country === 'US' && metadata.state && metadata.state !== 'unknown') {
+          paymentIntentParams.customer_details.address.state = metadata.state;
+        }
+      }
+      
+      // Если есть tax_rates, используем их вместо automatic_tax
+      if (taxRateId && process.env.STRIPE_TAX_ENABLED !== 'true') {
+        // Отключаем автоматический расчет, если используем tax_rates
+        paymentIntentParams.automatic_tax = { enabled: false };
         paymentIntentParams.tax_rates = [taxRateId];
       }
+      
+      console.log(`Creating PaymentIntent with tax settings:`, {
+        automatic_tax: paymentIntentParams.automatic_tax,
+        country: country || 'unknown',
+        tax_behavior: 'exclusive' // Налог всегда добавляется сверху цены
+      });
       
       const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
       
@@ -1116,7 +1137,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Создаем подписку с информацией о стране пользователя
-      const subscription = await stripe.subscriptions.create({
+      // и включаем автоматический расчет налогов
+      const subscriptionParams: any = {
         customer: user.stripeCustomerId,
         items: [{ price: priceId }],
         payment_behavior: 'default_incomplete',
@@ -1126,8 +1148,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: user.id.toString(),
           country: user.country || 'unknown',
           currency // Включаем информацию о валюте
-        }
-      });
+        },
+        // Включаем автоматический расчет налогов
+        automatic_tax: { enabled: true }
+      };
+      
+      // Добавляем информацию о местоположении клиента для правильного расчета налогов
+      if (user.country) {
+        // Если у клиента уже есть данные о местоположении, не обновляем их здесь
+        // Иначе они будут добавлены через создание клиента выше
+        console.log(`Using country ${user.country} for subscription tax calculation`);
+      }
+      
+      const subscription = await stripe.subscriptions.create(subscriptionParams);
       
       // Проверяем, что у нас есть latest_invoice как объект, а не строка
       const latest_invoice = subscription.latest_invoice;
