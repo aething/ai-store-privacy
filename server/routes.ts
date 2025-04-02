@@ -9,6 +9,8 @@ import * as googleSheets from "./google-sheets";
 import * as pushNotification from "./push-notification";
 import * as email from "./email";
 import nodemailer from "nodemailer";
+import { createPaymentIntentWithTaxInfo } from "./tax-demo-route";
+import { createTaxDebugPaymentIntent } from "./routes/tax-debug";
 
 // Расширяем типы для Express.Request
 declare global {
@@ -1139,6 +1141,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Error creating payment intent" });
     }
   });
+  
+  // Тестовый эндпоинт для отладки налоговой информации (устаревший)
+  // app.post("/api/tax-debug/create-payment-intent", createPaymentIntentWithTaxInfo);
+
+  // Новый маршрут для тестирования налогов с учетом страны
+  app.post("/api/tax-debug/create-payment-intent", createTaxDebugPaymentIntent);
   
   // Endpoint for creating or retrieving a subscription
   app.post("/api/get-or-create-subscription", async (req: Request, res: Response) => {

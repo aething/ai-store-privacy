@@ -110,10 +110,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Импортируем и используем маршрут для демонстрации налогов
-  const taxDemoRouter = (await import('./tax-demo-route')).default;
-  app.use(taxDemoRouter);
-  
+  // Роутеры регистрируются в registerRoutes
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
