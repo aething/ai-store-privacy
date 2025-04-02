@@ -41,11 +41,25 @@ const API_URL_PATTERN = /\/api\//;
 // Регулярное выражение для определения изображений
 const IMAGE_URL_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
 
-// Обработчик события skip-waiting
+// Обработчик события сообщений
 self.addEventListener('message', event => {
+  console.log('Service Worker: Получено сообщение:', event.data);
+  
   if (event.data && event.data.type === 'SKIP_WAITING') {
     console.log('Service Worker: Получена команда принудительной активации');
     self.skipWaiting();
+  }
+  
+  // Добавляем функционал для ответа клиенту
+  if (event.data && event.data.type === 'PING') {
+    const client = event.source;
+    client.postMessage({
+      type: 'PONG',
+      payload: {
+        version: APP_VERSION,
+        timestamp: Date.now()
+      }
+    });
   }
 });
 

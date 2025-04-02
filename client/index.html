@@ -17,6 +17,9 @@
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
   <link rel="shortcut icon" href="/icons/icon-192x192.png">
   
+  <!-- Принудительная регистрация Service Worker -->
+  <script src="/sw-installer.js"></script>
+  
   <!-- Скрипты для управления кэшем и отладки -->
   <script src="/maintenance.js"></script>
   <script src="/scroll-test.js"></script>
@@ -181,43 +184,30 @@
     // Инициализация
     updateOfflineMessage();
     
-    // Регистрация сервис-воркера для PWA
+    // Обработка контроллера для обновления страницы
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(registration => {
-            console.log('Service Worker зарегистрирован с успехом:', registration.scope);
-            
-            // Обработка обновлений сервис-воркера
-            registration.addEventListener('updatefound', () => {
-              const newWorker = registration.installing;
-              
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('Новая версия приложения доступна!');
-                  
-                  // Показать уведомление пользователю о доступном обновлении 
-                  if (confirm('Доступна новая версия приложения. Обновить сейчас?')) {
-                    newWorker.postMessage({ type: 'SKIP_WAITING' });
-                    window.location.reload();
-                  }
-                }
-              });
-            });
-          })
-          .catch(error => {
-            console.error('Ошибка при регистрации Service Worker:', error);
-          });
-      });
-      
       // Перезагрузка страницы при активации нового service worker
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (!refreshing) {
+          console.log('Service Worker контроллер изменился - перезагрузка страницы');
           refreshing = true;
           window.location.reload();
         }
       });
+      
+      // Периодическая проверка состояния Service Worker
+      setInterval(() => {
+        if (navigator.serviceWorker.controller) {
+          console.log('Service Worker контроллер активен:', navigator.serviceWorker.controller.state);
+          // Сообщение для отладки
+          const statusElement = document.getElementById('service-worker-status');
+          if (statusElement) {
+            statusElement.textContent = 'Service Worker активен и контролирует страницу';
+            statusElement.style.color = '#4CAF50';
+          }
+        }
+      }, 5000);
     }
   </script>
 </body>
