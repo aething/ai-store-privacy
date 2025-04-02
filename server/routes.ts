@@ -1033,11 +1033,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Если есть tax_rates, используем их для учета налогов
+      // Комментируем этот код, так как мы используем кастомный расчет налогов
+      // В документации Stripe сказано, что нельзя использовать параметр tax_rates
+      // вместе с кастомным расчетом налогов
+      /* 
       if (taxRateId) {
         paymentIntentParams.tax_rates = [taxRateId];
         console.log(`Using tax rate ID: ${taxRateId} for PaymentIntent`);
       }
+      */
       
       // Если страна не указана или это Германия, применяем немецкий НДС
       if (!country || country === 'DE') {
