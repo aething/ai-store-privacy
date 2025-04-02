@@ -126,7 +126,7 @@ const StandaloneCheckout = () => {
                     ? "* Prices exclude VAT (19%), which is added at checkout" 
                     : selectedCountry === 'US'
                       ? "* No sales tax is applied (nexus thresholds not reached)"
-                      : "* Tax rates are calculated based on your location"}
+                      : "* VAT is applied according to EU regulations"}
                 </td>
               </tr>
               
@@ -144,22 +144,7 @@ const StandaloneCheckout = () => {
             </tbody>
           </table>
           
-          {/* Используем компонент TaxDisplayBoxSimple для отображения информации о налоге */}
-          <div className="mt-4 border-t pt-4">
-            <h4 className="font-medium mb-2 flex items-center">
-              <AlertTriangle size={16} className="mr-2 text-amber-500" />
-              Tax Calculation Details:
-            </h4>
-            <TaxDisplayBoxSimple 
-              country={selectedCountry} 
-              currency={currency}
-              baseAmount={baseAmount}
-              taxAmount={taxAmount}
-              taxRate={taxRate}
-              taxLabel={taxLabel}
-              showDebugInfo={true} 
-            />
-          </div>
+
         </div>
         
         {/* Пояснительный текст */}
