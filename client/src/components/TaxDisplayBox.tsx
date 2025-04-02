@@ -1,6 +1,5 @@
 import React from "react";
-// Заглушка для useTranslation, пока не реализован
-const useTranslation = () => ({ t: (key: string) => key });
+import { useLocale } from "@/context/LocaleContext";
 
 interface TaxDisplayBoxProps {
   country: string | null;
@@ -20,7 +19,7 @@ export function TaxDisplayBox({
   amount,
   showDebugInfo = false
 }: TaxDisplayBoxProps) {
-  const { t } = useTranslation();
+  const { t } = useLocale();
   
   // Определяем, является ли страна членом ЕС
   const isEUCountry = React.useMemo(() => {

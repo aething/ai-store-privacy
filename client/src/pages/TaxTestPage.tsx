@@ -1,23 +1,28 @@
-import { useState, useEffect } from "react";
+import React from "react";
 import { Card } from "@/components/ui/card";
-import { useAppContext } from "@/context/AppContext";
 import { formatPrice } from "@/lib/currency";
-import { TaxDisplayBox } from "@/components/TaxDisplayBox";
 import { ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
 
+// Простая тестовая страница без сложных компонентов и хуков
 export default function TaxTestPage() {
-  const { user } = useAppContext();
-  const [, setLocation] = useLocation();
-  
   // Тестовые данные
   const baseAmount = 276000; // 2760 EUR в минимальных единицах (центах)
   const currency = "eur";
+  const countryCode = "DE"; // Фиксированная страна для теста
   
   // Расчет налога
-  const taxRate = user?.country === "DE" ? 0.19 : 0;
+  const taxRate = 0.19; // 19% для Германии
   const taxAmount = Math.round(baseAmount * taxRate);
   const totalAmount = baseAmount + taxAmount;
+  
+  // Форматирование валюты
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+      minimumFractionDigits: 2
+    }).format(amount / 100);
+  };
   
   return (
     <div className="max-w-2xl mx-auto p-4">
@@ -35,39 +40,42 @@ export default function TaxTestPage() {
         <h1 className="text-xl font-bold mb-4">Тестовая страница для проверки отображения налогов</h1>
         
         <div className="bg-blue-50 p-4 rounded-md mb-6">
-          <h2 className="font-medium mb-2">Данные пользователя:</h2>
-          <pre className="bg-gray-800 text-white p-2 rounded overflow-x-auto text-xs">
-            {JSON.stringify(user, null, 2)}
-          </pre>
+          <h2 className="font-medium mb-2">Тестовые данные:</h2>
+          <div className="bg-gray-800 text-white p-2 rounded overflow-x-auto text-xs">
+            <div>Страна: {countryCode}</div>
+            <div>Валюта: {currency.toUpperCase()}</div>
+            <div>Сумма без налога: {formatCurrency(baseAmount)}</div>
+            <div>Ставка налога: {taxRate * 100}%</div>
+            <div>Сумма налога: {formatCurrency(taxAmount)}</div>
+            <div>Итоговая сумма: {formatCurrency(totalAmount)}</div>
+          </div>
         </div>
         
         <div className="space-y-6">
           <section>
-            <h2 className="font-bold text-lg mb-3">1. Базовая таблица с налогами</h2>
+            <h2 className="font-bold text-lg mb-3">Таблица с налогами</h2>
             <table className="w-full">
               <tbody>
                 <tr className="mb-2">
                   <td className="text-left pb-2">Subtotal</td>
-                  <td className="text-right pb-2">{formatPrice(baseAmount, currency, false)}</td>
+                  <td className="text-right pb-2">{formatCurrency(baseAmount)}</td>
                 </tr>
                 
                 <tr className="mb-2 bg-yellow-50">
                   <td className="text-left pb-2 pt-2 font-medium">
                     <span className="flex items-center">
-                      {user?.country === "DE" ? "MwSt. 19%" : "No Tax"}
-                      <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || "Unknown"}</span>
+                      MwSt. 19%
+                      <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{countryCode}</span>
                     </span>
                   </td>
                   <td className="text-right pb-2 pt-2 font-medium">
-                    {formatPrice(taxAmount, currency, false)}
+                    {formatCurrency(taxAmount)}
                   </td>
                 </tr>
                 
                 <tr className="mb-2 bg-blue-50">
                   <td colSpan={2} className="text-left pb-2 pt-2 px-2 text-xs text-blue-600 italic rounded">
-                    {user?.country === "DE" 
-                      ? "* Prices exclude VAT (19%), which is added at checkout" 
-                      : "* Tax rates are calculated based on your location"}
+                    * Prices exclude VAT (19%), which is added at checkout
                   </td>
                 </tr>
                 
@@ -79,28 +87,18 @@ export default function TaxTestPage() {
                 <tr className="font-bold text-lg bg-green-50">
                   <td className="text-left pt-2 pb-2 border-t">Total</td>
                   <td className="text-right pt-2 pb-2 border-t">
-                    {formatPrice(totalAmount, currency, false)}
+                    {formatCurrency(totalAmount)}
                   </td>
                 </tr>
               </tbody>
             </table>
           </section>
-          
-          <div className="border-t pt-4">
-            <h2 className="font-bold text-lg mb-3">2. Компонент TaxDisplayBox</h2>
-            <TaxDisplayBox 
-              country={user?.country || "DE"} 
-              currency={currency} 
-              amount={baseAmount}
-              showDebugInfo={true} 
-            />
-          </div>
         </div>
         
         <div className="mt-8 border-t pt-6">
           <button 
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            onClick={() => setLocation("/checkout/1")}
+            onClick={() => window.location.href = "/checkout/1"}
           >
             Перейти на страницу оформления заказа
           </button>
