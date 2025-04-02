@@ -153,13 +153,29 @@ export default function PlayMarket() {
           <li>Track your orders</li>
           <li>Multiple currency support (USD & EUR)</li>
           <li>Country-specific product recommendations</li>
+          <li>Automatic tax calculation based on your country</li>
+          <li>Multilingual support</li>
         </ul>
+        
+        <h4 className="font-medium mb-2">Tax Information:</h4>
+        <p className="text-gray-700 mb-4">
+          Our app automatically calculates and displays the appropriate tax rates for your country:
+          <ul className="list-disc list-inside ml-4 mt-1">
+            <li>Germany - MwSt. 19%</li>
+            <li>France - TVA 20%</li>
+            <li>Italy - IVA 22%</li>
+            <li>Spain - IVA 21%</li>
+            <li>USA - No sales tax applied</li>
+          </ul>
+        </p>
         
         <h4 className="font-medium mb-2">What's New:</h4>
         <p className="text-gray-700">
+          • Added international tax calculation support<br />
           • Improved performance and stability<br />
           • Added new payment methods<br />
           • Enhanced user interface<br />
+          • Multilingual support for product information<br />
           • Bug fixes and performance improvements
         </p>
       </Card>

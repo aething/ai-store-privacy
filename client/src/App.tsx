@@ -23,6 +23,12 @@ import ClearCache from "@/pages/ClearCache";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
+import { logMobileAppConfig, isMobileApp } from "@/utils/mobileAppUtils";
+
+// Инициализация настроек мобильного приложения
+if (isMobileApp()) {
+  logMobileAppConfig();
+}
 
 // Подключаем тесты в режиме разработки
 if (import.meta.env.DEV) {

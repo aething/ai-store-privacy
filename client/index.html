@@ -180,6 +180,45 @@
     
     // Инициализация
     updateOfflineMessage();
+    
+    // Регистрация сервис-воркера для PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker зарегистрирован с успехом:', registration.scope);
+            
+            // Обработка обновлений сервис-воркера
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('Новая версия приложения доступна!');
+                  
+                  // Показать уведомление пользователю о доступном обновлении 
+                  if (confirm('Доступна новая версия приложения. Обновить сейчас?')) {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                    window.location.reload();
+                  }
+                }
+              });
+            });
+          })
+          .catch(error => {
+            console.error('Ошибка при регистрации Service Worker:', error);
+          });
+      });
+      
+      // Перезагрузка страницы при активации нового service worker
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
   </script>
 </body>
 </html>

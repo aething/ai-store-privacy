@@ -1,52 +1,119 @@
 {
-  "name": "Aething Tech Store",
-  "short_name": "Aething Store",
-  "description": "Advanced tech products with international user experience",
-  "start_url": "/",
-  "display": "standalone",
+  "name": "AI Store by Aething",
+  "short_name": "AI Store",
+  "description": "Browse and purchase AI-powered solutions with automatic tax calculation for your region",
+  "theme_color": "#6200ee",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
-  "orientation": "portrait-primary",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "id": "ai-store-pwa",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["shopping", "finance", "productivity"],
+  "iarc_rating_id": "e84b072d-9405-4258-a595-c7eb99d9b6c0",
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.aething.aistore",
+      "id": "com.aething.aistore"
+    }
+  ],
+  "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "/screenshots/home-screen.webp",
+      "sizes": "1080x1920",
+      "type": "image/webp",
+      "platform": "android",
+      "label": "Home screen of the application"
+    },
+    {
+      "src": "/screenshots/product-view.webp",
+      "sizes": "1080x1920",
+      "type": "image/webp",
+      "platform": "android",
+      "label": "Product view with detailed information"
+    },
+    {
+      "src": "/screenshots/checkout.webp",
+      "sizes": "1080x1920",
+      "type": "image/webp",
+      "platform": "android",
+      "label": "Checkout screen with tax information"
+    }
+  ],
+  "handle_links": "preferred",
+  "share_target": {
+    "action": "/share-target",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "icons": [
+    {
+      "src": "/icons/icon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/icons/icon-72x72.png",
       "sizes": "72x72",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-96x96.png",
       "sizes": "96x96",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-128x128.png",
       "sizes": "128x128",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-144x144.png",
       "sizes": "144x144",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-152x152.png",
       "sizes": "152x152",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-384x384.png",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
