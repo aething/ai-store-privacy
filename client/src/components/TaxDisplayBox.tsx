@@ -124,15 +124,7 @@ export function TaxDisplayBox({
         )}
       </div>
       
-      {showDebugInfo && (
-        <div className="mt-2 text-xs text-gray-500 border-t border-gray-200 pt-2">
-          <div>Debug: Country: {country}</div>
-          <div>Tax Rate: {(taxRate * 100).toFixed(2)}%</div>
-          <div>Base Amount: {formatCurrency(amount)}</div>
-          <div>Tax Amount: {formatCurrency(taxAmount)}</div>
-          <div>Total: {formatCurrency(amount + taxAmount)}</div>
-        </div>
-      )}
+      {/* Removed debug info block */}
     </div>
   );
 }

@@ -140,13 +140,14 @@ export default function StandaloneTaxDemo() {
         <h2 className="text-lg font-semibold mb-3">Tax Display Component</h2>
         
         <TaxDisplayBoxSimple 
-          country={selectedCountry}
+          tax={{
+            amount: taxAmount,
+            rate: rate,
+            label: label
+          }}
+          subtotal={baseAmount}
           currency={currency}
-          baseAmount={baseAmount}
-          taxAmount={taxAmount}
-          taxRate={rate}
-          taxLabel={label}
-          showDebugInfo={false}
+          showDetails={false}
         />
       </div>
       
