@@ -161,46 +161,34 @@ export default function Checkout() {
     return () => clearTimeout(stripeLoadTimeout);
   }, [toast]);
   
+  // Константы для налоговой информации
+  // Важно: мы используем константы вместо зависимости от хуков 
+  // React, чтобы избежать проблем с рендерингом
+  const DEFAULT_TAX_RATE = 0.19; // 19% для Германии (по умолчанию)
+  const DEFAULT_TAX_LABEL = 'MwSt. 19%'; // Налог по умолчанию
+  
   // Вычисляем информацию о налоге при изменении цены или страны пользователя
   useEffect(() => {
     if (!price) return;
     
-    // Проверяем наличие пользователя и его данных
-    console.log("Current user data:", user ? {
-      id: user.id, 
-      username: user.username,
-      country: user.country
-    } : `No user, using default country: ${defaultCountry}`);
-    
-    const country = user?.country || defaultCountry; // По умолчанию используем Германию, если страна не указана
+    // Получаем страну пользователя или используем значение по умолчанию
+    const country = user?.country || defaultCountry;
     const { rate, label } = calculateTaxRate(country);
-    console.log(`Tax calculation for ${country}: rate=${rate}, label=${label}`);
     
-    // Для большинства стран ЕС применяем НДС
-    // Даже если ставка 0, мы всё равно покажем информацию (например, "No Sales Tax" для США)
+    // Рассчитываем сумму налога
     const amount = rate > 0 ? Math.round(price * rate) : 0;
     
-    // Важно: обновляем состояние только если цена или страна изменились
+    // Обновляем налоговую информацию
     setTaxInfo({ rate, label, amount });
     
-    // Выводим информацию о налогах в консоль для отладки
-    console.log(`Tax details: Base amount: ${price / 100} ${currency}, Tax rate: ${rate * 100}%, Tax amount: ${amount / 100} ${currency}`);
-    console.log('taxInfo set to:', { rate, label, amount });
-    console.log('user country:', user?.country, 'default country:', country);
-    
-    // Проверка текущего состояния компонентов отображения
-    console.log('Current TaxDisplayBoxSimple data:', {
-      country: country,
-      currency,
-      baseAmount: price,
-      taxAmount: amount,
-      taxRate: rate,
-      taxLabel: label
-    });
-    
-    // Отладочный расчет итоговой суммы
-    console.log(`Final price calculation: ${price} + ${amount} = ${price + amount} ${currency}`);
+    console.log(`Tax calculation: ${price} (${currency}) + ${amount} (${rate * 100}%) = ${price + amount}`);
   }, [user?.country, price, currency, defaultCountry]);
+  
+  // Определяем базовые значения налоговой информации, чтобы они всегда были доступны
+  // даже если хук useEffect не сработал
+  const taxRate = taxInfo?.rate || DEFAULT_TAX_RATE;
+  const taxLabel = taxInfo?.label || DEFAULT_TAX_LABEL;
+  const taxAmount = taxInfo?.amount || Math.round(price * DEFAULT_TAX_RATE);
 
   useEffect(() => {
     const getPaymentIntent = async () => {
@@ -274,20 +262,18 @@ export default function Checkout() {
               <td className="text-right pb-2">{formatPrice(price, currency, isStripePrice)}</td>
             </tr>
             
-            {/* Налоговая информация - рассчитываем на основе информации о стране */}
-            {(taxInfo && taxInfo.label) && (
-              <tr className="mb-2 bg-yellow-50">
-                <td className="text-left pb-2 pt-2 font-medium">
-                  <span className="flex items-center">
-                    {taxInfo.label}
-                    <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{defaultCountry}</span>
-                  </span>
-                </td>
-                <td className="text-right pb-2 pt-2 font-medium">
-                  {formatPrice(taxInfo.amount, currency, isStripePrice)}
-                </td>
-              </tr>
-            )}
+            {/* Налоговая информация - всегда отображаем, используя запасные значения */}
+            <tr className="mb-2 bg-yellow-50">
+              <td className="text-left pb-2 pt-2 font-medium">
+                <span className="flex items-center">
+                  {taxLabel}
+                  <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{defaultCountry}</span>
+                </span>
+              </td>
+              <td className="text-right pb-2 pt-2 font-medium">
+                {formatPrice(taxAmount, currency, isStripePrice)}
+              </td>
+            </tr>
             
             {/* Добавляем строку с пояснением о налогах */}
             <tr className="mb-2 bg-blue-50">
@@ -304,7 +290,7 @@ export default function Checkout() {
             <tr className="font-bold text-lg bg-green-50">
               <td className="text-left pt-2 pb-2 border-t">Total</td>
               <td className="text-right pt-2 pb-2 border-t">
-                {formatPrice(price + (taxInfo ? taxInfo.amount : 0), currency, isStripePrice)}
+                {formatPrice(price + taxAmount, currency, isStripePrice)}
               </td>
             </tr>
           </tbody>
@@ -320,9 +306,9 @@ export default function Checkout() {
             country={defaultCountry} 
             currency={currency}
             baseAmount={price}
-            taxAmount={taxInfo.amount}
-            taxRate={taxInfo.rate}
-            taxLabel={taxInfo.label}
+            taxAmount={taxAmount}
+            taxRate={taxRate}
+            taxLabel={taxLabel}
             showDebugInfo={true} 
           />
         </div>
@@ -400,20 +386,18 @@ export default function Checkout() {
                 <td className="text-right pb-2">{formatPrice(price, currency, isStripePrice)}</td>
               </tr>
               
-              {/* Налоговая информация - рассчитываем на основе информации о стране */}
-              {(taxInfo && taxInfo.label) && (
-                <tr className="mb-2 bg-yellow-50">
-                  <td className="text-left pb-2 pt-2 font-medium">
-                    <span className="flex items-center">
-                      {taxInfo.label}
-                      <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || 'DE'}</span>
-                    </span>
-                  </td>
-                  <td className="text-right pb-2 pt-2 font-medium">
-                    {formatPrice(taxInfo.amount, currency, isStripePrice)}
-                  </td>
-                </tr>
-              )}
+              {/* Налоговая информация - всегда отображаем, используя запасные значения, если нужно */}
+              <tr className="mb-2 bg-yellow-50">
+                <td className="text-left pb-2 pt-2 font-medium">
+                  <span className="flex items-center">
+                    {taxLabel}
+                    <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || 'DE'}</span>
+                  </span>
+                </td>
+                <td className="text-right pb-2 pt-2 font-medium">
+                  {formatPrice(taxAmount, currency, isStripePrice)}
+                </td>
+              </tr>
               
               {/* Добавляем строку с пояснением о налогах */}
               <tr className="mb-2 bg-blue-50">
@@ -434,7 +418,7 @@ export default function Checkout() {
               <tr className="font-bold text-lg bg-green-50">
                 <td className="text-left pt-2 pb-2 border-t">Total</td>
                 <td className="text-right pt-2 pb-2 border-t">
-                  {formatPrice(price + (taxInfo ? taxInfo.amount : 0), currency, isStripePrice)}
+                  {formatPrice(price + taxAmount, currency, isStripePrice)}
                 </td>
               </tr>
             </tbody>
@@ -450,9 +434,9 @@ export default function Checkout() {
               country={user?.country || 'DE'} 
               currency={currency}
               baseAmount={price}
-              taxAmount={taxInfo.amount}
-              taxRate={taxInfo.rate}
-              taxLabel={taxInfo.label}
+              taxAmount={taxAmount}
+              taxRate={taxRate}
+              taxLabel={taxLabel}
               showDebugInfo={true} 
             />
           </div>

@@ -4,12 +4,12 @@
  * Этот файл реализует простую HTML-страницу для демонстрации как
  * работает расчёт налогов, без использования React
  */
-import express from 'express';
+const express = require('express');
 const router = express.Router();
 
 // Функция для получения информации о налоге по стране
-function getTaxRate(country: string) {
-  const euVatRates: Record<string, { rate: number; label: string }> = {
+function getTaxRate(country) {
+  const euVatRates = {
     // Страны ЕС
     'AT': { rate: 0.20, label: 'MwSt. 20%' }, // Австрия
     'BE': { rate: 0.21, label: 'BTW 21%' },   // Бельгия
@@ -46,7 +46,7 @@ function getTaxRate(country: string) {
 }
 
 // Функция для проверки, следует ли использовать евро
-function shouldUseEUR(country: string) {
+function shouldUseEUR(country) {
   const eurCountries = [
     'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 
     'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 
@@ -453,4 +453,4 @@ router.get('/tax-demo', (req, res) => {
   `);
 });
 
-export default router;
+module.exports = router;
