@@ -7,7 +7,7 @@
  * 3. Мониторинга состояния сети
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Глобальное хранилище кэшированных данных
 export const OFFLINE_DATA = {
@@ -98,10 +98,10 @@ function dispatchNetworkEvent(isOnline: boolean) {
 /**
  * Хук для отслеживания состояния сети
  */
-export function useNetworkStatus() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+export function useNetworkStatus(): boolean {
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
   
-  useEffect(() => {
+  React.useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     

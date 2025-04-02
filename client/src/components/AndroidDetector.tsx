@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { isAndroidApp } from '../utils/capacitorBridge';
+import '../styles/android.css';
 
 /**
  * Компонент для обнаружения запуска в Android/Capacitor
  * и отображения сообщения о нативной среде
  */
-export function AndroidDetector() {
+function AndroidDetector() {
   const [isAndroid, setIsAndroid] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   
