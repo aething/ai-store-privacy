@@ -95,18 +95,21 @@ export function TaxDisplayBox({
   const displayCountry = country || 'unknown';
   
   return (
-    <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
+    <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200 shadow-sm">
       <div className="flex justify-between font-medium">
-        <span className="text-sm text-gray-600">{getTaxLabel()}</span>
-        <span className="text-sm">
+        <span className="text-sm text-gray-800 flex items-center">
+          {getTaxLabel()}
+          <span className="ml-2 px-1 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">{displayCountry.toUpperCase()}</span>
+        </span>
+        <span className="text-sm font-semibold">
           {formatCurrency(taxAmount)}
         </span>
       </div>
       
       {taxAmount > 0 && (
-        <div className="flex justify-between text-sm mt-2 text-gray-500 pt-2 border-t border-gray-200">
+        <div className="flex justify-between text-sm mt-2 text-gray-700 pt-2 border-t border-gray-200">
           <span>Total with Tax</span>
-          <span className="font-medium">{formatCurrency(amount + taxAmount)}</span>
+          <span className="font-semibold">{formatCurrency(amount + taxAmount)}</span>
         </div>
       )}
       

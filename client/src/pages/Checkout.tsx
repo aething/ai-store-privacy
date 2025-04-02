@@ -10,7 +10,7 @@ import stripePromise, { createPaymentIntent } from "@/lib/stripe";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import { apiRequest } from "@/lib/queryClient";
 import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { TaxDisplayBox } from "@/components/TaxDisplayBox";
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
@@ -161,15 +161,19 @@ export default function Checkout() {
   
   // Вычисляем информацию о налоге при изменении цены или страны пользователя
   useEffect(() => {
-    if (!user?.country || !price) return;
+    if (!price) return;
     
-    const { rate, label } = calculateTaxRate(user.country);
-    console.log(`Tax calculation for ${user.country}: rate=${rate}, label=${label}`);
+    const country = user?.country || 'DE'; // По умолчанию используем Германию, если страна не указана
+    const { rate, label } = calculateTaxRate(country);
+    console.log(`Tax calculation for ${country}: rate=${rate}, label=${label}`);
     
     // Даже если ставка 0, мы всё равно покажем информацию (например, "No Sales Tax" для США)
     const amount = rate > 0 ? Math.round(price * rate) : 0;
     setTaxInfo({ rate, label, amount });
-  }, [user?.country, price]);
+    
+    // Выводим информацию о налогах в консоль для отладки
+    console.log(`Tax details: Base amount: ${price / 100} ${currency}, Tax rate: ${rate * 100}%, Tax amount: ${amount / 100} ${currency}`);
+  }, [user?.country, price, currency]);
 
   useEffect(() => {
     const getPaymentIntent = async () => {
@@ -276,19 +280,19 @@ export default function Checkout() {
                 <td className="text-right pb-2">{formatPrice(user?.country === 'DE' ? price - Math.round(price * 0.19) : price, currency, isStripePrice)}</td>
               </tr>
               
-              {/* Налоговая информация - рассчитываем на основе TaxDisplayBox */}
+              {/* Налоговая информация - рассчитываем на основе информации о стране */}
               <tr className="mb-2">
                 <td className="text-left pb-2 font-medium">
                   {user?.country === 'DE' && (
                     <span className="flex items-center">
                       MwSt. 19%
-                      <span className="ml-1 bg-gray-100 text-gray-700 text-xs px-1 py-0.5 rounded">DE</span>
+                      <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">DE</span>
                     </span>
                   )}
                   {user?.country === 'US' && (
                     <span className="flex items-center">
                       No Sales Tax
-                      <span className="ml-1 bg-gray-100 text-gray-700 text-xs px-1 py-0.5 rounded">US</span>
+                      <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">US</span>
                     </span>
                   )}
                   {(!user?.country || (user?.country !== 'DE' && user?.country !== 'US')) && (
@@ -302,6 +306,17 @@ export default function Checkout() {
                 </td>
               </tr>
               
+              {/* Добавляем строку с пояснением о налогах */}
+              <tr className="mb-2 bg-gray-50">
+                <td colSpan={2} className="text-left pb-2 pt-2 px-2 text-xs text-gray-600 italic rounded">
+                  {user?.country === 'DE' 
+                    ? "* Prices exclude VAT (19%), which is added at checkout" 
+                    : user?.country === 'US'
+                      ? "* No sales tax is applied (nexus thresholds not reached)"
+                      : "* Tax rates are calculated based on your location"}
+                </td>
+              </tr>
+              
               <tr className="mb-2">
                 <td className="text-left pb-2">Shipping</td>
                 <td className="text-right pb-2">Free</td>
@@ -309,19 +324,24 @@ export default function Checkout() {
               
               <tr className="font-medium">
                 <td className="text-left pt-1 border-t">Total</td>
-                <td className="text-right pt-1 border-t">{formatPrice(price, currency, isStripePrice)}</td>
+                <td className="text-right pt-1 border-t">{user?.country === 'DE' 
+                  ? formatPrice(price + Math.round(price * 0.19), currency, isStripePrice)
+                  : formatPrice(price, currency, isStripePrice)}</td>
               </tr>
             </tbody>
           </table>
           
           {/* Используем компонент TaxDisplayBox для отображения информации о налоге */}
           <div className="mt-4 border-t pt-4">
-            <h4 className="font-medium mb-2">Tax Calculation Details:</h4>
+            <h4 className="font-medium mb-2 flex items-center">
+              <AlertTriangle size={16} className="mr-2 text-amber-500" />
+              Tax Calculation Details:
+            </h4>
             <TaxDisplayBox 
               country={user?.country || 'DE'} 
               currency={currency}
               amount={price}
-              showDebugInfo={false} 
+              showDebugInfo={true} 
             />
           </div>
           
