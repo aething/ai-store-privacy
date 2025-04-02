@@ -1,139 +1,220 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Store - Offline</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background-color: #f8f9fa;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      text-align: center;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      color: #6200ee;
-    }
-    p {
-      font-size: 1.1rem;
-      line-height: 1.5;
-      margin-bottom: 1.5rem;
-    }
-    .offline-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      color: #6200ee;
-    }
-    .retry-button {
-      background-color: #6200ee;
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      margin-top: 1rem;
-    }
-    .retry-button:hover {
-      background-color: #5000cc;
-    }
-    .features {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 2rem;
-    }
-    .feature-card {
-      background-color: white;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      width: calc(50% - 1rem);
-      min-width: 150px;
-      box-sizing: border-box;
-    }
-    .feature-title {
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-      color: #6200ee;
-    }
-    .footer {
-      padding: 1rem;
-      background-color: #6200ee;
-      color: white;
-      font-size: 0.9rem;
-    }
-    @media (max-width: 480px) {
-      .feature-card {
-        width: 100%;
-      }
-      h1 {
-        font-size: 1.5rem;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Store - Нет подключения к сети</title>
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#4263EB">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 0 1rem;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .logo {
+            width: 120px;
+            height: auto;
+            margin: 0 auto 2rem;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+        
+        p {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            color: #555;
+        }
+        
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: #4263EB;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #4263EB;
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: #3a56ce;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid #4263EB;
+            color: #4263EB;
+        }
+        
+        .btn-outline:hover {
+            background-color: #f0f4ff;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .status-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ff6b6b;
+            margin-right: 0.5rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: #777;
+            font-size: 0.875rem;
+        }
+        
+        .help-text {
+            font-size: 0.9rem;
+            background-color: #f0f4ff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+        
+        .help-text ul {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .help-text li {
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="offline-icon">📶</div>
-    <h1>You're Currently Offline</h1>
-    <p>Looks like you've lost your internet connection. The AI Store requires an internet connection to browse products and process payments.</p>
-    <p>Please check your connection and try again.</p>
-    <button class="retry-button" onclick="window.location.reload()">Retry Connection</button>
-    
-    <div class="features">
-      <div class="feature-card">
-        <div class="feature-title">International Tax Support</div>
-        <p>Automatic tax calculation based on your country (EU VAT included)</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Multiple Currencies</div>
-        <p>Pay in Euro (EUR) or US Dollar (USD) based on your location</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Secure Checkout</div>
-        <p>Industry-standard encryption for all transactions</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Multilingual</div>
-        <p>Available in multiple languages for global accessibility</p>
-      </div>
+    <div class="container">
+        <div class="card">
+            <div class="status">
+                <span class="status-icon"></span>
+                <span>Нет подключения к сети</span>
+            </div>
+            
+            <div class="icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a5 5 0 010-7.07m-2.121 7.07a1 1 0 11-1.414-1.414M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            
+            <h1>AI Store работает офлайн</h1>
+            
+            <p>К сожалению, вы не можете получить доступ к данным AI Store, так как ваше устройство не подключено к интернету.</p>
+            
+            <div>
+                <button class="btn" onclick="window.location.reload()">Обновить страницу</button>
+                <button class="btn btn-outline" onclick="window.history.back()">Вернуться назад</button>
+            </div>
+            
+            <div class="help-text">
+                <strong>Что делать?</strong>
+                <ul>
+                    <li>Проверьте ваше подключение к Wi-Fi или мобильные данные</li>
+                    <li>Перезагрузите маршрутизатор или модем</li>
+                    <li>Повторите попытку через несколько минут</li>
+                </ul>
+            </div>
+        </div>
     </div>
-  </div>
-  
-  <div class="footer">
-    AI Store by Aething &copy; 2025
-  </div>
-
-  <script>
-    // Функция для проверки статуса соединения
-    function checkConnectivity() {
-      if (navigator.onLine) {
-        // Если соединение восстановлено, перезагружаем страницу
-        window.location.reload();
-      }
-    }
-
-    // Слушаем событие восстановления соединения
-    window.addEventListener('online', checkConnectivity);
-  </script>
+    
+    <footer>
+        <p>© 2025 AI Store by Aething. Все права защищены.</p>
+    </footer>
+    
+    <script>
+        // Проверка состояния подключения
+        function checkOnlineStatus() {
+            if (navigator.onLine) {
+                console.log('Обнаружено подключение к сети!');
+                document.querySelector('.status-icon').style.backgroundColor = '#4caf50';
+                document.querySelector('.status').innerHTML = 
+                    '<span class="status-icon" style="background-color: #4caf50"></span>' +
+                    '<span>Подключение восстановлено</span>';
+            } else {
+                console.log('Всё ещё нет подключения к сети');
+            }
+        }
+        
+        // Событие восстановления подключения
+        window.addEventListener('online', function() {
+            checkOnlineStatus();
+            // Автоматически перенаправляем на главную через 2 секунды
+            setTimeout(function() {
+                window.location.href = '/';
+            }, 2000);
+        });
+        
+        // Начальная проверка при загрузке страницы
+        checkOnlineStatus();
+        
+        // Периодическая проверка статуса подключения
+        setInterval(checkOnlineStatus, 5000);
+    </script>
 </body>
 </html>

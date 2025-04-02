@@ -13,6 +13,7 @@
   "dir": "ltr",
   "categories": ["shopping", "finance", "productivity"],
   "iarc_rating_id": "e84b072d-9405-4258-a595-c7eb99d9b6c0",
+  "offline_enabled": true,
   "related_applications": [
     {
       "platform": "play",

@@ -20,6 +20,7 @@ import TaxTestPage from "@/pages/TaxTestPage";
 import SimpleTaxPage from "@/pages/SimpleTaxPage";
 import TaxTest from "@/pages/TaxTest";
 import ClearCache from "@/pages/ClearCache";
+import OfflineTest from "@/pages/OfflineTest";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/simple-tax" component={SimpleTaxPage} />
       <Route path="/tax-display-test" component={TaxTest} />
       <Route path="/clear-cache" component={ClearCache} />
+      <Route path="/offline-test" component={OfflineTest} />
       <Route component={NotFound} />
     </Switch>
   );
