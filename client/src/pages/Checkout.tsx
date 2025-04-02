@@ -276,7 +276,7 @@ export default function Checkout() {
                 <td className="text-right pb-2">{formatPrice(user?.country === 'DE' ? price - Math.round(price * 0.19) : price, currency, isStripePrice)}</td>
               </tr>
               
-              {/* Налоговая информация - всегда показываем с явным типом налога */}
+              {/* Налоговая информация - рассчитываем на основе TaxDisplayBox */}
               <tr className="mb-2">
                 <td className="text-left pb-2 font-medium">
                   {user?.country === 'DE' && (
@@ -295,7 +295,11 @@ export default function Checkout() {
                     <span>Tax</span>
                   )}
                 </td>
-                <td className="text-right pb-2">{formatPrice(user?.country === 'DE' ? Math.round(price * 0.19) : 0, currency, isStripePrice)}</td>
+                <td className="text-right pb-2">
+                  {user?.country === 'DE' 
+                    ? formatPrice(Math.round(price * 0.19), currency, isStripePrice) 
+                    : formatPrice(0, currency, isStripePrice)}
+                </td>
               </tr>
               
               <tr className="mb-2">

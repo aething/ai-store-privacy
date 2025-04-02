@@ -10,6 +10,8 @@ interface TaxDisplayBoxProps {
 
 /**
  * Компонент для отображения информации о налоге
+ * 
+ * Важно: все цены указаны в виде exclusive (НДС добавляется сверху цены)
  */
 export function TaxDisplayBox({ 
   country, 
@@ -51,7 +53,7 @@ export function TaxDisplayBox({
     return 0;
   }, [country, isEUCountry]);
   
-  // Рассчитываем сумму налога
+  // Рассчитываем сумму налога (цены указаны exclusive - без НДС)
   const taxAmount = Math.round(amount * taxRate);
   
   // Форматирование суммы в зависимости от валюты
@@ -69,34 +71,52 @@ export function TaxDisplayBox({
     
     if (isEUCountry) {
       switch (country) {
-        case 'DE': return t('tax.vat_de');
-        case 'FR': return t('tax.vat_fr');
-        case 'IT': return t('tax.vat_it');
-        case 'ES': return t('tax.vat_es');
-        default: return t('tax.vat_eu', { rate: Math.round(taxRate * 100) });
+        case 'DE': return 'MwSt. 19%';
+        case 'FR': return 'TVA 20%';
+        case 'IT': return 'IVA 22%';
+        case 'ES': return 'IVA 21%';
+        default: return `VAT ${Math.round(taxRate * 100)}%`;
       }
     }
     
     if (country === 'US') {
-      return t('tax.us_sales_tax');
+      return 'No Sales Tax';
     }
     
-    return t('tax.no_tax');
+    return 'No Tax';
   };
   
   if (!country) return null;
   
   return (
-    <div className="mt-4 p-3 bg-muted/50 rounded-md border border-border">
-      <div className="flex justify-between">
-        <span className="text-sm text-muted-foreground">{getTaxLabel()}</span>
-        <span className="text-sm font-medium">
-          {taxAmount > 0 ? formatCurrency(taxAmount) : t('tax.not_applicable')}
+    <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
+      <div className="flex justify-between font-medium">
+        <span className="text-sm text-gray-600">{getTaxLabel()}</span>
+        <span className="text-sm">
+          {taxAmount > 0 ? formatCurrency(taxAmount) : 'N/A'}
         </span>
       </div>
       
+      {taxAmount > 0 && (
+        <div className="flex justify-between text-sm mt-2 text-gray-500 pt-2 border-t border-gray-200">
+          <span>Total with Tax</span>
+          <span className="font-medium">{formatCurrency(amount + taxAmount)}</span>
+        </div>
+      )}
+      
+      {/* Пояснение о налогах */}
+      <div className="mt-2 text-xs text-gray-500">
+        {isEUCountry ? (
+          <div className="italic">* Price excludes VAT, which is added at checkout</div>
+        ) : country === 'US' ? (
+          <div className="italic">* No sales tax is applied as nexus thresholds haven't been reached</div>
+        ) : (
+          <div className="italic">* Tax rates are calculated based on your location</div>
+        )}
+      </div>
+      
       {showDebugInfo && (
-        <div className="mt-2 text-xs text-muted-foreground border-t pt-2">
+        <div className="mt-2 text-xs text-gray-500 border-t border-gray-200 pt-2">
           <div>Debug: Country: {country}</div>
           <div>Tax Rate: {(taxRate * 100).toFixed(2)}%</div>
           <div>Base Amount: {formatCurrency(amount)}</div>

@@ -999,22 +999,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Настраиваем параметры для PaymentIntent
-      // Примечание: automatic_tax работает только с Checkout Sessions, не с PaymentIntent
-      // Для PaymentIntent нам нужно рассчитать налог вручную или использовать tax_rates
-      // Важно: согласно документации Stripe, для правильного расчета налогов:
-      // 1. Цены должны быть созданы с tax_behavior: 'exclusive'
-      // 2. Для PaymentIntent мы должны применять tax_rates вместо automatic_tax
+      // Согласно документации Stripe Tax Custom: https://docs.stripe.com/tax/custom
+      // Мы рассчитываем налоги самостоятельно и передаем их через tax.breakdown
+      // Важно: amount должен включать сумму налога
+      // Здесь используем уже существующую переменную taxAmount
+      const totalAmount = amount + taxAmount;
+      
       const paymentIntentParams: any = {
-        amount,
+        amount: totalAmount,  // Общая сумма включая налог
         currency,
         payment_method_types: ['card'],
         metadata: {
           ...metadata,
-          tax_rate: taxRate.toString(),
+          base_amount: amount.toString(),
+          tax_amount: taxAmount.toString(),
+          tax_rate: (taxRate * 100).toFixed(2) + '%',
           tax_label: taxLabel,
           country_code: country || 'unknown'
         },
-        description: taxRate > 0 ? `Order with ${taxLabel} included` : 'Order without VAT'
+        description: taxRate > 0 ? `Order with ${taxLabel} (${taxAmount} ${currency})` : 'Order without VAT'
+        // Примечание: параметр 'tax' не поддерживается в текущей версии API Stripe
+        // Налоговую информацию храним в метаданных и оформляем в description
       };
       
       // Добавляем данные о местоположении клиента (для внутреннего учета)
