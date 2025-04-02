@@ -119,16 +119,7 @@ const StandaloneCheckout = () => {
                 </td>
               </tr>
               
-              {/* Добавляем строку с пояснением о налогах */}
-              <tr className="mb-2 bg-blue-50">
-                <td colSpan={2} className="text-left pb-2 pt-2 px-2 text-xs text-blue-600 italic rounded">
-                  {selectedCountry === 'DE' 
-                    ? "* Prices exclude VAT (19%), which is added at checkout" 
-                    : selectedCountry === 'US'
-                      ? "* No sales tax is applied (nexus thresholds not reached)"
-                      : "* VAT is applied according to EU regulations"}
-                </td>
-              </tr>
+              {/* Удалено сообщение о налогах */}
               
               <tr className="mb-2">
                 <td className="text-left pb-2">Shipping</td>

@@ -113,16 +113,7 @@ export function TaxDisplayBox({
         </div>
       )}
       
-      {/* Пояснение о налогах */}
-      <div className="mt-2 text-xs text-gray-500">
-        {isEUCountry ? (
-          <div className="italic">* Price excludes VAT, which is added at checkout</div>
-        ) : country === 'US' ? (
-          <div className="italic">* No sales tax is applied as nexus thresholds haven't been reached</div>
-        ) : (
-          <div className="italic">* Tax rates are calculated based on your location</div>
-        )}
-      </div>
+      {/* Удалено пояснение о налогах */}
       
       {/* Removed debug info block */}
     </div>
