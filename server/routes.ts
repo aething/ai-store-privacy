@@ -957,15 +957,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
         metadata.taxLabel = taxLabel;
       }
       
-      // Важно: не используем payment_method_types и automatic_payment_methods одновременно
-      const paymentIntent = await stripe.paymentIntents.create({
+      // Создаем или получаем TaxRate для страны пользователя
+      let taxRateId = null;
+      
+      // Создаем TaxRate для стран с НДС
+      if (taxRate > 0) {
+        try {
+          // Сначала проверим, есть ли уже такая ставка
+          const taxRates = await stripe.taxRates.list({ 
+            limit: 100,
+            active: true
+          });
+          
+          // Ищем ставку с подходящим percentage
+          const existingRate = taxRates.data.find(rate => 
+            parseFloat(rate.percentage.toString()) === taxRate * 100 && 
+            rate.display_name === taxLabel
+          );
+          
+          if (existingRate) {
+            taxRateId = existingRate.id;
+            console.log(`Using existing tax rate: ${taxLabel} (${taxRateId})`);
+          } else {
+            // Создаем новую ставку налога
+            const newTaxRate = await stripe.taxRates.create({
+              display_name: taxLabel,
+              description: `${taxLabel} for ${country}`,
+              percentage: Math.round(taxRate * 100),
+              inclusive: false, // НДС начисляется сверх цены
+              country: country,
+              tax_type: 'vat'
+            });
+            
+            taxRateId = newTaxRate.id;
+            console.log(`Created new tax rate: ${taxLabel} (${taxRateId})`);
+          }
+        } catch (taxError) {
+          console.error("Error creating/retrieving tax rate:", taxError);
+          // Продолжаем без tax rate в случае ошибки
+        }
+      }
+      
+      // Настраиваем параметры для PaymentIntent
+      const paymentIntentParams: any = {
         amount,
-        currency, // Use the currency from the request
+        currency,
         payment_method_types: ['card'],
         metadata,
-        // Добавляем описание с информацией о налоге
         description: taxRate > 0 ? `Order with ${taxLabel} included` : 'Order without VAT'
-      });
+      };
+      
+      // Добавляем автоматические налоги, если настроен Stripe Tax
+      // или используем tax_rates, если есть taxRateId
+      if (process.env.STRIPE_TAX_ENABLED === 'true') {
+        paymentIntentParams.automatic_tax = { enabled: true };
+      } else if (taxRateId) {
+        // Если нет Stripe Tax, но есть taxRateId, используем его напрямую
+        paymentIntentParams.tax_rates = [taxRateId];
+      }
+      
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
       
       console.log(`Created PaymentIntent: ${paymentIntent.id} with amount: ${amount} ${currency}`);
       
