@@ -15,6 +15,7 @@ declare module 'express-session' {
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static("."));
 
 // Создаем безопасный секретный ключ для сессий (это гораздо безопаснее, чем хардкодирование)
 const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
@@ -109,6 +110,10 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Импортируем и используем маршрут для демонстрации налогов
+  const taxDemoRouter = (await import('./tax-demo-route')).default;
+  app.use(taxDemoRouter);
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

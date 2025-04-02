@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Calculation Demo</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    .tax-box {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background-color: #f9fafb;
+      border-radius: 0.375rem;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    .country-badge {
+      margin-left: 0.5rem;
+      padding: 0.125rem 0.25rem;
+      background-color: #dbeafe;
+      color: #1e40af;
+      font-size: 0.75rem;
+      border-radius: 0.25rem;
+    }
+    .price {
+      text-align: right;
+      font-weight: 600;
+    }
+    .debug-info {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 0.5rem;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto p-4 max-w-3xl">
+    <header class="text-center mb-8">
+      <h1 class="text-2xl font-bold mb-2">Простой демонстрационный расчет налогов</h1>
+      <p class="text-gray-600">
+        Этот пример показывает, как работает расчет налогов для разных стран
+      </p>
+    </header>
+    
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Выберите страну</h2>
+      
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6">
+        <button class="p-2 rounded border bg-blue-600 text-white" onclick="updateCountry('DE')">Германия</button>
+        <button class="p-2 rounded border bg-white hover:bg-gray-100" onclick="updateCountry('FR')">Франция</button>
+        <button class="p-2 rounded border bg-white hover:bg-gray-100" onclick="updateCountry('IT')">Италия</button>
+        <button class="p-2 rounded border bg-white hover:bg-gray-100" onclick="updateCountry('ES')">Испания</button>
+        <button class="p-2 rounded border bg-white hover:bg-gray-100" onclick="updateCountry('US')">США</button>
+        <button class="p-2 rounded border bg-white hover:bg-gray-100" onclick="updateCountry('GB')">Великобритания</button>
+      </div>
+      
+      <div class="border-t pt-4">
+        <h3 class="font-medium mb-2">AI-Driven Solutions</h3>
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-gray-600">Профессиональное AI-решение</span>
+          <span class="text-xl font-semibold" id="product-price">€2,760.00</span>
+        </div>
+        
+        <table class="w-full mb-4">
+          <tr>
+            <td class="pb-2">Subtotal:</td>
+            <td class="text-right pb-2" id="subtotal">€2,760.00</td>
+          </tr>
+          <tr class="bg-yellow-50">
+            <td class="py-2">
+              <span id="tax-label">MwSt. 19%</span>
+              <span class="country-badge" id="country-code">DE</span>
+            </td>
+            <td class="text-right py-2" id="tax-amount">€524.40</td>
+          </tr>
+          <tr class="font-bold border-t">
+            <td class="pt-2">Total:</td>
+            <td class="text-right pt-2" id="total-amount">€3,284.40</td>
+          </tr>
+        </table>
+        
+        <div class="tax-box" id="tax-display-box">
+          <div class="flex justify-between font-medium">
+            <span class="text-sm text-gray-800 flex items-center">
+              <span id="tax-box-label">MwSt. 19%</span>
+              <span class="country-badge" id="tax-box-country">DE</span>
+            </span>
+            <span class="text-sm font-semibold" id="tax-box-amount">€524.40</span>
+          </div>
+          
+          <div class="flex justify-between text-sm mt-2 text-gray-700 pt-2 border-t border-gray-200">
+            <span>Total with Tax</span>
+            <span class="font-semibold" id="tax-box-total">€3,284.40</span>
+          </div>
+          
+          <div class="mt-2 text-xs text-gray-500 italic" id="tax-box-note">
+            * Price excludes VAT, which is added at checkout
+          </div>
+          
+          <div class="debug-info">
+            <div>Debug: Country: <span id="debug-country">DE</span></div>
+            <div>Tax Rate: <span id="debug-rate">19.00%</span></div>
+            <div>Base Amount: <span id="debug-base">€2,760.00</span></div>
+            <div>Tax Amount: <span id="debug-tax">€524.40</span></div>
+            <div>Total: <span id="debug-total">€3,284.40</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold mb-4">Объяснение налогового расчета</h2>
+      
+      <div class="space-y-4">
+        <p>
+          В этом примере показано, как работает расчет налогов для разных стран. 
+          Для стран ЕС применяется НДС по местным ставкам:
+        </p>
+        
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Германия (DE): 19% MwSt.</li>
+          <li>Франция (FR): 20% TVA</li>
+          <li>Италия (IT): 22% IVA</li>
+          <li>Испания (ES): 21% IVA</li>
+          <li>Великобритания (GB): 20% VAT</li>
+          <li>США (US): Налог не применяется</li>
+        </ul>
+        
+        <p>
+          Также демонстрируется смена валюты в зависимости от страны:
+          для стран ЕС используется евро (EUR), для остальных — доллар США (USD).
+        </p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Налоговые ставки по странам
+    const taxRates = {
+      'DE': { rate: 0.19, label: 'MwSt. 19%' },  // Германия
+      'FR': { rate: 0.20, label: 'TVA 20%' },    // Франция
+      'IT': { rate: 0.22, label: 'IVA 22%' },    // Италия
+      'ES': { rate: 0.21, label: 'IVA 21%' },    // Испания
+      'GB': { rate: 0.20, label: 'VAT 20%' },    // Великобритания
+      'US': { rate: 0, label: 'No Sales Tax' }   // США
+    };
+    
+    // Цены для разных валют
+    const prices = {
+      'eur': 276000, // €2,760.00
+      'usd': 284500  // $2,845.00
+    };
+    
+    // Страны, использующие евро
+    const eurCountries = ['DE', 'FR', 'IT', 'ES'];
+    
+    // Форматирование цены
+    function formatPrice(amount, currency) {
+      const formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency === 'eur' ? 'EUR' : 'USD',
+        minimumFractionDigits: 2
+      });
+      
+      return formatter.format(amount / 100);
+    }
+    
+    // Обновление информации при выборе страны
+    function updateCountry(countryCode) {
+      // Обновляем активную кнопку
+      document.querySelectorAll('button').forEach(btn => {
+        if (btn.textContent.includes(countryCode) || 
+            (countryCode === 'DE' && btn.textContent === 'Германия') ||
+            (countryCode === 'FR' && btn.textContent === 'Франция') ||
+            (countryCode === 'IT' && btn.textContent === 'Италия') ||
+            (countryCode === 'ES' && btn.textContent === 'Испания') ||
+            (countryCode === 'US' && btn.textContent === 'США') ||
+            (countryCode === 'GB' && btn.textContent === 'Великобритания')) {
+          btn.classList.remove('bg-white', 'hover:bg-gray-100');
+          btn.classList.add('bg-blue-600', 'text-white');
+        } else {
+          btn.classList.remove('bg-blue-600', 'text-white');
+          btn.classList.add('bg-white', 'hover:bg-gray-100');
+        }
+      });
+      
+      // Определяем валюту
+      const currency = eurCountries.includes(countryCode) ? 'eur' : 'usd';
+      
+      // Получаем базовую сумму
+      const baseAmount = prices[currency];
+      
+      // Получаем налоговую ставку
+      const { rate, label } = taxRates[countryCode];
+      
+      // Рассчитываем налог
+      const taxAmount = Math.round(baseAmount * rate);
+      
+      // Обновляем отображение
+      document.getElementById('country-code').textContent = countryCode;
+      document.getElementById('tax-label').textContent = label;
+      document.getElementById('product-price').textContent = formatPrice(baseAmount, currency);
+      document.getElementById('subtotal').textContent = formatPrice(baseAmount, currency);
+      document.getElementById('tax-amount').textContent = formatPrice(taxAmount, currency);
+      document.getElementById('total-amount').textContent = formatPrice(baseAmount + taxAmount, currency);
+      
+      // Обновляем налоговый бокс
+      document.getElementById('tax-box-label').textContent = label;
+      document.getElementById('tax-box-country').textContent = countryCode;
+      document.getElementById('tax-box-amount').textContent = formatPrice(taxAmount, currency);
+      document.getElementById('tax-box-total').textContent = formatPrice(baseAmount + taxAmount, currency);
+      
+      // Обновляем пояснение
+      if (countryCode === 'DE') {
+        document.getElementById('tax-box-note').textContent = '* Price excludes VAT, which is added at checkout';
+      } else if (countryCode === 'US') {
+        document.getElementById('tax-box-note').textContent = '* No sales tax is applied as nexus thresholds haven\'t been reached';
+      } else {
+        document.getElementById('tax-box-note').textContent = '* Tax rates are calculated based on your location';
+      }
+      
+      // Обновляем отладочную информацию
+      document.getElementById('debug-country').textContent = countryCode;
+      document.getElementById('debug-rate').textContent = (rate * 100).toFixed(2) + '%';
+      document.getElementById('debug-base').textContent = formatPrice(baseAmount, currency);
+      document.getElementById('debug-tax').textContent = formatPrice(taxAmount, currency);
+      document.getElementById('debug-total').textContent = formatPrice(baseAmount + taxAmount, currency);
+    }
+    
+    // Инициализация с Германией по умолчанию
+    updateCountry('DE');
+  </script>
+</body>
+</html>

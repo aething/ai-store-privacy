@@ -1,3 +1,4 @@
+// Импортируем только необходимые функции, без hooks и контекста
 import { formatPrice } from "@/lib/currency";
 
 interface TaxDisplayBoxSimpleProps {
@@ -14,6 +15,7 @@ interface TaxDisplayBoxSimpleProps {
  * Упрощенный компонент для отображения информации о налоге, не использующий контекст
  * 
  * Важно: все цены указаны в виде exclusive (НДС добавляется сверху цены)
+ * Этот компонент не использует React hooks и может быть использован где угодно
  */
 export function TaxDisplayBoxSimple({ 
   country, 
@@ -27,6 +29,22 @@ export function TaxDisplayBoxSimple({
   // Даже если страна не указана, все равно показываем информацию о налогах
   const displayCountry = country || 'DE';
   
+  // Простая функция форматирования цены если импорт не работает
+  const formatPriceLocal = (amount: number, currency: string): string => {
+    const formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency === 'eur' ? 'EUR' : 'USD',
+      minimumFractionDigits: 2,
+    });
+    
+    // Цена в центах, переводим в основные единицы
+    return formatter.format(amount / 100);
+  };
+  
+  const formattedTaxAmount = formatPrice ? formatPrice(taxAmount, currency, false) : formatPriceLocal(taxAmount, currency);
+  const formattedBaseAmount = formatPrice ? formatPrice(baseAmount, currency, false) : formatPriceLocal(baseAmount, currency);
+  const formattedTotalAmount = formatPrice ? formatPrice(baseAmount + taxAmount, currency, false) : formatPriceLocal(baseAmount + taxAmount, currency);
+  
   return (
     <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200 shadow-sm">
       <div className="flex justify-between font-medium">
@@ -35,14 +53,14 @@ export function TaxDisplayBoxSimple({
           <span className="ml-2 px-1 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">{displayCountry.toUpperCase()}</span>
         </span>
         <span className="text-sm font-semibold">
-          {formatPrice(taxAmount, currency, false)}
+          {formattedTaxAmount}
         </span>
       </div>
       
       {taxAmount > 0 && (
         <div className="flex justify-between text-sm mt-2 text-gray-700 pt-2 border-t border-gray-200">
           <span>Total with Tax</span>
-          <span className="font-semibold">{formatPrice(baseAmount + taxAmount, currency, false)}</span>
+          <span className="font-semibold">{formattedTotalAmount}</span>
         </div>
       )}
       
@@ -61,9 +79,9 @@ export function TaxDisplayBoxSimple({
         <div className="mt-2 text-xs text-gray-500 border-t border-gray-200 pt-2">
           <div>Debug: Country: {country}</div>
           <div>Tax Rate: {(taxRate * 100).toFixed(2)}%</div>
-          <div>Base Amount: {formatPrice(baseAmount, currency, false)}</div>
-          <div>Tax Amount: {formatPrice(taxAmount, currency, false)}</div>
-          <div>Total: {formatPrice(baseAmount + taxAmount, currency, false)}</div>
+          <div>Base Amount: {formattedBaseAmount}</div>
+          <div>Tax Amount: {formattedTaxAmount}</div>
+          <div>Total: {formattedTotalAmount}</div>
         </div>
       )}
     </div>
