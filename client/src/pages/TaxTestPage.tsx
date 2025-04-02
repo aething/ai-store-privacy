@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { TaxDisplayBoxSimple } from '../components/TaxDisplayBoxSimple';
-import { TaxDisplayBox } from '../components/TaxDisplayBox';
 
 interface TaxInfo {
   amount: number;
@@ -9,8 +7,74 @@ interface TaxInfo {
   display?: string;
 }
 
+/**
+ * Простой компонент для отображения информации о налоге
+ */
+const SimpleTaxDisplay: React.FC<{
+  tax: TaxInfo | null;
+  subtotal: number;
+  currency: string;
+  className?: string;
+}> = ({ tax, subtotal, currency, className = '' }) => {
+  
+  // Форматирование валюты
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency.toUpperCase()
+    }).format(amount / 100);
+  };
+
+  // Если налоговая информация не предоставлена, показываем "Без налога"
+  if (!tax) {
+    return (
+      <div className={`p-4 rounded border ${className}`}>
+        <div className="flex justify-between mb-2">
+          <span>Subtotal:</span>
+          <span>{formatCurrency(subtotal)}</span>
+        </div>
+        <div className="flex justify-between mb-2">
+          <span>Tax:</span>
+          <span>{formatCurrency(0)}</span>
+        </div>
+        <div className="flex justify-between font-bold">
+          <span>Total:</span>
+          <span>{formatCurrency(subtotal)}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Рассчитываем итоговую сумму
+  const totalAmount = subtotal + tax.amount;
+
+  return (
+    <div className={`p-4 rounded border ${className}`}>
+      <div className="flex justify-between mb-2">
+        <span>Subtotal:</span>
+        <span>{formatCurrency(subtotal)}</span>
+      </div>
+      <div className="flex justify-between mb-2">
+        <span>Tax ({tax.label}):</span>
+        <span>{formatCurrency(tax.amount)}</span>
+      </div>
+      {tax.rate > 0 && (
+        <div className="text-sm text-gray-600 mb-2">
+          <small>
+            {tax.display || `${(tax.rate * 100).toFixed(2)}% ${tax.label}`}
+          </small>
+        </div>
+      )}
+      <div className="flex justify-between font-bold">
+        <span>Total:</span>
+        <span>{formatCurrency(totalAmount)}</span>
+      </div>
+    </div>
+  );
+};
+
 const TaxTestPage: React.FC = () => {
-  console.log('TaxTestPage component rendering');
+  console.log('Tax Test Page is rendering');
   
   const [amount, setAmount] = useState<number>(1000);
   const [currency, setCurrency] = useState<string>('usd');
@@ -19,9 +83,6 @@ const TaxTestPage: React.FC = () => {
   const [taxInfo, setTaxInfo] = useState<TaxInfo | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  
-  // Debug message
-  console.log('TaxTestPage state initialized');
 
   // Расчет налогов на основе страны
   const calculateTaxRate = (country: string) => {
@@ -94,14 +155,6 @@ const TaxTestPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Tax Calculation Test</h1>
       
-      {/* Debugging information */}
-      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-        <p className="font-bold">Debug Info:</p>
-        <p>TaxDisplayBoxSimple component is imported: {typeof TaxDisplayBoxSimple === 'function' ? '✅' : '❌'}</p>
-        <p>TaxDisplayBox component is imported: {typeof TaxDisplayBox === 'function' ? '✅' : '❌'}</p>
-        <p>Current state: {JSON.stringify({amount, currency, country, loading})}</p>
-      </div>
-      
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-xl font-semibold mb-4">Configure Test Parameters</h2>
         
@@ -159,11 +212,11 @@ const TaxTestPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Local Tax Calculation (Client-Side)</h2>
-          <TaxDisplayBoxSimple
+          <SimpleTaxDisplay
             tax={localTax}
             subtotal={amount}
             currency={currency}
-            className="bg-gray-50 p-4 rounded"
+            className="bg-gray-50"
           />
           <div className="mt-4 text-sm text-gray-600">
             <p>This calculation is done locally in the browser for preview purposes.</p>
@@ -182,11 +235,11 @@ const TaxTestPage: React.FC = () => {
           
           {taxInfo ? (
             <>
-              <TaxDisplayBoxSimple
+              <SimpleTaxDisplay
                 tax={taxInfo}
                 subtotal={amount}
                 currency={currency}
-                className="bg-gray-50 p-4 rounded"
+                className="bg-gray-50"
               />
               <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded text-sm">
                 <p className="font-semibold">Payment Intent Created</p>
