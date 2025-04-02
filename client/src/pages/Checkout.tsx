@@ -195,6 +195,23 @@ export default function Checkout() {
     const getPaymentIntent = async () => {
       if (!productId || !user || !product) return;
       
+      // Всегда обновляем базовые налоговые данные независимо от Stripe
+      const country = user?.country || defaultCountry;
+      const { rate, label } = calculateTaxRate(country);
+      const amount = rate > 0 ? Math.round(price * rate) : 0;
+      
+      console.log('Basic tax calculation for display:', { 
+        country, 
+        rate, 
+        label,
+        amount, 
+        price,
+        total: price + amount
+      });
+      
+      // Обновляем информацию о налогах в локальном состоянии
+      setTaxInfo({ rate, label, amount });
+      
       try {
         // Use our helper function to create a payment intent
         const data = await createPaymentIntent(
@@ -210,57 +227,60 @@ export default function Checkout() {
         console.log('Получены данные из API:', data);
         if (data.tax) {
           console.log('Получена налоговая информация от Stripe:', data.tax);
-          setStripeTaxInfo({
-            amount: data.tax.amount || 0,
-            rate: data.tax.rate || 0,
-            label: data.tax.label || 'Tax',
-            display: data.tax.label || 'Tax'
-          });
           
-          // Устанавливаем информацию о налогах также в обычный state
+          const stripeTax = {
+            amount: data.tax.amount || amount,
+            rate: data.tax.rate || rate,
+            label: data.tax.label || label,
+            display: data.tax.label || `${(rate * 100).toFixed(1)}% ${label} (${country})`
+          };
+          
+          setStripeTaxInfo(stripeTax);
+          
+          // Также обновляем базовую налоговую информацию данными от Stripe
           setTaxInfo({
-            rate: data.tax.rate || DEFAULT_TAX_RATE,
-            label: data.tax.label || DEFAULT_TAX_LABEL,
-            amount: data.tax.amount || Math.round(price * DEFAULT_TAX_RATE),
+            rate: data.tax.rate || rate,
+            label: data.tax.label || label,
+            amount: data.tax.amount || amount,
           });
           
-          console.log('Tax information updated:', {
-            stripeTaxInfo: {
-              amount: data.tax.amount || 0,
-              rate: data.tax.rate || 0,
-              label: data.tax.label || 'Tax',
-              display: data.tax.label || 'Tax'
-            }
-          });
+          console.log('Tax information updated from Stripe:', stripeTax);
         } else {
-          // Если нет налоговой информации от Stripe, используем наши расчеты
-          const country = user?.country || defaultCountry;
-          const { rate, label } = calculateTaxRate(country);
-          const amount = rate > 0 ? Math.round(price * rate) : 0;
+          // Если нет налоговой информации от Stripe, 
+          // используем наши локальные расчеты, которые уже установлены
+          console.log('No tax information from Stripe, using local calculation');
           
-          console.log('Using local tax calculation:', { rate, label, amount });
-          
-          // Обновляем оба state для согласованности данных
-          setTaxInfo({ rate, label, amount });
+          // Устанавливаем stripeTaxInfo, используя локальные расчеты
           setStripeTaxInfo({
             amount: amount,
             rate: rate,
             label: label,
-            display: label
+            display: `${(rate * 100).toFixed(1)}% ${label} (${country})`
           });
         }
       } catch (error) {
+        console.error('Error creating payment intent:', error);
         setPaymentIntentError(true);
+        
+        // Даже при ошибке платежной системы показываем правильную налоговую информацию
+        // используя уже рассчитанные выше значения
+        setStripeTaxInfo({
+          amount: amount,
+          rate: rate,
+          label: label,
+          display: `${(rate * 100).toFixed(1)}% ${label} (${country})`
+        });
+        
         toast({
           title: "Payment System Error",
-          description: "Could not initialize payment. Please try again later.",
+          description: "Could not initialize payment. Tax information is calculated locally.",
           variant: "destructive",
         });
       }
     };
     
     getPaymentIntent();
-  }, [productId, user, product, toast]);
+  }, [productId, user, product, price, toast, defaultCountry]);
   
   if (!product) {
     return (
