@@ -3,8 +3,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { useAppContext } from "@/context/AppContext";
 import { useEffect, useState } from "react";
-import { updateUserCountry } from "@/utils/clearCache";
+import { updateUserCountry as updateUserCountryOriginal, clearTaxCache } from "@/utils/userCountryUtils";
 import DebugCountrySelect from "@/components/DebugCountrySelect";
+
+// Вспомогательная функция-обертка для более простого вызова updateUserCountry
+const updateUserCountry = async (country: string): Promise<void> => {
+  // Получаем данные пользователя из localStorage
+  const userString = localStorage.getItem('user');
+  if (!userString) {
+    throw new Error('Пользователь не авторизован');
+  }
+  
+  const userData = JSON.parse(userString);
+  console.log('[DebugPage] Вызов updateUserCountry с данными:', { userId: userData.id, country });
+  
+  // Вызываем оригинальную функцию
+  await updateUserCountryOriginal(userData.id, country, userData);
+};
 
 const DEBUG_MODE = true;
 
@@ -50,6 +65,7 @@ export function DebugPage() {
     
     // Используем утилиту для обновления страны пользователя
     try {
+      // Используем нашу обертку, которая принимает только country
       await updateUserCountry(country);
     } catch (error) {
       console.error("Ошибка при обновлении страны:", error);
@@ -64,17 +80,15 @@ export function DebugPage() {
   };
   
   const handleClearCache = () => {
-    // Используем обновление страны с текущим значением, что просто очистит кэш
-    if (user?.country) {
-      updateUserCountry(user.country);
-    } else {
-      // Если страна не задана, просто перезагружаем страницу
-      toast({
-        title: "Перезагрузка",
-        description: "Страница будет перезагружена",
-      });
-      setTimeout(() => window.location.reload(), 300);
-    }
+    // Используем только функцию очистки кэша вместо обновления страны
+    clearTaxCache();
+    
+    toast({
+      title: "Кэш очищен",
+      description: "Страница будет перезагружена",
+    });
+    
+    setTimeout(() => window.location.reload(), 300);
   };
   
   if (!DEBUG_MODE) {
