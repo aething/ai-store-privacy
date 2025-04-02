@@ -1,0 +1,142 @@
+diff --git a/server/routes.ts b/server/routes.ts
+index e54ae78..f6b238a 100644
+--- a/server/routes.ts
++++ b/server/routes.ts
+@@ -1116,7 +1116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
+       const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
+         amount,
+         currency,
+-        automatic_payment_methods: { enabled: true },
++        automatic_payment_methods: { enabled: true },  
+         metadata: {
+           userId: userId.toString(),
+           productId: productId.toString(),
+@@ -1125,7 +1125,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
+       };
+       
+       // Рассчитываем налог в зависимости от страны
+-      // Если страна не указана или это Германия, применяем немецкий НДС
++      // Определяем ставку и метку налога в зависимости от страны
++      if (country === 'FR') {
++        // Франция (20% НДС)
++        taxRate = 0.20;
++        taxLabel = 'TVA 20%';
++        
++        // Рассчитываем сумму налога
++        taxAmount = Math.round(amount * taxRate);
++        
++        // Добавляем информацию о налоге в метаданные
++        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
++        paymentIntentParams.metadata.tax_rate = '20%';
++        paymentIntentParams.metadata.tax_label = taxLabel;
++        paymentIntentParams.metadata.country_code = country;
++        
++        // Увеличиваем общую сумму на величину налога
++        paymentIntentParams.amount = amount + taxAmount;
++        
++        console.log(`Applied French VAT: ${taxAmount} ${currency}`);
++      } else if (country === 'IT') {
++        // Италия (22% НДС)
++        taxRate = 0.22;
++        taxLabel = 'IVA 22%';
++        
++        // Рассчитываем сумму налога
++        taxAmount = Math.round(amount * taxRate);
++        
++        // Добавляем информацию о налоге в метаданные
++        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
++        paymentIntentParams.metadata.tax_rate = '22%';
++        paymentIntentParams.metadata.tax_label = taxLabel;
++        paymentIntentParams.metadata.country_code = country;
++        
++        // Увеличиваем общую сумму на величину налога
++        paymentIntentParams.amount = amount + taxAmount;
++        
++        console.log(`Applied Italian VAT: ${taxAmount} ${currency}`);
++      } else if (country === 'ES') {
++        // Испания (21% НДС)
++        taxRate = 0.21;
++        taxLabel = 'IVA 21%';
++        
++        // Рассчитываем сумму налога
++        taxAmount = Math.round(amount * taxRate);
++        
++        // Добавляем информацию о налоге в метаданные
++        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
++        paymentIntentParams.metadata.tax_rate = '21%';
++        paymentIntentParams.metadata.tax_label = taxLabel;
++        paymentIntentParams.metadata.country_code = country;
++        
++        // Увеличиваем общую сумму на величину налога
++        paymentIntentParams.amount = amount + taxAmount;
++        
++        console.log(`Applied Spanish VAT: ${taxAmount} ${currency}`);
++      } else if (country === 'AT') {
++        // Австрия (20% НДС)
++        taxRate = 0.20;
++        taxLabel = 'MwSt. 20%';
++        
++        // Рассчитываем сумму налога
++        taxAmount = Math.round(amount * taxRate);
++        
++        // Добавляем информацию о налоге в метаданные
++        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
++        paymentIntentParams.metadata.tax_rate = '20%';
++        paymentIntentParams.metadata.tax_label = taxLabel;
++        paymentIntentParams.metadata.country_code = country;
++        
++        // Увеличиваем общую сумму на величину налога
++        paymentIntentParams.amount = amount + taxAmount;
++        
++        console.log(`Applied Austrian VAT: ${taxAmount} ${currency}`);
++      } else if (country === 'unknown') {
++        // Для неизвестной страны не применяем налог
++        taxRate = 0;
++        taxLabel = 'No Tax (Unknown Location)';
++        taxAmount = 0;
++        
++        console.log(`No tax applied for unknown country`);
++        // Не меняем общую сумму
++      }
++      // Если страна не указана, не определена выше или это Германия, применяем немецкий НДС
+       if (!country || country === 'DE') {
+         // Устанавливаем значения для Германии
+         const defaultCountry = 'DE';
+@@ -1182,7 +1262,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
+         taxRateApplied = true;
+         
+         // Увеличиваем общую сумму на величину налога
+-        if (taxAmount > 0) {
++        if (taxAmount > 0 && !paymentIntentParams.metadata.tax_amount) {
+           paymentIntentParams.amount = amount + taxAmount;
+           
+           // Добавляем информацию о налоге в метаданные
+@@ -1192,7 +1272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
+           paymentIntentParams.metadata.country_code = country;
+         }
+       }
+-      
++
+       // Добавляем информацию о купоне, если он был применен
+       if (couponDiscount && couponCode) {
+         paymentIntentParams.metadata.coupon_code = couponCode;
+@@ -1200,6 +1280,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
+         paymentIntentParams.metadata.discount_description = `${couponDiscountPercent}% discount`;
+       }
+       
++      // В случае, если страна unknown и не была явно обработана выше, убедимся что установлена нулевая ставка налога
++      const finalTaxRate = paymentIntentParams.metadata.tax_rate || (country === 'unknown' ? '0%' : null);
++      
+       // Добавляем отладочную информацию в логи
+       const fullCountryNameForLogs = countryCodeToName[country as keyof typeof countryCodeToName] || country || 'unknown';
+       
+@@ -1217,7 +1300,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
+         customerEmail: customerData?.email || null,
+         customerName: customerData?.username || null,
+         tax_details: {
+-          country: fullCountryNameForLogs === 'unknown' ? null : fullCountryNameForLogs,
++          country: country === 'unknown' ? null : fullCountryNameForLogs,
++          countryCode: country,
+           taxRate,
+           taxLabel,
+           taxRateId: null,
