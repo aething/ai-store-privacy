@@ -163,12 +163,11 @@ export default function Checkout() {
     if (!user?.country || !price) return;
     
     const { rate, label } = calculateTaxRate(user.country);
-    if (rate > 0) {
-      const amount = Math.round(price * rate);
-      setTaxInfo({ rate, label, amount });
-    } else {
-      setTaxInfo(null);
-    }
+    console.log(`Tax calculation for ${user.country}: rate=${rate}, label=${label}`);
+    
+    // Даже если ставка 0, мы всё равно покажем информацию (например, "No Sales Tax" для США)
+    const amount = rate > 0 ? Math.round(price * rate) : 0;
+    setTaxInfo({ rate, label, amount });
   }, [user?.country, price]);
 
   useEffect(() => {
@@ -272,12 +271,10 @@ export default function Checkout() {
             <span>Subtotal</span>
             <span>{formatPrice(taxInfo ? price - taxInfo.amount : price, currency, isStripePrice)}</span>
           </div>
-          {taxInfo && (
-            <div className="flex justify-between mb-2">
-              <span>{taxInfo.label}</span>
-              <span>{formatPrice(taxInfo.amount, currency, isStripePrice)}</span>
-            </div>
-          )}
+          <div className="flex justify-between mb-2">
+            <span>{taxInfo?.label || 'Tax'}</span>
+            <span>{formatPrice(taxInfo?.amount || 0, currency, isStripePrice)}</span>
+          </div>
           <div className="flex justify-between mb-2">
             <span>Shipping</span>
             <span>Free</span>
