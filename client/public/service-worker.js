@@ -17,7 +17,7 @@ const CACHE_NAMES = {
 };
 
 // Путь к оффлайн-странице
-const OFFLINE_PAGE = '/offline.html';
+const OFFLINE_PAGE = '/offline-enhanced.html';
 
 // Путь к заглушке для изображений
 const IMAGE_FALLBACK = '/images/image-placeholder.svg';
@@ -40,6 +40,7 @@ const IMAGE_URL_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
 
 // Обработчик события установки Service Worker
 self.addEventListener('install', event => {
+  console.log('Service Worker: Установка началась');
   self.skipWaiting(); // Принудительно активируем SW даже если есть активная старая версия
   
   event.waitUntil(
@@ -47,21 +48,35 @@ self.addEventListener('install', event => {
       // Кэшируем основные ресурсы
       caches.open(CACHE_NAMES.static).then(cache => {
         // Логируем процесс кэширования
-        console.log('Кэширование основных ресурсов...');
-        return cache.addAll(CORE_ASSETS);
+        console.log('Service Worker: Кэширование основных ресурсов...');
+        return cache.addAll(CORE_ASSETS).catch(error => {
+          console.error('Service Worker: Ошибка при кэшировании основных ресурсов:', error);
+          // Продолжаем установку даже при ошибке кэширования
+          return Promise.resolve();
+        });
       }),
       
       // Кэшируем оффлайн-страницу отдельно
       caches.open(CACHE_NAMES.offline).then(cache => {
-        return cache.add(OFFLINE_PAGE);
+        console.log('Service Worker: Кэширование оффлайн-страницы...');
+        return cache.add(OFFLINE_PAGE).catch(error => {
+          console.error('Service Worker: Ошибка при кэшировании оффлайн-страницы:', error);
+          return Promise.resolve();
+        });
       }),
       
       // Кэшируем заглушку для изображений
       caches.open(CACHE_NAMES.offline).then(cache => {
-        return cache.add(IMAGE_FALLBACK);
+        console.log('Service Worker: Кэширование заглушки для изображений...');
+        return cache.add(IMAGE_FALLBACK).catch(error => {
+          console.error('Service Worker: Ошибка при кэшировании заглушки для изображений:', error);
+          return Promise.resolve();
+        });
       })
     ]).then(() => {
-      console.log('Установка Service Worker завершена');
+      console.log('Service Worker: Установка завершена успешно');
+    }).catch(error => {
+      console.error('Service Worker: Ошибка при установке:', error);
     })
   );
 });
@@ -150,38 +165,116 @@ self.addEventListener('fetch', event => {
     );
   }
   
-  // Для HTML-запросов используем стратегию "сеть, потом кэш, с оффлайн-страницей"
+  // Для HTML-запросов используем стратегию "кэш первый, затем сеть с фолбэком на оффлайн-страницу"
   if (request.method === 'GET' && 
       (request.headers.get('accept')?.includes('text/html') || 
        url.pathname === '/' || 
        url.pathname.endsWith('.html'))) {
     return event.respondWith(
-      // Сначала пытаемся получить из сети
-      fetch(request)
-        .then(networkResponse => {
-          // Клонируем ответ для кэширования
-          const responseToCache = networkResponse.clone();
+      // Сначала пытаемся получить из кэша для быстрого отображения
+      caches.match(request)
+        .then(cachedResponse => {
+          if (cachedResponse) {
+            // Параллельно обновляем кэш из сети (если есть соединение)
+            fetch(request)
+              .then(networkResponse => {
+                // Клонируем ответ для кэширования
+                const responseToCache = networkResponse.clone();
+                
+                // Асинхронно обновляем кэш
+                caches.open(CACHE_NAMES.static).then(cache => {
+                  cache.put(request, responseToCache);
+                  console.log('Service Worker: Обновлен кэш для', url.pathname);
+                });
+              })
+              .catch(error => {
+                console.log('Service Worker: Не удалось обновить кэш для', url.pathname, error);
+              });
+            
+            // Сразу возвращаем кэшированный ответ
+            return cachedResponse;
+          }
           
-          // Асинхронно кэшируем ответ
-          caches.open(CACHE_NAMES.static).then(cache => {
-            cache.put(request, responseToCache);
-          });
-          
-          return networkResponse;
+          // Если в кэше нет, пытаемся получить из сети
+          return fetch(request)
+            .then(networkResponse => {
+              // Клонируем ответ для кэширования
+              const responseToCache = networkResponse.clone();
+              
+              // Асинхронно кэшируем ответ
+              caches.open(CACHE_NAMES.static).then(cache => {
+                cache.put(request, responseToCache);
+              });
+              
+              return networkResponse;
+            })
+            .catch(error => {
+              console.log('Service Worker: Не удалось получить HTML из сети, используем оффлайн-страницу', error);
+              // Если не удалось получить из сети, возвращаем оффлайн-страницу
+              return caches.match(OFFLINE_PAGE);
+            });
         })
-        .catch(() => {
-          // При ошибке сети проверяем кэш
-          return caches.match(request).then(cachedResponse => {
-            // Если есть в кэше, возвращаем оттуда
-            if (cachedResponse) {
-              return cachedResponse;
+    );
+  }
+  
+  // Для JS и CSS используем стратегию "кэш, потом сеть" с обязательным кэшированием
+  if (request.method === 'GET' && 
+      (url.pathname.endsWith('.js') || 
+       url.pathname.endsWith('.css') || 
+       url.pathname.endsWith('.json'))) {
+    return event.respondWith(
+      caches.match(request).then(cachedResponse => {
+        // Возвращаем из кэша, если есть
+        if (cachedResponse) {
+          // Параллельно обновляем кэш из сети (если есть соединение)
+          fetch(request)
+            .then(networkResponse => {
+              if (networkResponse.status === 200) {
+                // Клонируем ответ для кэширования
+                const responseToCache = networkResponse.clone();
+                
+                // Асинхронно обновляем кэш
+                caches.open(CACHE_NAMES.static).then(cache => {
+                  cache.put(request, responseToCache);
+                  console.log('Service Worker: Обновлен кэш для статического ресурса', url.pathname);
+                });
+              }
+            })
+            .catch(error => {
+              console.log('Service Worker: Не удалось обновить кэш для статического ресурса', url.pathname, error);
+            });
+          
+          // Сразу возвращаем кэшированный ответ
+          return cachedResponse;
+        }
+        
+        // Если в кэше нет, пытаемся получить из сети
+        return fetch(request)
+          .then(networkResponse => {
+            // Проверяем, что ответ валидный
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
             }
             
-            // Если нет в кэше, возвращаем оффлайн-страницу
-            console.log('Возвращаем оффлайн-страницу для:', url.pathname);
-            return caches.match(OFFLINE_PAGE);
+            // Клонируем ответ, чтобы сохранить его в кэше
+            const responseToCache = networkResponse.clone();
+            
+            // Асинхронно сохраняем в кэше
+            caches.open(CACHE_NAMES.static).then(cache => {
+              cache.put(request, responseToCache);
+            });
+            
+            return networkResponse;
+          })
+          .catch(error => {
+            console.error('Service Worker: Ошибка при получении статического ресурса', url.pathname, error);
+            // Для JS/CSS файлов мы не можем просто вернуть заглушку, так что возвращаем ошибку
+            return new Response('// Ресурс недоступен в оффлайн-режиме', { 
+              status: 503,
+              headers: { 'Content-Type': 'application/javascript' }
+            });
           });
-        })
+      })
     );
   }
   
@@ -205,15 +298,15 @@ self.addEventListener('fetch', event => {
           const responseToCache = networkResponse.clone();
           
           // Асинхронно сохраняем в кэше
-          caches.open(CACHE_NAMES.static).then(cache => {
+          caches.open(CACHE_NAMES.dynamic).then(cache => {
             cache.put(request, responseToCache);
           });
           
           return networkResponse;
         })
         .catch(error => {
-          console.error('Ошибка при получении ресурса', url.pathname, error);
-          // Возвращаем 503 для неизображений, когда нет сети и кэша
+          console.error('Service Worker: Ошибка при получении ресурса', url.pathname, error);
+          // Возвращаем ошибку для прочих ресурсов
           return new Response('Ресурс недоступен в оффлайн-режиме', { 
             status: 503,
             headers: { 'Content-Type': 'text/plain' }
