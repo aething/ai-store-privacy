@@ -1,127 +1,100 @@
 /**
- * Утилита для очистки кэша приложения и обновления страны пользователя
- * Эта функция используется для принудительного обновления данных пользователя
- * из localStorage и сервера, гарантируя правильное отображение цен в валюте
- * соответствующей стране пользователя.
+ * Утилита для очистки кэша приложения
+ * Используется для обеспечения согласованного обновления страницы после изменения данных
  */
-
-import { User } from "@shared/schema";
-import { clearAllCaches } from "@/lib/cache-utils";
-
-// Вспомогательная функция для перезагрузки страницы 
-export function reloadPage() {
-  console.log('[clearCache] Reloading page...');
-  setTimeout(() => {
-    window.location.reload();
-  }, 300);
-}
-
-// Экспортируем функцию clearAllCache для совместимости с существующим кодом
-export const clearAllCache = clearAllCaches;
 
 /**
- * Очищает данные пользователя в localStorage, сохраняя настройки страны
- * @param preserveCountry Если true, сохраняем настройку страны пользователя
+ * Очищает кэш, связанный с налогами и ценами
+ * @param additionalKeys - Дополнительные ключи для очистки
  */
-export function clearUserCache(preserveCountry = false) {
-  console.log('[clearCache] Clearing user cache...');
+export function clearTaxCache(additionalKeys: string[] = []) {
+  console.log('[clearCache] Clearing tax-related cache...');
   
-  // Сохраняем страну, если нужно
-  let country = null;
-  if (preserveCountry) {
-    try {
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
-      country = userData.country || null;
-    } catch (e) {
-      console.error('[clearCache] Error preserving country', e);
+  // Основные ключи кэша, связанные с налогами
+  const defaultKeys = [
+    'tax_data',
+    'tax_rate',
+    'price_data',
+    'checkout_data',
+    'stripe_tax',
+    'cached_prices'
+  ];
+  
+  // Объединяем с дополнительными ключами
+  const keysToRemove = [...defaultKeys, ...additionalKeys];
+  
+  // Удаляем все указанные ключи из localStorage
+  keysToRemove.forEach(key => {
+    if (localStorage.getItem(key)) {
+      localStorage.removeItem(key);
+      console.log(`[clearCache] Removed key: ${key}`);
     }
-  }
+  });
   
-  // Удаляем данные пользователя
-  localStorage.removeItem('user');
-  sessionStorage.clear();
+  // Добавляем метку времени для предотвращения кэширования запросов
+  localStorage.setItem('cache_buster', Date.now().toString());
+  console.log('[clearCache] Added cache_buster with timestamp:', Date.now());
   
-  // Восстанавливаем страну, если нужно
-  if (preserveCountry && country) {
-    try {
-      localStorage.setItem('country', country);
-      console.log(`[clearCache] Preserved country: ${country}`);
-    } catch (e) {
-      console.error('[clearCache] Error saving country', e);
-    }
-  }
+  // Очищаем sessionStorage, связанный с налогами
+  const sessionKeys = Object.keys(sessionStorage).filter(key => 
+    key.includes('tax') || 
+    key.includes('price') || 
+    key.includes('checkout')
+  );
   
-  console.log('[clearCache] User cache cleared');
+  sessionKeys.forEach(key => {
+    sessionStorage.removeItem(key);
+    console.log(`[clearCache] Removed sessionStorage key: ${key}`);
+  });
 }
 
 /**
- * Очищает все кэши и перезагружает страницу
- * @param preserveCountry Если true, сохраняем настройку страны пользователя
+ * Очищает кэш пользовательской сессии
  */
-export function clearCacheAndReload(preserveCountry = false) {
-  clearUserCache(preserveCountry);
-  clearAllCaches().then(() => reloadPage());
+export function clearSessionCache() {
+  console.log('[clearCache] Clearing session cache...');
+  
+  // Ключи, связанные с сессией пользователя
+  const sessionKeys = [
+    'user_session',
+    'session_id',
+    'auth_token',
+    'last_login'
+  ];
+  
+  // Удаляем ключи из localStorage
+  sessionKeys.forEach(key => {
+    if (localStorage.getItem(key)) {
+      localStorage.removeItem(key);
+      console.log(`[clearCache] Removed session key: ${key}`);
+    }
+  });
 }
 
 /**
- * Очищает кэш приложения и запускает перезагрузку страницы
- * @param countryCode Код страны, который нужно установить (опционально)
+ * Полная очистка кэша приложения
+ * Использовать с осторожностью - пользователю придется заново войти в систему
  */
-export async function clearAppCache(countryCode?: string): Promise<void> {
-  console.log('[clearCache] Clearing application cache...');
+export function clearAllCache() {
+  console.log('[clearCache] Performing complete cache clear...');
   
-  // Сохраняем данные пользователя, чтобы не потерять авторизацию
-  let userData: User | null = null;
-  try {
-    const userJson = localStorage.getItem('user');
-    if (userJson) {
-      userData = JSON.parse(userJson);
-      
-      // Если указан код страны, обновляем его в данных пользователя
-      if (countryCode && userData) {
-        userData.country = countryCode;
-        console.log(`[clearCache] Updated user country to: ${countryCode}`);
-      }
-    }
-  } catch (e) {
-    console.error('[clearCache] Error parsing user data:', e);
-  }
+  // Сохраняем данные пользователя, если они есть
+  const userData = localStorage.getItem('user');
   
-  // Очищаем все кэши приложения через общую утилиту
-  try {
-    await clearAllCaches();
-    console.log('[clearCache] Application caches cleared');
-  } catch (e) {
-    console.error('[clearCache] Error clearing caches:', e);
-  }
-  
-  // Очищаем localStorage и sessionStorage
+  // Очищаем весь localStorage
   localStorage.clear();
+  
+  // Восстанавливаем данные пользователя
+  if (userData) {
+    localStorage.setItem('user', userData);
+    console.log('[clearCache] Restored user data after full cache clear');
+  }
+  
+  // Очищаем sessionStorage
   sessionStorage.clear();
   
-  // Восстанавливаем данные пользователя, если они были
-  if (userData) {
-    localStorage.setItem('user', JSON.stringify(userData));
-    console.log('[clearCache] Restored user data with updated country');
-  }
+  // Добавляем метку времени
+  localStorage.setItem('cache_buster', Date.now().toString());
   
-  // Перезагружаем страницу
-  console.log('[clearCache] Reloading page...');
-  setTimeout(() => {
-    window.location.reload();
-  }, 300);
-}
-
-/**
- * Обновляет страну пользователя на указанную и перезагружает приложение
- * @param countryCode Код страны (например, 'US' или 'DE')
- */
-export async function updateUserCountry(countryCode: string): Promise<void> {
-  if (!countryCode || countryCode.length !== 2) {
-    console.error('[updateUserCountry] Invalid country code:', countryCode);
-    return;
-  }
-  
-  console.log(`[updateUserCountry] Updating user country to: ${countryCode}`);
-  await clearAppCache(countryCode);
+  console.log('[clearCache] Complete cache clear finished');
 }

@@ -14,6 +14,7 @@ import { useLocale } from "@/context/LocaleContext";
 import { ChevronRight, Trash2, RefreshCw, Settings, ShoppingBag, Mail, Lock, LogIn, LogOut } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
 import CountrySelect from "@/components/CountrySelect";
+import { updateCountryAndReload } from "@/utils/userCountryUtils";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),
@@ -182,22 +183,27 @@ export default function Account() {
           : "Your information has been updated.",
       });
       
-      // Если изменилась страна, после небольшой задержки перезагружаем страницу
+      // Если изменилась страна, используем утилиту для согласованного обновления
       if (countryChanged) {
-        console.log(`Country changed from ${user.country} to ${updatedUser.country}. Reloading page in 2 seconds...`);
-        
-        // Обновляем localStorage перед перезагрузкой страницы, чтобы не потерять учетные данные
-        localStorage.setItem("user", JSON.stringify(updatedUser));
+        console.log(`Country changed from ${user.country} to ${updatedUser.country}`);
         
         // Выводим предупреждение пользователю
         toast({
-          title: "Перезагрузка страницы",
-          description: "Страна изменена. Перезагружаем страницу для применения изменений...",
+          title: "Updating country",
+          description: "Your country has been changed. Page will reload to apply changes...",
         });
         
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        // Используем нашу утилиту для согласованного обновления с очисткой кэша
+        try {
+          await updateCountryAndReload(user.id, updatedUser.country, user, 1500);
+        } catch (error) {
+          console.error("Error during country update and reload:", error);
+          // Если утилита не сработала, используем старый подход
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
       }
     } catch (error: any) {
       console.error("Account update error:", error);
