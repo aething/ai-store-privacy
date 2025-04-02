@@ -60,16 +60,33 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Стратегия кэширования "Network first, cache fallback"
+// Стратегия кэширования и обработка оффлайн-режима
 self.addEventListener('fetch', event => {
   // Не перехватываем запросы к API и сторонним ресурсам
   if (event.request.url.includes('/api/') || 
       !event.request.url.startsWith(self.location.origin)) {
     return;
   }
+  
+  // Особая обработка для навигации в оффлайн-режиме
+  if (event.request.mode === 'navigate' && !navigator.onLine) {
+    event.respondWith(
+      caches.match('/offline.html')
+        .then(cachedResponse => {
+          if (cachedResponse) {
+            console.log('[Service Worker] Serving offline page');
+            return cachedResponse;
+          }
+          // Если нет оффлайн-страницы, возвращаем кэшированную главную страницу
+          return caches.match('/');
+        })
+    );
+    return;
+  }
 
   // Для HTML-страниц используем Network First
-  if (event.request.headers.get('accept').includes('text/html')) {
+  if (event.request.headers.get('accept') && 
+      event.request.headers.get('accept').includes('text/html')) {
     event.respondWith(
       fetch(event.request)
         .then(response => {
@@ -85,7 +102,11 @@ self.addEventListener('fetch', event => {
               if (cachedResponse) {
                 return cachedResponse;
               }
-              // Возвращаем кэшированную главную страницу для маршрутов
+              // Если страница не найдена в кэше и мы офлайн
+              if (!navigator.onLine) {
+                return caches.match('/offline.html');
+              }
+              // Иначе возвращаем кэшированную главную страницу
               return caches.match('/');
             });
         })
@@ -115,25 +136,22 @@ self.addEventListener('fetch', event => {
               .then(cache => cache.put(event.request, clonedResponse));
             
             return response;
+          })
+          .catch(() => {
+            // Для изображений можно вернуть заглушку
+            if (event.request.url.match(/\.(jpg|jpeg|png|gif|svg)$/)) {
+              return caches.match('/images/image-placeholder.svg');
+            }
+            return new Response('Ресурс недоступен в офлайн-режиме', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: new Headers({
+                'Content-Type': 'text/plain'
+              })
+            });
           });
       })
   );
-});
-
-// Обработка оффлайн-режима и отображение оффлайн-страницы
-self.addEventListener('fetch', event => {
-  if (event.request.mode === 'navigate' && !navigator.onLine) {
-    event.respondWith(
-      caches.match('/offline.html')
-        .then(cachedResponse => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // Если нет оффлайн-страницы, возвращаем кэшированную главную страницу
-          return caches.match('/');
-        })
-    );
-  }
 });
 
 // Слушаем сообщения от клиентского кода

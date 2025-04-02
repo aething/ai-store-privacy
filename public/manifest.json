@@ -13,6 +13,12 @@
   "dir": "ltr",
   "categories": ["shopping", "finance", "productivity"],
   "iarc_rating_id": "e84b072d-9405-4258-a595-c7eb99d9b6c0",
+  "offline_enabled": true,
+  "offline_data": {
+    "offline_page": "/offline.html",
+    "test_page": "/offline-test.html",
+    "cache_version": "v1"
+  },
   "related_applications": [
     {
       "platform": "play",

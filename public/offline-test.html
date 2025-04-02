@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тестирование оффлайн-режима PWA</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f9fafb;
+      color: #374151;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+    }
+    
+    h1 {
+      color: #1f2937;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    h2 {
+      color: #374151;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+    
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .card-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .card-content {
+      font-size: 0.9rem;
+    }
+    
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+    
+    .status.online {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status.offline {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+    
+    button {
+      display: inline-block;
+      background-color: #3b82f6;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    
+    button:hover {
+      background-color: #2563eb;
+    }
+    
+    .button-group {
+      margin: 15px 0;
+    }
+    
+    .log-container {
+      background-color: #f3f4f6;
+      border-radius: 4px;
+      padding: 15px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.85rem;
+      margin-top: 15px;
+    }
+    
+    .log-entry {
+      margin-bottom: 6px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 6px;
+    }
+    
+    .log-entry:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .sw-state {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    
+    .sw-state.active {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    
+    .sw-state.waiting {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+    
+    .sw-state.none {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .resource-list {
+      list-style: none;
+      margin-left: 0;
+      font-size: 0.85rem;
+    }
+    
+    .resource-list li {
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .resource-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+    
+    .image-test-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .image-item {
+      width: calc(33.33% - 10px);
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .image-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .image-title {
+      font-size: 0.8rem;
+      padding: 5px;
+      background-color: #f3f4f6;
+      text-align: center;
+    }
+    
+    @media (max-width: 640px) {
+      .image-item {
+        width: calc(50% - 10px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Тестирование оффлайн-режима PWA</h1>
+    
+    <div id="connectionStatus" class="status online">
+      Статус соединения: Онлайн
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Service Worker</div>
+      <div class="card-content">
+        <div>Состояние: <span id="swState" class="sw-state none">Не найден</span></div>
+        <div class="button-group">
+          <button id="checkSw">Проверить Service Worker</button>
+          <button id="unregisterSw">Удалить регистрацию</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Тестирование кэша</div>
+      <div class="card-content">
+        <div>Проверьте содержимое кэша и его работу в оффлайн-режиме</div>
+        <div class="button-group">
+          <button id="checkCache">Проверить кэш</button>
+          <button id="clearCache">Очистить кэш</button>
+        </div>
+        <div id="cacheResults"></div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Тестирование оффлайн-режима</div>
+      <div class="card-content">
+        <div>Симулируйте оффлайн-режим и проверьте работу страниц</div>
+        <div class="button-group">
+          <button id="loadHomePage">Загрузить главную страницу</button>
+          <button id="loadUnknownPage">Загрузить несуществующую страницу</button>
+          <button id="reloadPage">Перезагрузить текущую страницу</button>
+        </div>
+      </div>
+    </div>
+    
+    <h2>Тестирование загрузки изображений</h2>
+    <div class="image-test-container">
+      <div class="image-item">
+        <div class="image-title">Кэшированное изображение</div>
+        <img src="/icons/icon-512x512.png" alt="Кэшированное изображение" loading="lazy">
+      </div>
+      <div class="image-item">
+        <div class="image-title">Некэшированное изображение</div>
+        <img src="https://picsum.photos/200/150?random=1" alt="Некэшированное изображение" loading="lazy">
+      </div>
+      <div class="image-item">
+        <div class="image-title">Динамическое изображение</div>
+        <img id="dynamicImage" src="" alt="Динамическое изображение" loading="lazy">
+      </div>
+    </div>
+    
+    <h2>Журнал событий</h2>
+    <div id="logContainer" class="log-container"></div>
+    
+    <div class="footer">
+      &copy; 2025 Aething Inc. Все права защищены.
+    </div>
+  </div>
+  
+  <script>
+    // Функция для логирования событий
+    function log(message) {
+      const logContainer = document.getElementById('logContainer');
+      const logEntry = document.createElement('div');
+      logEntry.className = 'log-entry';
+      
+      const timestamp = new Date().toLocaleTimeString();
+      logEntry.textContent = `[${timestamp}] ${message}`;
+      
+      logContainer.insertBefore(logEntry, logContainer.firstChild);
+    }
+    
+    // Обновление статуса соединения
+    function updateConnectionStatus() {
+      const statusElement = document.getElementById('connectionStatus');
+      if (navigator.onLine) {
+        statusElement.textContent = 'Статус соединения: Онлайн';
+        statusElement.className = 'status online';
+      } else {
+        statusElement.textContent = 'Статус соединения: Офлайн';
+        statusElement.className = 'status offline';
+      }
+    }
+    
+    // Проверка статуса Service Worker
+    async function checkServiceWorker() {
+      const swStateElement = document.getElementById('swState');
+      
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          
+          if (registrations.length === 0) {
+            swStateElement.textContent = 'Не зарегистрирован';
+            swStateElement.className = 'sw-state none';
+            log('Service Worker не зарегистрирован');
+            return;
+          }
+          
+          const registration = registrations[0];
+          
+          if (registration.active) {
+            swStateElement.textContent = 'Активен';
+            swStateElement.className = 'sw-state active';
+            log(`Service Worker активен (scope: ${registration.scope})`);
+          } else if (registration.waiting) {
+            swStateElement.textContent = 'Ожидает активации';
+            swStateElement.className = 'sw-state waiting';
+            log('Service Worker ожидает активации');
+          } else if (registration.installing) {
+            swStateElement.textContent = 'Устанавливается';
+            swStateElement.className = 'sw-state waiting';
+            log('Service Worker устанавливается');
+          } else {
+            swStateElement.textContent = 'Неизвестное состояние';
+            swStateElement.className = 'sw-state none';
+            log('Service Worker в неизвестном состоянии');
+          }
+        } else {
+          swStateElement.textContent = 'Не поддерживается';
+          swStateElement.className = 'sw-state none';
+          log('Service Worker не поддерживается этим браузером');
+        }
+      } catch (error) {
+        swStateElement.textContent = 'Ошибка';
+        swStateElement.className = 'sw-state none';
+        log(`Ошибка при проверке Service Worker: ${error.message}`);
+      }
+    }
+    
+    // Удаление регистрации Service Worker
+    async function unregisterServiceWorker() {
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          
+          if (registrations.length === 0) {
+            log('Нет зарегистрированных Service Worker');
+            return;
+          }
+          
+          for (const registration of registrations) {
+            await registration.unregister();
+            log(`Service Worker успешно удален (scope: ${registration.scope})`);
+          }
+          
+          checkServiceWorker();
+        } else {
+          log('Service Worker не поддерживается этим браузером');
+        }
+      } catch (error) {
+        log(`Ошибка при удалении Service Worker: ${error.message}`);
+      }
+    }
+    
+    // Проверка кэша
+    async function checkCache() {
+      try {
+        const cacheNames = await caches.keys();
+        const cacheResultsElement = document.getElementById('cacheResults');
+        
+        if (cacheNames.length === 0) {
+          cacheResultsElement.innerHTML = '<p>Кэш не найден</p>';
+          log('Кэш не найден');
+          return;
+        }
+        
+        let cacheContent = '<h3>Найденные кэши:</h3>';
+        
+        for (const cacheName of cacheNames) {
+          const cache = await caches.open(cacheName);
+          const requests = await cache.keys();
+          
+          cacheContent += `<p>Кэш "${cacheName}": ${requests.length} ресурсов</p>`;
+          
+          if (requests.length > 0) {
+            cacheContent += '<ul class="resource-list">';
+            const maxToShow = Math.min(requests.length, 10);
+            for (let i = 0; i < maxToShow; i++) {
+              const url = new URL(requests[i].url);
+              const path = url.pathname;
+              cacheContent += `<li>${path}</li>`;
+            }
+            if (requests.length > 10) {
+              cacheContent += `<li>... и еще ${requests.length - 10} ресурсов</li>`;
+            }
+            cacheContent += '</ul>';
+          }
+        }
+        
+        cacheResultsElement.innerHTML = cacheContent;
+        log(`Найдено ${cacheNames.length} кэшей`);
+      } catch (error) {
+        log(`Ошибка при проверке кэша: ${error.message}`);
+      }
+    }
+    
+    // Очистка кэша
+    async function clearCache() {
+      try {
+        const cacheNames = await caches.keys();
+        
+        if (cacheNames.length === 0) {
+          log('Кэш не найден');
+          return;
+        }
+        
+        for (const cacheName of cacheNames) {
+          await caches.delete(cacheName);
+          log(`Кэш "${cacheName}" успешно удален`);
+        }
+        
+        const cacheResultsElement = document.getElementById('cacheResults');
+        cacheResultsElement.innerHTML = '<p>Все кэши успешно удалены</p>';
+      } catch (error) {
+        log(`Ошибка при очистке кэша: ${error.message}`);
+      }
+    }
+    
+    // Инициализация
+    function init() {
+      // Обновляем статус соединения
+      updateConnectionStatus();
+      
+      // Проверяем Service Worker
+      checkServiceWorker();
+      
+      // Устанавливаем динамическое изображение
+      const dynamicImageElement = document.getElementById('dynamicImage');
+      const timestamp = new Date().getTime();
+      dynamicImageElement.src = `https://picsum.photos/200/150?random=${timestamp}`;
+      
+      // Добавляем обработчики событий
+      window.addEventListener('online', () => {
+        updateConnectionStatus();
+        log('Устройство перешло в режим онлайн');
+      });
+      
+      window.addEventListener('offline', () => {
+        updateConnectionStatus();
+        log('Устройство перешло в режим офлайн');
+      });
+      
+      document.getElementById('checkSw').addEventListener('click', () => {
+        checkServiceWorker();
+      });
+      
+      document.getElementById('unregisterSw').addEventListener('click', () => {
+        unregisterServiceWorker();
+      });
+      
+      document.getElementById('checkCache').addEventListener('click', () => {
+        checkCache();
+      });
+      
+      document.getElementById('clearCache').addEventListener('click', () => {
+        clearCache();
+      });
+      
+      document.getElementById('loadHomePage').addEventListener('click', () => {
+        window.location.href = '/';
+      });
+      
+      document.getElementById('loadUnknownPage').addEventListener('click', () => {
+        window.location.href = '/non-existent-page-' + Date.now();
+      });
+      
+      document.getElementById('reloadPage').addEventListener('click', () => {
+        window.location.reload();
+      });
+      
+      log('Страница тестирования инициализирована');
+    }
+    
+    // Запускаем после загрузки страницы
+    window.addEventListener('load', init);
+  </script>
+  
+  <!-- Скрипт для тестирования оффлайн-режима -->
+  <script src="/offline-test.js"></script>
+</body>
+</html>
