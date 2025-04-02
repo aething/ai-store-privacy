@@ -367,9 +367,8 @@ export default function Checkout() {
         
         {/* Пояснительный текст о налогах */}
         <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
-          <div className="font-medium mb-1">Tax Information:</div>
+          <div className="font-medium mb-1">Tax:</div>
           <div>* VAT is applied according to EU regulations.</div>
-          <div>* VAT ID: {getVatIdForCountry(user?.country)}</div>
         </div>
       </div>
     </Card>
@@ -458,7 +457,7 @@ export default function Checkout() {
               <tr className="mb-2 bg-green-50 border-t border-b border-dashed border-green-300">
                 <td className="text-left pb-2 pt-2 text-green-700">
                   <span className="flex items-center">
-                    <strong>Tax Display Check:</strong>
+                    <strong>Tax:</strong>
                   </span>
                 </td>
                 <td className="text-right pb-2 pt-2 font-medium text-green-700">
@@ -466,16 +465,7 @@ export default function Checkout() {
                 </td>
               </tr>
               
-              {/* Текст с информацией о НДС */}
-              <tr className="mb-2 bg-blue-50">
-                <td colSpan={2} className="text-left pb-2 pt-2 px-2 text-xs text-blue-600 italic rounded">
-                  {user?.country === 'DE' 
-                    ? "* VAT is applied according to EU regulations" 
-                    : user?.country === 'US'
-                      ? "* No sales tax is applied (nexus thresholds not reached)"
-                      : "* VAT is applied according to EU regulations"}
-                </td>
-              </tr>
+              {/* Текст с информацией о НДС удален, так как дублируется ниже */}
               
               <tr className="mb-2">
                 <td className="text-left pb-2">Shipping</td>
@@ -500,19 +490,18 @@ export default function Checkout() {
           <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
             {user?.country === 'DE' ? (
               <>
-                <div className="font-medium mb-1">Tax Information:</div>
+                <div className="font-medium mb-1">Tax:</div>
                 <div>* VAT is applied according to EU regulations.</div>
-                <div>* VAT ID: {getVatIdForCountry(user?.country)}</div>
               </>
             ) : user?.country === 'US' ? (
               <>
-                <div className="font-medium mb-1">Tax Information:</div>
+                <div className="font-medium mb-1">Tax:</div>
                 <div>* No sales tax is applied as nexus thresholds have not been reached.</div>
                 <div>* Sales will be tracked for future tax compliance.</div>
               </>
             ) : (
               <>
-                <div className="font-medium mb-1">Tax Information:</div>
+                <div className="font-medium mb-1">Tax:</div>
                 <div>* VAT is applied according to EU regulations.</div>
                 <div>* Complete tax details will be shown on your invoice.</div>
               </>
