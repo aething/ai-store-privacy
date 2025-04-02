@@ -315,12 +315,15 @@ export default function Checkout() {
           </table>
           
           {/* Используем компонент TaxDisplayBox для отображения информации о налоге */}
-          <TaxDisplayBox 
-            country={user?.country || 'DE'} 
-            currency={currency}
-            amount={price}
-            showDebugInfo={true} 
-          />
+          <div className="mt-4 border-t pt-4">
+            <h4 className="font-medium mb-2">Tax Calculation Details:</h4>
+            <TaxDisplayBox 
+              country={user?.country || 'DE'} 
+              currency={currency}
+              amount={price}
+              showDebugInfo={false} 
+            />
+          </div>
           
           {/* Пояснительный текст о налогах */}
           <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
