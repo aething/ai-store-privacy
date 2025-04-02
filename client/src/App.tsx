@@ -38,6 +38,7 @@ function Router() {
       <Route path="/product-debug/:id" component={ProductDetailDebug} />
       <Route path="/policy/:id" component={Policy} />
       <Route path="/info/:id" component={InfoPage} />
+      <Route path="/checkout/:id" component={Checkout} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/confirmation" component={Confirmation} />
       <Route path="/subscribe" component={Subscribe} />
