@@ -47,6 +47,12 @@ export default {
   shipping: "Política de Envío",
   payment: "Términos de Pago",
   warranty: "Garantía",
+  deliveryPolicy: "Política de Entrega",
+  returnPolicy: "Política de Devoluciones y Cambios",
+  contactInfo: "Información de Contacto",
+  gdpr: "RGPD",
+  ftc: "Reglas de la FTC",
+  dataSafety: "Seguridad de Datos para Google Play",
   
   // Checkout
   checkout: "Finalizar Compra",
