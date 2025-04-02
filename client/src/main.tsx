@@ -165,6 +165,16 @@ if (typeof window !== 'undefined') {
   console.log(" - window.appDebug.swAPI.getCacheInfo()");
 }
 
+// Инициализация обработчиков для оффлайн-режима
+import { initOfflineNavigation, loadOfflineData } from './utils/offlineNavigation';
+import initApiInterceptors from './utils/apiInterceptors';
+
+// Загружаем кэшированные данные
+loadOfflineData();
+
+// Инициализируем перехватчики API для оффлайн-режима
+initApiInterceptors();
+
 // Инициализация и рендеринг приложения
 createRoot(document.getElementById("root")!).render(<App />);
 

@@ -25,6 +25,8 @@ import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
 import { logMobileAppConfig, isMobileApp } from "@/utils/mobileAppUtils";
+import { OfflineNavigationProvider } from "./components/OfflineNavigationProvider";
+import OfflineNavigationHandler from "./components/OfflineNavigationHandler";
 
 // Инициализация настроек мобильного приложения
 if (isMobileApp()) {
@@ -65,17 +67,22 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppProvider>
-        <LocaleProvider>
-          {/* ScrollManager следит за изменениями URL и управляет скроллом */}
-          <ScrollManager />
-          
-          <Layout>
-            <Router />
-          </Layout>
-          <Toaster />
-        </LocaleProvider>
-      </AppProvider>
+      <OfflineNavigationProvider>
+        <AppProvider>
+          <LocaleProvider>
+            {/* ScrollManager следит за изменениями URL и управляет скроллом */}
+            <ScrollManager />
+            
+            {/* Обработчик навигации для оффлайн-режима */}
+            <OfflineNavigationHandler />
+            
+            <Layout>
+              <Router />
+            </Layout>
+            <Toaster />
+          </LocaleProvider>
+        </AppProvider>
+      </OfflineNavigationProvider>
     </QueryClientProvider>
   );
 }
