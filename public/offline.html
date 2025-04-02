@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Store by Aething - Офлайн режим</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f9fafb;
+      color: #374151;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .navbar {
+      background-color: #3b82f6;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar h1 {
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+    
+    .offline-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      flex: 1;
+    }
+    
+    .icon-container {
+      margin: 2rem 0;
+    }
+    
+    .offline-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto;
+      display: block;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+    
+    p {
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      color: #4b5563;
+    }
+    
+    .btn {
+      display: inline-block;
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .btn:hover {
+      background-color: #2563eb;
+    }
+    
+    .footer {
+      padding: 1rem;
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.875rem;
+      margin-top: auto;
+    }
+    
+    @media (max-width: 640px) {
+      .offline-container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <h1>AI Store by Aething</h1>
+  </div>
+  
+  <div class="offline-container">
+    <div class="icon-container">
+      <svg class="offline-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+        <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+      </svg>
+    </div>
+    
+    <h2>Отсутствует подключение к интернету</h2>
+    <p>К сожалению, вы находитесь в режиме офлайн. Для доступа к полной функциональности приложения, пожалуйста, подключитесь к интернету.</p>
+    <p>Некоторые страницы могут быть доступны из кэша.</p>
+    
+    <button class="btn" onclick="checkOnlineStatus()">Повторить попытку</button>
+  </div>
+  
+  <div class="footer">
+    <p>&copy; 2025 Aething Inc. Все права защищены.</p>
+  </div>
+  
+  <script>
+    function checkOnlineStatus() {
+      if (navigator.onLine) {
+        window.location.href = '/';
+      } else {
+        alert('Вы всё ещё не подключены к интернету. Пожалуйста, проверьте ваше соединение.');
+      }
+    }
+    
+    // Проверка статуса при изменении подключения
+    window.addEventListener('online', () => {
+      window.location.href = '/';
+    });
+  </script>
+</body>
+</html>
