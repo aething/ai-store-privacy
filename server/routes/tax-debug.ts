@@ -5,8 +5,57 @@ import { calculateTaxRate, getCurrencyForCountry } from '@shared/tax';
 
 // Инициализация клиента Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-02-24.acacia',
 });
+
+/**
+ * Простой обработчик для расчета налогов
+ * Этот маршрут предназначен для тестирования и дебага
+ */
+export async function calculateTaxDebug(req: Request, res: Response) {
+  try {
+    const { amount = 1000, country = 'DE' } = req.query;
+    
+    // Проверяем параметры
+    const numAmount = Number(amount);
+    if (isNaN(numAmount)) {
+      return res.status(400).json({ error: 'Amount must be a valid number' });
+    }
+    
+    if (typeof country !== 'string') {
+      return res.status(400).json({ error: 'Country must be a valid string' });
+    }
+    
+    console.log(`Calculating tax for amount: ${numAmount}, country: ${country}`);
+    
+    // Рассчитываем налог
+    const { rate: taxRate, label: taxLabel } = calculateTaxRate(country);
+    const currency = getCurrencyForCountry(country);
+    const taxAmount = Math.round(numAmount * taxRate);
+    const total = numAmount + taxAmount;
+    
+    // Формируем ответ
+    const result = {
+      amount: numAmount,
+      currency,
+      country,
+      taxRate,
+      taxAmount,
+      taxLabel,
+      total,
+      isEU: ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 
+        'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 
+        'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'].includes(country.toUpperCase())
+    };
+    
+    console.log('Tax calculation result:', result);
+    
+    return res.json(result);
+  } catch (error: any) {
+    console.error('Error calculating tax:', error.message);
+    return res.status(500).json({ error: error.message });
+  }
+}
 
 /**
  * Обработчик для создания payment intent с налоговой информацией

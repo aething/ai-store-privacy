@@ -41,7 +41,11 @@ function Router() {
       <Route path="/playmarket" component={PlayMarket} />
       <Route path="/stripe-catalog" component={StripeCatalog} />
       <Route path="/debug" component={DebugPage} />
-      <Route path="/tax-test" component={TaxTestPage} />
+      <Route path="/tax-test">
+        <div className="p-4">
+          <TaxTestPage />
+        </div>
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
