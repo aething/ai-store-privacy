@@ -7,8 +7,6 @@
  * 3. Мониторинга состояния сети
  */
 
-import React, { useState, useEffect } from 'react';
-
 // Глобальное хранилище кэшированных данных
 export const OFFLINE_DATA = {
   products: [] as any[],
@@ -96,35 +94,9 @@ function dispatchNetworkEvent(isOnline: boolean) {
 }
 
 /**
- * Хук для отслеживания состояния сети
+ * Мы больше не реэкспортируем хук useNetworkStatus отсюда
+ * чтобы избежать циклических зависимостей
  */
-export function useNetworkStatus(): boolean {
-  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
-  
-  React.useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    
-    // Добавляем слушатели событий
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    // Добавляем слушатель для внутреннего события
-    const handleNetworkStatusChange = (event: CustomEvent) => {
-      setIsOnline(event.detail.online);
-    };
-    
-    window.addEventListener('network-status-change' as any, handleNetworkStatusChange as EventListener);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('network-status-change' as any, handleNetworkStatusChange as EventListener);
-    };
-  }, []);
-  
-  return isOnline;
-}
 
 /**
  * Сохраняет данные в localStorage для оффлайн-режима
@@ -209,7 +181,6 @@ export function clearOfflineData() {
 export default {
   initOfflineNavigation,
   isRouteAvailableOffline,
-  useNetworkStatus,
   saveOfflineData,
   loadOfflineData,
   cacheDataForOffline,

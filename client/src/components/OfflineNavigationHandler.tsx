@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useRoute } from 'wouter';
-import { isRouteAvailableOffline, useNetworkStatus } from '../utils/offlineNavigation';
+import { isRouteAvailableOffline } from '../utils/offlineNavigation';
+import useNetworkStatus from '../hooks/useNetworkStatus';
 
 /**
  * Обработчик навигации для оффлайн-режима
