@@ -59,8 +59,10 @@ export function TaxDisplayBox({
   const taxAmount = Math.round(amount * taxRate);
   
   // Форматирование суммы в зависимости от валюты
+  // Суммы в Stripe хранятся в минимальных единицах (центы для EUR/USD)
+  // Например, 2760 центов = 27.60 евро
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('de-DE', {
       style: 'currency',
       currency: currency.toUpperCase(),
       minimumFractionDigits: 2

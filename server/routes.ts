@@ -1050,7 +1050,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         taxRate = 0.19;
         taxLabel = 'MwSt. 19%';
         
-        // Вычисляем сумму налога
+        // Вычисляем сумму налога (в центах/копейках)
+        // Например, для суммы 2760 центов (27.60 EUR) и ставки 19% 
+        // получим 524.4 цента, округляем до 524 цента или 5.24 EUR
         taxAmount = Math.round(amount * taxRate);
         
         // Добавляем информацию о налогах в метаданные
