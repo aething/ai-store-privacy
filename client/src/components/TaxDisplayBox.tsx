@@ -1,5 +1,6 @@
 import React from "react";
-import { useTranslation } from "@shared/localization/useTranslation";
+// Заглушка для useTranslation, пока не реализован
+const useTranslation = () => ({ t: (key: string) => key });
 
 interface TaxDisplayBoxProps {
   country: string | null;

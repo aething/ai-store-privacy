@@ -283,26 +283,13 @@ export default function Checkout() {
               {/* Налоговая информация - рассчитываем на основе информации о стране */}
               <tr className="mb-2">
                 <td className="text-left pb-2 font-medium">
-                  {user?.country === 'DE' && (
-                    <span className="flex items-center">
-                      MwSt. 19%
-                      <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">DE</span>
-                    </span>
-                  )}
-                  {user?.country === 'US' && (
-                    <span className="flex items-center">
-                      No Sales Tax
-                      <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">US</span>
-                    </span>
-                  )}
-                  {(!user?.country || (user?.country !== 'DE' && user?.country !== 'US')) && (
-                    <span>Tax</span>
-                  )}
+                  <span className="flex items-center">
+                    {taxInfo.label}
+                    <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || 'DE'}</span>
+                  </span>
                 </td>
                 <td className="text-right pb-2">
-                  {user?.country === 'DE' 
-                    ? formatPrice(Math.round(price * 0.19), currency, isStripePrice) 
-                    : formatPrice(0, currency, isStripePrice)}
+                  {formatPrice(taxInfo.amount, currency, isStripePrice)}
                 </td>
               </tr>
               
@@ -324,9 +311,9 @@ export default function Checkout() {
               
               <tr className="font-medium">
                 <td className="text-left pt-1 border-t">Total</td>
-                <td className="text-right pt-1 border-t">{user?.country === 'DE' 
-                  ? formatPrice(price + Math.round(price * 0.19), currency, isStripePrice)
-                  : formatPrice(price, currency, isStripePrice)}</td>
+                <td className="text-right pt-1 border-t">
+                  {formatPrice(price + taxInfo.amount, currency, isStripePrice)}
+                </td>
               </tr>
             </tbody>
           </table>
