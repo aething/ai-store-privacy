@@ -18,6 +18,7 @@ import StripeCatalog from "@/pages/StripeCatalog";
 import DebugPage from "@/pages/DebugPage";
 import TaxTestPage from "@/pages/TaxTestPage";
 import SimpleTaxPage from "@/pages/SimpleTaxPage";
+import TaxTest from "@/pages/TaxTest";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/debug" component={DebugPage} />
       <Route path="/tax-test" component={TaxTestPage} />
       <Route path="/simple-tax" component={SimpleTaxPage} />
+      <Route path="/tax-display-test" component={TaxTest} />
       <Route component={NotFound} />
     </Switch>
   );
