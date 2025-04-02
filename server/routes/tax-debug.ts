@@ -192,13 +192,17 @@ router.post('/create-payment-intent', async (req, res) => {
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
       amount,
-      taxAmount,
-      taxRate,
-      taxLabel,
-      total: amount + taxAmount,
-      currency,
       country,
-      isEU: isEUCountry(country)
+      currency,
+      isEU: isEUCountry(country),
+      total: amount + taxAmount,
+      // Включаем налоговую информацию в формате, совместимом с TaxDisplayBoxSimple
+      tax: {
+        amount: taxAmount,
+        rate: taxRate,
+        label: taxLabel,
+        display: `${(taxRate * 100).toFixed(1)}% ${taxLabel} (${country})`
+      }
     });
   } catch (error: any) {
     console.error('Error creating payment intent with tax:', error);

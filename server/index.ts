@@ -25,14 +25,16 @@ const SessionStore = MemoryStore(session);
 app.use(session({
   secret: sessionSecret,
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true, // Изменено на true для сохранения всех сессий
   store: new SessionStore({
     checkPeriod: 86400000 // Очистка просроченных сессий раз в 24 часа
   }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // В production используем только HTTPS
+    secure: false, // Отключаем secure для работы без HTTPS
     httpOnly: true, // Защита от XSS - клиентский JavaScript не может получить доступ к cookie
-    maxAge: 24 * 60 * 60 * 1000 // 24 часа
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
+    sameSite: 'lax', // Добавляем sameSite policy
+    path: '/' // Явно указываем путь для куки
   }
 }));
 

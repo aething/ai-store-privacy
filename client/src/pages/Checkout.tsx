@@ -351,10 +351,13 @@ export default function Checkout() {
             tax={{
               rate: taxRate,
               label: taxLabel,
-              amount: taxAmount
+              amount: taxAmount,
+              display: `${(taxRate * 100).toFixed(1)}% ${taxLabel} (${defaultCountry})`
             }}
             subtotal={price}
             currency={currency}
+            showDetails={true}
+            className="shadow-sm"
           />
         </div>
         
@@ -496,10 +499,13 @@ export default function Checkout() {
               tax={{
                 rate: stripeTaxInfo?.rate || taxRate,
                 label: stripeTaxInfo?.display || taxLabel,
-                amount: stripeTaxInfo?.amount || taxAmount
+                amount: stripeTaxInfo?.amount || taxAmount,
+                display: `${((stripeTaxInfo?.rate || taxRate) * 100).toFixed(1)}% ${stripeTaxInfo?.label || taxLabel} (${user?.country || defaultCountry})`
               }}
               subtotal={price}
               currency={currency}
+              showDetails={true}
+              className="shadow-sm"
             />
           </div>
           
