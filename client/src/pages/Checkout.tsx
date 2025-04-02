@@ -267,28 +267,69 @@ export default function Checkout() {
         </div>
         
         <div className="border-t border-b py-3 my-3">
-          <div className="flex justify-between mb-2">
-            <span>Subtotal</span>
-            <span>{formatPrice(user?.country === 'DE' ? price - Math.round(price * 0.19) : price, currency, isStripePrice)}</span>
-          </div>
-          {/* Налоговая информация - всегда показываем */}
-          <div className="flex justify-between mb-2">
-            <span>Tax ({user?.country === 'US' ? 'No Sales Tax' : user?.country === 'DE' ? 'MwSt. 19%' : 'Tax'})</span>
-            <span>{formatPrice(user?.country === 'DE' ? Math.round(price * 0.19) : 0, currency, isStripePrice)}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span>Shipping</span>
-            <span>Free</span>
-          </div>
-          <div className="flex justify-between font-medium">
-            <span>Total</span>
-            <span>{formatPrice(price, currency, isStripePrice)}</span>
-          </div>
-          <div className="mt-2 text-xs text-gray-500">
-            {user?.country === 'DE' || user?.country === 'AT' || user?.country === 'FR' 
-              ? `* Prices include VAT according to ${user?.country} tax regulations` 
-              : `* No tax applied for ${user?.country || 'your country'} according to current regulations`
-            }
+          {/* Используем таблицу с явным указанием ширины для лучшего выравнивания */}
+          <table className="w-full">
+            <tbody>
+              <tr className="mb-2">
+                <td className="text-left pb-2">Subtotal</td>
+                <td className="text-right pb-2">{formatPrice(user?.country === 'DE' ? price - Math.round(price * 0.19) : price, currency, isStripePrice)}</td>
+              </tr>
+              
+              {/* Налоговая информация - всегда показываем с явным типом налога */}
+              <tr className="mb-2">
+                <td className="text-left pb-2 font-medium">
+                  {user?.country === 'DE' && (
+                    <span className="flex items-center">
+                      MwSt. 19%
+                      <span className="ml-1 bg-gray-100 text-gray-700 text-xs px-1 py-0.5 rounded">DE</span>
+                    </span>
+                  )}
+                  {user?.country === 'US' && (
+                    <span className="flex items-center">
+                      No Sales Tax
+                      <span className="ml-1 bg-gray-100 text-gray-700 text-xs px-1 py-0.5 rounded">US</span>
+                    </span>
+                  )}
+                  {(!user?.country || (user?.country !== 'DE' && user?.country !== 'US')) && (
+                    <span>Tax</span>
+                  )}
+                </td>
+                <td className="text-right pb-2">{formatPrice(user?.country === 'DE' ? Math.round(price * 0.19) : 0, currency, isStripePrice)}</td>
+              </tr>
+              
+              <tr className="mb-2">
+                <td className="text-left pb-2">Shipping</td>
+                <td className="text-right pb-2">Free</td>
+              </tr>
+              
+              <tr className="font-medium">
+                <td className="text-left pt-1 border-t">Total</td>
+                <td className="text-right pt-1 border-t">{formatPrice(price, currency, isStripePrice)}</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          {/* Пояснительный текст о налогах */}
+          <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
+            {user?.country === 'DE' ? (
+              <>
+                <div className="font-medium mb-1">Tax Information:</div>
+                <div>* Prices include 19% German VAT (MwSt.) in compliance with EU VAT Directive 2006/112/EC.</div>
+                <div>* VAT ID: DE123456789</div>
+              </>
+            ) : user?.country === 'US' ? (
+              <>
+                <div className="font-medium mb-1">Tax Information:</div>
+                <div>* No sales tax is applied as nexus thresholds have not been reached.</div>
+                <div>* Sales will be tracked for future tax compliance.</div>
+              </>
+            ) : (
+              <>
+                <div className="font-medium mb-1">Tax Information:</div>
+                <div>* Tax calculation is based on your country's regulations.</div>
+                <div>* Complete tax details will be shown on your invoice.</div>
+              </>
+            )}
           </div>
         </div>
       </Card>

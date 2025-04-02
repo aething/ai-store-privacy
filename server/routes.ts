@@ -1028,7 +1028,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount,
         currency,
         stripePaymentId: paymentIntent.id,
-        couponCode: couponCode || null
+        couponCode: couponCode || undefined
       });
       
       // Save order to Google Sheets
@@ -1205,7 +1205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Если подписка отменена, удаляем ID из профиля пользователя
           if (subscription.status === 'canceled') {
-            await storage.updateUserStripeSubscriptionId(user.id, null);
+            await storage.updateUserStripeSubscriptionId(user.id, "");
           }
           break;
           
