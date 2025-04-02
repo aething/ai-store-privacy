@@ -173,6 +173,8 @@ export default function Checkout() {
     
     // Выводим информацию о налогах в консоль для отладки
     console.log(`Tax details: Base amount: ${price / 100} ${currency}, Tax rate: ${rate * 100}%, Tax amount: ${amount / 100} ${currency}`);
+    console.log('taxInfo set to:', { rate, label, amount });
+    console.log('user country:', user?.country, 'default country:', country);
   }, [user?.country, price, currency]);
 
   useEffect(() => {
@@ -288,14 +290,14 @@ export default function Checkout() {
                     <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || 'DE'}</span>
                   </span>
                 </td>
-                <td className="text-right pb-2">
+                <td className="text-right pb-2 font-medium">
                   {formatPrice(taxInfo.amount, currency, isStripePrice)}
                 </td>
               </tr>
               
               {/* Добавляем строку с пояснением о налогах */}
-              <tr className="mb-2 bg-gray-50">
-                <td colSpan={2} className="text-left pb-2 pt-2 px-2 text-xs text-gray-600 italic rounded">
+              <tr className="mb-2 bg-blue-50">
+                <td colSpan={2} className="text-left pb-2 pt-2 px-2 text-xs text-blue-600 italic rounded">
                   {user?.country === 'DE' 
                     ? "* Prices exclude VAT (19%), which is added at checkout" 
                     : user?.country === 'US'
@@ -309,9 +311,9 @@ export default function Checkout() {
                 <td className="text-right pb-2">Free</td>
               </tr>
               
-              <tr className="font-medium">
-                <td className="text-left pt-1 border-t">Total</td>
-                <td className="text-right pt-1 border-t">
+              <tr className="font-bold text-lg">
+                <td className="text-left pt-2 border-t">Total</td>
+                <td className="text-right pt-2 border-t">
                   {formatPrice(price + taxInfo.amount, currency, isStripePrice)}
                 </td>
               </tr>
