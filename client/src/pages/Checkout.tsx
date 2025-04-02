@@ -269,11 +269,12 @@ export default function Checkout() {
         <div className="border-t border-b py-3 my-3">
           <div className="flex justify-between mb-2">
             <span>Subtotal</span>
-            <span>{formatPrice(taxInfo.rate > 0 ? price - taxInfo.amount : price, currency, isStripePrice)}</span>
+            <span>{formatPrice(user?.country === 'DE' ? price - Math.round(price * 0.19) : price, currency, isStripePrice)}</span>
           </div>
+          {/* Налоговая информация - всегда показываем */}
           <div className="flex justify-between mb-2">
-            <span>{taxInfo?.label || 'Tax'}</span>
-            <span>{formatPrice(taxInfo?.amount || 0, currency, isStripePrice)}</span>
+            <span>Tax ({user?.country === 'US' ? 'No Sales Tax' : user?.country === 'DE' ? 'MwSt. 19%' : 'Tax'})</span>
+            <span>{formatPrice(user?.country === 'DE' ? Math.round(price * 0.19) : 0, currency, isStripePrice)}</span>
           </div>
           <div className="flex justify-between mb-2">
             <span>Shipping</span>
@@ -284,9 +285,9 @@ export default function Checkout() {
             <span>{formatPrice(price, currency, isStripePrice)}</span>
           </div>
           <div className="mt-2 text-xs text-gray-500">
-            {taxInfo && taxInfo.rate > 0 
-              ? `* Prices include ${taxInfo.label} according to ${user?.country} tax regulations` 
-              : `* No tax applied for ${user?.country} according to current regulations`
+            {user?.country === 'DE' || user?.country === 'AT' || user?.country === 'FR' 
+              ? `* Prices include VAT according to ${user?.country} tax regulations` 
+              : `* No tax applied for ${user?.country || 'your country'} according to current regulations`
             }
           </div>
         </div>
