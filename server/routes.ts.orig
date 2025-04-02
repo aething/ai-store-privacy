@@ -776,7 +776,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment routes
   app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
     try {
-      const { amount, userId, productId, currency = "usd", couponCode, country: requestCountry, force_country } = req.body;
+      const { amount, userId, productId, currency = "usd", couponCode } = req.body;
       
       if (!amount || !userId || !productId) {
         return res.status(400).json({ message: "Amount, userId, and productId are required" });
@@ -801,19 +801,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create metadata object with optional coupon
       // We already have user country info from customerData
-      // Используем улучшенную логику определения страны:
-      
-      // 1. Получаем страну из параметров URL (если есть)
-      const queryCountry = req.query.country as string | undefined;
-      
-      // 2. Определяем, нужно ли принудительно использовать переданную страну
-      const useForceCountry = force_country === true || req.query.force_country === 'true';
-      
-      // 3. Выбираем страну с учетом приоритетов:
-      //    - Если указан force_country, используем страну из запроса
-      //    - Иначе используем страну из профиля пользователя
-      //    - Если ничего не найдено, используем null
-      const country = useForceCountry ? (requestCountry || queryCountry) : (customerData?.country || requestCountry || queryCountry || null);
+      const country = customerData?.country || null;
       
       const metadata: Record<string, string> = {
         userId: userId.toString(),
@@ -821,9 +809,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currency,
         country: country || 'unknown'
       };
-
-      // Добавляем информацию о способе выбора страны в метаданные для отладки
-      metadata.country_source = useForceCountry ? 'force_country' : (customerData?.country ? 'user_profile' : (requestCountry ? 'request_body' : (queryCountry ? 'query_param' : 'unknown')));
       
       // Add coupon to metadata if provided
       if (couponCode) {
@@ -1130,99 +1115,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       */
       
-      // Рассчитываем налог в зависимости от страны
-      if (country === 'FR') {
-        // Франция (20% НДС)
-        taxRate = 0.20;
-        taxLabel = 'TVA 20%';
-        
-        // Рассчитываем сумму налога
-        taxAmount = Math.round(amount * taxRate);
-        
-        // Добавляем информацию о налоге в метаданные
-        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
-        paymentIntentParams.metadata.tax_rate = '20%';
-        paymentIntentParams.metadata.tax_label = taxLabel;
-        paymentIntentParams.metadata.country_code = country;
-        
-        // Увеличиваем общую сумму на величину налога
-        paymentIntentParams.amount = amount + taxAmount;
-        
-        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
-        
-        // Обновляем описание платежа
-        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
-        
-        console.log(`Applied French VAT: ${taxAmount} ${currency}`);
-      } else if (country === 'IT') {
-        // Италия (22% НДС)
-        taxRate = 0.22;
-        taxLabel = 'IVA 22%';
-        
-        // Рассчитываем сумму налога
-        taxAmount = Math.round(amount * taxRate);
-        
-        // Добавляем информацию о налоге в метаданные
-        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
-        paymentIntentParams.metadata.tax_rate = '22%';
-        paymentIntentParams.metadata.tax_label = taxLabel;
-        paymentIntentParams.metadata.country_code = country;
-        
-        // Увеличиваем общую сумму на величину налога
-        paymentIntentParams.amount = amount + taxAmount;
-        
-        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
-        
-        // Обновляем описание платежа
-        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
-        
-        console.log(`Applied Italian VAT: ${taxAmount} ${currency}`);
-      } else if (country === 'ES') {
-        // Испания (21% НДС)
-        taxRate = 0.21;
-        taxLabel = 'IVA 21%';
-        
-        // Рассчитываем сумму налога
-        taxAmount = Math.round(amount * taxRate);
-        
-        // Добавляем информацию о налоге в метаданные
-        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
-        paymentIntentParams.metadata.tax_rate = '21%';
-        paymentIntentParams.metadata.tax_label = taxLabel;
-        paymentIntentParams.metadata.country_code = country;
-        
-        // Увеличиваем общую сумму на величину налога
-        paymentIntentParams.amount = amount + taxAmount;
-        
-        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
-        
-        // Обновляем описание платежа
-        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
-        
-        console.log(`Applied Spanish VAT: ${taxAmount} ${currency}`);
-      } else if (country === 'unknown') {
-        // Для неизвестной страны не применяем налог
-        taxRate = 0;
-        taxLabel = 'No Tax (Unknown Location)';
-        taxAmount = 0;
-        
-        // Не добавляем налог к сумме
-        paymentIntentParams.metadata.tax_amount = '0';
-        paymentIntentParams.metadata.tax_rate = '0%';
-        paymentIntentParams.metadata.tax_label = taxLabel;
-        paymentIntentParams.metadata.country_code = 'unknown';
-        
-        console.log(`No tax applied for unknown country`);
-        
-        // Обновляем описание платежа
-        paymentIntentParams.description = `Order without tax (unknown country)`;
-      } else if (!country || country === 'DE') {
+      // Если страна не указана или это Германия, применяем немецкий НДС
+      if (!country || country === 'DE') {
         // Устанавливаем значения для Германии
         const defaultCountry = 'DE';
         taxRate = 0.19;
         taxLabel = 'MwSt. 19%';
         
         // Вычисляем сумму налога (в центах/копейках)
+        // Например, для суммы 2760 центов (27.60 EUR) и ставки 19% 
+        // получим 524.4 цента, округляем до 524 цента или 5.24 EUR
         taxAmount = Math.round(amount * taxRate);
         
         // Добавляем информацию о налогах в метаданные
@@ -1232,7 +1134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentIntentParams.metadata.country_code = defaultCountry;
         
         // Увеличиваем общую сумму на размер налога
-        paymentIntentParams.amount = amount + taxAmount;
+        paymentIntentParams.amount = amount + taxAmount; // Теперь налог добавляется только один раз
         
         console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
         
@@ -1287,8 +1189,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Creating PaymentIntent:`, {
         amount,
         currency,
-        requested_country: requestCountry || 'not specified',
-        force_country: useForceCountry,
         country: country || 'unknown',
         country_full: fullCountryNameForLogs,
         tax_behavior: 'exclusive', // Налог всегда добавляется сверху цены

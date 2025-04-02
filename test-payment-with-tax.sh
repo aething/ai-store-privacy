@@ -86,8 +86,18 @@ fi
 # Извлекаем информацию о налоге из ответа
 TAX_RATE=$(echo "$RESPONSE" | grep -o '"rate":[0-9.]*' | cut -d ':' -f 2)
 TAX_LABEL=$(echo "$RESPONSE" | grep -o '"label":"[^"]*"' | cut -d '"' -f 4)
-TAX_AMOUNT=$(echo "$RESPONSE" | grep -o '"amount":[0-9]*' | cut -d ':' -f 2 | head -1)
-TOTAL_AMOUNT=$(echo "$RESPONSE" | grep -o '"amount":[0-9]*' | cut -d ':' -f 2 | tail -1)
+
+# Используем jq для более надежного извлечения
+if command -v jq &> /dev/null; then
+  TAX_AMOUNT=$(echo "$RESPONSE" | jq -r '.tax.amount')
+else
+  # Резервный метод, если jq не установлен
+  TAX_AMOUNT=$(echo "$RESPONSE" | grep -o '"amount":[0-9]*' | head -1 | cut -d ':' -f 2 | tr -d ' ,}')
+fi
+
+# Для извлечения общей суммы нам нужно добавить базовую сумму и налог
+# Так как API не возвращает общую сумму напрямую
+TOTAL_AMOUNT=$(($AMOUNT + $TAX_AMOUNT))
 
 # Выводим результаты
 print_info "РЕЗУЛЬТАТЫ"
@@ -115,9 +125,10 @@ if [ -z "$EXPECTED_RATE" ]; then
   print_warning "Для страны $COUNTRY нет ожидаемой ставки налога. Используем 0%."
 fi
 
-EXPECTED_RATE_DECIMAL=$(echo "scale=2; $EXPECTED_RATE/100" | bc)
-EXPECTED_TAX_AMOUNT=$(echo "scale=0; $AMOUNT * $EXPECTED_RATE_DECIMAL / 1" | bc)
-EXPECTED_TOTAL=$(echo "$AMOUNT + $EXPECTED_TAX_AMOUNT" | bc)
+# Вычисление без использования bc
+EXPECTED_RATE_DECIMAL=$(awk "BEGIN {printf \"%.2f\", $EXPECTED_RATE/100}")
+EXPECTED_TAX_AMOUNT=$(awk "BEGIN {printf \"%.0f\", $AMOUNT * $EXPECTED_RATE/100}")
+EXPECTED_TOTAL=$(($AMOUNT + $EXPECTED_TAX_AMOUNT))
 
 echo ""
 print_info "ПРОВЕРКА"
@@ -126,10 +137,10 @@ echo "Ожидаемая сумма налога: $EXPECTED_TAX_AMOUNT"
 echo "Ожидаемая общая сумма: $EXPECTED_TOTAL"
 
 # Проверяем результаты
-if (( $(echo "$TAX_RATE == $EXPECTED_RATE_DECIMAL" | bc -l) )); then
+if [ $(echo "$TAX_RATE" | awk '{printf "%.2f", $1}') = $(echo "$EXPECTED_RATE_DECIMAL" | awk '{printf "%.2f", $1}') ]; then
   print_success "Налоговая ставка соответствует ожидаемой"
 else
-  print_error "Налоговая ставка не соответствует ожидаемой"
+  print_error "Налоговая ставка не соответствует ожидаемой ($TAX_RATE вместо $EXPECTED_RATE_DECIMAL)"
 fi
 
 if [ "$TAX_AMOUNT" -eq "$EXPECTED_TAX_AMOUNT" ]; then
@@ -146,7 +157,9 @@ fi
 
 echo ""
 print_info "ИТОГ"
-if (( $(echo "$TAX_RATE == $EXPECTED_RATE_DECIMAL" | bc -l) )) && [ "$TAX_AMOUNT" -eq "$EXPECTED_TAX_AMOUNT" ] && [ "$TOTAL_AMOUNT" -eq "$EXPECTED_TOTAL" ]; then
+if [ $(echo "$TAX_RATE" | awk '{printf "%.2f", $1}') = $(echo "$EXPECTED_RATE_DECIMAL" | awk '{printf "%.2f", $1}') ] && 
+   [ "$TAX_AMOUNT" -eq "$EXPECTED_TAX_AMOUNT" ] && 
+   [ "$TOTAL_AMOUNT" -eq "$EXPECTED_TOTAL" ]; then
   print_success "Тест успешно пройден для страны $COUNTRY"
 else
   print_error "Тест не пройден для страны $COUNTRY"
