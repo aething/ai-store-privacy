@@ -3,7 +3,7 @@
  */
 
 // Версия приложения для отслеживания обновлений
-export const APP_VERSION = '3.0.0';
+export const APP_VERSION = '3.0.1';
 
 // Конфигурация регистрации Service Worker
 interface ServiceWorkerConfig {
@@ -23,7 +23,7 @@ interface ServiceWorkerConfig {
 const defaultConfig: ServiceWorkerConfig = {
   scriptPath: '/service-worker.js',
   reloadOnUpdate: true,
-  offlinePath: '/offline.html',
+  offlinePath: '/offline-enhanced.html', // Используем улучшенную оффлайн-страницу
   imageFallbackPath: '/images/image-placeholder.svg',
   debug: import.meta.env.DEV
 };
@@ -44,11 +44,47 @@ export async function registerServiceWorker(config: Partial<ServiceWorkerConfig>
   localStorage.setItem('app-version', APP_VERSION);
 
   try {
-    // Регистрируем Service Worker
-    const registration = await navigator.serviceWorker.register(mergedConfig.scriptPath);
+    // Сначала попробуем получить существующие регистрации и удалить их
+    // для обеспечения "чистой" регистрации, решая проблемы с активацией
+    if (mergedConfig.debug) {
+      console.log('Проверка существующих регистраций Service Worker...');
+    }
+    
+    const existingRegistrations = await navigator.serviceWorker.getRegistrations();
+    if (existingRegistrations.length > 0) {
+      if (mergedConfig.debug) {
+        console.log(`Найдено ${existingRegistrations.length} существующих регистраций Service Worker`);
+      }
+      
+      // Отменяем все существующие регистрации
+      for (const reg of existingRegistrations) {
+        try {
+          await reg.unregister();
+          if (mergedConfig.debug) {
+            console.log('Отменена существующая регистрация Service Worker:', reg.scope);
+          }
+        } catch (unregError) {
+          console.error('Ошибка при отмене регистрации Service Worker:', unregError);
+        }
+      }
+    }
+    
+    // Регистрируем Service Worker заново
+    const registration = await navigator.serviceWorker.register(mergedConfig.scriptPath, { 
+      scope: '/', 
+      updateViaCache: 'none'
+    });
     
     if (mergedConfig.debug) {
       console.log('Service Worker успешно зарегистрирован с областью видимости:', registration.scope);
+    }
+    
+    // Принудительно активируем Service Worker для текущей клиентской сессии
+    if (registration.waiting) {
+      if (mergedConfig.debug) {
+        console.log('Принудительная активация ожидающего Service Worker');
+      }
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
     }
 
     // Обработка обновлений

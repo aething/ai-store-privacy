@@ -4,7 +4,7 @@
  */
 
 // Версия приложения (должна соответствовать APP_VERSION в registerServiceWorker.ts)
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.0.1';
 
 // Префикс для кэшей
 const CACHE_PREFIX = 'ai-store';
@@ -26,10 +26,13 @@ const IMAGE_FALLBACK = '/images/image-placeholder.svg';
 const CORE_ASSETS = [
   '/',
   '/index.html',
-  OFFLINE_PAGE,
+  '/offline.html',           // Старая оффлайн-страница тоже кэшируем
+  '/offline-enhanced.html',  // Новая улучшенная оффлайн-страница
+  '/offline-test.html',      // Тестовая страница оффлайн-режима
   IMAGE_FALLBACK,
   '/manifest.json',
-  '/index.css'
+  '/index.css',
+  '/offline-test.js'         // JavaScript для тестовой страницы
 ];
 
 // Регулярное выражение для определения API-запросов
@@ -37,6 +40,14 @@ const API_URL_PATTERN = /\/api\//;
 
 // Регулярное выражение для определения изображений
 const IMAGE_URL_PATTERN = /\.(jpg|jpeg|png|gif|webp|svg)$/i;
+
+// Обработчик события skip-waiting
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('Service Worker: Получена команда принудительной активации');
+    self.skipWaiting();
+  }
+});
 
 // Обработчик события установки Service Worker
 self.addEventListener('install', event => {

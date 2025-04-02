@@ -282,15 +282,41 @@
         try {
           const registrations = await navigator.serviceWorker.getRegistrations();
           
+          // Принудительно регистрируем Service Worker, если он еще не зарегистрирован
+          if (registrations.length === 0) {
+            console.log('Попытка принудительной регистрации Service Worker...');
+            try {
+              await navigator.serviceWorker.register('/service-worker.js');
+              console.log('Service Worker зарегистрирован из оффлайн-страницы');
+              
+              // Проверяем еще раз после регистрации
+              const newRegistrations = await navigator.serviceWorker.getRegistrations();
+              if (newRegistrations.length > 0) {
+                statusElement.textContent = '✓ Оффлайн режим активирован (Service Worker зарегистрирован)';
+                statusElement.style.color = '#4CAF50';
+                return;
+              }
+            } catch (regError) {
+              console.error('Ошибка при принудительной регистрации Service Worker:', regError);
+            }
+          }
+          
           if (registrations.length > 0) {
             statusElement.textContent = '✓ Оффлайн режим активен (Service Worker готов)';
             statusElement.style.color = '#4CAF50';
+            
+            // Проверяем, активен ли контроллер
+            if (navigator.serviceWorker.controller) {
+              statusElement.textContent += ' и контролирует страницу';
+            } else {
+              statusElement.textContent += ', но еще не контролирует страницу';
+            }
           } else {
             statusElement.textContent = '⚠ Оффлайн режим ограничен (Service Worker не активен)';
             statusElement.style.color = '#FF9800';
           }
         } catch (error) {
-          statusElement.textContent = '✗ Оффлайн режим недоступен (ошибка Service Worker)';
+          statusElement.textContent = '✗ Оффлайн режим недоступен (ошибка Service Worker: ' + error.message + ')';
           statusElement.style.color = '#F44336';
         }
       } else {

@@ -170,14 +170,43 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 // Регистрация Service Worker для PWA функциональности
 console.log("🔄 Инициализация Service Worker...");
-registerServiceWorker({
-  scriptPath: '/service-worker.js',
-  reloadOnUpdate: false, // Не перезагружаем автоматически, чтобы не прерывать пользователя
-  debug: true // Включаем отладочные сообщения
-}).then((success: boolean) => {
-  if (success) {
-    console.log("✅ Service Worker успешно зарегистрирован");
-  } else {
-    console.warn("⚠️ Service Worker не удалось зарегистрировать");
+
+// Функция для повторных попыток регистрации
+const registerWithRetry = async (maxRetries = 3, delay = 1000) => {
+  let retries = 0;
+  
+  while (retries < maxRetries) {
+    try {
+      const success = await registerServiceWorker({
+        scriptPath: '/service-worker.js',
+        reloadOnUpdate: false, // Не перезагружаем автоматически, чтобы не прерывать пользователя
+        debug: true // Включаем отладочные сообщения
+      });
+      
+      if (success) {
+        console.log(`✅ Service Worker успешно зарегистрирован (попытка ${retries + 1})`);
+        return true;
+      } else {
+        console.warn(`⚠️ Service Worker не удалось зарегистрировать (попытка ${retries + 1})`);
+      }
+    } catch (error) {
+      console.error(`❌ Ошибка при регистрации Service Worker (попытка ${retries + 1}):`, error);
+    }
+    
+    retries++;
+    
+    if (retries < maxRetries) {
+      console.log(`⏱️ Ожидание перед следующей попыткой регистрации Service Worker (${delay}ms)...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  return false;
+};
+
+// Запускаем регистрацию с повторными попытками
+registerWithRetry().then(success => {
+  if (!success) {
+    console.error("❌ Не удалось зарегистрировать Service Worker после всех попыток");
   }
 });
