@@ -1062,8 +1062,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentIntentParams.metadata.country_code = defaultCountry;
         
         // Увеличиваем общую сумму на размер налога
-        amount = amount + taxAmount;
-        paymentIntentParams.amount = amount;
+        const totalAmount = amount + taxAmount;
+        paymentIntentParams.amount = totalAmount;
         
         console.log(`New total amount with tax: ${amount} ${currency}`);
         
@@ -1108,7 +1108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
       
-      console.log(`Created PaymentIntent: ${paymentIntent.id} with amount: ${amount} ${currency}`);
+      console.log(`Created PaymentIntent: ${paymentIntent.id} with amount: ${paymentIntent.amount} ${currency} (including tax: ${taxAmount} ${currency})`);
       
       // Create an order in pending status
       const order = await storage.createOrder({
