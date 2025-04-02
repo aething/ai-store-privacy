@@ -11,7 +11,7 @@ import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/cu
 import { apiRequest } from "@/lib/queryClient";
 import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { ArrowLeft, AlertTriangle } from "lucide-react";
-import { TaxDisplayBox } from "@/components/TaxDisplayBox";
+import { TaxDisplayBoxSimple } from "@/components/TaxDisplayBoxSimple";
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
@@ -184,10 +184,13 @@ export default function Checkout() {
     console.log('user country:', user?.country, 'default country:', country);
     
     // Проверка текущего состояния компонентов отображения
-    console.log('Current TaxDisplayBox data:', {
+    console.log('Current TaxDisplayBoxSimple data:', {
       country: user?.country || 'DE',
       currency,
-      amount: price
+      baseAmount: price,
+      taxAmount: amount,
+      taxRate: rate,
+      taxLabel: label
     });
   }, [user?.country, price, currency]);
 
@@ -336,16 +339,19 @@ export default function Checkout() {
             </tbody>
           </table>
           
-          {/* Используем компонент TaxDisplayBox для отображения информации о налоге */}
+          {/* Используем компонент TaxDisplayBoxSimple для отображения информации о налоге */}
           <div className="mt-4 border-t pt-4">
             <h4 className="font-medium mb-2 flex items-center">
               <AlertTriangle size={16} className="mr-2 text-amber-500" />
               Tax Calculation Details:
             </h4>
-            <TaxDisplayBox 
+            <TaxDisplayBoxSimple 
               country={user?.country || 'DE'} 
               currency={currency}
-              amount={price}
+              baseAmount={price}
+              taxAmount={taxInfo.amount}
+              taxRate={taxInfo.rate}
+              taxLabel={taxInfo.label}
               showDebugInfo={true} 
             />
           </div>
