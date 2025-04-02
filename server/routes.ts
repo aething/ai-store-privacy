@@ -1086,6 +1086,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentIntentParams.description = 'Order with no sales tax';
         
         console.log('No tax applied for US customer');
+      } else {
+        // Для других стран ЕС (FR, IT, ES и т.д.)
+        // Используем ставку налога и метку, определенные в switch-case выше
+        
+        // Вычисляем сумму налога (в центах/копейках)
+        taxAmount = Math.round(amount * taxRate);
+        
+        // Добавляем информацию о налогах в метаданные
+        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
+        paymentIntentParams.metadata.tax_rate = (taxRate * 100).toFixed(1) + '%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = country;
+        
+        // Увеличиваем общую сумму на размер налога
+        paymentIntentParams.amount = amount + taxAmount;
+        
+        console.log(`New total amount with tax for ${country}: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount}, rate: ${taxRate * 100}%)`);
+        
+        // Обновляем описание платежа
+        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
+        
+        console.log(`Applied ${country} tax (${taxLabel}): ${taxAmount} ${currency}`);
       }
       
       // Подробное логирование для отладки
