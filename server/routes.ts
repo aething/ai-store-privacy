@@ -1002,7 +1002,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Согласно документации Stripe Tax Custom: https://docs.stripe.com/tax/custom
       // Мы рассчитываем налоги самостоятельно и передаем их через tax.breakdown
       // Важно: amount должен включать сумму налога
-      // Здесь используем уже существующую переменную taxAmount
+      // Рассчитываем итоговую сумму с налогом
       const totalAmount = amount + taxAmount;
       
       const paymentIntentParams: any = {
@@ -1062,10 +1062,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         paymentIntentParams.metadata.country_code = defaultCountry;
         
         // Увеличиваем общую сумму на размер налога
-        const totalAmount = amount + taxAmount;
-        paymentIntentParams.amount = totalAmount;
+        paymentIntentParams.amount = amount + taxAmount;
         
-        console.log(`New total amount with tax: ${amount} ${currency}`);
+        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency}`);
         
         // Обновляем описание платежа
         paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
