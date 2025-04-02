@@ -90,8 +90,10 @@ export default function Checkout() {
   });
   
   // Determine currency and price based on user's country
-  const currency = getCurrencyForCountry(user?.country);
-  const price = product ? getPriceForCountry(product, user?.country) : 0;
+  // Если пользователь не авторизован, используем 'DE' (Германию) по умолчанию
+  const defaultCountry = 'DE'; 
+  const currency = getCurrencyForCountry(user?.country || defaultCountry);
+  const price = product ? getPriceForCountry(product, user?.country || defaultCountry) : 0;
   
   // Определяем источник цены (Stripe или обычные данные)
   const isStripePrice = product?.stripeProductId ? true : false;
@@ -168,14 +170,17 @@ export default function Checkout() {
       id: user.id, 
       username: user.username,
       country: user.country
-    } : "No user");
+    } : `No user, using default country: ${defaultCountry}`);
     
-    const country = user?.country || 'DE'; // По умолчанию используем Германию, если страна не указана
+    const country = user?.country || defaultCountry; // По умолчанию используем Германию, если страна не указана
     const { rate, label } = calculateTaxRate(country);
     console.log(`Tax calculation for ${country}: rate=${rate}, label=${label}`);
     
+    // Для большинства стран ЕС применяем НДС
     // Даже если ставка 0, мы всё равно покажем информацию (например, "No Sales Tax" для США)
     const amount = rate > 0 ? Math.round(price * rate) : 0;
+    
+    // Важно: обновляем состояние только если цена или страна изменились
     setTaxInfo({ rate, label, amount });
     
     // Выводим информацию о налогах в консоль для отладки
@@ -185,14 +190,17 @@ export default function Checkout() {
     
     // Проверка текущего состояния компонентов отображения
     console.log('Current TaxDisplayBoxSimple data:', {
-      country: user?.country || 'DE',
+      country: country,
       currency,
       baseAmount: price,
       taxAmount: amount,
       taxRate: rate,
       taxLabel: label
     });
-  }, [user?.country, price, currency]);
+    
+    // Отладочный расчет итоговой суммы
+    console.log(`Final price calculation: ${price} + ${amount} = ${price + amount} ${currency}`);
+  }, [user?.country, price, currency, defaultCountry]);
 
   useEffect(() => {
     const getPaymentIntent = async () => {
@@ -240,6 +248,95 @@ export default function Checkout() {
     );
   }
   
+  // Мы модифицируем эту логику, чтобы показывать информацию о товаре и налогах
+  // даже если пользователь не авторизован, но при этом блокировать процесс оплаты
+  
+  const renderProductInfo = () => (
+    <Card className="p-4 mb-6">
+      <div className="flex items-center mb-4">
+        <img 
+          src={product.imageUrl} 
+          alt={product.title}
+          className="w-16 h-16 object-cover rounded mr-4"
+        />
+        <div>
+          <h3 className="font-medium">{product.title}</h3>
+          <p className="text-lg">{formatPrice(price, currency, isStripePrice)}</p>
+        </div>
+      </div>
+      
+      <div className="border-t border-b py-3 my-3">
+        {/* Используем таблицу с явным указанием ширины для лучшего выравнивания */}
+        <table className="w-full">
+          <tbody>
+            <tr className="mb-2">
+              <td className="text-left pb-2">Subtotal</td>
+              <td className="text-right pb-2">{formatPrice(price, currency, isStripePrice)}</td>
+            </tr>
+            
+            {/* Налоговая информация - рассчитываем на основе информации о стране */}
+            {(taxInfo && taxInfo.label) && (
+              <tr className="mb-2 bg-yellow-50">
+                <td className="text-left pb-2 pt-2 font-medium">
+                  <span className="flex items-center">
+                    {taxInfo.label}
+                    <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{defaultCountry}</span>
+                  </span>
+                </td>
+                <td className="text-right pb-2 pt-2 font-medium">
+                  {formatPrice(taxInfo.amount, currency, isStripePrice)}
+                </td>
+              </tr>
+            )}
+            
+            {/* Добавляем строку с пояснением о налогах */}
+            <tr className="mb-2 bg-blue-50">
+              <td colSpan={2} className="text-left pb-2 pt-2 px-2 text-xs text-blue-600 italic rounded">
+                {"* Prices exclude VAT (19%), which is added at checkout"}
+              </td>
+            </tr>
+            
+            <tr className="mb-2">
+              <td className="text-left pb-2">Shipping</td>
+              <td className="text-right pb-2">Free</td>
+            </tr>
+            
+            <tr className="font-bold text-lg bg-green-50">
+              <td className="text-left pt-2 pb-2 border-t">Total</td>
+              <td className="text-right pt-2 pb-2 border-t">
+                {formatPrice(price + (taxInfo ? taxInfo.amount : 0), currency, isStripePrice)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        {/* Используем компонент TaxDisplayBoxSimple для отображения информации о налоге */}
+        <div className="mt-4 border-t pt-4">
+          <h4 className="font-medium mb-2 flex items-center">
+            <AlertTriangle size={16} className="mr-2 text-amber-500" />
+            Tax Calculation Details:
+          </h4>
+          <TaxDisplayBoxSimple 
+            country={defaultCountry} 
+            currency={currency}
+            baseAmount={price}
+            taxAmount={taxInfo.amount}
+            taxRate={taxInfo.rate}
+            taxLabel={taxInfo.label}
+            showDebugInfo={true} 
+          />
+        </div>
+        
+        {/* Пояснительный текст о налогах */}
+        <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
+          <div className="font-medium mb-1">Tax Information:</div>
+          <div>* Prices exclude 19% German VAT (MwSt.), which is added at checkout.</div>
+          <div>* VAT ID: DE123456789</div>
+        </div>
+      </div>
+    </Card>
+  );
+  
   if (!user) {
     return (
       <div>
@@ -252,6 +349,10 @@ export default function Checkout() {
           </button>
           <h2 className="text-lg font-medium">Checkout</h2>
         </div>
+        
+        {/* Отображаем информацию о продукте и налогах */}
+        {renderProductInfo()}
+        
         <Card className="p-4">
           <p className="text-error mb-4">Please log in to continue with checkout.</p>
           <button 
