@@ -54,17 +54,27 @@ export default function PlayMarket() {
   
   // Скроллим содержимое страницы в начало при загрузке
   useEffect(() => {
-    // Сбрасываем скролл на странице
-    window.scrollTo(0, 0);
-    
-    // Также устанавливаем таймеры для принудительного скролла (для устройств с медленной загрузкой)
-    const timer1 = setTimeout(() => window.scrollTo(0, 0), 100);
-    const timer2 = setTimeout(() => window.scrollTo(0, 0), 300);
-    
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
+    // Функция для принудительного скроллинга с задержкой и повторением
+    const forceScrollToTop = () => {
+      // Мгновенный скроллинг в начало страницы
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      
+      // Дополнительный скроллинг с задержкой для надежности
+      setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 10);
+      setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 50);
+      setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 100);
+      setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 300);
     };
+    
+    // Вызываем функцию сразу при монтировании
+    forceScrollToTop();
+    
+    // Также используем requestAnimationFrame для гарантии скролла после рендеринга
+    requestAnimationFrame(() => {
+      forceScrollToTop();
+    });
+    
+    // Очистка таймеров не требуется из-за короткого времени задержки
   }, []);
   
   // Функция для обработки установки приложения
@@ -86,12 +96,20 @@ export default function PlayMarket() {
       <div className="flex items-center mb-4 sticky top-0 bg-white z-10 p-3 shadow-sm">
         <button 
           className="mr-3 p-2 hover:bg-gray-100 rounded-full"
-          onClick={() => setLocation("/")}
+          onClick={() => {
+            // Возвращаем на главную страницу и принудительно скроллим наверх
+            setLocation("/");
+            // Добавляем небольшую задержку и скроллим наверх на всякий случай
+            setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 50);
+          }}
         >
           <ArrowLeft size={22} />
         </button>
-        <div className="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden shadow-md flex items-center justify-center mr-3">
-          <img src="/images/ai-store-icon-small.png" alt="AI Store" className="w-full h-full object-cover" />
+        <div className="flex-shrink-0 w-10 h-10 bg-white rounded-lg overflow-hidden shadow-md flex items-center justify-center mr-3">
+          <div className="text-center">
+            <div className="text-lg font-bold">AI</div>
+            <div className="text-xs" style={{ marginTop: "-4px" }}>Store</div>
+          </div>
         </div>
         <h2 className="text-lg font-medium">Google Play Market</h2>
       </div>
@@ -100,7 +118,13 @@ export default function PlayMarket() {
         <PlayMarketCard
           appName={appData.appName}
           developer={appData.developedBy}
-          icon={<img src="/images/ai-store-icon.png" alt="AI Store" className="w-full h-full object-cover" />}
+          icon={
+            <div className="text-center w-full h-full flex flex-col justify-center">
+              <div className="text-xl font-bold">AI</div>
+              <div className="text-sm" style={{ marginTop: "-4px" }}>Store</div>
+              <div className="text-[10px] text-orange-500 mt-1">by Aething</div>
+            </div>
+          }
           rating={appData.rating}
           reviews={3210}
           downloads={appData.downloads}
@@ -196,7 +220,10 @@ export default function PlayMarket() {
           <p className="text-gray-500 text-sm">Privacy policy</p>
           <button 
             className="text-blue-600 underline"
-            onClick={() => setLocation("/policy/privacy-policy")}
+            onClick={() => {
+              setLocation("/policy/privacy-policy");
+              setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 50);
+            }}
           >
             View privacy policy
           </button>
@@ -206,7 +233,10 @@ export default function PlayMarket() {
           <p className="text-gray-500 text-sm">Data safety</p>
           <button 
             className="text-blue-600 underline"
-            onClick={() => setLocation("/policy/data-safety")}
+            onClick={() => {
+              setLocation("/policy/data-safety");
+              setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 50);
+            }}
           >
             View data safety information
           </button>
