@@ -7,12 +7,13 @@ import {
   reloadPage, 
   clearCacheAndReload,
   clearServiceWorkerCache,
-  refreshServiceWorkerCache,
   checkOfflineSupport,
   isOffline,
-  resetAppCache
+  resetAppStorage,
+  updateServiceWorker,
+  cacheUtils
 } from "./utils/clearCache";
-import * as serviceWorker from './registerServiceWorker';
+import { registerServiceWorker, sendMessageToServiceWorker } from './registerServiceWorker';
 
 // Расширение типа window для отладочных функций
 declare global {
@@ -39,6 +40,18 @@ declare global {
         checkResource: (url: string) => Promise<boolean>;
       }
     };
+    
+    // Legacy API для обратной совместимости
+    AIStoreMaintenance?: {
+      clearCache?: () => Promise<boolean>;
+      registerSW?: () => Promise<boolean>;
+      updateSW?: () => Promise<boolean>;
+      refresh?: () => Promise<boolean>;
+      getVersion?: () => Promise<string>;
+      getCacheInfo?: () => Promise<any>;
+      cacheUrls?: (urls: string[]) => Promise<any>;
+      checkResource?: (url: string) => Promise<boolean>;
+    };
   }
 }
 
@@ -53,35 +66,93 @@ if (typeof window !== 'undefined') {
     
     // PWA и Service Worker функции
     clearServiceWorkerCache,
-    refreshServiceWorkerCache,
+    refreshServiceWorkerCache: clearServiceWorkerCache, // Временный алиас
     checkOfflineSupport,
     isOffline,
-    resetAppCache,
+    resetAppCache: resetAppStorage,
     
     // Доступ к внутренним API Service Worker
     swAPI: {
       getVersion: async () => {
-        if (window.AIStoreMaintenance) {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          try {
+            const result = await sendMessageToServiceWorker({
+              type: 'GET_VERSION'
+            });
+            return result?.payload?.version || 'unknown';
+          } catch (error) {
+            console.error('Error getting service worker version:', error);
+            return 'unknown';
+          }
+        }
+        
+        // Fallback для обратной совместимости
+        if (window.AIStoreMaintenance && window.AIStoreMaintenance.getVersion) {
           return window.AIStoreMaintenance.getVersion();
         }
+        
         return 'unknown';
       },
       getCacheInfo: async () => {
-        if (window.AIStoreMaintenance) {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          try {
+            const result = await sendMessageToServiceWorker({
+              type: 'GET_CACHE_INFO'
+            });
+            return result?.payload || { items: 0, size: 0 };
+          } catch (error) {
+            console.error('Error getting cache info:', error);
+            return { items: 0, size: 0 };
+          }
+        }
+        
+        // Fallback для обратной совместимости
+        if (window.AIStoreMaintenance && window.AIStoreMaintenance.getCacheInfo) {
           return window.AIStoreMaintenance.getCacheInfo();
         }
-        return { error: 'API not available' };
+        
+        return { items: 0, size: 0 };
       },
       cacheUrls: async (urls: string[]) => {
-        if (window.AIStoreMaintenance) {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          try {
+            const result = await sendMessageToServiceWorker({
+              type: 'CACHE_URLS',
+              payload: { urls }
+            });
+            return result?.payload || { success: 0, failed: 0 };
+          } catch (error) {
+            console.error('Error caching urls:', error);
+            return { success: 0, failed: 0 };
+          }
+        }
+        
+        // Fallback для обратной совместимости
+        if (window.AIStoreMaintenance && window.AIStoreMaintenance.cacheUrls) {
           return window.AIStoreMaintenance.cacheUrls(urls);
         }
-        return { error: 'API not available' };
+        
+        return { success: 0, failed: 0 };
       },
       checkResource: async (url: string) => {
-        if (window.AIStoreMaintenance) {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          try {
+            const result = await sendMessageToServiceWorker({
+              type: 'CHECK_RESOURCE',
+              payload: { url }
+            });
+            return result?.payload?.cached || false;
+          } catch (error) {
+            console.error('Error checking resource:', error);
+            return false;
+          }
+        }
+        
+        // Fallback для обратной совместимости
+        if (window.AIStoreMaintenance && window.AIStoreMaintenance.checkResource) {
           return window.AIStoreMaintenance.checkResource(url);
         }
+        
         return false;
       }
     }
@@ -99,4 +170,14 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 // Регистрация Service Worker для PWA функциональности
 console.log("🔄 Инициализация Service Worker...");
-serviceWorker.register();
+registerServiceWorker({
+  scriptPath: '/service-worker.js',
+  reloadOnUpdate: false, // Не перезагружаем автоматически, чтобы не прерывать пользователя
+  debug: true // Включаем отладочные сообщения
+}).then((success: boolean) => {
+  if (success) {
+    console.log("✅ Service Worker успешно зарегистрирован");
+  } else {
+    console.warn("⚠️ Service Worker не удалось зарегистрировать");
+  }
+});

@@ -4,6 +4,16 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 
+// Объявление типа для window.networkStatus
+declare global {
+  interface Window {
+    networkStatus?: {
+      subscribe: (callback: (online: boolean) => void) => void;
+      isOnline: () => boolean;
+    };
+  }
+}
+
 interface OfflineIndicatorProps {
   className?: string;
   showDetails?: boolean;
@@ -53,7 +63,9 @@ export default function OfflineIndicator({ className, showDetails = false }: Off
     checkServiceWorker();
     
     // Используем расширенный API, если он доступен
-    if (typeof window.networkStatus !== 'undefined' && 
+    if (typeof window !== 'undefined' && 
+        'networkStatus' in window &&
+        window.networkStatus && 
         typeof window.networkStatus.subscribe === 'function') {
       window.networkStatus.subscribe((online: boolean) => {
         setIsOffline(!online);
