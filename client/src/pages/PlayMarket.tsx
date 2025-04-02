@@ -145,6 +145,18 @@ export default function PlayMarket() {
             <p className="text-gray-900">{appData.category}</p>
           </div>
         </div>
+
+        <h4 className="font-medium mb-2">Description:</h4>
+        <p className="text-gray-700 mb-4">
+          Готовые энтерпрайз решения для создания собственного чат-бота или голосового ассистента внутри компании. 
+          Создавайте собственные базы знаний и используйте в интранете безопасное решение для любых задач — от поддержки 
+          до общения с клиентами или анализа больших данных.
+        </p>
+        <p className="text-gray-700 mb-4">
+          Ready-made enterprise solutions for creating your own chatbot or voice assistant within your company. 
+          Build custom knowledge bases and deploy a secure intranet solution for any task — from support 
+          to customer communication or big data analysis.
+        </p>
         
         <h4 className="font-medium mb-2">Features:</h4>
         <ul className="list-disc list-inside text-gray-700 mb-4">
@@ -156,18 +168,6 @@ export default function PlayMarket() {
           <li>Automatic tax calculation based on your country</li>
           <li>Multilingual support</li>
         </ul>
-        
-        <h4 className="font-medium mb-2">Tax Information:</h4>
-        <p className="text-gray-700 mb-4">
-          Our app automatically calculates and displays the appropriate tax rates for your country:
-          <ul className="list-disc list-inside ml-4 mt-1">
-            <li>Germany - MwSt. 19%</li>
-            <li>France - TVA 20%</li>
-            <li>Italy - IVA 22%</li>
-            <li>Spain - IVA 21%</li>
-            <li>USA - No sales tax applied</li>
-          </ul>
-        </p>
         
         <h4 className="font-medium mb-2">What's New:</h4>
         <p className="text-gray-700">
