@@ -86,7 +86,8 @@ export function TaxDisplayBox({
     return 'No Tax';
   };
   
-  if (!country) return null;
+  // Даже если страна не указана, все равно показываем информацию о налогах
+  const displayCountry = country || 'unknown';
   
   return (
     <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">

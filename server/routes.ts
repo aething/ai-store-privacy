@@ -1039,6 +1039,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Using tax rate ID: ${taxRateId} for PaymentIntent`);
       }
       
+      // Если страна не указана, используем Германию по умолчанию
+      if (!country) {
+        country = 'DE';
+        taxRate = 0.19;
+        taxLabel = 'MwSt. 19%';
+        taxAmount = Math.round(amount * taxRate);
+        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
+        paymentIntentParams.metadata.tax_rate = '19%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = country;
+        paymentIntentParams.amount = amount + taxAmount;
+        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
+      }
+      
       // Подробное логирование для отладки
       console.log(`Creating PaymentIntent:`, {
         amount,

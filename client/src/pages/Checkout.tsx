@@ -316,7 +316,7 @@ export default function Checkout() {
           
           {/* Используем компонент TaxDisplayBox для отображения информации о налоге */}
           <TaxDisplayBox 
-            country={user?.country} 
+            country={user?.country || 'DE'} 
             currency={currency}
             amount={price}
             showDebugInfo={true} 
