@@ -98,3 +98,91 @@ export function clearAllCache() {
   
   console.log('[clearCache] Complete cache clear finished');
 }
+
+/**
+ * Очищает кэш пользователя, опционально сохраняя страну
+ * @param preserveCountry - Если true, сохраняет выбранную пользователем страну
+ */
+export function clearUserCache(preserveCountry = false) {
+  console.log('[clearCache] Clearing user cache, preserveCountry:', preserveCountry);
+  
+  // Сохраняем данные пользователя
+  const userData = localStorage.getItem('user');
+  let country: string | null = null;
+  
+  // Извлекаем страну из данных пользователя, если нужно сохранить
+  if (preserveCountry && userData) {
+    try {
+      const user = JSON.parse(userData);
+      country = user.country || null;
+      console.log('[clearCache] Preserved country:', country);
+    } catch (e) {
+      console.error('[clearCache] Error parsing user data:', e);
+    }
+  }
+  
+  // Очищаем кэш, связанный с пользователем
+  const userKeys = [
+    'user',
+    'user_preferences',
+    'user_settings',
+    'last_checkout'
+  ];
+  
+  userKeys.forEach(key => {
+    if (localStorage.getItem(key)) {
+      localStorage.removeItem(key);
+      console.log(`[clearCache] Removed user key: ${key}`);
+    }
+  });
+  
+  // Восстанавливаем данные пользователя и страну, если нужно
+  if (userData) {
+    try {
+      const user = JSON.parse(userData);
+      
+      // Восстанавливаем страну, если нужно
+      if (preserveCountry && country) {
+        user.country = country;
+      }
+      
+      localStorage.setItem('user', JSON.stringify(user));
+      console.log('[clearCache] Restored user data');
+    } catch (e) {
+      console.error('[clearCache] Error restoring user data:', e);
+    }
+  }
+  
+  // Очищаем налоговый кэш
+  clearTaxCache();
+}
+
+/**
+ * Перезагружает страницу с добавлением метки времени для предотвращения кэширования
+ */
+export function reloadPage() {
+  console.log('[clearCache] Reloading page...');
+  
+  // Добавляем метку времени в URL для предотвращения кэширования
+  const timestamp = Date.now();
+  const separator = window.location.href.includes('?') ? '&' : '?';
+  const newUrl = `${window.location.href}${separator}_=${timestamp}`;
+  
+  window.location.href = newUrl;
+}
+
+/**
+ * Очищает кэш и перезагружает страницу
+ * @param preserveCountry - Если true, сохраняет выбранную пользователем страну
+ */
+export function clearCacheAndReload(preserveCountry = false) {
+  console.log('[clearCache] Clearing cache and reloading...');
+  
+  // Сначала очищаем кэш
+  clearUserCache(preserveCountry);
+  
+  // Затем перезагружаем страницу после небольшой задержки
+  setTimeout(() => {
+    reloadPage();
+  }, 300);
+}
