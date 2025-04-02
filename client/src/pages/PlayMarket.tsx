@@ -34,7 +34,7 @@ export default function PlayMarket() {
     lastUpdated: "March 20, 2025",
     size: "15 MB",
     category: "Shopping",
-    developedBy: "Aething Technologies",
+    developedBy: "Aething Inc.",
     screenshots: [
       "https://placehold.co/300x600/6200ee/ffffff?text=Home+Screen",
       "https://placehold.co/300x600/6200ee/ffffff?text=Product+View",
@@ -193,7 +193,7 @@ export default function PlayMarket() {
           <p className="text-gray-500 text-sm">Privacy policy</p>
           <button 
             className="text-blue-600 underline"
-            onClick={() => setLocation("/policy/privacy")}
+            onClick={() => setLocation("/policy/privacy-policy")}
           >
             View privacy policy
           </button>
