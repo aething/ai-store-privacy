@@ -1041,14 +1041,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Если страна не указана, используем Германию по умолчанию
       if (!country) {
-        country = 'DE';
+        // Создаем локальную переменную для хранения страны по умолчанию
+        const defaultCountry = 'DE';
         taxRate = 0.19;
         taxLabel = 'MwSt. 19%';
         taxAmount = Math.round(amount * taxRate);
         paymentIntentParams.metadata.tax_amount = taxAmount.toString();
         paymentIntentParams.metadata.tax_rate = '19%';
         paymentIntentParams.metadata.tax_label = taxLabel;
-        paymentIntentParams.metadata.country_code = country;
+        paymentIntentParams.metadata.country_code = defaultCountry;
         paymentIntentParams.amount = amount + taxAmount;
         paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
       }
