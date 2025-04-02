@@ -348,13 +348,13 @@ export default function Checkout() {
             Tax Calculation Details:
           </h4>
           <TaxDisplayBoxSimple 
-            country={defaultCountry} 
+            tax={{
+              rate: taxRate,
+              label: taxLabel,
+              amount: taxAmount
+            }}
+            subtotal={price}
             currency={currency}
-            baseAmount={price}
-            taxAmount={taxAmount}
-            taxRate={taxRate}
-            taxLabel={taxLabel}
-            showDebugInfo={true} 
           />
         </div>
         
@@ -493,14 +493,13 @@ export default function Checkout() {
               Tax Calculation Details:
             </h4>
             <TaxDisplayBoxSimple 
-              country={user?.country || 'DE'} 
+              tax={{
+                rate: stripeTaxInfo?.rate || taxRate,
+                label: stripeTaxInfo?.display || taxLabel,
+                amount: stripeTaxInfo?.amount || taxAmount
+              }}
+              subtotal={price}
               currency={currency}
-              baseAmount={price}
-              taxAmount={stripeTaxInfo?.amount || taxAmount}
-              taxRate={stripeTaxInfo?.rate || taxRate}
-              taxLabel={stripeTaxInfo?.display || taxLabel}
-              stripeData={stripeTaxInfo ? true : false}
-              showDebugInfo={true} 
             />
           </div>
           
