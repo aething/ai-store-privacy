@@ -10,6 +10,7 @@ const router = Router();
 /**
  * Простой эндпоинт для расчета налогов по стране и сумме
  * GET /api/tax-debug/calculate?amount=1000&country=DE
+ * POST /api/tax-debug/calculate с телом {amount: 1000, country: 'DE', currency: 'eur'}
  */
 router.get('/calculate', (req, res) => {
   try {
@@ -44,6 +45,56 @@ router.get('/calculate', (req, res) => {
     });
   } catch (error: any) {
     console.error('Error in tax calculation:', error);
+    res.status(500).json({ 
+      error: 'Failed to calculate tax',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * POST версия эндпоинта для расчета налогов
+ * Позволяет передавать параметры в теле запроса
+ */
+router.post('/calculate', (req, res) => {
+  try {
+    const amount = req.body.amount || 1000;
+    const country = req.body.country || 'DE';
+    const requestedCurrency = req.body.currency;
+    
+    const isEU = isEUCountry(country);
+    const taxRate = getTaxRateForCountry(country);
+    
+    // Определяем валюту: используем переданную в запросе или определяем по стране
+    const currency = requestedCurrency || (shouldUseEUR(country) ? 'eur' : 'usd');
+    
+    // Рассчитываем сумму налога
+    const taxAmount = Math.round(amount * taxRate);
+    const totalAmount = amount + taxAmount;
+    
+    // Определяем название налога
+    let taxLabel = 'Tax';
+    if (isEU) {
+      taxLabel = `VAT (${(taxRate * 100).toFixed(0)}%)`;
+    } else if (country === 'US') {
+      taxLabel = 'Sales Tax';
+    }
+    
+    console.log(`[Tax Debug] Расчет налога: страна ${country}, сумма ${amount} ${currency}, ставка ${taxRate * 100}%, налог ${taxAmount}`);
+    
+    res.json({
+      amount,
+      country,
+      currency,
+      taxRate,
+      taxAmount,
+      taxLabel,
+      totalAmount,
+      taxInclusive: false,
+      isEU
+    });
+  } catch (error: any) {
+    console.error('Error in tax calculation (POST):', error);
     res.status(500).json({ 
       error: 'Failed to calculate tax',
       message: error.message
