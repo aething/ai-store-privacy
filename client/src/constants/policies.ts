@@ -2,6 +2,67 @@ import { Policy } from "@/types";
 
 const policies: Policy[] = [
   {
+    id: "data-safety",
+    title: "Data Safety for Google Play",
+    content: `
+      <h3 class="font-medium text-lg mb-2">Data Safety Information for Google Play</h3>
+      <p class="mb-4 text-text-secondary">This document details the data handling practices and external services used in our application, as required by the Google Play Store Data Safety section.</p>
+      
+      <h4 class="font-medium mb-2">Third-Party Services and SDKs</h4>
+      <p class="mb-4 text-text-secondary">Our application uses the following third-party services that may collect data:</p>
+      
+      <div class="mb-4 p-4 bg-gray-50 rounded-md">
+        <h5 class="font-medium mb-2">Firebase (Google)</h5>
+        <ul class="list-disc pl-5 mb-2 text-text-secondary">
+          <li><strong>Data Collected:</strong> User authentication data, device tokens</li>
+          <li><strong>Purpose:</strong> Authentication and Push notifications</li>
+          <li><strong>Data Sharing:</strong> Not shared with third parties</li>
+          <li><strong>Data Protection:</strong> Encrypted during transmission and storage</li>
+        </ul>
+      </div>
+      
+      <div class="mb-4 p-4 bg-gray-50 rounded-md">
+        <h5 class="font-medium mb-2">Google Sheets API</h5>
+        <ul class="list-disc pl-5 mb-2 text-text-secondary">
+          <li><strong>Data Collected:</strong> User account info, order history</li>
+          <li><strong>Purpose:</strong> Data storage and synchronization</li>
+          <li><strong>Data Sharing:</strong> Not shared with third parties</li>
+          <li><strong>Data Protection:</strong> Processed according to Google's security standards</li>
+        </ul>
+      </div>
+      
+      <div class="mb-4 p-4 bg-gray-50 rounded-md">
+        <h5 class="font-medium mb-2">Stripe</h5>
+        <ul class="list-disc pl-5 mb-2 text-text-secondary">
+          <li><strong>Data Collected:</strong> Payment info, transaction details</li>
+          <li><strong>Purpose:</strong> Payment processing</li>
+          <li><strong>Data Sharing:</strong> Shared only with financial institutions to process payments</li>
+          <li><strong>Data Protection:</strong> PCI DSS compliant</li>
+        </ul>
+      </div>
+      
+      <div class="mb-4 p-4 bg-gray-50 rounded-md">
+        <h5 class="font-medium mb-2">Google Fonts</h5>
+        <ul class="list-disc pl-5 mb-2 text-text-secondary">
+          <li><strong>Data Collected:</strong> IP addresses (temporarily)</li>
+          <li><strong>Purpose:</strong> Font rendering</li>
+          <li><strong>Data Sharing:</strong> Not shared with third parties</li>
+          <li><strong>Data Protection:</strong> Temporary storage only</li>
+        </ul>
+      </div>
+      
+      <h4 class="font-medium mb-2">User Data Deletion</h4>
+      <p class="mb-4 text-text-secondary">Users can request deletion of their data by:</p>
+      <ul class="list-disc pl-5 mb-4 text-text-secondary">
+        <li>Emailing privacy@aething.com with subject "Data Deletion Request"</li>
+        <li>Using the in-app account deletion feature</li>
+        <li>Submitting a request through our website contact form</li>
+      </ul>
+      
+      <p class="text-text-secondary">All deletion requests are processed within 30 days as required by applicable regulations.</p>
+    `
+  },
+  {
     id: "delivery-policy",
     title: "Delivery Policy",
     content: `
@@ -93,7 +154,41 @@ const policies: Policy[] = [
       <p class="mb-4 text-text-secondary">We use your information to process orders, improve our products and services, and provide customer support. We may also use your data to personalize your experience with our AI products.</p>
       
       <h4 class="font-medium mb-2">Data Protection</h4>
-      <p class="text-text-secondary">We implement a variety of security measures to maintain the safety of your personal information. Your data is encrypted during transmission and stored on secure servers.</p>
+      <p class="mb-4 text-text-secondary">We implement a variety of security measures to maintain the safety of your personal information. Your data is encrypted during transmission and stored on secure servers.</p>
+      
+      <h4 class="font-medium mb-2">Third-Party Services and SDKs</h4>
+      <p class="mb-4 text-text-secondary">Our application uses the following third-party services:</p>
+      
+      <h5 class="font-medium mb-2">1. Firebase (Google)</h5>
+      <p class="mb-4 text-text-secondary">
+        <strong>Purpose:</strong> Authentication and Push notifications<br>
+        <strong>Data Collected:</strong> User authentication data, device tokens for push notifications<br>
+        <strong>Privacy Policy:</strong> <a href="https://firebase.google.com/support/privacy" class="text-blue-600 hover:underline" target="_blank">https://firebase.google.com/support/privacy</a>
+      </p>
+      
+      <h5 class="font-medium mb-2">2. Google Sheets API</h5>
+      <p class="mb-4 text-text-secondary">
+        <strong>Purpose:</strong> Data storage and synchronization<br>
+        <strong>Data Collected:</strong> User account information, order history, verification tokens<br>
+        <strong>Privacy Policy:</strong> <a href="https://www.google.com/policies/privacy/" class="text-blue-600 hover:underline" target="_blank">https://www.google.com/policies/privacy/</a>
+      </p>
+      
+      <h5 class="font-medium mb-2">3. Stripe</h5>
+      <p class="mb-4 text-text-secondary">
+        <strong>Purpose:</strong> Payment processing<br>
+        <strong>Data Collected:</strong> Payment method information, transaction details, billing information<br>
+        <strong>Privacy Policy:</strong> <a href="https://stripe.com/privacy" class="text-blue-600 hover:underline" target="_blank">https://stripe.com/privacy</a>
+      </p>
+      
+      <h5 class="font-medium mb-2">4. Google Fonts</h5>
+      <p class="mb-4 text-text-secondary">
+        <strong>Purpose:</strong> Font rendering<br>
+        <strong>Data Collected:</strong> IP addresses (temporarily), user agent information<br>
+        <strong>Privacy Policy:</strong> <a href="https://policies.google.com/privacy" class="text-blue-600 hover:underline" target="_blank">https://policies.google.com/privacy</a>
+      </p>
+      
+      <h4 class="font-medium mb-2">Your Data Rights</h4>
+      <p class="mb-4 text-text-secondary">You have the right to access, correct, or delete your personal information. You can request a copy of your data or ask us to erase your account by contacting us at privacy@aething.com.</p>
     `
   },
   {
