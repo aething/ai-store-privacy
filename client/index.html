@@ -17,22 +17,35 @@
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
   <link rel="shortcut icon" href="/icons/icon-192x192.png">
   
-  <!-- Принудительная регистрация Service Worker без перезагрузки -->
+  <!-- Принудительная регистрация Service Worker -->
   <script>
     // Глобальная защита от повторной регистрации
     window.swRegistered = false;
     
-    // Проверка параметра в URL для предотвращения зацикливания
-    const urlParams = new URLSearchParams(window.location.search);
-    const skipRegister = urlParams.get('sw_skip') === 'true';
-    
-    // Регистрируем только если еще не регистрировали и нет параметра пропуска
-    if ('serviceWorker' in navigator && !window.swRegistered && !skipRegister) {
-      window.swRegistered = true;
-      console.log('🚀 Запуск регистрации Service Worker');
-      
-      // Без автоматической перезагрузки - теперь используем sw-installer.js
+    // Функция для прямой регистрации Service Worker
+    function registerServiceWorkerDirectly() {
+      // Явная регистрация - прямой подход
+      if ('serviceWorker' in navigator) {
+        window.swRegistered = true;
+        console.log('🚀 Прямая регистрация Service Worker');
+        
+        navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+          .then(registration => {
+            console.log('✅ Service Worker успешно зарегистрирован напрямую:', registration.scope);
+            // Активируем worker если он в состоянии ожидания
+            if (registration.waiting) {
+              console.log('🔄 Активация ожидающего Service Worker');
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+          })
+          .catch(error => {
+            console.error('❌ Ошибка при регистрации Service Worker напрямую:', error);
+          });
+      }
     }
+    
+    // Регистрируем worker
+    registerServiceWorkerDirectly();
   </script>
   <script src="/sw-installer.js"></script>
   

@@ -4,16 +4,16 @@
  */
 
 // Версия приложения (должна соответствовать APP_VERSION в registerServiceWorker.ts)
-const APP_VERSION = '3.0.1';
+const APP_VERSION = '3.0.2';
 
 // Префикс для кэшей
 const CACHE_PREFIX = 'ai-store';
 
 // Имена кэшей с учетом версии
 const CACHE_NAMES = {
-  static: `${CACHE_PREFIX}-v3`,
-  offline: `${CACHE_PREFIX}-offline-v3`,
-  dynamic: `${CACHE_PREFIX}-dynamic-v3`
+  static: `${CACHE_PREFIX}-v4`,
+  offline: `${CACHE_PREFIX}-offline-v4`,
+  dynamic: `${CACHE_PREFIX}-dynamic-v4`
 };
 
 // Путь к оффлайн-странице
@@ -65,10 +65,19 @@ self.addEventListener('message', event => {
 
 // Обработчик события установки Service Worker
 self.addEventListener('install', event => {
-  console.log('Service Worker: Установка началась (версия ' + APP_VERSION + ')');
+  console.log('%c[SW v' + APP_VERSION + '] УСТАНОВКА: началась', 'background: #4CAF50; color: white; padding: 2px 5px;');
   
   // Агрессивно активируем Service Worker без ожидания
   self.skipWaiting();
+  console.log('%c[SW v' + APP_VERSION + '] УСТАНОВКА: вызван skipWaiting()', 'background: #4CAF50; color: white; padding: 2px 5px;');
+  
+  // Форсируем активацию, чтобы избежать ожидания
+  setTimeout(() => {
+    if (self.registration && self.registration.waiting) {
+      self.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      console.log('%c[SW v' + APP_VERSION + '] УСТАНОВКА: отправлено сообщение SKIP_WAITING', 'background: #4CAF50; color: white; padding: 2px 5px;');
+    }
+  }, 500);
   
   // Отправляем сообщение о событии установки для отладки
   try {
@@ -76,6 +85,7 @@ self.addEventListener('install', event => {
       type: 'SW_INSTALL_START',
       payload: { version: APP_VERSION, timestamp: Date.now() }
     });
+    console.log('%c[SW v' + APP_VERSION + '] УСТАНОВКА: сообщение отправлено клиентам', 'background: #4CAF50; color: white; padding: 2px 5px;');
   } catch (e) {
     console.error('Ошибка при отправке сообщения об установке:', e);
   }
@@ -120,10 +130,11 @@ self.addEventListener('install', event => {
 
 // Обработчик события активации Service Worker
 self.addEventListener('activate', event => {
-  console.log('Service Worker: Активация началась (версия ' + APP_VERSION + ')');
+  console.log('%c[SW v' + APP_VERSION + '] АКТИВАЦИЯ: началась', 'background: #2196F3; color: white; padding: 2px 5px;');
   
   // Принудительно перехватываем все открытые клиенты
-  event.waitUntil(self.clients.claim());
+  self.clients.claim();
+  console.log('%c[SW v' + APP_VERSION + '] АКТИВАЦИЯ: вызван clients.claim()', 'background: #2196F3; color: white; padding: 2px 5px;');
   
   // Отправляем сообщение о начале активации
   try {
@@ -131,9 +142,22 @@ self.addEventListener('activate', event => {
       type: 'SW_ACTIVATE_START',
       payload: { version: APP_VERSION, timestamp: Date.now() }
     });
+    console.log('%c[SW v' + APP_VERSION + '] АКТИВАЦИЯ: сообщение отправлено клиентам', 'background: #2196F3; color: white; padding: 2px 5px;');
   } catch (e) {
     console.error('Ошибка при отправке сообщения о начале активации:', e);
   }
+  
+  // После активации отправим сообщение всем клиентам, что SW полностью готов
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'SW_ACTIVATED',
+        version: APP_VERSION,
+        timestamp: Date.now()
+      });
+    });
+    console.log('%c[SW v' + APP_VERSION + '] АКТИВАЦИЯ: сообщение об активации отправлено всем клиентам', 'background: #2196F3; color: white; padding: 2px 5px;');
+  });
   
   // Очищаем старые кэши
   event.waitUntil(
