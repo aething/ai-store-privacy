@@ -511,7 +511,20 @@ export default function Account() {
                         id="signup-country"
                         label="Country"
                         value={field.value || ''}
-                        onChange={field.onChange}
+                        onChange={(value) => {
+                          // Сохраняем значение в форме
+                          field.onChange(value);
+                          
+                          // Выводим логи для отладки
+                          console.log(`Signup country selected: ${value}`);
+                          
+                          // Добавляем индикатор выбранной страны на странице
+                          if (value) {
+                            // Устанавливаем это значение в localStorage, чтобы его можно было использовать
+                            // при создании нового пользователя
+                            localStorage.setItem('signup_country', value);
+                          }
+                        }}
                         error={signupErrors.country?.message}
                         required={true}
                       />
@@ -628,7 +641,30 @@ export default function Account() {
                   id="country"
                   label={t("country") || "Country"}
                   value={field.value || ''}
-                  onChange={field.onChange}
+                  onChange={(value) => {
+                    // Вызываем оригинальный обработчик
+                    field.onChange(value);
+                    
+                    // Если пользователь авторизован и страна изменилась, сразу применяем изменения
+                    if (user && user.country !== value) {
+                      console.log(`Country changed directly from ${user.country} to ${value}`);
+                      
+                      // Только если страна действительно изменилась, предлагаем обновление
+                      if (window.confirm(t("confirmCountryChange") || `Do you want to update your country to ${value}? Page will reload to apply changes.`)) {
+                        setIsLoading(true);
+                        updateCountryAndReload(user.id, value, user)
+                          .catch(error => {
+                            console.error("Error updating country:", error);
+                            setIsLoading(false);
+                            toast({
+                              title: "Error",
+                              description: "Failed to update country. Please try again.",
+                              variant: "destructive",
+                            });
+                          });
+                      }
+                    }
+                  }}
                   error={errors.country?.message}
                 />
               )}

@@ -5,6 +5,7 @@
 
 import { apiRequest } from "@/lib/queryClient";
 import { User } from "@/types";
+import { clearTaxCache as clearTaxCacheUtil, clearSessionCache } from "./clearCache";
 
 /**
  * Обновляет страну пользователя на сервере и в localStorage
@@ -65,8 +66,6 @@ export async function updateUserCountry(
  * Очищает кэш, связанный с налоговой информацией и сессией,
  * чтобы обеспечить корректное отображение после смены страны
  */
-import { clearTaxCache as clearTaxCacheUtil, clearSessionCache } from "./clearCache";
-
 export function clearTaxCache() {
   console.log("[userCountryUtils] Clearing tax and session cache");
   
