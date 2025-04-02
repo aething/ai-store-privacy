@@ -108,6 +108,8 @@ export async function createPaymentIntent(
   country?: string | null,
   couponCode?: string | null
 ) {
+  console.log('Creating payment intent for:', { productId, userId, country });
+  
   // Determine the appropriate currency based on country
   const currency = getCurrencyForCountry(country);
   
@@ -151,7 +153,10 @@ export async function createPaymentIntent(
     throw new Error('Failed to create payment intent');
   }
   
-  return paymentResponse.json();
+  const responseData = await paymentResponse.json();
+  console.log('Payment intent created with tax data:', responseData);
+  
+  return responseData;
 }
 
 /**

@@ -207,6 +207,7 @@ export default function Checkout() {
         setPaymentIntentError(false);
         
         // Сохраняем информацию о налогах, полученную от Stripe
+        console.log('Получены данные из API:', data);
         if (data.tax) {
           console.log('Получена налоговая информация от Stripe:', data.tax);
           setStripeTaxInfo({
@@ -214,6 +215,38 @@ export default function Checkout() {
             rate: data.tax.rate || 0,
             label: data.tax.label || 'Tax',
             display: data.tax.label || 'Tax'
+          });
+          
+          // Устанавливаем информацию о налогах также в обычный state
+          setTaxInfo({
+            rate: data.tax.rate || DEFAULT_TAX_RATE,
+            label: data.tax.label || DEFAULT_TAX_LABEL,
+            amount: data.tax.amount || Math.round(price * DEFAULT_TAX_RATE),
+          });
+          
+          console.log('Tax information updated:', {
+            stripeTaxInfo: {
+              amount: data.tax.amount || 0,
+              rate: data.tax.rate || 0,
+              label: data.tax.label || 'Tax',
+              display: data.tax.label || 'Tax'
+            }
+          });
+        } else {
+          // Если нет налоговой информации от Stripe, используем наши расчеты
+          const country = user?.country || defaultCountry;
+          const { rate, label } = calculateTaxRate(country);
+          const amount = rate > 0 ? Math.round(price * rate) : 0;
+          
+          console.log('Using local tax calculation:', { rate, label, amount });
+          
+          // Обновляем оба state для согласованности данных
+          setTaxInfo({ rate, label, amount });
+          setStripeTaxInfo({
+            amount: amount,
+            rate: rate,
+            label: label,
+            display: label
           });
         }
       } catch (error) {
@@ -398,19 +431,31 @@ export default function Checkout() {
                 <td className="text-right pb-2">{formatPrice(price, currency, isStripePrice)}</td>
               </tr>
               
-              {/* Налоговая информация - всегда отображаем, используя данные Stripe, если они доступны, 
-                  или запасные значения в противном случае */}
+              {/* Налоговая информация - всегда отображаем, независимо от состояния 
+                  Мы гарантированно показываем строку с налогом, даже если произошли ошибки */}
               <tr className="mb-2 bg-yellow-50">
                 <td className="text-left pb-2 pt-2 font-medium">
                   <span className="flex items-center">
-                    {stripeTaxInfo?.display || taxLabel}
+                    {stripeTaxInfo?.display || taxLabel || "VAT 19%"}
                     <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || 'DE'}</span>
                   </span>
                 </td>
                 <td className="text-right pb-2 pt-2 font-medium">
                   {stripeTaxInfo 
                     ? formatPrice(stripeTaxInfo.amount, currency, true) 
-                    : formatPrice(taxAmount, currency, isStripePrice)}
+                    : formatPrice(taxAmount || Math.round(price * 0.19), currency, isStripePrice)}
+                </td>
+              </tr>
+              
+              {/* Дополнительная строка с налогом для диагностики - будет отображаться всегда */}
+              <tr className="mb-2 bg-green-50 border-t border-b border-dashed border-green-300">
+                <td className="text-left pb-2 pt-2 text-green-700">
+                  <span className="flex items-center">
+                    <strong>Tax Display Check:</strong>
+                  </span>
+                </td>
+                <td className="text-right pb-2 pt-2 font-medium text-green-700">
+                  {formatPrice(Math.round(price * 0.19), currency, isStripePrice)}
                 </td>
               </tr>
               
@@ -435,7 +480,7 @@ export default function Checkout() {
                 <td className="text-right pt-2 pb-2 border-t">
                   {stripeTaxInfo 
                     ? formatPrice(price + stripeTaxInfo.amount, currency, true) 
-                    : formatPrice(price + taxAmount, currency, isStripePrice)}
+                    : formatPrice(price + (taxAmount || Math.round(price * 0.19)), currency, isStripePrice)}
                 </td>
               </tr>
             </tbody>
