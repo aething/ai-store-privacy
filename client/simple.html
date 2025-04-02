@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Test App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #333;
+    }
+    
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    
+    .status.success {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+    
+    .status.error {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+    
+    .debug-info {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      border: 1px solid #e9ecef;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
+  
+  <!-- Подключаем оригинальный скрипт отладки консоли -->
+  <script src="/debug-console.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>React App Тестовая страница</h1>
+    <p>Эта страница помогает определить, есть ли проблемы с рендерингом React.</p>
+    
+    <div id="root">
+      <!-- React приложение будет рендериться здесь -->
+      <div style="text-align: center; padding: 20px;">
+        Загрузка приложения...
+      </div>
+    </div>
+    
+    <div id="status" class="status">
+      Проверка состояния приложения...
+    </div>
+    
+    <div class="debug-info" id="debug-info">
+      Загрузка отладочной информации...
+    </div>
+  </div>
+  
+  <script>
+    // Функция для отображения отладочной информации
+    function updateDebugInfo() {
+      const debugInfo = document.getElementById('debug-info');
+      const statusEl = document.getElementById('status');
+      
+      if (debugInfo && statusEl) {
+        // Собираем информацию о среде
+        const info = {
+          userAgent: navigator.userAgent,
+          screenSize: `${window.innerWidth}x${window.innerHeight}`,
+          online: navigator.onLine,
+          reactLoaded: window.React !== undefined,
+          reactDOMLoaded: window.ReactDOM !== undefined,
+          rootElement: document.getElementById('root') !== null,
+          serviceWorker: 'serviceWorker' in navigator,
+          localStorage: (() => {
+            try {
+              localStorage.setItem('test', 'test');
+              localStorage.removeItem('test');
+              return true;
+            } catch (e) {
+              return false;
+            }
+          })()
+        };
+        
+        // Проверяем, работает ли React
+        const rootContent = document.getElementById('root').innerHTML;
+        const reactRendered = !rootContent.includes('Загрузка приложения...');
+        
+        if (reactRendered) {
+          statusEl.className = 'status success';
+          statusEl.textContent = '✅ React успешно отрендерил контент!';
+        } else {
+          statusEl.className = 'status error';
+          statusEl.textContent = '❌ React не смог отрендерить содержимое.';
+        }
+        
+        info.reactRendered = reactRendered;
+        
+        // Вывод информации
+        debugInfo.textContent = JSON.stringify(info, null, 2);
+      }
+    }
+    
+    // Инициализируем информацию через 1 секунду после загрузки
+    setTimeout(updateDebugInfo, 1000);
+    
+    // Обновляем каждые 5 секунд
+    setInterval(updateDebugInfo, 5000);
+  </script>
+  
+  <!-- Подключаем React приложение -->
+  <script type="module" src="/src/simple-main.tsx"></script>
+</body>
+</html>

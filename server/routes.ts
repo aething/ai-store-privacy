@@ -11,6 +11,7 @@ import * as email from "./email";
 import nodemailer from "nodemailer";
 import { createPaymentIntentWithTaxInfo } from "./tax-demo-route";
 import taxDebugRoutes from "./routes/tax-debug";
+import debugLogRoutes from "./routes/debug-log";
 
 // Функция для получения полного названия страны по коду ISO
 function getFullCountryName(countryCode: string): string {
@@ -1343,6 +1344,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Тестовый эндпоинт для отладки налоговой информации (устаревший)
   // Маршруты для отладки расчета налогов
   app.use("/api/tax-debug", taxDebugRoutes);
+  app.use("/api", debugLogRoutes);
   
   // Специальный маршрут для страницы тестирования налогов
   app.get("/tax-test", (req, res) => {
