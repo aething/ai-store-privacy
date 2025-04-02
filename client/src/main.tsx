@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import "./styles/android.css";
 import { 
   clearUserCache, 
   clearAllCache, 
@@ -165,15 +166,19 @@ if (typeof window !== 'undefined') {
   console.log(" - window.appDebug.swAPI.getCacheInfo()");
 }
 
-// Инициализация обработчиков для оффлайн-режима
-import { initOfflineNavigation, loadOfflineData } from './utils/offlineNavigation';
+// Импорты для работы с оффлайн-режимом и Capacitor
 import initApiInterceptors from './utils/apiInterceptors';
-
-// Загружаем кэшированные данные
-loadOfflineData();
+import { isAndroidApp, initAndroidOfflineMode } from './utils/capacitorBridge';
 
 // Инициализируем перехватчики API для оффлайн-режима
 initApiInterceptors();
+
+// Инициализируем режим Capacitor/Android, если приложение запущено через Capacitor
+if (isAndroidApp()) {
+  console.log('Приложение запущено в Android/Capacitor окружении');
+  document.documentElement.classList.add('capacitor-app');
+  initAndroidOfflineMode();
+}
 
 // Инициализация и рендеринг приложения
 createRoot(document.getElementById("root")!).render(<App />);

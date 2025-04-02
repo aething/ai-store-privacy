@@ -1,0 +1,188 @@
+/**
+ * Специфичные стили для Android-приложения через Capacitor
+ */
+
+/* Применяем только когда приложение запущено в Android/Capacitor контексте */
+.capacitor-app, .android-app {
+  /* Устраняем скачки при вводе текста когда появляется клавиатура */
+  height: 100% !important;
+  position: fixed;
+  width: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Улучшаем отображение кнопок для сенсорных экранов */
+.capacitor-app button,
+.android-app button,
+.capacitor-app .button,
+.android-app .button {
+  min-height: 44px; /* Минимальная высота сенсорной цели */
+  padding: 0.75rem 1rem;
+}
+
+/* Увеличиваем размер текста */
+.capacitor-app body,
+.android-app body {
+  font-size: 16px;
+}
+
+/* Исправляем стандартные отступы для Android */
+.capacitor-app,
+.android-app {
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+/* Исправление для нижнего меню */
+.capacitor-app nav.bottom-nav,
+.android-app nav.bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Улучшаем отображение оффлайн-индикатора */
+.capacitor-app .offline-indicator,
+.android-app .offline-indicator {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 0);
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 8px;
+  background-color: #f44336;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Стили для нажатия на кнопки и интерактивные элементы */
+.capacitor-app a:active,
+.android-app a:active,
+.capacitor-app button:active,
+.android-app button:active {
+  opacity: 0.7;
+}
+
+/* Улучшаем заметность фокуса для улучшения доступности */
+.capacitor-app *:focus,
+.android-app *:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+/* Увеличиваем размер элементов форм для лучшего использования на сенсорных экранах */
+.capacitor-app input,
+.android-app input,
+.capacitor-app select,
+.android-app select,
+.capacitor-app textarea,
+.android-app textarea {
+  font-size: 16px; /* Предотвращает масштабирование при фокусе на iOS */
+  padding: 12px;
+  border-radius: 8px;
+}
+
+/* Стиль для активного состояния при тапе */
+.capacitor-app .tap-highlight,
+.android-app .tap-highlight {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Скрываем элементы интерфейса, не нужные в Android-приложении */
+.capacitor-app .web-only,
+.android-app .web-only {
+  display: none !important;
+}
+
+/* Показываем элементы, специфичные для Android */
+.android-only {
+  display: none !important;
+}
+
+.capacitor-app .android-only,
+.android-app .android-only {
+  display: block !important;
+}
+
+/* Исправления для модальных окон */
+.capacitor-app .dialog-overlay,
+.android-app .dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.capacitor-app .dialog-content,
+.android-app .dialog-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 90%;
+  max-height: 80%;
+  overflow: auto;
+  background-color: white;
+  border-radius: 12px;
+  z-index: 9999;
+  padding: 20px;
+}
+
+/* Отключение прокрутки основного содержимого при открытом модальном окне */
+.capacitor-app.modal-open,
+.android-app.modal-open {
+  overflow: hidden;
+}
+
+/* Android-специфичные исправления для скроллинга */
+.capacitor-app .overflow-auto,
+.android-app .overflow-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Стили для баннера Android */
+.android-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #f0f9ff;
+  padding: 8px 16px;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-bottom: 1px solid #cae6ff;
+}
+
+.android-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.android-banner-icon {
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.android-banner-message {
+  flex-grow: 1;
+  font-size: 14px;
+  color: #0c5783;
+}
+
+.android-banner-close {
+  background: none;
+  border: none;
+  color: #0c5783;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  margin-left: 10px;
+}

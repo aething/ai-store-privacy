@@ -27,6 +27,7 @@ import ScrollManager from "@/components/ScrollManager";
 import { logMobileAppConfig, isMobileApp } from "@/utils/mobileAppUtils";
 import { OfflineNavigationProvider } from "./components/OfflineNavigationProvider";
 import OfflineNavigationHandler from "./components/OfflineNavigationHandler";
+import AndroidDetector from "./components/AndroidDetector";
 
 // Инициализация настроек мобильного приложения
 if (isMobileApp()) {
@@ -75,6 +76,9 @@ function App() {
             
             {/* Обработчик навигации для оффлайн-режима */}
             <OfflineNavigationHandler />
+            
+            {/* Детектор Android-окружения */}
+            <AndroidDetector />
             
             <Layout>
               <Router />

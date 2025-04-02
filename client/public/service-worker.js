@@ -1,10 +1,34 @@
 /**
  * Service Worker для AI Store
  * Обеспечивает оффлайн-функциональность и кэширование
+ * Включает поддержку Android через Capacitor
  */
 
 // Версия приложения (должна соответствовать APP_VERSION в registerServiceWorker.ts)
-const APP_VERSION = '3.0.2';
+const APP_VERSION = '3.0.3';
+
+// Интеграция с Android (для Capacitor)
+self.serviceWorkerVersion = APP_VERSION;
+self.isAndroidApp = false;
+
+// Проверка запуска в Android/Capacitor
+self.addEventListener('activate', event => {
+  // Определяем запуск в Capacitor по User-Agent
+  if (self.navigator && self.navigator.userAgent && 
+      (self.navigator.userAgent.includes('Capacitor') || 
+       self.navigator.userAgent.includes('Android'))) {
+    self.isAndroidApp = true;
+    console.log('[Service Worker] Запущен в Android/Capacitor окружении');
+    
+    // Импортируем мост между Service Worker и Android
+    try {
+      importScripts('./sw-android-bridge.js');
+      console.log('[Service Worker] Android-мост успешно загружен');
+    } catch (error) {
+      console.error('[Service Worker] Ошибка загрузки Android-моста:', error);
+    }
+  }
+});
 
 // Префикс для кэшей
 const CACHE_PREFIX = 'ai-store';
