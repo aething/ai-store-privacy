@@ -1001,11 +1001,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Настраиваем параметры для PaymentIntent
       // Примечание: automatic_tax работает только с Checkout Sessions, не с PaymentIntent
       // Для PaymentIntent нам нужно рассчитать налог вручную или использовать tax_rates
+      // Важно: согласно документации Stripe, для правильного расчета налогов:
+      // 1. Цены должны быть созданы с tax_behavior: 'exclusive'
+      // 2. Для PaymentIntent мы должны применять tax_rates вместо automatic_tax
       const paymentIntentParams: any = {
         amount,
         currency,
         payment_method_types: ['card'],
-        metadata,
+        metadata: {
+          ...metadata,
+          tax_rate: taxRate.toString(),
+          tax_label: taxLabel,
+          country_code: country || 'unknown'
+        },
         description: taxRate > 0 ? `Order with ${taxLabel} included` : 'Order without VAT'
       };
       
