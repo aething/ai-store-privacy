@@ -367,25 +367,7 @@ export default function Checkout() {
           </tbody>
         </table>
         
-        {/* Используем компонент TaxDisplayBoxSimple для отображения информации о налоге */}
-        <div className="mt-4 border-t pt-4">
-          <h4 className="font-medium mb-2 flex items-center">
-            <AlertTriangle size={16} className="mr-2 text-amber-500" />
-            Tax Calculation Details:
-          </h4>
-          <TaxDisplayBoxSimple 
-            tax={{
-              rate: taxRate,
-              label: taxLabel,
-              amount: taxAmount,
-              display: `${(taxRate * 100).toFixed(1)}% ${taxLabel} (${defaultCountry})`
-            }}
-            subtotal={price}
-            currency={currency}
-            showDetails={true}
-            className="shadow-sm"
-          />
-        </div>
+
         
         {/* Пояснительный текст о налогах */}
         <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
@@ -495,7 +477,7 @@ export default function Checkout() {
                     ? "* Prices exclude VAT (19%), which is added at checkout" 
                     : user?.country === 'US'
                       ? "* No sales tax is applied (nexus thresholds not reached)"
-                      : "* Tax rates are calculated based on your location"}
+                      : "* VAT is applied according to EU regulations"}
                 </td>
               </tr>
               
@@ -521,25 +503,7 @@ export default function Checkout() {
             </tbody>
           </table>
           
-          {/* Используем компонент TaxDisplayBoxSimple для отображения информации о налоге */}
-          <div className="mt-4 border-t pt-4">
-            <h4 className="font-medium mb-2 flex items-center">
-              <AlertTriangle size={16} className="mr-2 text-amber-500" />
-              Tax Calculation Details:
-            </h4>
-            <TaxDisplayBoxSimple 
-              tax={{
-                rate: stripeTaxInfo?.rate || taxRate,
-                label: stripeTaxInfo?.display || taxLabel,
-                amount: stripeTaxInfo?.amount || taxAmount,
-                display: `${((stripeTaxInfo?.rate || taxRate) * 100).toFixed(1)}% ${stripeTaxInfo?.label || taxLabel} (${user?.country || defaultCountry})`
-              }}
-              subtotal={price}
-              currency={currency}
-              showDetails={true}
-              className="shadow-sm"
-            />
-          </div>
+
           
           {/* Пояснительный текст о налогах */}
           <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
@@ -558,7 +522,7 @@ export default function Checkout() {
             ) : (
               <>
                 <div className="font-medium mb-1">Tax Information:</div>
-                <div>* Tax calculation is based on your country's regulations.</div>
+                <div>* VAT is applied according to EU regulations.</div>
                 <div>* Complete tax details will be shown on your invoice.</div>
               </>
             )}
