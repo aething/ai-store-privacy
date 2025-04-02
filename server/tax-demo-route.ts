@@ -31,6 +31,9 @@ export async function createPaymentIntentWithTaxInfo(req: Request, res: Response
       override_user_country = false  // Принудительное использование переданной страны
     } = req.body;
     
+    console.log(`DEBUG REQUEST BODY: ${JSON.stringify(req.body, null, 2)}`);
+    console.log(`DEBUG COUNTRY OPTIONS: override_user_country=${override_user_country}, use_provided_country=${use_provided_country}, force_country=${force_country}, country=${country}`);
+    
     // Логика определения страны, с жестким приоритетом для override_user_country
     let actualCountry;
     
@@ -52,11 +55,19 @@ export async function createPaymentIntentWithTaxInfo(req: Request, res: Response
       console.log(`[DEFAULT] Используем обычную страну: ${country}`);
     }
     
+    // Если страна undefined, null или пустая строка, используем DE по умолчанию
+    if (!actualCountry) {
+      actualCountry = 'DE';
+      console.log(`[FALLBACK] Страна не определена, используем DE по умолчанию`);
+    }
+    
     if (!amount || !productId || !userId) {
       return res.status(400).json({ error: 'Missing required fields: amount, productId, userId' });
     }
     
     console.log(`Creating PaymentIntent for amount: ${amount} ${currency}`);
+    console.log(`Country from request: ${country}, actualCountry after processing: ${actualCountry}`);
+    console.log(`override_user_country: ${override_user_country}, use_provided_country: ${use_provided_country}, force_country: ${force_country}`);
     
     // Определяем базовую сумму и налог, используя переданные значения или рассчитывая их
     let finalBaseAmount = baseAmount;
@@ -101,7 +112,9 @@ export async function createPaymentIntentWithTaxInfo(req: Request, res: Response
       
     } else {
       // Если информация о налогах неполная, делаем расчет на сервере
+      console.log(`[TAX DEBUG] Calling calculateTaxRate with country: ${actualCountry}`);
       const taxInfo = calculateTaxRate(actualCountry);
+      console.log(`[TAX DEBUG] Tax info returned: ${JSON.stringify(taxInfo)}`);
       finalTaxRate = taxInfo.rate;
       finalTaxLabel = taxInfo.label;
       

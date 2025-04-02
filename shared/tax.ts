@@ -166,3 +166,51 @@ export function getTaxLabel(country: string, taxRate: number): string {
   }
   return 'Tax';
 }
+
+/**
+ * Получает информацию о налоге для указанной страны
+ * @param country Код страны (ISO 3166-1 alpha-2)
+ * @returns Объект с информацией о налоге (ставка и метка)
+ */
+export function calculateTaxRate(country?: string | null) {
+  console.log(`[TAX DEBUG] calculateTaxRate called with country: ${country}`);
+  
+  if (!country) {
+    console.log(`[TAX DEBUG] No country provided, returning default rate`);
+    return { rate: 0, label: 'No VAT/Tax' };
+  }
+  
+  const countryCode = country.toUpperCase();
+  console.log(`[TAX DEBUG] Processing country code: ${countryCode}`);
+  
+  // Для США - возвращаем нулевую ставку
+  if (countryCode === 'US') {
+    return { rate: 0, label: 'No Sales Tax' };
+  }
+  
+  // Для стран ЕС и других - налоговые ставки и метки
+  const taxRate = getTaxRateForCountry(countryCode);
+  
+  // Определяем метку налога в зависимости от страны
+  let taxLabel = '';
+  
+  if (countryCode === 'DE') {
+    taxLabel = `MwSt. ${(taxRate * 100).toFixed(0)}%`;
+  } else if (countryCode === 'FR') {
+    taxLabel = `TVA ${(taxRate * 100).toFixed(0)}%`;
+  } else if (countryCode === 'IT') {
+    taxLabel = `IVA ${(taxRate * 100).toFixed(0)}%`;
+  } else if (countryCode === 'ES') {
+    taxLabel = `IVA ${(taxRate * 100).toFixed(0)}%`;
+  } else if (countryCode === 'AT') {
+    taxLabel = `MwSt. ${(taxRate * 100).toFixed(0)}%`;
+  } else if (countryCode === 'BE') {
+    taxLabel = `BTW ${(taxRate * 100).toFixed(0)}%`;
+  } else if (countryCode === 'NL') {
+    taxLabel = `BTW ${(taxRate * 100).toFixed(0)}%`;
+  } else {
+    taxLabel = `VAT ${(taxRate * 100).toFixed(0)}%`;
+  }
+  
+  return { rate: taxRate, label: taxLabel };
+}

@@ -1,0 +1,53 @@
+diff --git a/server/routes.ts b/server/routes.ts
+index e54ae78..aecf6c8 100644
+--- a/server/routes.ts
++++ b/server/routes.ts
+@@ -776,7 +776,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
+   // Stripe payment routes
+   app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
+     try {
+-      const { amount, userId, productId, currency = "usd", couponCode } = req.body;
++      const { amount, userId, productId, currency = "usd", couponCode, country: requestCountry, force_country } = req.body;
+       
+       if (!amount || !userId || !productId) {
+         return res.status(400).json({ message: "Amount, userId, and productId are required" });
+@@ -801,7 +801,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
+       
+       // Create metadata object with optional coupon
+       // We already have user country info from customerData
+-      const country = customerData?.country || null;
++      // Используем улучшенную логику определения страны:
++      
++      // 1. Получаем страну из параметров URL (если есть)
++      const queryCountry = req.query.country as string | undefined;
++      
++      // 2. Определяем, нужно ли принудительно использовать переданную страну
++      const useForceCountry = force_country === true || req.query.force_country === 'true';
++      
++      // 3. Выбираем страну с учетом приоритетов:
++      //    - Если указан force_country, используем страну из запроса
++      //    - Иначе используем страну из профиля пользователя
++      //    - Если ничего не найдено, используем null
++      const country = useForceCountry ? (requestCountry || queryCountry) : (customerData?.country || requestCountry || queryCountry || null);
+       
+       const metadata: Record<string, string> = {
+         userId: userId.toString(),
+@@ -809,6 +821,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
+         currency,
+         country: country || 'unknown'
+       };
++
++      // Добавляем информацию о способе выбора страны в метаданные для отладки
++      metadata.country_source = useForceCountry ? 'force_country' : (customerData?.country ? 'user_profile' : (requestCountry ? 'request_body' : (queryCountry ? 'query_param' : 'unknown')));
+       
+       // Add coupon to metadata if provided
+       if (couponCode) {
+@@ -1189,6 +1204,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
+       console.log(`Creating PaymentIntent:`, {
+         amount,
+         currency,
++        requested_country: requestCountry || 'not specified',
++        force_country: useForceCountry,
+         country: country || 'unknown',
+         country_full: fullCountryNameForLogs,
+         tax_behavior: 'exclusive', // Налог всегда добавляется сверху цены

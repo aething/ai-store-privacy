@@ -1,0 +1,72 @@
+diff --git a/server/routes.ts b/server/routes.ts
+index e54ae78..cbf0db2 100644
+--- a/server/routes.ts
++++ b/server/routes.ts
+@@ -809,6 +809,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
+         currency,
+         country: country || 'unknown'
+       };
++
++      // Логируем страну для отладки
++      console.log(`Selected country for tax calculation: ${country || 'unknown'}`);
+       
+       // Add coupon to metadata if provided
+       if (couponCode) {
+@@ -1010,8 +1013,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
+               taxRate = 0.20;
+               taxLabel = 'VAT 20%';
+               break;
++            case 'unknown':
++              // Для неизвестной страны устанавливаем нулевую ставку налога
++              taxRate = 0;
++              taxLabel = 'No Tax (Unknown Location)';
++              console.log('Country unknown, applying zero tax rate');
++              break;
+             default:
+-              // Для стран не из списка и не из США, используем 0% НДС
++              // Для стран не из списка и не из США, используем 0% НДС,
++              // но логируем это событие для дальнейшего анализа
++              console.log(`WARNING: Unknown country code '${country}' for tax calculation, using default 0% rate`);
++              
+               taxRate = 0;
+               taxLabel = 'No VAT';
+           }
+@@ -1118,7 +1130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
+       // Если страна не указана или это Германия, применяем немецкий НДС
+       if (!country || country === 'DE') {
+         // Устанавливаем значения для Германии
+-        const defaultCountry = 'DE';
++        const defaultCountry = country || 'DE';
+         taxRate = 0.19;
+         taxLabel = 'MwSt. 19%';
+         
+@@ -1142,7 +1154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
+         
+         console.log(`Applied German VAT: ${taxAmount} ${currency}`);
+       } else if (country === 'US') {
+-        // Для США налоги не применяются
++        // Для США налоги не применяются (федеральный налог с продаж)
+         taxRate = 0;
+         taxLabel = 'No Sales Tax';
+         taxAmount = 0;
+@@ -1159,6 +1171,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
+         paymentIntentParams.description = 'Order with no sales tax';
+         
+         console.log('No tax applied for US customer');
++      } else if (country === 'unknown') {
++        // Для случая когда страна неизвестна - не применяем налог
++        taxRate = 0;
++        taxLabel = 'No Tax (Unknown Location)';
++        taxAmount = 0;
++        
++        // Добавляем информацию об отсутствии налога в метаданные
++        paymentIntentParams.metadata.tax_amount = '0';
++        paymentIntentParams.metadata.tax_rate = '0%';
++        paymentIntentParams.metadata.tax_label = taxLabel;
++        paymentIntentParams.metadata.country_code = 'unknown';
++        
++        // Сумма остается неизменной
++        paymentIntentParams.description = 'Order with no tax (unknown location)';
+       } else {
+         // Для других стран ЕС (FR, IT, ES и т.д.)
+         // Используем ставку налога и метку, определенные в switch-case выше

@@ -1,214 +1,95 @@
 /**
- * Маршруты для отладки расчета налогов
+ * Отладочные маршруты для тестирования расчета налогов
  */
-import { Router } from 'express';
-import { isEUCountry, getTaxRateForCountry, shouldUseEUR } from '../../shared/tax';
-import Stripe from 'stripe';
+
+import express, { Router, Request, Response } from 'express';
+import { calculateTaxRate } from '../../shared/tax';
 
 const router = Router();
 
-/**
- * Простой эндпоинт для расчета налогов по стране и сумме
- * GET /api/tax-debug/calculate?amount=1000&country=DE
- * POST /api/tax-debug/calculate с телом {amount: 1000, country: 'DE', currency: 'eur'}
- */
-router.get('/calculate', (req, res) => {
+// Создаем отдельный роутер для отладочных API налогов
+router.post('/api/tax-debug', (req: Request, res: Response) => {
+  const { country } = req.body;
+  
+  console.log(`[TAX DEBUG] Received country in POST body: ${country}`);
+  
   try {
-    const amount = parseInt(req.query.amount as string) || 1000;
-    const country = (req.query.country as string) || 'DE';
-    
-    const isEU = isEUCountry(country);
-    const taxRate = getTaxRateForCountry(country);
-    const currency = shouldUseEUR(country) ? 'eur' : 'usd';
-    
-    // Рассчитываем сумму налога
-    const taxAmount = Math.round(amount * taxRate);
-    const total = amount + taxAmount;
-    
-    // Определяем название налога
-    let taxLabel = 'Tax';
-    if (isEU) {
-      taxLabel = `VAT (${(taxRate * 100).toFixed(0)}%)`;
-    } else if (country === 'US') {
-      taxLabel = 'Sales Tax';
+    // Проверяем страну из запроса
+    if (!country) {
+      return res.status(400).json({
+        error: 'Country is required',
+        success: false
+      });
     }
     
-    res.json({
-      amount,
+    // Рассчитываем налоговую ставку
+    const taxInfo = calculateTaxRate(country);
+    
+    console.log(`[TAX DEBUG] Calculated tax info for ${country}:`, taxInfo);
+    
+    // Возвращаем результат
+    return res.json({
       country,
-      currency,
-      taxRate,
-      taxAmount,
-      taxLabel,
-      total,
-      isEU
+      taxInfo,
+      success: true
     });
-  } catch (error: any) {
-    console.error('Error in tax calculation:', error);
-    res.status(500).json({ 
-      error: 'Failed to calculate tax',
-      message: error.message
+  } catch (error) {
+    console.error(`[TAX DEBUG] Error calculating tax for ${country}:`, error);
+    return res.status(500).json({
+      error: String(error),
+      country,
+      success: false
     });
   }
 });
 
-/**
- * POST версия эндпоинта для расчета налогов
- * Позволяет передавать параметры в теле запроса
- */
-router.post('/calculate', (req, res) => {
+// GET маршрут для тестирования через URL
+router.get('/:country', (req: Request, res: Response) => {
+  const { country } = req.params;
+  
+  console.log(`[TAX DEBUG] Received country in URL: ${country}`);
+  
   try {
-    const amount = req.body.amount || 1000;
-    const country = req.body.country || 'DE';
-    const requestedCurrency = req.body.currency;
+    // Рассчитываем налоговую ставку
+    const taxInfo = calculateTaxRate(country);
     
-    const isEU = isEUCountry(country);
-    const taxRate = getTaxRateForCountry(country);
+    console.log(`[TAX DEBUG] Calculated tax info for ${country}:`, taxInfo);
     
-    // Определяем валюту: используем переданную в запросе или определяем по стране
-    const currency = requestedCurrency || (shouldUseEUR(country) ? 'eur' : 'usd');
-    
-    // Рассчитываем сумму налога
-    const taxAmount = Math.round(amount * taxRate);
-    const totalAmount = amount + taxAmount;
-    
-    // Определяем название налога
-    let taxLabel = 'Tax';
-    if (isEU) {
-      taxLabel = `VAT (${(taxRate * 100).toFixed(0)}%)`;
-    } else if (country === 'US') {
-      taxLabel = 'Sales Tax';
-    }
-    
-    console.log(`[Tax Debug] Расчет налога: страна ${country}, сумма ${amount} ${currency}, ставка ${taxRate * 100}%, налог ${taxAmount}`);
-    
-    res.json({
-      amount,
+    // Возвращаем результат
+    return res.json({
       country,
-      currency,
-      taxRate,
-      taxAmount,
-      taxLabel,
-      totalAmount,
-      taxInclusive: false,
-      isEU
+      taxInfo,
+      success: true
     });
-  } catch (error: any) {
-    console.error('Error in tax calculation (POST):', error);
-    res.status(500).json({ 
-      error: 'Failed to calculate tax',
-      message: error.message
+  } catch (error) {
+    console.error(`[TAX DEBUG] Error calculating tax for ${country}:`, error);
+    return res.status(500).json({
+      error: String(error),
+      country,
+      success: false
     });
   }
 });
 
-/**
- * Тестирование функции для проверки, является ли страна частью ЕС
- * GET /api/tax-debug/is-eu?country=DE
- */
-router.get('/is-eu', (req, res) => {
-  const country = (req.query.country as string) || 'DE';
-  const isEU = isEUCountry(country);
-  res.json({ country, isEU });
-});
-
-/**
- * Тестирование функции для получения налоговой ставки по стране
- * GET /api/tax-debug/tax-rate?country=DE
- */
-router.get('/tax-rate', (req, res) => {
-  const country = (req.query.country as string) || 'DE';
-  const taxRate = getTaxRateForCountry(country);
-  res.json({ country, taxRate: taxRate * 100 });
-});
-
-/**
- * Тестирование функции для определения валюты
- * GET /api/tax-debug/currency?country=DE
- */
-router.get('/currency', (req, res) => {
-  const country = (req.query.country as string) || 'DE';
-  const useEUR = shouldUseEUR(country);
-  const currency = useEUR ? 'EUR' : 'USD';
-  res.json({ country, currency });
-});
-
-/**
- * Создание тестового PaymentIntent с включенной налоговой информацией
- * POST /api/tax-debug/create-payment-intent
- * Тело запроса: {
- *   amount: number,
- *   country: string (код страны),
- *   currency?: string (по умолчанию определяется по стране)
- * }
- */
-router.post('/create-payment-intent', async (req, res) => {
+// Тестовый маршрут для проверки всех важных стран
+router.get('/all', (_req: Request, res: Response) => {
+  const countries = ['DE', 'FR', 'IT', 'ES', 'AT', 'BE', 'NL', 'FI', 'GB', 'US'];
+  const results: Record<string, any> = {};
+  
   try {
-    if (!process.env.STRIPE_SECRET_KEY) {
-      return res.status(500).json({ error: 'Stripe secret key is not configured' });
-    }
-
-    const amount = req.body.amount || 1000; // сумма в минимальных единицах (центы)
-    const country = req.body.country || 'DE'; // страна по умолчанию - Германия
-    
-    // Определяем валюту по стране (EUR для стран ЕС, USD для остальных)
-    const currency = req.body.currency || (shouldUseEUR(country) ? 'eur' : 'usd');
-    
-    // Рассчитываем налог
-    const taxRate = getTaxRateForCountry(country);
-    const taxAmount = Math.round(amount * taxRate);
-    
-    // Инициализируем Stripe
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-02-24.acacia',
-      telemetry: false,
-    });
-    
-    // Создаем PaymentIntent с указанием налога как отдельной строки
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount + taxAmount, // сумма с налогом
-      currency,
-      payment_method_types: ['card'], // обязательный параметр
-      metadata: {
-        tax_amount: taxAmount.toString(),
-        tax_rate: (taxRate * 100).toFixed(2) + '%',
-        tax_country: country,
-        base_amount: amount.toString(),
-        currency
-      },
-      description: `Test payment with tax for country ${country} (${taxRate * 100}%)`,
-    });
-    
-    // Формируем понятное название налога для отображения
-    let taxLabel = 'Tax';
-    if (isEUCountry(country)) {
-      taxLabel = `VAT (${(taxRate * 100).toFixed(0)}%)`;
-    } else if (country === 'US') {
-      taxLabel = 'Sales Tax';
+    for (const country of countries) {
+      results[country] = calculateTaxRate(country);
     }
     
-    // Отправляем ответ с данными для клиента
-    res.json({
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id,
-      amount,
-      country,
-      currency,
-      isEU: isEUCountry(country),
-      total: amount + taxAmount,
-      // Включаем налоговую информацию в формате, совместимом с TaxDisplayBoxSimple
-      tax: {
-        amount: taxAmount,
-        rate: taxRate,
-        label: taxLabel,
-        display: `${(taxRate * 100).toFixed(1)}% ${taxLabel} (${country})`
-      }
+    return res.json({
+      results,
+      success: true
     });
-  } catch (error: any) {
-    console.error('Error creating payment intent with tax:', error);
-    res.status(500).json({
-      error: 'Failed to create payment intent',
-      message: error.message
+  } catch (error) {
+    console.error('[TAX DEBUG] Error testing all countries:', error);
+    return res.status(500).json({
+      error: String(error),
+      success: false
     });
   }
 });

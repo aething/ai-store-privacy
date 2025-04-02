@@ -40,33 +40,43 @@ async function testTaxCalculation(country) {
   console.log('-'.repeat(80));
 
   try {
-    // Создаем платежное намерение с полной передачей данных как в клиентском коде
+    // Создаем платежное намерение БЕЗ передачи налоговой информации,
+    // чтобы сервер рассчитал налог на основе переданной страны
+    const requestBody = {
+      productId: 1,
+      // Передаем только базовую сумму без налога
+      amount: basePrice,
+      // НЕ передаем налоговую информацию
+      // baseAmount: basePrice,
+      // taxAmount: taxAmount,
+      // taxRate: taxRate,
+      // taxLabel: countryInfo.label,
+      currency,
+      userId: 1,
+      country,
+      override_user_country: true,
+      use_provided_country: true,
+      force_country: country,
+      metadata: {
+        country,
+        force_country: country,
+        testMode: 'true', // Добавляем тестовый режим
+        debug: 'true',    // Добавляем отладку
+        // Не передаем налоговую информацию, чтобы сервер сам рассчитал
+        // taxRate: taxRate.toString(),
+        // taxLabel: countryInfo.label,
+        // basePrice: basePrice.toString(),
+        // taxAmount: taxAmount.toString(),
+        // totalWithTax: totalAmount.toString()
+      }
+    };
+    
+    console.log('Sending request with body:', JSON.stringify(requestBody, null, 2));
+    
     const request = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        productId: 1,
-        amount: totalAmount,
-        baseAmount: basePrice,
-        taxAmount,
-        taxRate,
-        taxLabel: countryInfo.label,
-        currency,
-        userId: 1,
-        country,
-        override_user_country: true,
-        use_provided_country: true,
-        force_country: country,
-        metadata: {
-          country,
-          force_country: country,
-          taxRate: taxRate.toString(),
-          taxLabel: countryInfo.label,
-          basePrice: basePrice.toString(),
-          taxAmount: taxAmount.toString(),
-          totalWithTax: totalAmount.toString()
-        }
-      })
+      body: JSON.stringify(requestBody)
     };
 
     console.log('Выполняем запрос с полными данными о налогах...');
