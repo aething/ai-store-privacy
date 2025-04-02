@@ -96,10 +96,10 @@ if (!stripeKey) {
 }
 
 /**
- * Create a payment intent for a product
+ * Create a payment intent for a product with tax calculation
  * @param productId The ID of the product to purchase
  * @param userId The ID of the user making the purchase
- * @param country The country of the user (for currency determination)
+ * @param country The country of the user (for currency and tax determination)
  * @param couponCode Optional coupon code for tracking and discounts
  */
 export async function createPaymentIntent(
@@ -132,21 +132,98 @@ export async function createPaymentIntent(
   const product: Product = await response.json();
   
   // Use the appropriate price based on currency
-  const amount = currency === 'eur' ? product.priceEUR : product.price;
+  const baseAmount = currency === 'eur' ? product.priceEUR : product.price;
+  
+  // Расчет налога в зависимости от страны пользователя
+  let taxRate = 0;
+  let taxLabel = 'No VAT/Tax';
+  
+  // Для стран ЕС применяем соответствующие ставки НДС
+  if (country) {
+    const euVatRates: Record<string, { rate: number; label: string }> = {
+      // Страны ЕС
+      'AT': { rate: 0.20, label: 'MwSt. 20%' }, // Австрия
+      'BE': { rate: 0.21, label: 'BTW 21%' },   // Бельгия
+      'BG': { rate: 0.20, label: 'ДДС 20%' },   // Болгария
+      'HR': { rate: 0.25, label: 'PDV 25%' },   // Хорватия
+      'CY': { rate: 0.19, label: 'ΦΠΑ 19%' },   // Кипр
+      'CZ': { rate: 0.21, label: 'DPH 21%' },   // Чехия
+      'DK': { rate: 0.25, label: 'MOMS 25%' },  // Дания
+      'EE': { rate: 0.22, label: 'KM 22%' },    // Эстония
+      'FI': { rate: 0.255, label: 'ALV 25.5%' }, // Финляндия
+      'FR': { rate: 0.20, label: 'TVA 20%' },   // Франция
+      'DE': { rate: 0.19, label: 'MwSt. 19%' }, // Германия
+      'GR': { rate: 0.24, label: 'ΦΠΑ 24%' },   // Греция
+      'HU': { rate: 0.27, label: 'ÁFA 27%' },   // Венгрия
+      'IE': { rate: 0.23, label: 'VAT 23%' },   // Ирландия
+      'IT': { rate: 0.22, label: 'IVA 22%' },   // Италия
+      'LV': { rate: 0.21, label: 'PVN 21%' },   // Латвия
+      'LT': { rate: 0.21, label: 'PVM 21%' },   // Литва
+      'LU': { rate: 0.16, label: 'TVA 16%' },   // Люксембург
+      'MT': { rate: 0.18, label: 'VAT 18%' },   // Мальта
+      'NL': { rate: 0.21, label: 'BTW 21%' },   // Нидерланды
+      'PL': { rate: 0.23, label: 'VAT 23%' },   // Польша
+      'PT': { rate: 0.23, label: 'IVA 23%' },   // Португалия
+      'RO': { rate: 0.19, label: 'TVA 19%' },   // Румыния
+      'SK': { rate: 0.23, label: 'DPH 23%' },   // Словакия
+      'SI': { rate: 0.22, label: 'DDV 22%' },   // Словения
+      'ES': { rate: 0.21, label: 'IVA 21%' },   // Испания
+      'SE': { rate: 0.25, label: 'MOMS 25%' },  // Швеция
+      'GB': { rate: 0.20, label: 'VAT 20%' },   // Великобритания
+      // Другие европейские страны
+      'CH': { rate: 0.081, label: 'MWST 8.1%' }, // Швейцария
+      'IS': { rate: 0.24, label: 'VSK 24%' },    // Исландия
+      'NO': { rate: 0.25, label: 'MVA 25%' },    // Норвегия
+    };
+    
+    if (euVatRates[country]) {
+      taxRate = euVatRates[country].rate;
+      taxLabel = euVatRates[country].label;
+    }
+  }
+  
+  // Вычисляем сумму налога
+  const taxAmount = taxRate > 0 ? Math.round(baseAmount * taxRate) : 0;
+  
+  // Вычисляем полную сумму с налогом
+  const totalAmount = baseAmount + taxAmount;
+  
+  console.log('Payment calculation with tax:', {
+    baseAmount,
+    taxRate,
+    taxAmount,
+    totalAmount,
+    country,
+    taxLabel
+  });
   
   // Check if this is a Stripe product (already in dollar/euro amounts, not cents)
   const isStripePrice = !!product.stripeProductId;
   
   // For Stripe products, convert dollar/euro amounts to cents
-  const amountInCents = isStripePrice ? Math.round(amount * 100) : amount;
+  const baseAmountInCents = isStripePrice ? Math.round(baseAmount * 100) : baseAmount;
+  const totalAmountInCents = isStripePrice ? Math.round(totalAmount * 100) : totalAmount;
+  const taxAmountInCents = isStripePrice ? Math.round(taxAmount * 100) : taxAmount;
   
-  // Create the payment intent
+  // Create the payment intent with tax information
   const paymentResponse = await apiRequest('POST', '/api/create-payment-intent', {
-    amount: amountInCents, // Use the amount in cents for Stripe
+    amount: totalAmountInCents, // ВАЖНО: отправляем ПОЛНУЮ сумму с налогом
+    baseAmount: baseAmountInCents, // Базовая сумма без налога
+    taxAmount: taxAmountInCents, // Сумма налога
+    taxRate: taxRate,
+    taxLabel: taxLabel,
     userId,
     productId,
     currency,
-    couponCode: couponCode || undefined // Only include if we have a coupon
+    couponCode: couponCode || undefined, // Only include if we have a coupon
+    metadata: {
+      country: country || 'unknown',
+      taxRate: taxRate.toString(),
+      taxLabel: taxLabel,
+      baseAmount: baseAmount.toString(),
+      taxAmount: taxAmount.toString(),
+      totalWithTax: totalAmount.toString()
+    }
   });
   
   if (!paymentResponse.ok) {
