@@ -146,7 +146,7 @@ export default function StandaloneTaxDemo() {
           taxAmount={taxAmount}
           taxRate={rate}
           taxLabel={label}
-          showDebugInfo={true}
+          showDebugInfo={false}
         />
       </div>
       

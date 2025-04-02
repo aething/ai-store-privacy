@@ -24,7 +24,7 @@ const TaxDisplayBoxSimple: React.FC<TaxDisplayBoxProps> = ({
   subtotal,
   currency,
   className = '',
-  showDetails = true
+  showDetails = false
 }) => {
   console.log('TaxDisplayBoxSimple rendering:', { tax, subtotal, currency });
   
