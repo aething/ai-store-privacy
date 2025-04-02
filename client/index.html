@@ -17,7 +17,27 @@
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
   <link rel="shortcut icon" href="/icons/icon-192x192.png">
   
-  <!-- Принудительная регистрация Service Worker -->
+  <!-- Принудительная регистрация Service Worker с немедленной активацией -->
+  <script>
+    // Сначала проверяем, есть ли уже активный контроллер
+    if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
+      console.log('🚀 Экстренная регистрация Service Worker');
+      // Принудительно активируем на этой странице
+      navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+        .then(reg => {
+          console.log('✅ Экстренная регистрация выполнена успешно');
+          if (reg.active) {
+            reg.active.postMessage({ type: 'SKIP_WAITING' });
+          }
+          if (reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+          // Перезагрузка страницы для немедленной активации
+          window.location.reload();
+        })
+        .catch(err => console.error('❌ Ошибка экстренной регистрации:', err));
+    }
+  </script>
   <script src="/sw-installer.js"></script>
   
   <!-- Скрипты для управления кэшем и отладки -->

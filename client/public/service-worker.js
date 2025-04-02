@@ -65,8 +65,20 @@ self.addEventListener('message', event => {
 
 // Обработчик события установки Service Worker
 self.addEventListener('install', event => {
-  console.log('Service Worker: Установка началась');
-  self.skipWaiting(); // Принудительно активируем SW даже если есть активная старая версия
+  console.log('Service Worker: Установка началась (версия ' + APP_VERSION + ')');
+  
+  // Агрессивно активируем Service Worker без ожидания
+  self.skipWaiting();
+  
+  // Отправляем сообщение о событии установки для отладки
+  try {
+    sendMessageToAllClients({
+      type: 'SW_INSTALL_START',
+      payload: { version: APP_VERSION, timestamp: Date.now() }
+    });
+  } catch (e) {
+    console.error('Ошибка при отправке сообщения об установке:', e);
+  }
   
   event.waitUntil(
     Promise.all([
@@ -108,6 +120,21 @@ self.addEventListener('install', event => {
 
 // Обработчик события активации Service Worker
 self.addEventListener('activate', event => {
+  console.log('Service Worker: Активация началась (версия ' + APP_VERSION + ')');
+  
+  // Принудительно перехватываем все открытые клиенты
+  event.waitUntil(self.clients.claim());
+  
+  // Отправляем сообщение о начале активации
+  try {
+    sendMessageToAllClients({
+      type: 'SW_ACTIVATE_START',
+      payload: { version: APP_VERSION, timestamp: Date.now() }
+    });
+  } catch (e) {
+    console.error('Ошибка при отправке сообщения о начале активации:', e);
+  }
+  
   // Очищаем старые кэши
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -123,11 +150,22 @@ self.addEventListener('activate', event => {
           })
       );
     }).then(() => {
-      console.log('Service Worker активирован');
+      console.log('Service Worker активирован и контролирует все клиенты');
+      
+      // Проверяем, сколько клиентов контролируется
+      return self.clients.matchAll({ includeUncontrolled: false });
+    }).then(controlledClients => {
+      console.log(`Service Worker контролирует ${controlledClients.length} клиентов`);
+      
       // Отправляем сообщение о версии в клиент
       sendMessageToAllClients({
         type: 'VERSION_INFO',
-        payload: { version: APP_VERSION }
+        payload: { 
+          version: APP_VERSION,
+          timestamp: Date.now(),
+          controlled: controlledClients.length,
+          status: 'active'
+        }
       });
     }).catch(error => {
       console.error('Ошибка при активации Service Worker:', error);
