@@ -1,96 +1,86 @@
-// Импортируем только необходимые функции, без hooks и контекста
-import { formatPrice } from "@/lib/currency";
+import React from 'react';
 
-interface TaxDisplayBoxSimpleProps {
-  country: string | null;
+interface TaxInfo {
+  amount: number;
+  rate: number;
+  label: string;
+  display?: string;
+}
+
+interface TaxDisplayBoxProps {
+  tax: TaxInfo | null;
+  subtotal: number;
   currency: string;
-  baseAmount: number;
-  taxAmount: number;
-  taxRate: number;
-  taxLabel: string;
-  stripeData?: boolean; // флаг, указывающий, что данные получены от Stripe
-  showDebugInfo?: boolean;
+  className?: string;
+  showDetails?: boolean;
 }
 
 /**
- * Упрощенный компонент для отображения информации о налоге, не использующий контекст
- * 
- * Важно: все цены указаны в виде exclusive (НДС добавляется сверху цены)
- * Этот компонент не использует React hooks и может быть использован где угодно
+ * Упрощенный компонент для отображения информации о налоге
+ * Разработан для использования вне зависимости от других компонентов и контекста
  */
-export function TaxDisplayBoxSimple({ 
-  country, 
-  currency, 
-  baseAmount,
-  taxAmount,
-  taxRate,
-  taxLabel,
-  stripeData = false,
-  showDebugInfo = false
-}: TaxDisplayBoxSimpleProps) {
-  // Даже если страна не указана, все равно показываем информацию о налогах
-  const displayCountry = country || 'DE';
-  
-  // Простая функция форматирования цены если импорт не работает
-  const formatPriceLocal = (amount: number, currency: string): string => {
-    const formatter = new Intl.NumberFormat('en-US', {
+const TaxDisplayBoxSimple: React.FC<TaxDisplayBoxProps> = ({
+  tax,
+  subtotal,
+  currency,
+  className = '',
+  showDetails = true
+}) => {
+  // Форматирование валюты
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency === 'eur' ? 'EUR' : 'USD',
-      minimumFractionDigits: 2,
-    });
-    
-    // Цена в центах, переводим в основные единицы
-    return formatter.format(amount / 100);
+      currency: currency.toUpperCase()
+    }).format(amount / 100);
   };
-  
-  const formattedTaxAmount = formatPrice ? formatPrice(taxAmount, currency, false) : formatPriceLocal(taxAmount, currency);
-  const formattedBaseAmount = formatPrice ? formatPrice(baseAmount, currency, false) : formatPriceLocal(baseAmount, currency);
-  const formattedTotalAmount = formatPrice ? formatPrice(baseAmount + taxAmount, currency, false) : formatPriceLocal(baseAmount + taxAmount, currency);
-  
+
+  // Если налоговая информация не предоставлена, показываем "Без налога"
+  if (!tax) {
+    return (
+      <div className={`tax-display-box ${className}`}>
+        <div className="summary-item">
+          <span>Subtotal:</span>
+          <span>{formatCurrency(subtotal)}</span>
+        </div>
+        <div className="summary-item">
+          <span>Tax:</span>
+          <span>{formatCurrency(0)}</span>
+        </div>
+        <div className="summary-item total">
+          <span>Total:</span>
+          <span>{formatCurrency(subtotal)}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Рассчитываем итоговую сумму
+  const totalAmount = subtotal + tax.amount;
+
   return (
-    <div className="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200 shadow-sm">
-      <div className="flex justify-between font-medium">
-        <span className="text-sm text-gray-800 flex items-center">
-          {taxLabel}
-          <span className="ml-2 px-1 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">{displayCountry.toUpperCase()}</span>
-        </span>
-        <span className="text-sm font-semibold">
-          {formattedTaxAmount}
-        </span>
+    <div className={`tax-display-box ${className}`}>
+      <div className="summary-item">
+        <span>Subtotal:</span>
+        <span>{formatCurrency(subtotal)}</span>
       </div>
-      
-      {taxAmount > 0 && (
-        <div className="flex justify-between text-sm mt-2 text-gray-700 pt-2 border-t border-gray-200">
-          <span>Total with Tax</span>
-          <span className="font-semibold">{formattedTotalAmount}</span>
+      <div className="summary-item">
+        <span>Tax ({tax.label}):</span>
+        <span>{formatCurrency(tax.amount)}</span>
+      </div>
+      {showDetails && tax.rate > 0 && (
+        <div className="tax-details">
+          <small>
+            {tax.display || `${(tax.rate * 100).toFixed(2)}% ${tax.label}`}
+          </small>
         </div>
       )}
-      
-      {/* Пояснение о налогах */}
-      <div className="mt-2 text-xs text-gray-500">
-        {displayCountry === 'DE' ? (
-          <div className="italic">* Price excludes VAT, which is added at checkout</div>
-        ) : displayCountry === 'US' ? (
-          <div className="italic">* No sales tax is applied as nexus thresholds haven't been reached</div>
-        ) : (
-          <div className="italic">* Tax rates are calculated based on your location</div>
-        )}
+      <div className="summary-item total">
+        <span>Total:</span>
+        <span>{formatCurrency(totalAmount)}</span>
       </div>
-      
-      {showDebugInfo && (
-        <div className="mt-2 text-xs text-gray-500 border-t border-gray-200 pt-2">
-          <div>Debug: Country: {country}</div>
-          <div>Tax Rate: {(taxRate * 100).toFixed(2)}%</div>
-          <div>Base Amount: {formattedBaseAmount}</div>
-          <div>Tax Amount: {formattedTaxAmount}</div>
-          <div>Total: {formattedTotalAmount}</div>
-          {stripeData && (
-            <div className="mt-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-sm text-xs font-mono">
-              ✓ Using tax data from Stripe
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
-}
+};
+
+export default TaxDisplayBoxSimple;
+export { TaxDisplayBoxSimple };

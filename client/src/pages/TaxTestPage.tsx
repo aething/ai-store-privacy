@@ -1,34 +1,23 @@
-import { ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
-import { Card } from "@/components/ui/card";
-import { TaxDisplayBoxSimple } from "@/components/TaxDisplayBoxSimple";
-import { formatPrice } from "@/lib/currency";
-import { useState, useEffect } from "react";
+import React, { useState } from 'react';
+import { TaxDisplayBoxSimple } from '../components/TaxDisplayBoxSimple';
 
-/**
- * Тестовая страница для отображения налоговой информации
- */
-export default function TaxTestPage() {
-  const [, setLocation] = useLocation();
-  
-  // Тестовые данные
-  const countries = [
-    { code: 'DE', name: 'Germany' },
-    { code: 'FR', name: 'France' },
-    { code: 'IT', name: 'Italy' },
-    { code: 'ES', name: 'Spain' },
-    { code: 'US', name: 'United States' },
-    { code: 'GB', name: 'United Kingdom' }
-  ];
+interface TaxInfo {
+  amount: number;
+  rate: number;
+  label: string;
+  display?: string;
+}
 
-  const [selectedCountry, setSelectedCountry] = useState('DE');
-  const [baseAmount, setBaseAmount] = useState(276000); // 2760 EUR in cents
-  const [taxRate, setTaxRate] = useState(0.19); // 19% for Germany
-  const [taxAmount, setTaxAmount] = useState(Math.round(276000 * 0.19)); // 19% tax for Germany
-  const [taxLabel, setTaxLabel] = useState('MwSt. 19%');
-  const [currency, setCurrency] = useState<'usd' | 'eur'>('eur');
-  
-  // Функция для расчета налогов в зависимости от страны
+const TaxTestPage: React.FC = () => {
+  const [amount, setAmount] = useState<number>(1000);
+  const [currency, setCurrency] = useState<string>('usd');
+  const [country, setCountry] = useState<string>('US');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [taxInfo, setTaxInfo] = useState<TaxInfo | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Расчет налогов на основе страны
   const calculateTaxRate = (country: string) => {
     const euVatRates: Record<string, { rate: number; label: string }> = {
       // Страны ЕС
@@ -41,122 +30,164 @@ export default function TaxTestPage() {
     };
     
     return euVatRates[country] || { rate: 0, label: 'No VAT/Tax' };
-  };
-  
-  // Обновляем налоговую информацию при изменении страны
-  useEffect(() => {
-    const { rate, label } = calculateTaxRate(selectedCountry);
-    setTaxRate(rate);
-    setTaxLabel(label);
+  }
+
+  // Расчет налога локально для предварительного отображения
+  const calculateLocalTax = (): TaxInfo => {
+    const { rate, label } = calculateTaxRate(country);
+    const taxAmount = Math.round(amount * rate);
     
-    // Устанавливаем валюту в зависимости от страны (EUR для стран ЕС, USD для остальных)
-    if (['DE', 'FR', 'IT', 'ES'].includes(selectedCountry)) {
-      setCurrency('eur');
-      // Цена в EUR для стран ЕС
-      setBaseAmount(276000); // 2760 EUR в центах
-    } else {
-      setCurrency('usd');
-      // Цена в USD для остальных стран
-      setBaseAmount(284500); // 2845 USD в центах
-    }
+    return {
+      amount: taxAmount,
+      rate,
+      label
+    };
+  }
+
+  // Создание Payment Intent с расчетом налога на сервере
+  const createPaymentIntent = async () => {
+    setLoading(true);
+    setErrorMessage(null);
     
-    // Рассчитываем налог
-    const newTaxAmount = Math.round(baseAmount * rate);
-    setTaxAmount(newTaxAmount);
-    
-    console.log(`Changed country to ${selectedCountry}, tax rate: ${rate * 100}%, tax amount: ${newTaxAmount}`);
-  }, [selectedCountry]);
-  
-  return (
-    <div className="container max-w-2xl mx-auto py-4">
-      <div className="flex items-center mb-4">
-        <button 
-          className="p-1 mr-2"
-          onClick={() => setLocation("/")}
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <h2 className="text-xl font-bold">Tax Display Test Page</h2>
-      </div>
+    try {
+      const response = await fetch('/api/tax-debug/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          productId: 1,
+          userId: 1,
+          amount,
+          currency,
+          country
+        })
+      });
       
-      <Card className="p-6 mb-6">
-        <h3 className="font-medium mb-4">Select Country to Test Tax Calculation</h3>
+      if (!response.ok) {
+        throw new Error('Server responded with an error');
+      }
+      
+      const result = await response.json();
+      
+      setClientSecret(result.clientSecret);
+      setTaxInfo(result.tax || null);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Предварительный локальный расчет налога
+  const localTax = calculateLocalTax();
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Tax Calculation Test</h1>
+      
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-semibold mb-4">Configure Test Parameters</h2>
         
-        <div className="grid grid-cols-3 gap-2 mb-6">
-          {countries.map(country => (
-            <button
-              key={country.code}
-              className={`p-2 border rounded-md ${selectedCountry === country.code ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}
-              onClick={() => setSelectedCountry(country.code)}
-            >
-              {country.name}
-            </button>
-          ))}
-        </div>
-        
-        <div className="border-t border-b py-4 my-4">
-          <div className="mb-4">
-            <h4 className="font-medium">Product Details</h4>
-            <div className="flex justify-between mt-2">
-              <span>AI-Driven Solutions</span>
-              <span className="font-medium">{formatPrice(baseAmount, currency, false)}</span>
-            </div>
-          </div>
-          
-          <table className="w-full mb-4">
-            <tbody>
-              <tr className="mb-2">
-                <td className="text-left pb-2">Subtotal</td>
-                <td className="text-right pb-2">{formatPrice(baseAmount, currency, false)}</td>
-              </tr>
-              
-              {/* Налоговая информация */}
-              <tr className="mb-2 bg-yellow-50">
-                <td className="text-left pb-2 pt-2 font-medium">
-                  <span className="flex items-center">
-                    {taxLabel}
-                    <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{selectedCountry}</span>
-                  </span>
-                </td>
-                <td className="text-right pb-2 pt-2 font-medium">
-                  {formatPrice(taxAmount, currency, false)}
-                </td>
-              </tr>
-              
-              <tr className="font-bold text-lg bg-green-50">
-                <td className="text-left pt-2 pb-2 border-t">Total</td>
-                <td className="text-right pt-2 pb-2 border-t">
-                  {formatPrice(baseAmount + taxAmount, currency, false)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h4 className="font-medium mb-2">Tax Details Component:</h4>
-            <TaxDisplayBoxSimple 
-              country={selectedCountry}
-              currency={currency}
-              baseAmount={baseAmount}
-              taxAmount={taxAmount}
-              taxRate={taxRate}
-              taxLabel={taxLabel}
-              showDebugInfo={true}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Amount (in cents)</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+              min={50}
             />
           </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Currency</label>
+            <select
+              className="w-full p-2 border rounded"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              <option value="usd">USD</option>
+              <option value="eur">EUR</option>
+              <option value="gbp">GBP</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium mb-1">Country</label>
+            <select
+              className="w-full p-2 border rounded"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+            >
+              <option value="US">United States</option>
+              <option value="DE">Germany</option>
+              <option value="FR">France</option>
+              <option value="IT">Italy</option>
+              <option value="ES">Spain</option>
+              <option value="GB">United Kingdom</option>
+            </select>
+          </div>
         </div>
         
-        <div className="text-sm text-gray-500">
-          <p className="mb-2">
-            <strong>Note:</strong> This page is for testing the tax display component without 
-            the need for authentication. The tax rates are calculated based on the selected country.
-          </p>
-          <p>
-            <strong>Technical details:</strong> Using the simplified TaxDisplayBoxSimple component 
-            to avoid hook-related errors that were occurring with the original TaxDisplayBox component.
-          </p>
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+          onClick={createPaymentIntent}
+          disabled={loading}
+        >
+          {loading ? 'Calculating...' : 'Calculate Tax & Create Payment Intent'}
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-4">Local Tax Calculation (Client-Side)</h2>
+          <TaxDisplayBoxSimple
+            tax={localTax}
+            subtotal={amount}
+            currency={currency}
+            className="bg-gray-50 p-4 rounded"
+          />
+          <div className="mt-4 text-sm text-gray-600">
+            <p>This calculation is done locally in the browser for preview purposes.</p>
+            <p>Local calculation uses simplified tax rules and may not be accurate for all cases.</p>
+          </div>
         </div>
-      </Card>
+        
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-4">Server Tax Calculation (API)</h2>
+          
+          {errorMessage && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <p>{errorMessage}</p>
+            </div>
+          )}
+          
+          {taxInfo ? (
+            <>
+              <TaxDisplayBoxSimple
+                tax={taxInfo}
+                subtotal={amount}
+                currency={currency}
+                className="bg-gray-50 p-4 rounded"
+              />
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded text-sm">
+                <p className="font-semibold">Payment Intent Created</p>
+                <p className="mt-1 break-all">Client Secret: {clientSecret}</p>
+              </div>
+            </>
+          ) : (
+            <div className="bg-gray-50 p-4 rounded text-center">
+              <p className="text-gray-500">Click the calculate button to get server-side tax calculation</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default TaxTestPage;
