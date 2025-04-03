@@ -1,9 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
+import { useState } from 'react';
 
-const App = () => {
-  const [count, setCount] = React.useState(0);
+function App() {
+  const [count, setCount] = useState(0);
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
@@ -33,10 +31,6 @@ const App = () => {
       </div>
     </div>
   );
-};
+}
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+export default App;
