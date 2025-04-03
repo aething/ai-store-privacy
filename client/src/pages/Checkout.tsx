@@ -340,20 +340,56 @@ const CheckoutForm = ({
       {/* Добавляем компонент для сбора полной информации о доставке */}
       <div className="mt-6 mb-4">
         <h3 className="text-base font-medium mb-3">Shipping Address</h3>
-        <div className="border border-gray-400 rounded-md p-1 bg-white">
-          <AddressElement 
-            options={{
-              mode: 'shipping'
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="border border-gray-400 rounded-md p-1 bg-white">
-        <PaymentElement 
-          id="payment-element"
+        <AddressElement 
+          options={{
+            mode: 'shipping',
+            fields: {
+              phone: 'always'
+            },
+            appearance: {
+              theme: 'flat',
+              variables: {
+                fontFamily: 'system-ui, sans-serif',
+                borderRadius: '4px',
+                colorBackground: 'white'
+              },
+              rules: {
+                '.Input': {
+                  border: '1px solid #9ca3af',
+                  boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
+                }
+              }
+            }
+          }}
         />
       </div>
+
+      <PaymentElement 
+        id="payment-element"
+        options={{
+          appearance: {
+            theme: 'flat',
+            variables: {
+              fontFamily: 'system-ui, sans-serif',
+              borderRadius: '4px',
+              colorBackground: 'white'
+            },
+            rules: {
+              '.Input': {
+                border: '1px solid #9ca3af',
+                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
+              }
+            }
+          },
+          layout: {
+            type: 'tabs',
+            defaultCollapsed: false
+          },
+          fields: {
+            billingDetails: 'never'
+          }
+        }}
+      />
       
       <button 
         type="submit"
