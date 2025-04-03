@@ -340,16 +340,20 @@ const CheckoutForm = ({
       {/* Добавляем компонент для сбора полной информации о доставке */}
       <div className="mt-6 mb-4">
         <h3 className="text-base font-medium mb-3">Shipping Address</h3>
-        <AddressElement 
-          options={{
-            mode: 'shipping'
-          }}
-        />
+        <div className="border border-gray-400 rounded-md p-1 bg-white">
+          <AddressElement 
+            options={{
+              mode: 'shipping'
+            }}
+          />
+        </div>
       </div>
 
-      <PaymentElement 
-        id="payment-element"
-      />
+      <div className="border border-gray-400 rounded-md p-1 bg-white">
+        <PaymentElement 
+          id="payment-element"
+        />
+      </div>
       
       <button 
         type="submit"
