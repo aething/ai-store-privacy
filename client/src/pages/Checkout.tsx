@@ -4,7 +4,7 @@ import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
-import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
+import { useStripe, Elements, PaymentElement, useElements, LinkAuthenticationElement, AddressElement } from '@stripe/react-stripe-js';
 import { useEffect, useState } from "react";
 import stripePromise from "@/lib/stripe";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
@@ -62,7 +62,22 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement />
+      {/* Элемент аутентификации для Link (сохраняет email для будущих покупок) */}
+      <LinkAuthenticationElement
+        options={{
+          defaultValues: {
+            email: user?.email || '',
+          },
+        }}
+      />
+      
+      {/* Основной элемент оплаты с поддержкой Apple Pay, Google Pay и Link */}
+      <PaymentElement 
+        options={{
+          paymentMethodOrder: ['apple_pay', 'google_pay', 'link', 'card'],
+        }}
+      />
+      
       <button 
         type="submit"
         disabled={!stripe || isLoading}
@@ -588,6 +603,12 @@ export default function Checkout() {
                 variables: {
                   colorPrimary: '#6200EE',
                 }
+              },
+              paymentMethodCreation: "manual",
+              paymentMethodTypes: ["card", "apple_pay", "google_pay", "link"],
+              wallets: {
+                applePay: "auto",
+                googlePay: "auto"
               }
             }}
           >
