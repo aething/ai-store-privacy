@@ -1,9 +1,9 @@
 // Название для кэша ресурсов и API
-const APP_CACHE_NAME = 'ai-store-cache-v1';
-const API_CACHE_NAME = 'ai-store-api-cache-v1';
+const APP_CACHE_NAME = 'ai-store-cache-v2';
+const API_CACHE_NAME = 'ai-store-api-cache-v2';
 
 // Версия кэша, обновлять при внесении изменений в приложение
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 
 // Ресурсы, которые будут предварительно кэшироваться
 const PRECACHE_URLS = [
@@ -152,8 +152,41 @@ async function handleResourceRequest(request) {
   // Проверяем, запрашивается ли HTML-страница (навигационный запрос)
   const isNavigationRequest = request.mode === 'navigate';
   
+  // Для HTML-страниц (навигационных запросов) сначала проверяем кэш, затем сеть
+  // Это предотвращает проблему с белым экраном во время загрузки
+  if (isNavigationRequest) {
+    console.log('[Service Worker] Navigation request for:', url.pathname);
+    
+    try {
+      // Сначала пытаемся получить ответ из кэша
+      const cache = await caches.open(APP_CACHE_NAME);
+      const cachedResponse = await cache.match(request);
+      
+      if (cachedResponse) {
+        console.log('[Service Worker] Serving from cache:', url.pathname);
+        
+        // Обновляем кэш в фоне
+        fetch(request)
+          .then(networkResponse => {
+            if (networkResponse.ok) {
+              console.log('[Service Worker] Updating cached page:', url.pathname);
+              cache.put(request, networkResponse);
+            }
+          })
+          .catch(error => {
+            console.log('[Service Worker] Background fetch failed:', error);
+          });
+        
+        return cachedResponse;
+      }
+    } catch (error) {
+      console.error('[Service Worker] Cache error:', error);
+    }
+  }
+  
+  // Для всех остальных запросов или если страница не в кэше - сначала сеть, затем кэш
   try {
-    // Сначала пытаемся получить ответ из сети
+    // Пытаемся получить ответ из сети
     const networkResponse = await fetch(request);
     
     // Если запрос успешен, кэшируем ответ и возвращаем его
@@ -161,6 +194,7 @@ async function handleResourceRequest(request) {
       // Кэшируем ответ в фоне для будущих запросов
       caches.open(APP_CACHE_NAME)
         .then(cache => {
+          console.log('[Service Worker] Caching new resource:', url.pathname);
           cache.put(request, networkResponse.clone());
         })
         .catch(error => {
@@ -179,6 +213,7 @@ async function handleResourceRequest(request) {
     const cachedResponse = await cache.match(request);
     
     if (cachedResponse) {
+      console.log('[Service Worker] Serving from cache after network fail:', url.pathname);
       return cachedResponse;
     }
   } catch (error) {

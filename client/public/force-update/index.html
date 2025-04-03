@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Обновление кэша приложения</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f8fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      text-align: center;
+      color: #0d6efd;
+      margin-top: 0;
+    }
+    
+    .progress-container {
+      margin: 30px 0;
+      background-color: #e9ecef;
+      border-radius: 4px;
+      height: 20px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #0d6efd;
+      transition: width 0.5s;
+    }
+    
+    .status {
+      text-align: center;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    
+    .actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    
+    button {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #0b5ed7;
+    }
+    
+    .log {
+      margin-top: 30px;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 10px;
+      height: 150px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    
+    .log-entry {
+      margin: 5px 0;
+      padding: 0;
+    }
+    
+    .success {
+      color: #198754;
+    }
+    
+    .error {
+      color: #dc3545;
+    }
+    
+    .info {
+      color: #0d6efd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Обновление кэша приложения</h1>
+    <p>Эта страница поможет обновить кэш и решить проблемы с отображением приложения. Процесс выполняет следующие действия:</p>
+    
+    <ol>
+      <li>Удаляет старый кэш приложения</li>
+      <li>Обновляет сервис-воркер</li>
+      <li>Перезагружает приложение</li>
+    </ol>
+    
+    <div class="progress-container">
+      <div class="progress-bar" id="progress"></div>
+    </div>
+    
+    <div class="status" id="status">Готово к обновлению</div>
+    
+    <div class="actions">
+      <button id="start-btn">Начать обновление</button>
+    </div>
+    
+    <div class="log" id="log">
+      <div class="log-entry info">Система готова к обновлению кэша.</div>
+    </div>
+  </div>
+  
+  <script>
+    // Элементы интерфейса
+    const progressBar = document.getElementById('progress');
+    const statusText = document.getElementById('status');
+    const startButton = document.getElementById('start-btn');
+    const logContainer = document.getElementById('log');
+    
+    // Добавление записи в лог
+    function addLog(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = message;
+      logContainer.appendChild(entry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+    
+    // Обновление прогресса
+    function updateProgress(percent, message) {
+      progressBar.style.width = `${percent}%`;
+      statusText.textContent = message;
+    }
+    
+    // Очистка кэшей
+    async function clearCaches() {
+      try {
+        updateProgress(20, 'Очистка кэшей...');
+        addLog('Получение списка кэшей...');
+        
+        const cacheNames = await caches.keys();
+        addLog(`Найдено ${cacheNames.length} кэшей.`);
+        
+        updateProgress(40, 'Удаление старых кэшей...');
+        
+        for (const cacheName of cacheNames) {
+          addLog(`Удаление кэша: ${cacheName}`);
+          await caches.delete(cacheName);
+        }
+        
+        addLog('Все кэши успешно удалены.', 'success');
+        return true;
+      } catch (error) {
+        addLog(`Ошибка при очистке кэшей: ${error.message}`, 'error');
+        return false;
+      }
+    }
+    
+    // Обновление сервис-воркера
+    async function updateServiceWorker() {
+      try {
+        updateProgress(60, 'Обновление сервис-воркера...');
+        
+        if (!('serviceWorker' in navigator)) {
+          addLog('Service Worker не поддерживается в этом браузере.', 'error');
+          return false;
+        }
+        
+        addLog('Регистрация новой версии сервис-воркера...');
+        
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        
+        for (const registration of registrations) {
+          addLog(`Обновление регистрации: ${registration.scope}`);
+          await registration.update();
+          
+          if (registration.waiting) {
+            addLog('Отправка сообщения SKIP_WAITING...');
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+        }
+        
+        addLog('Сервис-воркер успешно обновлен.', 'success');
+        return true;
+      } catch (error) {
+        addLog(`Ошибка при обновлении сервис-воркера: ${error.message}`, 'error');
+        return false;
+      }
+    }
+    
+    // Очистка localStorage
+    function clearLocalStorage() {
+      try {
+        updateProgress(80, 'Очистка локального хранилища...');
+        
+        addLog('Сохранение важных данных...');
+        
+        // Сохраняем данные пользователя и страны
+        let userData = null;
+        let country = null;
+        
+        try {
+          userData = localStorage.getItem('user');
+          country = localStorage.getItem('country');
+        } catch (e) {
+          addLog('Ошибка при сохранении данных пользователя.', 'error');
+        }
+        
+        addLog('Очистка локального хранилища...');
+        localStorage.clear();
+        
+        // Восстанавливаем сохраненные данные
+        if (userData) {
+          localStorage.setItem('user', userData);
+          addLog('Данные пользователя восстановлены.');
+        }
+        
+        if (country) {
+          localStorage.setItem('country', country);
+          addLog('Данные о стране восстановлены.');
+        }
+        
+        addLog('Локальное хранилище успешно очищено.', 'success');
+        return true;
+      } catch (error) {
+        addLog(`Ошибка при очистке локального хранилища: ${error.message}`, 'error');
+        return false;
+      }
+    }
+    
+    // Процесс обновления
+    async function runUpdate() {
+      startButton.disabled = true;
+      updateProgress(0, 'Начало обновления...');
+      
+      addLog('Запуск процесса обновления...', 'info');
+      
+      // Шаг 1: Очистка кэшей
+      const cachesCleared = await clearCaches();
+      
+      // Шаг 2: Обновление сервис-воркера
+      const serviceWorkerUpdated = await updateServiceWorker();
+      
+      // Шаг 3: Очистка localStorage
+      const localStorageCleared = clearLocalStorage();
+      
+      // Завершение
+      updateProgress(100, 'Обновление завершено');
+      
+      if (cachesCleared && serviceWorkerUpdated && localStorageCleared) {
+        addLog('Обновление успешно завершено. Перезагрузка приложения...', 'success');
+        
+        // Перезагрузка основной страницы через 2 секунды
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      } else {
+        addLog('Обновление завершено с ошибками. Попробуйте перезагрузить страницу вручную.', 'error');
+        startButton.disabled = false;
+      }
+    }
+    
+    // Обработчик клика по кнопке
+    startButton.addEventListener('click', runUpdate);
+  </script>
+</body>
+</html>

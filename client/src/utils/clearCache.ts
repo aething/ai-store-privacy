@@ -59,8 +59,36 @@ export function clearUserCache(preserveCountry = false) {
  * @param preserveCountry Если true, сохраняем настройку страны пользователя
  */
 export function clearCacheAndReload(preserveCountry = false) {
+  console.log('[clearCacheAndReload] Начинаем полную очистку кэша приложения');
+  
+  // Регистрируем обработчик, который будет вызван при активации нового Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(registration => {
+      if (registration.active) {
+        // Отправляем сообщение сервис-воркеру, чтобы он обновился
+        registration.active.postMessage({ type: 'SKIP_WAITING' });
+        console.log('[clearCacheAndReload] Отправлено сообщение для обновления Service Worker');
+      }
+    });
+  }
+  
+  // Очищаем кэш пользователя и все приложение
   clearUserCache(preserveCountry);
-  clearAllCaches().then(() => reloadPage());
+  
+  // Принудительно очищаем локальное хранилище без затрагивания данных пользователя
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key !== 'user' && !key.startsWith('country')) {
+      console.log(`[clearCacheAndReload] Удаляем из localStorage: ${key}`);
+      localStorage.removeItem(key);
+    }
+  }
+  
+  // Очищаем все браузерные кэши и перезагружаем страницу
+  clearAllCaches().then(() => {
+    console.log('[clearCacheAndReload] Кэш очищен, перезагружаем страницу');
+    reloadPage();
+  });
 }
 
 /**
