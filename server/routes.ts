@@ -797,7 +797,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment routes
   app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
     try {
-      const { amount, userId, productId, currency = "usd", couponCode, country: requestCountry, force_country, quantity = 1 } = req.body;
+      let { amount, userId, productId, currency = "usd", couponCode, country: requestCountry, force_country, quantity = 1 } = req.body;
       
       if (!amount || !userId || !productId) {
         return res.status(400).json({ message: "Amount, userId, and productId are required" });
@@ -818,12 +818,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
       // ВАЖНО: Проверяем, если сумма не соответствует сотням центов/копеек
       // Например, если передано 27.60 вместо 2760, умножаем ее на 100
-      if (amount < 50 && String(amount).includes('.')) {
-        console.log(`Обнаружена сумма, которая может быть в основных единицах валюты (${amount}). Конвертируем в центы/копейки.`);
-        const convertedAmount = Math.round(amount * 100);
-        amount = convertedAmount;
-        console.log(`Сконвертированная сумма: ${amount} (центы/копейки)`);
+      let processedAmount = amount;
+      if (processedAmount < 50 && String(processedAmount).includes('.')) {
+        console.log(`Обнаружена сумма, которая может быть в основных единицах валюты (${processedAmount}). Конвертируем в центы/копейки.`);
+        processedAmount = Math.round(processedAmount * 100);
+        console.log(`Сконвертированная сумма: ${processedAmount} (центы/копейки)`);
       }
+      amount = processedAmount;
       
       
       // Валидация количества
@@ -2030,24 +2031,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Рассчитываем новую базовую сумму на основе количества
       const unitAmount = Math.round(originalAmount / originalQuantity);
-      const newBaseAmount = unitAmount * parsedQuantity;
+      let baseAmount = unitAmount * parsedQuantity;
       
-      console.log(`Новое базовое количество: ${parsedQuantity}, сумма: ${newBaseAmount} ${currency}`);
+      console.log(`Новое базовое количество: ${parsedQuantity}, сумма: ${baseAmount} ${currency}`);
       
       // ИСПРАВЛЕНИЕ: Проверяем, корректно ли сумма выражена в наименьших единицах (центах/копейках)
-      let adjustedBaseAmount = newBaseAmount;
-      if (adjustedBaseAmount < 100) {
-        console.log(`ВНИМАНИЕ: Очень маленькая сумма ${adjustedBaseAmount} ${currency}. Проверяем, нужна ли конвертация.`);
+      if (baseAmount < 100) {
+        console.log(`ВНИМАНИЕ: Очень маленькая сумма ${baseAmount} ${currency}. Проверяем, нужна ли конвертация.`);
         // Если это десятичное число, вероятно, оно выражено в основных единицах валюты
-        if (String(adjustedBaseAmount).includes('.')) {
-          const convertedAmount = Math.round(adjustedBaseAmount * 100);
+        if (String(baseAmount).includes('.')) {
+          const convertedAmount = Math.round(baseAmount * 100);
           console.log(`Конвертированная сумма: ${convertedAmount} ${currency} (центы/копейки)`);
-          adjustedBaseAmount = convertedAmount;
+          baseAmount = convertedAmount;
         }
       }
-      
-      // Используем скорректированную сумму вместо непосредственного изменения константы
-      newBaseAmount = adjustedBaseAmount;
       
       // Получаем информацию о налогах
       let taxRate = 0;
@@ -2066,14 +2063,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Извлеченная ставка налога: ${taxRate * 100}% из строки "${taxRateString}"`);
       
       // Рассчитываем новую сумму налога
-      const newTaxAmount = Math.round(newBaseAmount * taxRate);
+      const newTaxAmount = Math.round(baseAmount * taxRate);
       
       // Рассчитываем новую итоговую сумму
-      const newTotalAmount = newBaseAmount + newTaxAmount;
+      const newTotalAmount = baseAmount + newTaxAmount;
       
       // Скрываем конфиденциальную информацию в логах
       console.log(`Updating PaymentIntent ${paymentIntentId}, quantity: ${originalQuantity} -> ${parsedQuantity}`);
-      console.log(`New total amount: ${newTotalAmount} (base: ${newBaseAmount}, tax: ${newTaxAmount})`);
+      console.log(`New total amount: ${newTotalAmount} (base: ${baseAmount}, tax: ${newTaxAmount})`);
       
       try {
         // Отменяем текущий PaymentIntent
@@ -2087,7 +2084,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             metadata: {
               ...metadata,
               quantity: parsedQuantity.toString(),
-              base_amount: newBaseAmount.toString(),
+              base_amount: baseAmount.toString(),
               tax_amount: newTaxAmount.toString(),
               total_amount: newTotalAmount.toString(),
               updated_at: new Date().toISOString()
@@ -2114,7 +2111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         clientSecret: result.client_secret,
         amount: result.amount,
         currency: result.currency,
-        baseAmount: newBaseAmount,
+        baseAmount: baseAmount,
         taxAmount: newTaxAmount,
         quantity: parsedQuantity,
         tax: {

@@ -658,11 +658,20 @@ export default function Checkout() {
           let taxAmountToUse = updatedTaxAmount;
           const expectedTaxAmount = Math.round(price * quantity * taxRate);
           
-          // Если сумма налога слишком высока относительно ожидаемой,
-          // возможно она в центах и нужно конвертировать
+          // Проверяем является ли сумма подозрительно большой
+          // Например, если ожидается около 1000, а получено 100000 - значит, скорее всего, 
+          // произошла ошибка с единицами измерения
           if (taxAmountToUse > expectedTaxAmount * 10) {
             console.log(`Конвертируем налог из центов: ${taxAmountToUse} → ${Math.round(taxAmountToUse / 100)}`);
             taxAmountToUse = Math.round(taxAmountToUse / 100);
+          }
+          
+          // Дополнительная проверка для выявления абсурдно больших значений
+          // Например, если налог составляет больше 100% от суммы заказа
+          if (taxAmountToUse > price * quantity * 1.5) {
+            console.log(`Обнаружен неправдоподобно высокий налог: ${taxAmountToUse}, возможно ошибка в расчетах`);
+            console.log(`Принудительно устанавливаем рассчитанное значение: ${expectedTaxAmount}`);
+            taxAmountToUse = expectedTaxAmount;
           }
           
           console.log(`Итоговый налог к установке: ${taxAmountToUse} (ожидалось около ${expectedTaxAmount})`);
@@ -673,8 +682,11 @@ export default function Checkout() {
           }));
           
           // Также обновляем отображаемую информацию о налоге
+          // Важно: обязательно сохраняем все существующие свойства объекта
           setStripeTaxInfo(prev => ({
-            ...prev,
+            rate: prev?.rate || taxRate,
+            label: prev?.label || taxLabel,
+            display: prev?.display || taxLabel,
             amount: taxAmountToUse
           }));
         }
