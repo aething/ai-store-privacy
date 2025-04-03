@@ -1,42 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
+import { createRoot } from "react-dom/client";
+import App from "./App";
+import "./index.css";
+import { clearUserCache, clearAllCache, reloadPage, clearCacheAndReload } from "./utils/clearCache";
 
-const App = () => {
-  const [count, setCount] = React.useState(0);
+// Инициализация отладочных функций
+if (typeof window !== 'undefined') {
+  window.appDebug = {
+    clearUserCache: (preserveCountry = false) => clearUserCache(preserveCountry),
+    clearAllCache,
+    reloadPage,
+    clearCacheAndReload: (preserveCountry = false) => clearCacheAndReload(preserveCountry)
+  };
+  
+  console.log("🔍 Отладочные функции доступны через window.appDebug");
+  console.log("📋 Примеры: window.appDebug.clearUserCache(), window.appDebug.clearCacheAndReload()");
+}
 
-  return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h1>Простое React-приложение</h1>
-      <p>Это базовое приложение без сложных зависимостей</p>
-      
-      <div style={{ 
-        marginTop: '2rem', 
-        padding: '1rem', 
-        backgroundColor: '#f5f5f5', 
-        borderRadius: '0.5rem' 
-      }}>
-        <h2>Счетчик: {count}</h2>
-        <button 
-          onClick={() => setCount(count + 1)}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#0066cc',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.25rem',
-            cursor: 'pointer'
-          }}
-        >
-          Увеличить
-        </button>
-      </div>
-    </div>
-  );
-};
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+createRoot(document.getElementById("root")!).render(<App />);
