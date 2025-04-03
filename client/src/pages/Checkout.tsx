@@ -38,16 +38,22 @@ const CheckoutForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   
-  // Обработчик отслеживания изменения метода оплаты для диагностики
+  // Проверяем инициализацию Elements и добавляем больше диагностики
   useEffect(() => {
-    if (!elements) return;
+    if (!elements) {
+      console.error('Elements не инициализированы');
+      return;
+    }
     
-    // Просто используем минимальную логику, которая точно работает
-    // и не вызывает проблем с типами TypeScript
-    console.log('Elements инициализированы');
+    console.log('Elements успешно инициализированы');
     
-    // В актуальной версии Stripe Elements события обрабатываются иначе
-    // Мы получим метод оплаты при подтверждении платежа
+    // Проверяем доступ к элементам для диагностики
+    try {
+      const paymentElement = elements.getElement(PaymentElement);
+      console.log('PaymentElement доступен:', !!paymentElement);
+    } catch (error) {
+      console.error('Ошибка при доступе к PaymentElement:', error);
+    }
   }, [elements]);
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -334,7 +340,11 @@ const CheckoutForm = ({
       {/* Добавляем компонент для сбора полной информации о доставке */}
       <div className="mt-6 mb-4">
         <h3 className="text-base font-medium mb-3">Shipping Address</h3>
-        <AddressElement />
+        <AddressElement 
+          options={{
+            mode: 'shipping'
+          }}
+        />
       </div>
 
       <PaymentElement 
@@ -1040,7 +1050,19 @@ export default function Checkout() {
           <Elements 
             stripe={stripePromise} 
             options={{ 
-              clientSecret
+              clientSecret,
+              appearance: {
+                theme: 'flat',
+                variables: {
+                  colorPrimary: '#4f46e5',
+                  colorBackground: '#ffffff',
+                  colorText: '#1f2937',
+                  colorDanger: '#df1b41',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                  spacingUnit: '4px',
+                  borderRadius: '4px'
+                }
+              }
             }}
           >
             <CheckoutForm 

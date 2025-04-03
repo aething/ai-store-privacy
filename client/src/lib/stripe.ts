@@ -9,86 +9,8 @@ import type { Product } from '@/types';
 // recreating the `Stripe` object on every render.
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 
-// Решение по мотивам обсуждения в https://github.com/stripe/stripe-js/pull/518
-// Создаем функцию для динамического добавления скрипта Stripe вручную
-const injectStripeScript = (): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    // Проверим, не загружен ли уже скрипт
-    if (document.querySelector('script[src*="js.stripe.com/v3"]')) {
-      console.log('Stripe script already loaded');
-      resolve();
-      return;
-    }
-
-    // Создаем элемент скрипта
-    const script = document.createElement('script');
-    
-    // Добавляем параметры для обхода кэширования и политик CSP
-    script.src = 'https://js.stripe.com/v3/?v=' + Date.now();
-    script.id = 'stripe-js';
-    script.crossOrigin = 'anonymous'; // важный параметр для CSP
-    script.async = true;
-    script.defer = true;
-    
-    // Отслеживаем загрузку или ошибку
-    script.onload = () => {
-      console.log('Stripe script loaded manually');
-      resolve();
-    };
-    
-    script.onerror = (error) => {
-      console.error('Failed to load Stripe script manually:', error);
-      reject(new Error('Failed to load Stripe script'));
-    };
-    
-    // Добавляем скрипт в DOM
-    document.head.appendChild(script);
-  });
-};
-
 // Зарегистрированный домен ID для Apple Pay и Google Pay в Stripe
 export const REGISTERED_DOMAIN_ID = 'pmd_1R9hc8AiJjJJTX2U9R70fM4m';
-
-// Модифицированная функция для загрузки Stripe с ручным добавлением скрипта
-const customLoadStripe = async (key: string, maxRetries = 5): Promise<Stripe | null> => {
-  // Сначала пробуем загрузить скрипт вручную
-  try {
-    await injectStripeScript();
-  } catch (error) {
-    console.error('Failed to inject Stripe script:', error);
-  }
-  
-  // Теперь попробуем загрузить Stripe с повторными попытками
-  let lastError: any = null;
-  
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      // Добавляем небольшую задержку между попытками
-      if (attempt > 0) {
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-      }
-      
-      // Пробуем загрузить Stripe с нашим ключом и настройками PMD для Apple Pay/Google Pay
-      const stripe = await loadStripe(key, {
-        stripeAccount: undefined,
-        // Указываем наш зарегистрированный домен для Apple Pay и Google Pay
-        apiVersion: undefined, // Используем последнюю версию API
-        betas: ['payment_element_apple_pay_beta_1', 'payment_element_google_pay_beta_1'],
-        // Дополнительные опции для новых методов оплаты
-        locale: 'auto',
-      });
-      
-      console.log('Stripe loaded successfully with PMD support!');
-      return stripe;
-    } catch (error) {
-      lastError = error;
-      console.warn(`Attempt ${attempt + 1}/${maxRetries} to load Stripe failed:`, error);
-    }
-  }
-  
-  console.error("All attempts to load Stripe failed:", lastError);
-  return null;
-};
 
 // Создаем типизированную заглушку для stripePromise
 let stripePromise: Promise<Stripe | null>;
@@ -99,8 +21,9 @@ if (!stripeKey) {
   // Создаем резолвящийся в null промис, чтобы избежать ошибок
   stripePromise = Promise.resolve(null);
 } else {
-  // Используем нашу новую функцию загрузки с ручным внедрением
-  stripePromise = customLoadStripe(stripeKey);
+  // Используем стандартную функцию loadStripe с минимальными настройками
+  stripePromise = loadStripe(stripeKey);
+  console.log('Initializing Stripe with standard settings');
 }
 
 /**
