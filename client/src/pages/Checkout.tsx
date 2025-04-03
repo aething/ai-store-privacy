@@ -263,7 +263,7 @@ const CheckoutForm = ({
               id="firstName"
               name="firstName"
               placeholder="John"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
               onChange={(e) => {
                 // Простое взаимодействие без вызова типизированных методов
                 // Данные будут собраны при отправке формы
@@ -277,7 +277,7 @@ const CheckoutForm = ({
               id="lastName"
               name="lastName"
               placeholder="Doe"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
               onChange={(e) => {
                 // Простое взаимодействие без вызова типизированных методов
                 // Данные будут собраны при отправке формы
@@ -294,7 +294,7 @@ const CheckoutForm = ({
             id="phone"
             name="phone"
             placeholder="+1 (123) 456-7890"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
             onChange={(e) => {
               // Простое взаимодействие без вызова типизированных методов
               // Данные будут собраны при отправке формы
@@ -310,7 +310,7 @@ const CheckoutForm = ({
             id="companyName"
             name="companyName"
             placeholder="Acme Corporation"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
           />
         </div>
       </div>
