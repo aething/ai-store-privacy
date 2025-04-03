@@ -54,39 +54,36 @@ export default function Account() {
   const [showLoginForm, setShowLoginForm] = useState(true); // true = login, false = register
   const { t } = useLocale();
   
-  // Обрабатываем прокрутку к разделам при наличии хэша в URL
+  // Обрабатываем хэш в URL при монтировании и обновлении
   useEffect(() => {
-    // Проверяем наличие хэша в URL
-    if (window.location.hash) {
-      const sectionId = window.location.hash.substring(1);
-      
-      // Функция для прокрутки к элементу
-      const scrollToElement = () => {
+    // Создаем обработчик для хэша в URL
+    const handleHashChange = () => {
+      if (window.location.hash) {
+        const sectionId = window.location.hash.substring(1);
         const element = document.getElementById(sectionId);
+        
         if (element) {
-          console.log(`[Account] Прокрутка к элементу: #${sectionId}`);
-          
-          // Установка позиции скролла сразу без анимации
-          window.scrollTo(0, element.offsetTop - 20);
-          
-          return true;
+          // Небольшая задержка для уверенности, что компонент полностью отрендерен
+          setTimeout(() => {
+            // Скролл к элементу (с учетом высоты шапки)
+            const yOffset = -20; 
+            const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({top: y, behavior: 'instant'});
+          }, 10);
         }
-        return false;
-      };
-      
-      // Попытка прокрутки с таймаутами для более надежной работы
-      if (!scrollToElement()) {
-        setTimeout(scrollToElement, 100);
-        setTimeout(scrollToElement, 300);
       }
-    }
+    };
     
-    // Очистка sessionStorage от старых флагов прокрутки
-    sessionStorage.removeItem('account_scroll_to_policies');
-    sessionStorage.removeItem('account_scroll_timestamp');
-    sessionStorage.removeItem('account_scroll_to_top');
-    sessionStorage.removeItem('restore_account_scroll');
-    sessionStorage.removeItem('restore_account_timestamp');
+    // Вызываем обработчик один раз при монтировании
+    handleHashChange();
+    
+    // Подписываемся на изменения хэша
+    window.addEventListener('hashchange', handleHashChange);
+    
+    // Отписываемся при размонтировании
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
   
   const { register, handleSubmit, formState: { errors }, control } = useForm<UpdateUserForm>({
@@ -292,17 +289,10 @@ export default function Account() {
     }
   };
   
-  // Навигация к политике
+  // Навигация к политике - упрощенная версия без сохранения позиции скролла
   const navigateToPolicy = (policyId: string) => {
-    // Сохраняем текущую позицию скролла перед переходом
-    // для правильного возврата на эту же позицию
-    import("@/lib/scrollUtils").then(({ saveScrollPositionForPath }) => {
-      saveScrollPositionForPath('/account');
-      console.log('[Account] Сохранена позиция скролла перед переходом на policy');
-      
-      // Переходим на страницу политики
-      setLocation(`/policy/${policyId}`);
-    });
+    // Прямой переход на страницу политики
+    setLocation(`/policy/${policyId}`);
   };
   
   // Получаем доступ к объекту переводов

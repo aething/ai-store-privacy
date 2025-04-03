@@ -118,8 +118,9 @@ export default function Policy() {
   
   // Функция для возврата на страницу Account к разделу политик
   const goBackToAccountPolicies = () => {
-    // Прямой переход на страницу Account с якорем
-    window.location.href = '/account#policies-section';
+    // Используем history API вместо window.location для более плавного перехода
+    window.history.pushState({}, '', '/account#policies-section');
+    setLocation('/account');
   };
 
   return (
