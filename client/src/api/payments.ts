@@ -135,6 +135,7 @@ export async function createPaymentIntent(
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Добавляем передачу cookies для аутентификации
     body: JSON.stringify({
       productId,
       amount: baseAmount, // Отправляем базовую сумму для правильного расчета налогов
@@ -183,6 +184,7 @@ export async function updatePaymentIntentQuantity(
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Добавляем передачу cookies для аутентификации
     body: JSON.stringify({
       paymentIntentId,
       userId,
