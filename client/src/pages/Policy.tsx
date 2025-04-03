@@ -118,24 +118,20 @@ export default function Policy() {
   
   return (
     <SwipeBack onSwipeBack={() => {
-      // Устанавливаем скролл для страницы Account к разделу Policies
-      import("@/lib/scrollUtils").then(({ scrollToAccountPoliciesSection }) => {
-        // Логируем для отладки
-        console.log('[Policy] Свайп назад - возвращаемся с прокруткой к разделу Policies');
-        
-        // Устанавливаем флаг для прокрутки к разделу Policies
-        sessionStorage.setItem('account_scroll_to_policies', 'true');
-        sessionStorage.setItem('account_scroll_timestamp', Date.now().toString());
-        
-        // Используем особый флаг в URL для явного указания места открытия страницы
-        // Вместо использования window.history.back() с последующей прокруткой
-        // переходим на страницу аккаунта с хэшем для точного позиционирования
-        window.location.href = '/account#policies-section';
-        
-        // Очищаем флаги в sessionStorage, так как используем более надежное решение через URL-хэш
-        sessionStorage.removeItem('account_scroll_to_policies');
-        sessionStorage.removeItem('account_scroll_timestamp');
-      });
+      // Логируем для отладки
+      console.log('[Policy] Свайп назад - возвращаемся на страницу аккаунта с хэшем');
+      
+      // Принудительно устанавливаем режим ручного восстановления позиции прокрутки
+      try {
+        if ('scrollRestoration' in window.history) {
+          window.history.scrollRestoration = 'manual';
+        }
+      } catch (e) {
+        console.error('[Policy] Не удалось настроить scrollRestoration:', e);
+      }
+      
+      // Переходим напрямую по URL с хэшем
+      window.location.href = '/account#policies-section';
     }}>
       <div id="policy-root" ref={rootRef} className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
         {/* Header with close button */}
@@ -144,24 +140,20 @@ export default function Policy() {
           <button 
             className="p-2 rounded-full hover:bg-gray-100"
             onClick={() => {
-              // Устанавливаем скролл для страницы Account к разделу Policies
-              import("@/lib/scrollUtils").then(({ scrollToAccountPoliciesSection }) => {
-                // Логируем для отладки
-                console.log('[Policy] Закрываем политику, устанавливаем прокрутку к разделу Policies');
-                
-                // Устанавливаем флаг для прокрутки к разделу Policies
-                sessionStorage.setItem('account_scroll_to_policies', 'true');
-                sessionStorage.setItem('account_scroll_timestamp', Date.now().toString());
-                
-                // Используем особый флаг в URL для явного указания места открытия страницы
-                // Вместо использования window.history.back() с последующей прокруткой
-                // переходим на страницу аккаунта с хэшем для точного позиционирования
-                window.location.href = '/account#policies-section';
-                
-                // Очищаем флаги в sessionStorage, так как используем более надежное решение через URL-хэш
-                sessionStorage.removeItem('account_scroll_to_policies');
-                sessionStorage.removeItem('account_scroll_timestamp');
-              });
+              // Логируем для отладки
+              console.log('[Policy] Закрываем политику - возвращаемся на страницу аккаунта с хэшем');
+              
+              // Принудительно устанавливаем режим ручного восстановления позиции прокрутки
+              try {
+                if ('scrollRestoration' in window.history) {
+                  window.history.scrollRestoration = 'manual';
+                }
+              } catch (e) {
+                console.error('[Policy] Не удалось настроить scrollRestoration:', e);
+              }
+              
+              // Переходим напрямую по URL с хэшем
+              window.location.href = '/account#policies-section';
             }}
             aria-label="Close"
           >

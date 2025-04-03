@@ -70,17 +70,54 @@ export default function Account() {
       // Удаляем символ # из начала строки
       const sectionId = hash.substring(1);
       
-      // Небольшая задержка для гарантии, что DOM полностью загружен
-      setTimeout(() => {
+      // Отключаем стандартные методы восстановления скролла
+      // Это предотвратит прокрутку вверх перед перемещением к разделу
+      try {
+        if ('scrollRestoration' in window.history) {
+          window.history.scrollRestoration = 'manual';
+        }
+      } catch (e) {
+        console.error('[Account] Не удалось настроить scrollRestoration:', e);
+      }
+      
+      // Предотвращаем прокрутку вверх, сразу устанавливая позицию прокрутки
+      // Это позволяет избежать мигания при прокрутке вверх-вниз
+      document.documentElement.scrollTop = window.innerHeight; // Устанавливаем примерное положение, чтобы избежать скачка вверх
+      
+      // Функция прокрутки к секции
+      const scrollToSection = () => {
         const section = document.getElementById(sectionId);
         if (section) {
           console.log(`[Account] Скроллим к секции ${sectionId} по хэшу URL`);
-          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          return; // Если прокрутили по хэшу, дальше не проверяем
+          
+          // Используем прямую установку положения вместо scrollIntoView 
+          // для предотвращения дополнительной анимации
+          const rect = section.getBoundingClientRect();
+          const scrollTop = rect.top + window.pageYOffset - 20; // С небольшим отступом сверху
+          
+          window.scrollTo({
+            top: scrollTop,
+            behavior: 'auto' // Используем 'auto' вместо 'smooth' для предотвращения видимой анимации
+          });
+          
+          console.log(`[Account] Установлена позиция прокрутки: ${scrollTop}px`);
+          return true; // Успешная прокрутка
         } else {
           console.log(`[Account] Секция ${sectionId} не найдена`);
+          return false;
         }
-      }, 300);
+      };
+      
+      // Попытка прокрутки сразу
+      if (!scrollToSection()) {
+        // Если не удалось найти элемент сразу, пробуем еще раз с небольшой задержкой
+        setTimeout(scrollToSection, 100);
+        // И еще одна попытка с большей задержкой
+        setTimeout(scrollToSection, 300);
+      }
+      
+      // Прерываем дальнейшую обработку, чтобы не применять другие методы прокрутки
+      return;
     }
     
     // Проверяем флаг восстановления скролла (старый механизм)
