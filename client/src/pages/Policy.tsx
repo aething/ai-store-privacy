@@ -127,18 +127,14 @@ export default function Policy() {
         sessionStorage.setItem('account_scroll_to_policies', 'true');
         sessionStorage.setItem('account_scroll_timestamp', Date.now().toString());
         
-        // Используем более надежное API для работы с историей браузера
-        if (window.history && window.history.length > 1) {
-          window.history.back();
-          
-          // Устанавливаем таймер для прокрутки после возврата
-          setTimeout(() => {
-            scrollToAccountPoliciesSection(true);
-          }, 300); // Задержка для уверенности, что страница уже загрузилась
-        } else {
-          // Запасной вариант, если история недоступна
-          window.location.href = '/account#policies-section';
-        }
+        // Используем особый флаг в URL для явного указания места открытия страницы
+        // Вместо использования window.history.back() с последующей прокруткой
+        // переходим на страницу аккаунта с хэшем для точного позиционирования
+        window.location.href = '/account#policies-section';
+        
+        // Очищаем флаги в sessionStorage, так как используем более надежное решение через URL-хэш
+        sessionStorage.removeItem('account_scroll_to_policies');
+        sessionStorage.removeItem('account_scroll_timestamp');
       });
     }}>
       <div id="policy-root" ref={rootRef} className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
@@ -157,18 +153,14 @@ export default function Policy() {
                 sessionStorage.setItem('account_scroll_to_policies', 'true');
                 sessionStorage.setItem('account_scroll_timestamp', Date.now().toString());
                 
-                // Используем более надежное API для работы с историей браузера
-                if (window.history && window.history.length > 1) {
-                  window.history.back();
-                  
-                  // Устанавливаем таймер для прокрутки после возврата
-                  setTimeout(() => {
-                    scrollToAccountPoliciesSection(true);
-                  }, 300); // Задержка для уверенности, что страница уже загрузилась
-                } else {
-                  // Запасной вариант, если история недоступна
-                  window.location.href = '/account#policies-section';
-                }
+                // Используем особый флаг в URL для явного указания места открытия страницы
+                // Вместо использования window.history.back() с последующей прокруткой
+                // переходим на страницу аккаунта с хэшем для точного позиционирования
+                window.location.href = '/account#policies-section';
+                
+                // Очищаем флаги в sessionStorage, так как используем более надежное решение через URL-хэш
+                sessionStorage.removeItem('account_scroll_to_policies');
+                sessionStorage.removeItem('account_scroll_timestamp');
               });
             }}
             aria-label="Close"

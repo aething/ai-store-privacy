@@ -59,6 +59,30 @@ export default function Account() {
   
   // При монтировании компонента проверяем, нужно ли восстановить позицию скролла
   useEffect(() => {
+    // Проверяем наличие хэша в URL для прямой навигации к разделу
+    const hash = window.location.hash;
+    
+    // Отладочный вывод
+    console.log('[Account] Текущий хэш URL:', hash);
+    
+    // Если хэш указан, скроллим к соответствующему разделу
+    if (hash) {
+      // Удаляем символ # из начала строки
+      const sectionId = hash.substring(1);
+      
+      // Небольшая задержка для гарантии, что DOM полностью загружен
+      setTimeout(() => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          console.log(`[Account] Скроллим к секции ${sectionId} по хэшу URL`);
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          return; // Если прокрутили по хэшу, дальше не проверяем
+        } else {
+          console.log(`[Account] Секция ${sectionId} не найдена`);
+        }
+      }, 300);
+    }
+    
     // Проверяем флаг восстановления скролла (старый механизм)
     const shouldRestoreScroll = sessionStorage.getItem('restore_account_scroll') === 'true';
     const restoreTimestamp = parseInt(sessionStorage.getItem('restore_account_timestamp') || '0');
@@ -71,8 +95,8 @@ export default function Account() {
     
     const now = Date.now();
     
-    // Определяем, что делать со скроллом
-    if (shouldScrollToPolicies && now - scrollTimestamp < 5000) {
+    // Определяем, что делать со скроллом (только если нет хэша в URL)
+    if (!hash && shouldScrollToPolicies && now - scrollTimestamp < 5000) {
       // Если есть свежий флаг для скролла к разделу Policies
       console.log('[Account] Скроллим к разделу Policies');
       
