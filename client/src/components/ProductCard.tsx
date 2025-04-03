@@ -34,8 +34,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   // Проверяем, является ли это ценой из Stripe (по наличию stripeProductId)
   const isStripePrice = !!product.stripeProductId;
   
-  // Форматируем цену с учетом источника (Stripe или обычные данные)
-  const formattedPrice = formatPrice(price, currency, isStripePrice);
+  // Форматируем цену с учетом того, что цены в базе данных хранятся в центах
+  // false означает, что цена хранится в центах и нужно её конвертировать
+  const formattedPrice = formatPrice(price, currency, false);
   
   // Обрезаем описание до фиксированной длины и добавляем многоточие
   const shortDescription = product.description.substring(0, 60) + "...";

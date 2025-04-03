@@ -94,21 +94,24 @@ export async function createPaymentIntent(
   // Рассчитываем налог на основе страны пользователя
   const { rate, label } = calculateTaxRate(country);
   
+  // ВАЖНО: Наш price уже в центах (например, 2760 для €27.60)
   // Stripe требует указывать суммы в мельчайших единицах валюты (центы, копейки)
-  // Сначала вычисляем базовую сумму как валюту с плавающей точкой
-  const baseAmountFloat = price * quantity;
+  // Сначала вычисляем базовую сумму в центах
+  const baseAmount = price * quantity;
   
-  // Вычисляем сумму налога (как валюту с плавающей точкой)
-  const taxAmountFloat = rate > 0 ? baseAmountFloat * rate : 0;
+  // Вычисляем сумму налога (в центах)
+  const taxAmount = rate > 0 ? Math.round(baseAmount * rate) : 0;
   
-  // Вычисляем полную сумму с налогом (как валюту с плавающей точкой)
-  const totalAmountFloat = baseAmountFloat + taxAmountFloat;
+  // Вычисляем полную сумму с налогом (в центах)
+  const totalAmount = baseAmount + taxAmount;
   
-  // Теперь конвертируем все суммы в мельчайшие единицы валюты (центы, копейки)
-  // Умножаем на 100 и округляем, чтобы получить целое число
-  const baseAmount = Math.round(baseAmountFloat * 100);
-  const taxAmount = Math.round(taxAmountFloat * 100);
-  const totalAmount = Math.round(totalAmountFloat * 100);
+  console.log(`Расчет цены для API Stripe:
+  - Базовая цена: ${price} центов (${(price/100).toFixed(2)} ${currency})
+  - Количество: ${quantity}
+  - Итого без налога: ${baseAmount} центов (${(baseAmount/100).toFixed(2)} ${currency})
+  - Налог (${rate * 100}%): ${taxAmount} центов (${(taxAmount/100).toFixed(2)} ${currency})
+  - Итого с налогом: ${totalAmount} центов (${(totalAmount/100).toFixed(2)} ${currency})
+  `);
   
   // Формируем метаданные для создания платежного намерения
   const metadata = {

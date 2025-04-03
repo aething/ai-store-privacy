@@ -378,17 +378,17 @@ const CheckoutForm = ({
         </h3>
         <div className="flex justify-between items-center mb-2 text-gray-700">
           <span>Price:</span>
-          <span className="font-medium">{formatPrice(amount, currency)}</span>
+          <span className="font-medium">{formatPrice(amount, currency, false)}</span>
         </div>
         {stripeTaxInfo && stripeTaxInfo.amount > 0 && (
           <div className="flex justify-between items-center mb-2 text-gray-700">
             <span>{stripeTaxInfo.label || 'Tax'}:</span>
-            <span>{formatPrice(stripeTaxInfo.amount, currency)}</span>
+            <span>{formatPrice(stripeTaxInfo.amount, currency, false)}</span>
           </div>
         )}
         <div className="flex justify-between items-center mt-3 pt-2 border-t text-green-700 font-bold">
           <span>Total:</span>
-          <span>{formatPrice(amount + (stripeTaxInfo?.amount || 0), currency)}</span>
+          <span>{formatPrice(amount + (stripeTaxInfo?.amount || 0), currency, false)}</span>
         </div>
       </div>
 
@@ -978,7 +978,7 @@ export default function Checkout() {
                 <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Demo</span>
               )}
             </h3>
-            <p className="text-lg">{formatPrice(price, currency, isStripePrice)}</p>
+            <p className="text-lg">{formatPrice(price, currency, false)}</p>
           </div>
         </div>
         
@@ -1021,8 +1021,8 @@ export default function Checkout() {
           <table className="w-full">
             <tbody>
               <tr className="mb-2">
-                <td className="text-left pb-2">Subtotal ({quantity} × {formatPrice(price, currency, isStripePrice)})</td>
-                <td className="text-right pb-2">{formatPrice(basePrice, currency, isStripePrice)}</td>
+                <td className="text-left pb-2">Subtotal ({quantity} × {formatPrice(price, currency, false)})</td>
+                <td className="text-right pb-2">{formatPrice(basePrice, currency, false)}</td>
               </tr>
               
               {/* Налоговая информация - всегда отображаем, используя запасные значения */}
@@ -1034,7 +1034,7 @@ export default function Checkout() {
                   </span>
                 </td>
                 <td className="text-right pb-2 pt-2 font-medium">
-                  {formatPrice(calculatedTaxAmount, currency, isStripePrice)}
+                  {formatPrice(calculatedTaxAmount, currency, false)}
                 </td>
               </tr>
               
@@ -1046,7 +1046,7 @@ export default function Checkout() {
               <tr className="font-bold text-lg bg-green-50">
                 <td className="text-left pt-2 pb-2 border-t">Total</td>
                 <td className="text-right pt-2 pb-2 border-t">
-                  {formatPrice(totalPrice, currency, isStripePrice)}
+                  {formatPrice(totalPrice, currency, false)}
                 </td>
               </tr>
             </tbody>

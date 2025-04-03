@@ -121,14 +121,15 @@ export function formatPrice(
  * Get the price in the appropriate currency based on the country
  * @param product Product with price in USD and EUR
  * @param country User's country
- * @returns The price in the appropriate currency
+ * @returns The price in the appropriate currency (in cents)
  */
 export function getPriceForCountry(
   product: { price: number; priceEUR: number; stripeProductId?: string }, 
   country: string | undefined | null
 ): number {
-  // Чтобы отличить цену из Stripe от обычной цены, проверяем наличие stripeProductId
-  // Stripe продукты уже имеют цену в долларах/евро, а не в центах
+  // ВАЖНО: Все цены в базе данных хранятся в центах
+  // (например, 2760 представляет €27.60)
+  // Эта функция возвращает цену в центах для API Stripe
   
   // Для европейских стран всегда возвращаем цену в EUR
   // Для других стран возвращаем цену в USD
