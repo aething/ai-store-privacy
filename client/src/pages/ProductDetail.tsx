@@ -438,11 +438,14 @@ export default function ProductDetail() {
                     
                     <div className="bg-gray-50/15 rounded-lg p-4 border-l-2 border-gray-400">
                       <h3 className="text-lg font-semibold text-gray-800 mb-3">Edge Computing</h3>
-                      <p className="text-gray-700 mb-4">
-                        {product.softwareInfo?.split('.').map((paragraph, index) => (
-                          paragraph.trim() && <p key={index} className="mb-2">{paragraph.trim() + '.'}</p>
-                        ))}
-                      </p>
+                      <div className="text-gray-700 mb-4">
+                        {product.softwareInfo?.replace(/e\.\s*g\.\s*/g, 'e.g. ')
+                          .split(/(?<=\.)\s+(?=[A-Z•])/)
+                          .map((paragraph, index) => (
+                            paragraph.trim() && 
+                            <p key={index} className="mb-2">{paragraph.trim()}</p>
+                          ))}
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                         <div className="bg-white rounded p-3 shadow-sm border border-gray-200">
                           <h4 className="font-medium flex items-center gap-2 text-gray-800 mb-1">
