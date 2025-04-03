@@ -491,10 +491,6 @@ const CheckoutForm = ({
           },
           fields: {
             billingDetails: 'never'
-          },
-          wallets: {
-            applePay: 'auto',
-            googlePay: 'auto'
           }
           // Примечание: appearance не поддерживается в типе StripePaymentElementOptions
           // Мы применяем вместо этого CSS стили через классы
