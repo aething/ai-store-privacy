@@ -394,7 +394,7 @@ const CheckoutForm = ({
             className="w-full px-3 py-2 text-gray-900 rounded-md border border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             placeholder="email@example.com"
             style={{
-              border: '1px solid #9ca3af',
+              border: '2px solid #9ca3af',
               boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
               fontFamily: 'system-ui, sans-serif',
               backgroundColor: 'white'
