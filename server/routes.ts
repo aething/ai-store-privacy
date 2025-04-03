@@ -1361,6 +1361,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       res.json({
+        id: paymentIntent.id,
         clientSecret: paymentIntent.client_secret,
         orderId: order.id,
         tax: taxInfo

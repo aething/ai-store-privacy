@@ -244,7 +244,10 @@ export default function Checkout() {
         
         // Сохраняем ID PaymentIntent для последующего обновления
         if (data.id) {
+          console.log('Получен ID платежа:', data.id);
           setPaymentIntentId(data.id);
+        } else {
+          console.warn('ID платежа не получен в ответе API');
         }
         
         setPaymentIntentError(false);
