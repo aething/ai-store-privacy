@@ -21,9 +21,25 @@ if (!stripeKey) {
   // Создаем резолвящийся в null промис, чтобы избежать ошибок
   stripePromise = Promise.resolve(null);
 } else {
-  // Используем стандартную функцию loadStripe с минимальными настройками
-  stripePromise = loadStripe(stripeKey);
-  console.log('Initializing Stripe with standard settings');
+  // Используем расширенную конфигурацию loadStripe для поддержки Apple Pay и Google Pay
+  stripePromise = loadStripe(stripeKey, {
+    apiVersion: '2025-02-24.acacia',
+    appearance: {
+      theme: 'stripe',
+      variables: {
+        colorPrimary: '#0570de',
+        colorBackground: '#ffffff',
+        colorText: '#30313d',
+        colorDanger: '#df1b41',
+        fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
+        spacingUnit: '4px',
+        borderRadius: '4px',
+      }
+    },
+    // Включаем обнаружение Apple Pay
+    betas: ['payment_element_apple_pay_beta_1', 'elements_enable_deferred_intent_beta_1']
+  });
+  console.log('Initializing Stripe with extended configuration for Apple Pay and Google Pay');
 }
 
 /**
