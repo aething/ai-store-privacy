@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useLayoutEffect, useRef } from "react";
 import { useAppContext } from "@/context/AppContext";
 import { ArrowLeft, ChevronLeft, ChevronRight, Share, Download, Play } from "lucide-react";
 import PlayMarketCard, { ScreenshotGallery } from "@/components/PlayMarketCard";
@@ -52,39 +52,55 @@ export default function PlayMarket() {
     return () => clearTimeout(timer);
   }, []);
   
-  // Скроллим содержимое страницы в начало при загрузке
-  useEffect(() => {
-    // Надежная функция для скроллинга в самое начало страницы
+  // Создаем ссылку на корневой элемент страницы
+  const rootRef = useRef<HTMLDivElement>(null);
+  
+  // Используем useLayoutEffect для гарантированного скролла перед рендерингом страницы
+  useLayoutEffect(() => {
+    // Функция, которая принудительно устанавливает скролл в начало несколькими способами
     const forceScrollToTop = () => {
-      // Гарантированно устанавливаем позицию скролла в самое начало
-      window.scrollTo(0, 0);
+      console.log("[PlayMarket] Выполняем скролл в начало");
       
-      // Используем также body и documentElement для максимальной совместимости
+      // Принудительно сбрасываем все возможные способы скролла
+      window.scrollTo(0, 0);
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
+      
+      // Если есть ссылка на корневой элемент, скроллим его в видимую область
+      if (rootRef.current) {
+        rootRef.current.scrollIntoView({ block: 'start', behavior: 'auto' });
+      }
     };
     
-    // Используем несколько подходов для гарантированного скролла в начало
-    
-    // 1. Сразу скроллим при монтировании компонента
+    // Немедленно вызываем функцию скролла несколько раз для надежности
     forceScrollToTop();
-    
-    // 2. Используем requestAnimationFrame для скролла после рендеринга
-    requestAnimationFrame(() => {
-      forceScrollToTop();
+    requestAnimationFrame(forceScrollToTop);
+  }, []);
+  
+  // Используем дополнительный useEffect для повторных попыток скролла
+  useEffect(() => {
+    // Функция для принудительного скролла
+    const forceScrollToTop = () => {
+      console.log("[PlayMarket] Дополнительный скролл в начало");
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
       
-      // Еще один RAF для страховки после всех возможных обновлений DOM
-      requestAnimationFrame(forceScrollToTop);
-    });
+      if (rootRef.current) {
+        rootRef.current.scrollIntoView({ block: 'start', behavior: 'auto' });
+      }
+    };
     
-    // 3. Используем таймеры с разными интервалами для надежности
+    // Массивная серия попыток сброса скролла с разными задержками
     const timers = [
       setTimeout(forceScrollToTop, 0),
-      setTimeout(forceScrollToTop, 10),
-      setTimeout(forceScrollToTop, 50),
-      setTimeout(forceScrollToTop, 100),
-      setTimeout(forceScrollToTop, 300),
-      setTimeout(forceScrollToTop, 500) // Дополнительная проверка через 500мс
+      setTimeout(forceScrollToTop, 16),
+      setTimeout(forceScrollToTop, 32),
+      setTimeout(forceScrollToTop, 64),
+      setTimeout(forceScrollToTop, 128),
+      setTimeout(forceScrollToTop, 256),
+      setTimeout(forceScrollToTop, 512),
+      setTimeout(forceScrollToTop, 1024),
     ];
     
     // Удаляем таймеры при размонтировании компонента
@@ -108,7 +124,7 @@ export default function PlayMarket() {
   };
   
   return (
-    <div className="pb-16">
+    <div className="pb-16" ref={rootRef}>
       <div className="flex items-center mb-4 sticky top-0 bg-white z-10 p-3 shadow-sm">
         <button 
           className="mr-3 p-2 hover:bg-gray-100 rounded-full"

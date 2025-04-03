@@ -123,13 +123,32 @@ export default function Policy() {
         // Логируем для отладки
         console.log('[Policy] Свайп назад - возвращаемся на страницу Account');
         
-        // Используем history.back() для более естественной навигации и работы с браузерной историей
-        window.history.back();
+        // Сначала сохраняем восстановление позиции в sessionStorage 
+        // для немедленного использования после перехода
+        sessionStorage.setItem('restore_account_scroll', 'true');
+        sessionStorage.setItem('restore_account_timestamp', Date.now().toString());
         
-        // Дополнительно через таймаут пробуем восстановить позицию скролла
+        // Используем более надежное API для работы с историей браузера
+        if (window.history && window.history.length > 1) {
+          window.history.back();
+        } else {
+          // Запасной вариант, если история недоступна
+          window.location.href = '/account';
+        }
+        
+        // Используем несколько попыток восстановления позиции через разные интервалы
+        const timers = [
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 10),
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 50),
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 150),
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 300),
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 600)
+        ];
+        
+        // Прерываем попытки восстановления через 1 секунду
         setTimeout(() => {
-          restoreScrollPositionForPath('/account', false);
-        }, 50);
+          timers.forEach(clearTimeout);
+        }, 1000);
       });
     }}>
       <div id="policy-root" ref={rootRef} className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
@@ -144,13 +163,32 @@ export default function Policy() {
                 // Логируем для отладки
                 console.log('[Policy] Возвращаемся на страницу Account с восстановлением позиции');
                 
-                // Используем history.back() для более естественной навигации и работы с браузерной историей
-                window.history.back();
+                // Сначала сохраняем восстановление позиции в sessionStorage 
+                // для немедленного использования после перехода
+                sessionStorage.setItem('restore_account_scroll', 'true');
+                sessionStorage.setItem('restore_account_timestamp', Date.now().toString());
                 
-                // Дополнительно через таймаут пробуем восстановить позицию скролла
+                // Используем более надежное API для работы с историей браузера
+                if (window.history && window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  // Запасной вариант, если история недоступна
+                  window.location.href = '/account';
+                }
+                
+                // Используем несколько попыток восстановления позиции через разные интервалы
+                const timers = [
+                  setTimeout(() => restoreScrollPositionForPath('/account', false), 10),
+                  setTimeout(() => restoreScrollPositionForPath('/account', false), 50),
+                  setTimeout(() => restoreScrollPositionForPath('/account', false), 150),
+                  setTimeout(() => restoreScrollPositionForPath('/account', false), 300),
+                  setTimeout(() => restoreScrollPositionForPath('/account', false), 600)
+                ];
+                
+                // Прерываем попытки восстановления через 1 секунду
                 setTimeout(() => {
-                  restoreScrollPositionForPath('/account', false);
-                }, 50);
+                  timers.forEach(clearTimeout);
+                }, 1000);
               });
             }}
             aria-label="Close"

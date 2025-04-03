@@ -57,6 +57,39 @@ export default function Account() {
   // Отображаем страницу Account
   // Позиция скролла теперь управляется через компонент ScrollManager
   
+  // При монтировании компонента проверяем, нужно ли восстановить позицию скролла
+  useEffect(() => {
+    const shouldRestoreScroll = sessionStorage.getItem('restore_account_scroll') === 'true';
+    const restoreTimestamp = parseInt(sessionStorage.getItem('restore_account_timestamp') || '0');
+    const now = Date.now();
+    
+    // Проверяем, что запрос на восстановление скролла не старше 5 секунд
+    if (shouldRestoreScroll && now - restoreTimestamp < 5000) {
+      console.log('[Account] Восстанавливаем позицию скролла');
+      
+      // Импортируем утилиту для восстановления позиции скролла
+      import("@/lib/scrollUtils").then(({ restoreScrollPositionForPath }) => {
+        // Используем несколько попыток восстановления с разными задержками для надежности
+        const timers = [
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 10),
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 50),
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 150),
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 300),
+          setTimeout(() => restoreScrollPositionForPath('/account', false), 600)
+        ];
+        
+        // Очищаем флаг восстановления, чтобы не повторять операцию
+        sessionStorage.removeItem('restore_account_scroll');
+        sessionStorage.removeItem('restore_account_timestamp');
+        
+        // Прерываем попытки восстановления через 1 секунду
+        setTimeout(() => {
+          timers.forEach(clearTimeout);
+        }, 1000);
+      });
+    }
+  }, []);
+  
   const { register, handleSubmit, formState: { errors }, control } = useForm<UpdateUserForm>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
