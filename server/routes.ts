@@ -1147,10 +1147,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Мы рассчитываем налоги самостоятельно и передаем их через tax.breakdown
       // Важно: amount должен включать сумму налога
       // Здесь налог еще не добавляем к amount, мы сделаем это для разных стран ниже
+      // Используем правильные типы платежей для всех регионов
+      const paymentMethodTypes = ['card'];
+
+      // Если валюта EUR, добавляем европейские платежные методы
+      if (lowerCurrency === 'eur') {
+          paymentMethodTypes.push('ideal', 'sepa_debit');  // ideal (Нидерланды), sepa_debit (ЕС)
+      }
+
       const paymentIntentParams: any = {
         amount,  // Изначально устанавливаем базовую сумму без налога
         currency: lowerCurrency, // Используем валюту в нижнем регистре
-        payment_method_types: ['card'],
+        payment_method_types: paymentMethodTypes,
         metadata: {
           ...metadata,
           base_amount: amount.toString(),
@@ -2092,7 +2100,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Добавляем обновление описания, чтобы отразить новое количество
             description: `Order with ${taxLabel} (quantity: ${parsedQuantity})`,
             // Устанавливаем cancel_at_period_end в true для обновления client_secret
-            payment_method_types: ['card'],
+            // Используем правильные типы платежей для всех регионов
+            payment_method_types: lowerCurrency === 'eur' 
+              ? ['card', 'ideal', 'sepa_debit'] 
+              : ['card'],
           }
         );
         
