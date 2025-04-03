@@ -22,34 +22,71 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
   const [, setLocation] = useLocation();
   const { user } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+  
+  // Обработчик отслеживания изменения метода оплаты для диагностики
+  useEffect(() => {
+    if (!elements) return;
+    
+    const onChange = (event: any) => {
+      if (event.type === 'change' && event.payload) {
+        console.log('PaymentElement изменен:', event.payload);
+        if (event.payload.value && event.payload.value.type) {
+          setPaymentMethod(event.payload.value.type);
+          console.log('Выбран метод оплаты:', event.payload.value.type);
+        }
+      }
+    };
+    
+    const element = elements.getElement(PaymentElement);
+    if (element) {
+      element.on('change', onChange);
+      return () => element.off('change', onChange);
+    }
+  }, [elements]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!stripe || !elements || !user) {
+      console.error('Stripe, elements или user недоступны:', { 
+        stripeAvailable: !!stripe, 
+        elementsAvailable: !!elements, 
+        userAvailable: !!user 
+      });
       return;
     }
     
     setIsLoading(true);
+    console.log('Начинаем обработку платежа...');
     
     try {
+      console.log('Выбранный метод оплаты:', paymentMethod);
+      console.log('Используем confirmPayment с parameters:', {
+        returnUrl: window.location.origin + "/confirmation",
+      });
+      
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
+          // Redirects to the confirmation page after successful payment
           return_url: window.location.origin + "/confirmation",
         },
       });
       
       if (error) {
+        console.error('Ошибка подтверждения платежа:', error);
         toast({
           title: "Payment Failed",
           description: error.message,
           variant: "destructive",
         });
       } else {
+        console.log('Платеж успешно инициирован, ожидаем перенаправление');
         // Payment succeeded, redirect will happen automatically
       }
     } catch (err) {
+      console.error('Неожиданная ошибка при обработке платежа:', err);
       toast({
         title: "Payment Error",
         description: "An unexpected error occurred during payment",
@@ -70,11 +107,18 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
           },
         }}
       />
-      
+
       {/* Основной элемент оплаты с поддержкой Apple Pay, Google Pay и Link */}
       <PaymentElement 
         options={{
-          paymentMethodOrder: ['apple_pay', 'google_pay', 'link', 'card'],
+          layout: {
+            type: 'tabs', 
+            defaultCollapsed: false,
+          },
+          wallets: {
+            googlePay: 'auto',
+            applePay: 'auto',
+          }
         }}
       />
       
@@ -93,12 +137,13 @@ export default function Checkout() {
   const [match, params] = useRoute("/checkout/:id");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { user } = useAppContext();
+  const { user: authUser } = useAppContext();
   const [clientSecret, setClientSecret] = useState("");
   const [stripeLoadingFailed, setStripeLoadingFailed] = useState(false);
   const [paymentIntentError, setPaymentIntentError] = useState(false);
   const [taxInfo, setTaxInfo] = useState<{rate: number; label: string; amount: number}>({ rate: 0, label: 'Tax', amount: 0 });
   const [stripeTaxInfo, setStripeTaxInfo] = useState<{amount: number; rate: number; label: string; display: string} | null>(null);
+  const [demoUser, setDemoUser] = useState<any>(null);
   
   // Добавляем состояние для отслеживания количества и ID PaymentIntent
   const [quantity, setQuantity] = useState(1);
@@ -107,6 +152,8 @@ export default function Checkout() {
   
   // Получаем productId из URL-параметров или из query-строки
   let productId: number | null = null;
+  const searchParams = new URLSearchParams(window.location.search);
+  const isDemoMode = searchParams.get('demo') === 'true';
   
   // Сначала проверяем параметр из route
   if (match && params.id) {
@@ -114,17 +161,35 @@ export default function Checkout() {
   } 
   // Если не найден, проверяем query-параметр
   else {
-    const searchParams = new URLSearchParams(window.location.search);
     const productIdParam = searchParams.get('productId');
     if (productIdParam) {
       productId = parseInt(productIdParam);
     }
   }
   
+  // Проверяем демо-режим и загружаем данные демо-пользователя при необходимости
+  useEffect(() => {
+    if (isDemoMode) {
+      try {
+        const storedDemoUser = localStorage.getItem('demo_user');
+        if (storedDemoUser) {
+          const parsedUser = JSON.parse(storedDemoUser);
+          setDemoUser(parsedUser);
+          console.log('Используем демо-режим с пользователем:', parsedUser);
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке демо-пользователя:', error);
+      }
+    }
+  }, [isDemoMode]);
+  
   const { data: product } = useQuery<Product>({
     queryKey: [`/api/products/${productId}`],
     enabled: !!productId,
   });
+  
+  // Объединяем обычного пользователя и демо-пользователя, если он активен
+  const user = demoUser || authUser;
   
   // Определяем валюту и цену на основе страны пользователя
   // Если пользователь не авторизован, используем 'DE' (Германию) по умолчанию
@@ -356,37 +421,53 @@ export default function Checkout() {
   // Функция для обновления количества и PaymentIntent
   const handleQuantityChange = async (newQuantity: number) => {
     if (newQuantity < 1 || newQuantity > 10) return;
-    if (!user || !paymentIntentId) return;
     
     setIsUpdatingQuantity(true);
     
     try {
+      // Сначала обновляем визуально количество
       setQuantity(newQuantity);
       
-      // Вызываем API для обновления PaymentIntent с новым количеством
-      const { amount, taxAmount: updatedTaxAmount } = await updatePaymentIntentQuantity(
-        paymentIntentId,
-        user.id,
-        newQuantity
-      );
-      
-      console.log(`Updated payment intent with new quantity ${newQuantity}:`, {
-        amount,
-        taxAmount: updatedTaxAmount
-      });
-      
-      // Обновляем информацию о налогах
-      if (updatedTaxAmount) {
-        setTaxInfo(prev => ({
-          ...prev,
-          amount: updatedTaxAmount
-        }));
+      // Если пользователь не авторизован или нет ID платежа, просто обновляем UI
+      if (!user || !paymentIntentId) {
+        console.log('User not authenticated or PaymentIntent ID not available, skipping API call');
+        return;
       }
       
-      toast({
-        title: "Quantity updated",
-        description: `Quantity changed to ${newQuantity}`,
-      });
+      // Вызываем API для обновления PaymentIntent с новым количеством
+      try {
+        const { amount, taxAmount: updatedTaxAmount } = await updatePaymentIntentQuantity(
+          paymentIntentId,
+          user.id,
+          newQuantity
+        );
+        
+        console.log(`Updated payment intent with new quantity ${newQuantity}:`, {
+          amount,
+          taxAmount: updatedTaxAmount
+        });
+        
+        // Обновляем информацию о налогах
+        if (updatedTaxAmount) {
+          setTaxInfo(prev => ({
+            ...prev,
+            amount: updatedTaxAmount
+          }));
+        }
+        
+        toast({
+          title: "Quantity updated",
+          description: `Quantity changed to ${newQuantity}`,
+        });
+      } catch (apiError) {
+        console.error("Error updating payment intent via API:", apiError);
+        // Показываем уведомление, но не сбрасываем количество
+        toast({
+          title: "Payment update error",
+          description: "The payment will be recalculated at checkout.",
+          variant: "warning",
+        });
+      }
     } catch (error) {
       console.error("Error updating quantity:", error);
       // Восстанавливаем предыдущее значение в случае ошибки
@@ -529,19 +610,64 @@ export default function Checkout() {
             <ArrowLeft size={24} />
           </button>
           <h2 className="text-lg font-medium">Checkout</h2>
+          
+          {isDemoMode && (
+            <span className="ml-auto bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-medium">
+              Demo Mode
+            </span>
+          )}
         </div>
         
         {/* Отображаем информацию о продукте и налогах */}
         {renderProductInfo()}
         
         <Card className="p-4">
-          <p className="text-error mb-4">Please log in to continue with checkout.</p>
-          <button 
-            className="bg-blue-600 text-white w-full py-2 rounded-full hover:bg-blue-700"
-            onClick={() => setLocation("/account")}
-          >
-            Go to Account
-          </button>
+          <p className="text-amber-600 mb-4">Please log in to continue with checkout.</p>
+          <div className="space-y-3">
+            <button 
+              className="bg-blue-600 text-white w-full py-2 rounded-full hover:bg-blue-700"
+              onClick={() => setLocation("/account")}
+            >
+              Go to Account
+            </button>
+            
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-muted-foreground">Or</span>
+              </div>
+            </div>
+            
+            <button
+              type="button"
+              className="bg-amber-500 text-white w-full py-2 rounded-full hover:bg-amber-600"
+              onClick={() => {
+                // Создаем тестового пользователя в localStorage для демонстрации функциональности
+                const demoUser = {
+                  id: 99999, // Тестовый ID
+                  username: "demouser",
+                  email: "demo@example.com",
+                  country: "DE", // Используем Германию для демонстрации с налогом
+                  accessLevel: 1
+                };
+                
+                // Сохраняем во временное хранилище
+                localStorage.setItem("demo_user", JSON.stringify(demoUser));
+                
+                // Перегружаем страницу, чтобы использовать демо-режим
+                window.location.href = `/checkout/${productId}?demo=true`;
+              }}
+            >
+              Test as Demo User
+            </button>
+            
+            <p className="text-xs text-center text-gray-500 mt-2">
+              Demo mode provides a simulated checkout experience.
+              <br />No registration or login required.
+            </p>
+          </div>
         </Card>
       </div>
     );
@@ -557,6 +683,12 @@ export default function Checkout() {
           <ArrowLeft size={24} />
         </button>
         <h2 className="text-lg font-medium">Checkout</h2>
+        
+        {isDemoMode && (
+          <span className="ml-auto bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-medium">
+            Demo Mode
+          </span>
+        )}
       </div>
       
       {renderProductInfo()}
@@ -568,8 +700,16 @@ export default function Checkout() {
         {stripeLoadingFailed || paymentIntentError ? (
           <div className="space-y-4">
             <div className="p-4 bg-red-50 text-red-800 rounded-lg">
-              <h4 className="font-semibold mb-2">Payment System Temporarily Unavailable</h4>
-              <p className="mb-3">We're experiencing technical difficulties with our payment processor. Please try again later or use an alternative payment method.</p>
+              <h4 className="font-semibold mb-2">
+                Payment System Temporarily Unavailable
+                {isDemoMode && <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Demo Mode</span>}
+              </h4>
+              <p className="mb-3">
+                {isDemoMode 
+                  ? "In demo mode, the payment system is simulated. You can click 'Retry Payment' to attempt again."
+                  : "We're experiencing technical difficulties with our payment processor. Please try again later or use an alternative payment method."
+                }
+              </p>
               <div className="space-y-2">
                 <button 
                   className="bg-gray-700 text-white w-full py-3 rounded-full font-medium hover:bg-gray-800"
@@ -604,12 +744,15 @@ export default function Checkout() {
                   colorPrimary: '#6200EE',
                 }
               },
-              paymentMethodCreation: "manual",
-              paymentMethodTypes: ["card", "apple_pay", "google_pay", "link"],
+              // Используем параметры в соответствии с документацией https://docs.stripe.com/payments/link/checkout-link
+              payment_method_creation: 'manual',
+              payment_method_types: ['card', 'apple_pay', 'google_pay', 'link'],
               wallets: {
-                applePay: "auto",
-                googlePay: "auto"
-              }
+                apple_pay: 'auto',
+                google_pay: 'auto'
+              },
+              // Добавляем режим отладки для диагностики
+              loader: 'always'
             }}
           >
             <CheckoutForm productId={productId as number} amount={price} currency={currency} />
