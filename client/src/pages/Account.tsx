@@ -126,11 +126,6 @@ export default function Account() {
         email: user.email,
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error sending verification email");
-      }
-      
       const data = await response.json();
       
       toast({
@@ -141,11 +136,6 @@ export default function Account() {
       // For demo purposes only: auto-verify the user
       if (data.token) {
         const verifyResponse = await apiRequest("GET", `/api/users/${user.id}/verify?token=${data.token}`);
-        
-        if (!verifyResponse.ok) {
-          throw new Error("Failed to verify email");
-        }
-        
         setUser({ ...user, isVerified: true });
         
         toast({
@@ -189,14 +179,8 @@ export default function Account() {
       console.log("Prepared data for API request:", submitData);
       
       const response = await apiRequest("PUT", `/api/users/${user.id}`, submitData);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error response from server:", errorText);
-        throw new Error(errorText || "Failed to update user information");
-      }
-      
       const updatedUser = await response.json();
+      console.log("Account update - apiRequest succeeded:", updatedUser);
       console.log("Updated user data received:", updatedUser);
       
       // Обновляем пользователя в контексте
@@ -264,11 +248,7 @@ export default function Account() {
     setIsLoading(true);
     
     try {
-      const response = await apiRequest("DELETE", `/api/users/${user.id}`);
-      
-      if (!response.ok) {
-        throw new Error("Failed to close account");
-      }
+      await apiRequest("DELETE", `/api/users/${user.id}`);
       
       // Выходим из системы и очищаем данные пользователя
       setUser(null);
@@ -353,11 +333,6 @@ export default function Account() {
         password: cleanPassword
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error during login");
-      }
-      
       const userData = await response.json();
       
       // Используем контекст для сохранения данных о пользователе
@@ -384,12 +359,6 @@ export default function Account() {
     
     try {
       const response = await apiRequest("POST", "/api/users/register", data);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error during registration");
-      }
-      
       const userData = await response.json();
       
       // Используем контекст для сохранения данных о пользователе

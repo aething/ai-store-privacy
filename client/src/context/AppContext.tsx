@@ -102,9 +102,20 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     localStorage.setItem("user", JSON.stringify(userData));
   };
   
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
+  const logout = async () => {
+    try {
+      // Вызов серверного API для выхода и уничтожения сессии
+      await fetch('/api/users/logout', { 
+        method: 'POST',
+        credentials: 'include' // Важно: отправляем сессионные cookie
+      });
+    } catch (error) {
+      console.error("[AppContext] Error during logout:", error);
+    } finally {
+      // Локальная очистка состояния
+      setUser(null);
+      localStorage.removeItem("user");
+    }
   };
   
   return (
