@@ -2099,9 +2099,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             // Добавляем обновление описания, чтобы отразить новое количество
             description: `Order with ${taxLabel} (quantity: ${parsedQuantity})`,
-            // Устанавливаем cancel_at_period_end в true для обновления client_secret
-            // Используем правильные типы платежей для всех регионов
-            payment_method_types: lowerCurrency === 'eur' 
+            // Устанавливаем правильные типы платежей для всех регионов
+            payment_method_types: currency === 'eur' 
               ? ['card', 'ideal', 'sepa_debit'] 
               : ['card'],
           }

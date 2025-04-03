@@ -1217,8 +1217,25 @@ export default function Checkout() {
                   spacingUnit: '4px',
                   borderRadius: '4px'
                 }
-              }
-              // Wallets настраиваются автоматически, согласно документации Stripe
+              },
+              // Настройка Google Pay и Apple Pay
+              wallets: {
+                googlePay: {
+                  merchantName: 'Aething Inc.',
+                  buttonType: 'buy',
+                  buttonTheme: 'black',
+                  buttonSizeMode: 'fill'
+                },
+                applePay: {
+                  merchantName: 'Aething Inc.',
+                  buttonType: 'buy',
+                  buttonStyle: 'black'
+                }
+              },
+              // Настройка допустимых платежных методов в зависимости от региона
+              paymentMethodOrder: currency === 'eur' 
+                ? ['google_pay', 'apple_pay', 'card', 'ideal', 'sepa_debit'] 
+                : ['google_pay', 'apple_pay', 'card']
             }}
           >
             <CheckoutForm 
