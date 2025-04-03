@@ -917,6 +917,8 @@ export default function Checkout() {
               // Конфигурация в соответствии с документацией https://docs.stripe.com/payments/link/mobile-payment-element-link
               // и https://docs.stripe.com/payments/link/set-up-link-with-payment-element
               businessName: "Aething AI Platform",
+              // Режим оплаты required для корректной работы Google Pay и Apple Pay
+              mode: 'payment',
               // Включаем поддерживаемые методы платежей
               payment_method_types: ['card', 'link'],
               // Настройка кошельков (Google Pay и Apple Pay)
