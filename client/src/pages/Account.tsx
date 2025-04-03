@@ -59,13 +59,53 @@ export default function Account() {
   
   // При монтировании компонента проверяем, нужно ли восстановить позицию скролла
   useEffect(() => {
+    // Проверяем флаг восстановления скролла (старый механизм)
     const shouldRestoreScroll = sessionStorage.getItem('restore_account_scroll') === 'true';
     const restoreTimestamp = parseInt(sessionStorage.getItem('restore_account_timestamp') || '0');
+    
+    // Проверяем флаг скролла в начало (новый механизм)
+    const shouldScrollToTop = sessionStorage.getItem('account_scroll_to_top') === 'true';
+    const scrollToTopTimestamp = parseInt(sessionStorage.getItem('account_scroll_timestamp') || '0');
+    
     const now = Date.now();
     
-    // Проверяем, что запрос на восстановление скролла не старше 5 секунд
-    if (shouldRestoreScroll && now - restoreTimestamp < 5000) {
-      console.log('[Account] Восстанавливаем позицию скролла');
+    // Определяем, что делать со скроллом
+    if (shouldScrollToTop && now - scrollToTopTimestamp < 5000) {
+      // Если есть свежий флаг для скролла в начало, устанавливаем в начало
+      console.log('[Account] Скроллим в начало страницы');
+      
+      // Импортируем утилиту для скролла
+      import("@/lib/scrollUtils").then(({ scrollToTop }) => {
+        // Сначала форсированный скролл для надежности
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+        
+        // Затем более надежные методы с таймаутами
+        const scrollTopFn = () => scrollToTop(false);
+        
+        // Используем несколько попыток с разными задержками
+        const timers = [
+          setTimeout(scrollTopFn, 0),
+          setTimeout(scrollTopFn, 50),
+          setTimeout(scrollTopFn, 150),
+          setTimeout(scrollTopFn, 300),
+          setTimeout(scrollTopFn, 600)
+        ];
+        
+        // Очищаем флаг и таймеры
+        sessionStorage.removeItem('account_scroll_to_top');
+        sessionStorage.removeItem('account_scroll_timestamp');
+        
+        // Прерываем попытки восстановления через 1 секунду
+        setTimeout(() => {
+          timers.forEach(clearTimeout);
+        }, 1000);
+      });
+    } 
+    // Старый механизм восстановления позиции
+    else if (shouldRestoreScroll && now - restoreTimestamp < 5000) {
+      console.log('[Account] Восстанавливаем сохраненную позицию скролла');
       
       // Импортируем утилиту для восстановления позиции скролла
       import("@/lib/scrollUtils").then(({ restoreScrollPositionForPath }) => {

@@ -118,15 +118,17 @@ export default function Policy() {
   
   return (
     <SwipeBack onSwipeBack={() => {
-      // Подготавливаем возврат на Account с восстановлением позиции скролла
-      import("@/lib/scrollUtils").then(({ restoreScrollPositionForPath }) => {
+      // Принудительно устанавливаем скролл в начало для страницы Account
+      import("@/lib/scrollUtils").then(({ clearScrollPositionForPath }) => {
         // Логируем для отладки
-        console.log('[Policy] Свайп назад - возвращаемся на страницу Account');
+        console.log('[Policy] Свайп назад - возвращаемся на страницу Account с установкой скролла в начало');
         
-        // Сначала сохраняем восстановление позиции в sessionStorage 
-        // для немедленного использования после перехода
-        sessionStorage.setItem('restore_account_scroll', 'true');
-        sessionStorage.setItem('restore_account_timestamp', Date.now().toString());
+        // Удаляем сохраненную позицию скролла для страницы аккаунта
+        clearScrollPositionForPath('/account');
+        
+        // Устанавливаем флаг, чтобы страница аккаунт установила скролл в начало
+        sessionStorage.setItem('account_scroll_to_top', 'true');
+        sessionStorage.setItem('account_scroll_timestamp', Date.now().toString());
         
         // Используем более надежное API для работы с историей браузера
         if (window.history && window.history.length > 1) {
@@ -135,20 +137,6 @@ export default function Policy() {
           // Запасной вариант, если история недоступна
           window.location.href = '/account';
         }
-        
-        // Используем несколько попыток восстановления позиции через разные интервалы
-        const timers = [
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 10),
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 50),
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 150),
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 300),
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 600)
-        ];
-        
-        // Прерываем попытки восстановления через 1 секунду
-        setTimeout(() => {
-          timers.forEach(clearTimeout);
-        }, 1000);
       });
     }}>
       <div id="policy-root" ref={rootRef} className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
@@ -158,15 +146,18 @@ export default function Policy() {
           <button 
             className="p-2 rounded-full hover:bg-gray-100"
             onClick={() => {
-              // Подготавливаем возврат на Account с восстановлением позиции скролла
-              import("@/lib/scrollUtils").then(({ restoreScrollPositionForPath }) => {
+              // Принудительно устанавливаем скролл в начало для страницы Account
+              // Это нужно чтобы гарантировать, что при возврате страница будет в начале
+              import("@/lib/scrollUtils").then(({ clearScrollPositionForPath }) => {
                 // Логируем для отладки
-                console.log('[Policy] Возвращаемся на страницу Account с восстановлением позиции');
+                console.log('[Policy] Закрываем политику, сбрасываем позицию скролла Account');
                 
-                // Сначала сохраняем восстановление позиции в sessionStorage 
-                // для немедленного использования после перехода
-                sessionStorage.setItem('restore_account_scroll', 'true');
-                sessionStorage.setItem('restore_account_timestamp', Date.now().toString());
+                // Удаляем сохраненную позицию скролла для страницы аккаунта
+                clearScrollPositionForPath('/account');
+                
+                // Устанавливаем флаг, чтобы страница аккаунт установила скролл в начало
+                sessionStorage.setItem('account_scroll_to_top', 'true');
+                sessionStorage.setItem('account_scroll_timestamp', Date.now().toString());
                 
                 // Используем более надежное API для работы с историей браузера
                 if (window.history && window.history.length > 1) {
@@ -175,20 +166,6 @@ export default function Policy() {
                   // Запасной вариант, если история недоступна
                   window.location.href = '/account';
                 }
-                
-                // Используем несколько попыток восстановления позиции через разные интервалы
-                const timers = [
-                  setTimeout(() => restoreScrollPositionForPath('/account', false), 10),
-                  setTimeout(() => restoreScrollPositionForPath('/account', false), 50),
-                  setTimeout(() => restoreScrollPositionForPath('/account', false), 150),
-                  setTimeout(() => restoreScrollPositionForPath('/account', false), 300),
-                  setTimeout(() => restoreScrollPositionForPath('/account', false), 600)
-                ];
-                
-                // Прерываем попытки восстановления через 1 секунду
-                setTimeout(() => {
-                  timers.forEach(clearTimeout);
-                }, 1000);
               });
             }}
             aria-label="Close"
