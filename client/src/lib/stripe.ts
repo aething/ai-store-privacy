@@ -223,7 +223,7 @@ export async function createPaymentIntent(
     taxLabel: taxLabel,
     userId,
     productId,
-    currency: finalCurrency,
+    currency: String(finalCurrency).toLowerCase(),
     quantity, // Передаем количество
     couponCode: couponCode || undefined, // Only include if we have a coupon
     metadata: {

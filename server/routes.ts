@@ -810,7 +810,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Validate currency - ensure lowercase comparison
-      const lowerCurrency = currency.toLowerCase();
+      // Сначала убедимся, что currency - это строка
+      const currencyStr = String(currency);
+      const lowerCurrency = currencyStr.toLowerCase();
       if (lowerCurrency !== "usd" && lowerCurrency !== "eur") {
         return res.status(400).json({ message: "Currency must be either 'usd' or 'eur'" });
       }

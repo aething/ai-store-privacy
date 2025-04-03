@@ -9,8 +9,11 @@
 export const calculateTaxRate = (country?: string | null) => {
   if (!country) return { rate: 0, label: 'No VAT/Tax' };
   
+  // Нормализуем входное значение страны к верхнему регистру
+  const normalizedCountry = String(country).toUpperCase();
+  
   // Для США - специальная обработка
-  if (country === 'US') {
+  if (normalizedCountry === 'US') {
     // В настоящий момент налоги для США не применяются, так как пороги nexus не достигнуты
     return { rate: 0, label: 'No Sales Tax' };
   }
@@ -53,12 +56,15 @@ export const calculateTaxRate = (country?: string | null) => {
     'NO': { rate: 0.25, label: 'MVA 25%' },    // Норвегия
   };
   
-  return euVatRates[country] || { rate: 0, label: 'No VAT/Tax' };
+  return euVatRates[normalizedCountry] || { rate: 0, label: 'No VAT/Tax' };
 };
 
 // Функция определения валюты на основе страны
 export const getCurrencyForCountry = (country: string): string => {
   if (!country) return 'usd';
+  
+  // Преобразуем код страны к верхнему регистру для сравнения
+  const normalizedCountry = String(country).toUpperCase();
   
   // Коды стран Европейского Союза (в верхнем регистре)
   const eurCountryCodes = [
@@ -67,7 +73,7 @@ export const getCurrencyForCountry = (country: string): string => {
     'SI', 'ES', 'SE'
   ];
   
-  return eurCountryCodes.includes(country) ? 'eur' : 'usd';
+  return eurCountryCodes.includes(normalizedCountry) ? 'eur' : 'usd';
 };
 
 // Функция для создания платежного намерения с учетом налогов

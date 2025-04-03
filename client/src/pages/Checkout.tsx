@@ -562,7 +562,7 @@ export default function Checkout() {
             <div className="border-t pt-4">
               <p className="text-sm text-gray-500 mb-2">Having trouble? Contact our support team:</p>
               <div className="bg-gray-100 p-3 rounded">
-                <p className="text-center">support@yourdomain.com</p>
+                <p className="text-center">support@aething.com</p>
               </div>
             </div>
           </div>
