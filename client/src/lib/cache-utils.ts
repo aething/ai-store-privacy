@@ -3,8 +3,8 @@
  */
 
 // Название для кэша ресурсов и API
-export const APP_CACHE_NAME = 'ai-store-cache-v2';
-export const API_CACHE_NAME = 'ai-store-api-cache-v2';
+export const APP_CACHE_NAME = 'ai-store-cache-v1';
+export const API_CACHE_NAME = 'ai-store-api-cache-v1';
 
 // Время жизни кэша данных API в миллисекундах
 export const API_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 часа

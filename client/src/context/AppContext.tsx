@@ -56,6 +56,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
       try {
         console.log("[AppContext] Checking server session...");
         const response = await fetch('/api/users/me');
+        console.log("[AppContext] Server session response status:", response.status);
         
         if (response.ok) {
           const serverUserData = await response.json();

@@ -1155,6 +1155,18 @@ export const privacyPolicy: MultilingualPolicy = {
             <h5 class="font-medium mb-1">DPO:</h5>
             <p class="text-text-secondary">Alex Bernshtein.</p>
           </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Third-Party Services:</h5>
+            <p class="text-text-secondary">Our application uses the following third-party services:</p>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li><strong>Firebase (Google):</strong> Authentication and push notifications</li>
+              <li><strong>Google Sheets API:</strong> User data storage and processing</li>
+              <li><strong>Stripe:</strong> Payment processing</li>
+              <li><strong>Google Fonts:</strong> Font rendering</li>
+            </ul>
+            <p class="text-text-secondary">For detailed information about data handling by these services, please see our <a href="/policy/data-safety" class="text-blue-600 hover:underline">Data Safety Policy</a>.</p>
+          </div>
         </div>
       `
     },
@@ -1191,6 +1203,18 @@ export const privacyPolicy: MultilingualPolicy = {
             <h5 class="font-medium mb-1">Speicherdauer:</h5>
             <p class="text-text-secondary">Bestelldaten: 10 Jahre (§ 257 HGB).</p>
             <p class="text-text-secondary">Kontodaten: 30 Tage nach Transaktion.</p>
+          </div>
+          
+          <div class="mb-3">
+            <h5 class="font-medium mb-1">Drittanbieter-Dienste:</h5>
+            <p class="text-text-secondary">Unsere Anwendung nutzt folgende Drittanbieter-Dienste:</p>
+            <ul class="list-disc pl-5 mb-4 text-text-secondary">
+              <li><strong>Firebase (Google):</strong> Authentifizierung und Push-Benachrichtigungen</li>
+              <li><strong>Google Sheets API:</strong> Speicherung und Verarbeitung von Benutzerdaten</li>
+              <li><strong>Stripe:</strong> Zahlungsabwicklung</li>
+              <li><strong>Google Fonts:</strong> Schriftdarstellung</li>
+            </ul>
+            <p class="text-text-secondary">Detaillierte Informationen über die Datenverarbeitung durch diese Dienste finden Sie in unserer <a href="/policy/data-safety" class="text-blue-600 hover:underline">Datensicherheitsrichtlinie</a>.</p>
           </div>
         </div>
       `
@@ -1598,6 +1622,468 @@ export const termsPolicy: MultilingualPolicy = {
 };
 
 // Список всех многоязычных политик
+// Политика безопасности данных для Google Play Store
+export const dataSafetyPolicy: MultilingualPolicy = {
+  id: "data-safety",
+  translations: {
+    // Английская версия
+    en: {
+      title: "Data Safety for Google Play",
+      content: `
+        <div class="mb-4">
+          <p class="mb-2 text-text-secondary"><strong>Last Updated:</strong> April 1, 2025</p>
+          
+          <h4 class="font-medium mb-2">Data Safety Information for Google Play</h4>
+          <p class="mb-4 text-text-secondary">This document details the data handling practices and external services used in our application, as required by the Google Play Store Data Safety section.</p>
+          
+          <h4 class="font-medium mb-2">Third-Party Services and SDKs</h4>
+          <p class="mb-4 text-text-secondary">Our application uses the following third-party services that may collect data:</p>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Firebase (Google)</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Data Collected:</strong> User authentication data, device tokens</li>
+              <li><strong>Purpose:</strong> Authentication and Push notifications</li>
+              <li><strong>Data Sharing:</strong> Not shared with third parties</li>
+              <li><strong>Data Protection:</strong> Encrypted during transmission and storage</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Sheets API</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Data Collected:</strong> User account info, order history</li>
+              <li><strong>Purpose:</strong> Data storage and synchronization</li>
+              <li><strong>Data Sharing:</strong> Not shared with third parties</li>
+              <li><strong>Data Protection:</strong> Processed according to Google's security standards</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Stripe</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Data Collected:</strong> Payment info, transaction details</li>
+              <li><strong>Purpose:</strong> Payment processing</li>
+              <li><strong>Data Sharing:</strong> Shared only with financial institutions to process payments</li>
+              <li><strong>Data Protection:</strong> PCI DSS compliant</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Fonts</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Data Collected:</strong> IP addresses (temporarily)</li>
+              <li><strong>Purpose:</strong> Font rendering</li>
+              <li><strong>Data Sharing:</strong> Not shared with third parties</li>
+              <li><strong>Data Protection:</strong> Temporary storage only</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-medium mb-2">User Data Deletion</h4>
+          <p class="mb-4 text-text-secondary">Users can request deletion of their data by:</p>
+          <ul class="list-disc pl-5 mb-4 text-text-secondary">
+            <li>Emailing privacy@aething.com with subject "Data Deletion Request"</li>
+            <li>Using the in-app account deletion feature</li>
+            <li>Submitting a request through our website contact form</li>
+          </ul>
+          
+          <p class="text-text-secondary">All deletion requests are processed within 30 days as required by applicable regulations.</p>
+        </div>
+      `
+    },
+    // Немецкая версия
+    de: {
+      title: "Datensicherheit für Google Play",
+      content: `
+        <div class="mb-4">
+          <p class="mb-2 text-text-secondary"><strong>Zuletzt aktualisiert:</strong> 1. April 2025</p>
+          
+          <h4 class="font-medium mb-2">Datensicherheitsinformationen für Google Play</h4>
+          <p class="mb-4 text-text-secondary">Dieses Dokument beschreibt die Datenverarbeitungspraktiken und externen Dienste, die in unserer Anwendung verwendet werden, wie im Abschnitt Datensicherheit des Google Play Stores gefordert.</p>
+          
+          <h4 class="font-medium mb-2">Drittanbieterdienste und SDKs</h4>
+          <p class="mb-4 text-text-secondary">Unsere Anwendung verwendet die folgenden Drittanbieterdienste, die Daten sammeln können:</p>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Firebase (Google)</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Gesammelte Daten:</strong> Benutzerauthentifizierungsdaten, Geräte-Tokens</li>
+              <li><strong>Zweck:</strong> Authentifizierung und Push-Benachrichtigungen</li>
+              <li><strong>Datenweitergabe:</strong> Nicht an Dritte weitergegeben</li>
+              <li><strong>Datenschutz:</strong> Verschlüsselt während der Übertragung und Speicherung</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Sheets API</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Gesammelte Daten:</strong> Benutzerkontoinfo, Bestellverlauf</li>
+              <li><strong>Zweck:</strong> Datenspeicherung und -synchronisierung</li>
+              <li><strong>Datenweitergabe:</strong> Nicht an Dritte weitergegeben</li>
+              <li><strong>Datenschutz:</strong> Verarbeitet nach Googles Sicherheitsstandards</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Stripe</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Gesammelte Daten:</strong> Zahlungsinformationen, Transaktionsdetails</li>
+              <li><strong>Zweck:</strong> Zahlungsabwicklung</li>
+              <li><strong>Datenweitergabe:</strong> Nur mit Finanzinstituten zur Zahlungsabwicklung geteilt</li>
+              <li><strong>Datenschutz:</strong> PCI DSS-konform</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Fonts</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Gesammelte Daten:</strong> IP-Adressen (vorübergehend)</li>
+              <li><strong>Zweck:</strong> Schriftdarstellung</li>
+              <li><strong>Datenweitergabe:</strong> Nicht an Dritte weitergegeben</li>
+              <li><strong>Datenschutz:</strong> Nur vorübergehende Speicherung</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-medium mb-2">Löschung von Benutzerdaten</h4>
+          <p class="mb-4 text-text-secondary">Benutzer können die Löschung ihrer Daten anfordern durch:</p>
+          <ul class="list-disc pl-5 mb-4 text-text-secondary">
+            <li>E-Mail an privacy@aething.com mit Betreff "Datenlöschungsanfrage"</li>
+            <li>Verwendung der Kontolöschungsfunktion in der App</li>
+            <li>Einreichen einer Anfrage über das Kontaktformular unserer Website</li>
+          </ul>
+          
+          <p class="text-text-secondary">Alle Löschungsanfragen werden innerhalb von 30 Tagen bearbeitet, wie es die geltenden Vorschriften erfordern.</p>
+        </div>
+      `
+    },
+    // Французская версия
+    fr: {
+      title: "Sécurité des données pour Google Play",
+      content: `
+        <div class="mb-4">
+          <p class="mb-2 text-text-secondary"><strong>Dernière mise à jour :</strong> 1er avril 2025</p>
+          
+          <h4 class="font-medium mb-2">Informations sur la sécurité des données pour Google Play</h4>
+          <p class="mb-4 text-text-secondary">Ce document détaille les pratiques de traitement des données et les services externes utilisés dans notre application, comme l'exige la section Sécurité des données du Google Play Store.</p>
+          
+          <h4 class="font-medium mb-2">Services tiers et SDK</h4>
+          <p class="mb-4 text-text-secondary">Notre application utilise les services tiers suivants qui peuvent collecter des données :</p>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Firebase (Google)</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Données collectées :</strong> Données d'authentification utilisateur, jetons d'appareil</li>
+              <li><strong>Finalité :</strong> Authentification et notifications push</li>
+              <li><strong>Partage des données :</strong> Non partagées avec des tiers</li>
+              <li><strong>Protection des données :</strong> Chiffrées pendant la transmission et le stockage</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">API Google Sheets</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Données collectées :</strong> Infos du compte utilisateur, historique des commandes</li>
+              <li><strong>Finalité :</strong> Stockage et synchronisation des données</li>
+              <li><strong>Partage des données :</strong> Non partagées avec des tiers</li>
+              <li><strong>Protection des données :</strong> Traitées selon les normes de sécurité de Google</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Stripe</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Données collectées :</strong> Informations de paiement, détails des transactions</li>
+              <li><strong>Finalité :</strong> Traitement des paiements</li>
+              <li><strong>Partage des données :</strong> Partagées uniquement avec les institutions financières pour traiter les paiements</li>
+              <li><strong>Protection des données :</strong> Conforme à la norme PCI DSS</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Fonts</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Données collectées :</strong> Adresses IP (temporairement)</li>
+              <li><strong>Finalité :</strong> Rendu des polices</li>
+              <li><strong>Partage des données :</strong> Non partagées avec des tiers</li>
+              <li><strong>Protection des données :</strong> Stockage temporaire uniquement</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-medium mb-2">Suppression des données utilisateur</h4>
+          <p class="mb-4 text-text-secondary">Les utilisateurs peuvent demander la suppression de leurs données en :</p>
+          <ul class="list-disc pl-5 mb-4 text-text-secondary">
+            <li>Envoyant un e-mail à privacy@aething.com avec pour objet "Demande de suppression de données"</li>
+            <li>Utilisant la fonctionnalité de suppression de compte dans l'application</li>
+            <li>Soumettant une demande via le formulaire de contact de notre site web</li>
+          </ul>
+          
+          <p class="text-text-secondary">Toutes les demandes de suppression sont traitées dans un délai de 30 jours, comme l'exigent les réglementations applicables.</p>
+        </div>
+      `
+    },
+    // Испанская версия
+    es: {
+      title: "Seguridad de datos para Google Play",
+      content: `
+        <div class="mb-4">
+          <p class="mb-2 text-text-secondary"><strong>Última actualización:</strong> 1 de abril de 2025</p>
+          
+          <h4 class="font-medium mb-2">Información de seguridad de datos para Google Play</h4>
+          <p class="mb-4 text-text-secondary">Este documento detalla las prácticas de manejo de datos y los servicios externos utilizados en nuestra aplicación, según lo requerido por la sección de Seguridad de Datos de Google Play Store.</p>
+          
+          <h4 class="font-medium mb-2">Servicios de terceros y SDKs</h4>
+          <p class="mb-4 text-text-secondary">Nuestra aplicación utiliza los siguientes servicios de terceros que pueden recopilar datos:</p>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Firebase (Google)</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Datos recopilados:</strong> Datos de autenticación de usuario, tokens de dispositivo</li>
+              <li><strong>Propósito:</strong> Autenticación y notificaciones push</li>
+              <li><strong>Compartición de datos:</strong> No se comparten con terceros</li>
+              <li><strong>Protección de datos:</strong> Encriptados durante la transmisión y almacenamiento</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">API de Google Sheets</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Datos recopilados:</strong> Información de cuenta de usuario, historial de pedidos</li>
+              <li><strong>Propósito:</strong> Almacenamiento y sincronización de datos</li>
+              <li><strong>Compartición de datos:</strong> No se comparten con terceros</li>
+              <li><strong>Protección de datos:</strong> Procesados según los estándares de seguridad de Google</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Stripe</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Datos recopilados:</strong> Información de pago, detalles de transacciones</li>
+              <li><strong>Propósito:</strong> Procesamiento de pagos</li>
+              <li><strong>Compartición de datos:</strong> Compartidos solo con instituciones financieras para procesar pagos</li>
+              <li><strong>Protección de datos:</strong> Conforme a PCI DSS</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Fonts</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Datos recopilados:</strong> Direcciones IP (temporalmente)</li>
+              <li><strong>Propósito:</strong> Renderizado de fuentes</li>
+              <li><strong>Compartición de datos:</strong> No se comparten con terceros</li>
+              <li><strong>Protección de datos:</strong> Almacenamiento temporal únicamente</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-medium mb-2">Eliminación de datos de usuario</h4>
+          <p class="mb-4 text-text-secondary">Los usuarios pueden solicitar la eliminación de sus datos mediante:</p>
+          <ul class="list-disc pl-5 mb-4 text-text-secondary">
+            <li>Envío de correo electrónico a privacy@aething.com con el asunto "Solicitud de eliminación de datos"</li>
+            <li>Uso de la función de eliminación de cuenta en la aplicación</li>
+            <li>Envío de una solicitud a través del formulario de contacto de nuestro sitio web</li>
+          </ul>
+          
+          <p class="text-text-secondary">Todas las solicitudes de eliminación se procesan dentro de los 30 días según lo requieren las regulaciones aplicables.</p>
+        </div>
+      `
+    },
+    // Итальянская версия
+    it: {
+      title: "Sicurezza dei dati per Google Play",
+      content: `
+        <div class="mb-4">
+          <p class="mb-2 text-text-secondary"><strong>Ultimo aggiornamento:</strong> 1 aprile 2025</p>
+          
+          <h4 class="font-medium mb-2">Informazioni sulla sicurezza dei dati per Google Play</h4>
+          <p class="mb-4 text-text-secondary">Questo documento dettaglia le pratiche di gestione dei dati e i servizi esterni utilizzati nella nostra applicazione, come richiesto dalla sezione Sicurezza dei Dati del Google Play Store.</p>
+          
+          <h4 class="font-medium mb-2">Servizi di terze parti e SDK</h4>
+          <p class="mb-4 text-text-secondary">La nostra applicazione utilizza i seguenti servizi di terze parti che potrebbero raccogliere dati:</p>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Firebase (Google)</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Dati raccolti:</strong> Dati di autenticazione utente, token di dispositivo</li>
+              <li><strong>Scopo:</strong> Autenticazione e notifiche push</li>
+              <li><strong>Condivisione dei dati:</strong> Non condivisi con terze parti</li>
+              <li><strong>Protezione dei dati:</strong> Crittografati durante la trasmissione e l'archiviazione</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">API Google Sheets</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Dati raccolti:</strong> Informazioni dell'account utente, cronologia degli ordini</li>
+              <li><strong>Scopo:</strong> Archiviazione e sincronizzazione dei dati</li>
+              <li><strong>Condivisione dei dati:</strong> Non condivisi con terze parti</li>
+              <li><strong>Protezione dei dati:</strong> Elaborati secondo gli standard di sicurezza di Google</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Stripe</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Dati raccolti:</strong> Informazioni di pagamento, dettagli delle transazioni</li>
+              <li><strong>Scopo:</strong> Elaborazione dei pagamenti</li>
+              <li><strong>Condivisione dei dati:</strong> Condivisi solo con istituzioni finanziarie per elaborare i pagamenti</li>
+              <li><strong>Protezione dei dati:</strong> Conforme agli standard PCI DSS</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Fonts</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>Dati raccolti:</strong> Indirizzi IP (temporaneamente)</li>
+              <li><strong>Scopo:</strong> Rendering dei font</li>
+              <li><strong>Condivisione dei dati:</strong> Non condivisi con terze parti</li>
+              <li><strong>Protezione dei dati:</strong> Solo archiviazione temporanea</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-medium mb-2">Cancellazione dei dati utente</h4>
+          <p class="mb-4 text-text-secondary">Gli utenti possono richiedere la cancellazione dei loro dati mediante:</p>
+          <ul class="list-disc pl-5 mb-4 text-text-secondary">
+            <li>Invio di un'email a privacy@aething.com con oggetto "Richiesta di cancellazione dati"</li>
+            <li>Utilizzo della funzione di cancellazione account nell'app</li>
+            <li>Invio di una richiesta tramite il modulo di contatto del nostro sito web</li>
+          </ul>
+          
+          <p class="text-text-secondary">Tutte le richieste di cancellazione vengono elaborate entro 30 giorni come richiesto dalle normative applicabili.</p>
+        </div>
+      `
+    },
+    // Японская версия
+    ja: {
+      title: "Google Play用データ安全性情報",
+      content: `
+        <div class="mb-4">
+          <p class="mb-2 text-text-secondary"><strong>最終更新日:</strong> 2025年4月1日</p>
+          
+          <h4 class="font-medium mb-2">Google Play用データ安全性情報</h4>
+          <p class="mb-4 text-text-secondary">このドキュメントは、Google Playストアのデータ安全性セクションで要求されるように、当社のアプリケーションで使用されるデータ処理の慣行と外部サービスについて詳しく説明しています。</p>
+          
+          <h4 class="font-medium mb-2">サードパーティサービスとSDK</h4>
+          <p class="mb-4 text-text-secondary">当社のアプリケーションでは、以下のデータを収集する可能性のあるサードパーティサービスを使用しています：</p>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Firebase（Google）</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>収集するデータ：</strong> ユーザー認証データ、デバイストークン</li>
+              <li><strong>目的：</strong> 認証とプッシュ通知</li>
+              <li><strong>データ共有：</strong> 第三者と共有されません</li>
+              <li><strong>データ保護：</strong> 送信と保存時に暗号化</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Sheets API</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>収集するデータ：</strong> ユーザーアカウント情報、注文履歴</li>
+              <li><strong>目的：</strong> データストレージと同期</li>
+              <li><strong>データ共有：</strong> 第三者と共有されません</li>
+              <li><strong>データ保護：</strong> Googleのセキュリティ基準に従って処理</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Stripe</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>収集するデータ：</strong> 支払い情報、取引詳細</li>
+              <li><strong>目的：</strong> 支払い処理</li>
+              <li><strong>データ共有：</strong> 支払いを処理するために金融機関とのみ共有</li>
+              <li><strong>データ保護：</strong> PCI DSS準拠</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Fonts</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>収集するデータ：</strong> IPアドレス（一時的）</li>
+              <li><strong>目的：</strong> フォントレンダリング</li>
+              <li><strong>データ共有：</strong> 第三者と共有されません</li>
+              <li><strong>データ保護：</strong> 一時的な保存のみ</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-medium mb-2">ユーザーデータの削除</h4>
+          <p class="mb-4 text-text-secondary">ユーザーは以下の方法でデータの削除をリクエストできます：</p>
+          <ul class="list-disc pl-5 mb-4 text-text-secondary">
+            <li>件名「データ削除リクエスト」でprivacy@aething.comにメールを送る</li>
+            <li>アプリ内のアカウント削除機能を使用する</li>
+            <li>当社ウェブサイトのお問い合わせフォームからリクエストを送信する</li>
+          </ul>
+          
+          <p class="text-text-secondary">すべての削除リクエストは、適用される規制で要求される通り30日以内に処理されます。</p>
+        </div>
+      `
+    },
+    // Китайская версия
+    zh: {
+      title: "Google Play数据安全信息",
+      content: `
+        <div class="mb-4">
+          <p class="mb-2 text-text-secondary"><strong>最后更新:</strong> 2025年4月1日</p>
+          
+          <h4 class="font-medium mb-2">Google Play数据安全信息</h4>
+          <p class="mb-4 text-text-secondary">本文档详细说明了我们应用程序中使用的数据处理实践和外部服务，按照Google Play商店数据安全部分的要求。</p>
+          
+          <h4 class="font-medium mb-2">第三方服务和SDK</h4>
+          <p class="mb-4 text-text-secondary">我们的应用程序使用以下可能收集数据的第三方服务：</p>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Firebase（谷歌）</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>收集的数据：</strong> 用户认证数据、设备令牌</li>
+              <li><strong>目的：</strong> 认证和推送通知</li>
+              <li><strong>数据共享：</strong> 不与第三方共享</li>
+              <li><strong>数据保护：</strong> 传输和存储期间加密</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Sheets API</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>收集的数据：</strong> 用户账户信息、订单历史</li>
+              <li><strong>目的：</strong> 数据存储和同步</li>
+              <li><strong>数据共享：</strong> 不与第三方共享</li>
+              <li><strong>数据保护：</strong> 按照谷歌的安全标准处理</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Stripe</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>收集的数据：</strong> 支付信息、交易详情</li>
+              <li><strong>目的：</strong> 支付处理</li>
+              <li><strong>数据共享：</strong> 仅与金融机构共享以处理支付</li>
+              <li><strong>数据保护：</strong> 符合PCI DSS标准</li>
+            </ul>
+          </div>
+          
+          <div class="mb-4 p-4 bg-gray-50 rounded-md">
+            <h5 class="font-medium mb-2">Google Fonts</h5>
+            <ul class="list-disc pl-5 mb-2 text-text-secondary">
+              <li><strong>收集的数据：</strong> IP地址（临时）</li>
+              <li><strong>目的：</strong> 字体渲染</li>
+              <li><strong>数据共享：</strong> 不与第三方共享</li>
+              <li><strong>数据保护：</strong> 仅临时存储</li>
+            </ul>
+          </div>
+          
+          <h4 class="font-medium mb-2">用户数据删除</h4>
+          <p class="mb-4 text-text-secondary">用户可以通过以下方式请求删除其数据：</p>
+          <ul class="list-disc pl-5 mb-4 text-text-secondary">
+            <li>发送电子邮件至privacy@aething.com，主题为"数据删除请求"</li>
+            <li>使用应用内的账户删除功能</li>
+            <li>通过我们网站的联系表单提交请求</li>
+          </ul>
+          
+          <p class="text-text-secondary">所有删除请求将在30天内处理，符合适用法规要求。</p>
+        </div>
+      `
+    }
+  }
+};
+
 export const multilingualPolicies: MultilingualPolicy[] = [
   deliveryPolicy,
   contactPolicy,
@@ -1605,7 +2091,8 @@ export const multilingualPolicies: MultilingualPolicy[] = [
   paymentTermsPolicy,
   warrantyPolicy,
   privacyPolicy,
-  termsPolicy
+  termsPolicy,
+  dataSafetyPolicy
 ];
 
 // Функция для получения локализованной политики по ID и коду языка

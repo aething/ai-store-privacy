@@ -16,9 +16,22 @@ import Subscribe from "@/pages/Subscribe";
 import PlayMarket from "@/pages/PlayMarket";
 import StripeCatalog from "@/pages/StripeCatalog";
 import DebugPage from "@/pages/DebugPage";
+import TaxTestPage from "@/pages/TaxTestPage";
+import SimpleTaxPage from "@/pages/SimpleTaxPage";
+import TaxTest from "@/pages/TaxTest";
+import ClearCache from "@/pages/ClearCache";
+import OfflineTest from "@/pages/OfflineTest";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
+import { logMobileAppConfig, isMobileApp } from "@/utils/mobileAppUtils";
+import { OfflineNavigationProvider } from "./components/OfflineNavigationProvider";
+import OfflineNavigationHandler from "./components/OfflineNavigationHandler";
+
+// Инициализация настроек мобильного приложения
+if (isMobileApp()) {
+  logMobileAppConfig();
+}
 
 // Подключаем тесты в режиме разработки
 if (import.meta.env.DEV) {
@@ -35,11 +48,17 @@ function Router() {
       <Route path="/policy/:id" component={Policy} />
       <Route path="/info/:id" component={InfoPage} />
       <Route path="/checkout/:id" component={Checkout} />
+      <Route path="/checkout" component={Checkout} />
       <Route path="/confirmation" component={Confirmation} />
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/playmarket" component={PlayMarket} />
       <Route path="/stripe-catalog" component={StripeCatalog} />
       <Route path="/debug" component={DebugPage} />
+      <Route path="/tax-test" component={TaxTestPage} />
+      <Route path="/simple-tax" component={SimpleTaxPage} />
+      <Route path="/tax-display-test" component={TaxTest} />
+      <Route path="/clear-cache" component={ClearCache} />
+      <Route path="/offline-test" component={OfflineTest} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -48,17 +67,22 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppProvider>
-        <LocaleProvider>
-          {/* ScrollManager следит за изменениями URL и управляет скроллом */}
-          <ScrollManager />
-          
-          <Layout>
-            <Router />
-          </Layout>
-          <Toaster />
-        </LocaleProvider>
-      </AppProvider>
+      <OfflineNavigationProvider>
+        <AppProvider>
+          <LocaleProvider>
+            {/* ScrollManager следит за изменениями URL и управляет скроллом */}
+            <ScrollManager />
+            
+            {/* Обработчик навигации для оффлайн-режима */}
+            <OfflineNavigationHandler />
+            
+            <Layout>
+              <Router />
+            </Layout>
+            <Toaster />
+          </LocaleProvider>
+        </AppProvider>
+      </OfflineNavigationProvider>
     </QueryClientProvider>
   );
 }

@@ -9,6 +9,45 @@ import * as googleSheets from "./google-sheets";
 import * as pushNotification from "./push-notification";
 import * as email from "./email";
 import nodemailer from "nodemailer";
+import { createPaymentIntentWithTaxInfo } from "./tax-demo-route";
+import taxDebugRoutes from "./routes/tax-debug";
+
+// Функция для получения полного названия страны по коду ISO
+function getFullCountryName(countryCode: string): string {
+  const countryMap: Record<string, string> = {
+    'AT': 'Austria',
+    'BE': 'Belgium',
+    'BG': 'Bulgaria',
+    'HR': 'Croatia',
+    'CY': 'Cyprus',
+    'CZ': 'Czech Republic',
+    'DK': 'Denmark',
+    'EE': 'Estonia',
+    'FI': 'Finland',
+    'FR': 'France',
+    'DE': 'Germany',
+    'GR': 'Greece',
+    'HU': 'Hungary',
+    'IE': 'Ireland',
+    'IT': 'Italy',
+    'LV': 'Latvia',
+    'LT': 'Lithuania',
+    'LU': 'Luxembourg',
+    'MT': 'Malta',
+    'NL': 'Netherlands',
+    'PL': 'Poland',
+    'PT': 'Portugal',
+    'RO': 'Romania',
+    'SK': 'Slovakia',
+    'SI': 'Slovenia',
+    'ES': 'Spain',
+    'SE': 'Sweden',
+    'GB': 'United Kingdom',
+    'US': 'United States'
+  };
+  
+  return countryMap[countryCode] || countryCode;
+}
 
 // Расширяем типы для Express.Request
 declare global {
@@ -114,7 +153,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     googleSheetsAvailable = true;
     
     // Загружаем пользователей из Google Sheets в память
-    await (storage as MemStorage).loadUsersFromGoogleSheets();
+    // Используем приведение типа к IStorage, так как метод должен быть доступен через интерфейс
+    await (storage as any).loadUsersFromGoogleSheets();
   } catch (error) {
     console.error("Failed to initialize Google Sheets:", error);
     console.log("Continuing without Google Sheets integration. User and order data will only be stored in memory.");
@@ -239,8 +279,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Получаем всех пользователей для отладки
-      const allUsers = Array.from((storage as any).users.values());
-      console.log("[DEBUG] All users:", allUsers.map(u => ({ id: u.id, username: u.username, password: u.password })));
+      // Используем приведение типа для отладочных целей
+      const allUsers = storage instanceof Object && 'users' in storage 
+        ? Array.from((storage as any).users.values()) 
+        : [];
+      
+      if (allUsers.length > 0) {
+        // Безопасный доступ к свойствам с проверкой типов
+        console.log("[DEBUG] All users:", allUsers.map(u => ({
+          id: typeof u === 'object' && u && 'id' in u ? u.id : 'unknown',
+          username: typeof u === 'object' && u && 'username' in u ? u.username : 'unknown',
+          password: typeof u === 'object' && u && 'password' in u ? u.password : 'unknown'
+        })));
+      } else {
+        console.log("[DEBUG] No users found in storage");
+      }
       
       const user = await storage.getUserByUsername(username);
       console.log("[DEBUG] Found user:", user);
@@ -723,7 +776,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment routes
   app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
     try {
-      const { amount, userId, productId, currency = "usd", couponCode } = req.body;
+      const { amount, userId, productId, currency = "usd", couponCode, country: requestCountry, force_country } = req.body;
       
       if (!amount || !userId || !productId) {
         return res.status(400).json({ message: "Amount, userId, and productId are required" });
@@ -748,7 +801,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create metadata object with optional coupon
       // We already have user country info from customerData
-      const country = customerData?.country || null;
+      // Используем улучшенную логику определения страны:
+      
+      // 1. Получаем страну из параметров URL (если есть)
+      const queryCountry = req.query.country as string | undefined;
+      
+      // 2. Определяем, нужно ли принудительно использовать переданную страну
+      const useForceCountry = force_country === true || req.query.force_country === 'true';
+      
+      // 3. Выбираем страну с учетом приоритетов:
+      //    - Если указан force_country, используем страну из запроса
+      //    - Иначе используем страну из профиля пользователя
+      //    - Если ничего не найдено, используем null
+      const country = useForceCountry ? (requestCountry || queryCountry) : (customerData?.country || requestCountry || queryCountry || null);
       
       const metadata: Record<string, string> = {
         userId: userId.toString(),
@@ -756,6 +821,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currency,
         country: country || 'unknown'
       };
+
+      // Добавляем информацию о способе выбора страны в метаданные для отладки
+      metadata.country_source = useForceCountry ? 'force_country' : (customerData?.country ? 'user_profile' : (requestCountry ? 'request_body' : (queryCountry ? 'query_param' : 'unknown')));
       
       // Add coupon to metadata if provided
       if (couponCode) {
@@ -773,15 +841,471 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Using only the essential parameters to avoid errors
       console.log(`Creating PaymentIntent for amount: ${amount} ${currency}`);
       
-      // Важно: не используем payment_method_types и automatic_payment_methods одновременно
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount,
-        currency, // Use the currency from the request
+      // Рассчитываем НДС в зависимости от страны
+      // Используем стандартные ставки VAT для разных стран
+      let taxAmount = 0;
+      let taxRate = 0;
+      let taxLabel = '';
+      let nexusThresholdReached = false;
+      
+      // Определяем ставку НДС по стране и получаем дополнительную информацию о локации
+      if (country) {
+        // Для США - отдельная логика с учетом порогов nexus и информацией о штатах
+        if (country === 'US') {
+          // Получаем штат из адреса пользователя или из дополнительных данных, если они есть
+          // Учитывая текущую структуру данных, добавим базовую проверку
+          let state = 'unknown';
+          
+          // Если в метаданных запроса есть информация о штате, используем её
+          if (req.body.state) {
+            state = req.body.state;
+          }
+          
+          // Записываем информацию о штате в метаданные для будущего учета
+          metadata.state = state;
+          
+          // Примечание: в текущей реализации налоги для США не применяются,
+          // так как пороги nexus не достигнуты. Код ниже будет активирован
+          // после достижения пороговых значений.
+          
+          // Проверка достижения порогов nexus - в настоящий момент false
+          // В будущем эту проверку можно сделать зависимой от суммы продаж по штату
+          if (nexusThresholdReached) {
+            // Здесь будет логика применения ставок НДС по штатам
+            // после достижения порогов nexus
+            // В настоящий момент эта логика не активна, ставки настроены в Stripe Tax
+          } else {
+            taxRate = 0;
+            taxLabel = 'No Sales Tax';
+          }
+        } else {
+          // Для европейских стран с НДС применяем ставки по правилам ЕС
+          // Актуальные данные на 2025 год
+          switch(country) {
+            case 'AT': // Австрия
+              taxRate = 0.20;
+              taxLabel = 'MwSt. 20%';
+              break;
+            case 'BE': // Бельгия
+              taxRate = 0.21;
+              taxLabel = 'BTW 21%';
+              break;
+            case 'BG': // Болгария
+              taxRate = 0.20;
+              taxLabel = 'ДДС 20%';
+              break;
+            case 'HR': // Хорватия
+              taxRate = 0.25;
+              taxLabel = 'PDV 25%';
+              break;
+            case 'CY': // Кипр
+              taxRate = 0.19;
+              taxLabel = 'ΦΠΑ 19%';
+              break;
+            case 'CZ': // Чехия
+              taxRate = 0.21;
+              taxLabel = 'DPH 21%';
+              break;
+            case 'DK': // Дания
+              taxRate = 0.25;
+              taxLabel = 'MOMS 25%';
+              break;
+            case 'EE': // Эстония
+              taxRate = 0.22;
+              taxLabel = 'KM 22%';
+              break;
+            case 'FI': // Финляндия
+              taxRate = 0.255; // Обновлено на 25.5%
+              taxLabel = 'ALV 25.5%';
+              break;
+            case 'FR': // Франция 
+              taxRate = 0.20;
+              taxLabel = 'TVA 20%';
+              break;
+            case 'GE': // Грузия
+              taxRate = 0.18;
+              taxLabel = 'VAT 18%';
+              break;
+            case 'DE': // Германия
+              taxRate = 0.19;
+              taxLabel = 'MwSt. 19%';
+              break;
+            case 'GR': // Греция
+              taxRate = 0.24;
+              taxLabel = 'ΦΠΑ 24%';
+              break;
+            case 'HU': // Венгрия
+              taxRate = 0.27;
+              taxLabel = 'ÁFA 27%';
+              break;
+            case 'IS': // Исландия
+              taxRate = 0.24;
+              taxLabel = 'VSK 24%';
+              break;
+            case 'IE': // Ирландия
+              taxRate = 0.23;
+              taxLabel = 'VAT 23%';
+              break;
+            case 'IT': // Италия
+              taxRate = 0.22;
+              taxLabel = 'IVA 22%';
+              break;
+            case 'LV': // Латвия
+              taxRate = 0.21;
+              taxLabel = 'PVN 21%';
+              break;
+            case 'LT': // Литва
+              taxRate = 0.21;
+              taxLabel = 'PVM 21%';
+              break;
+            case 'LU': // Люксембург
+              taxRate = 0.16; // Обновлено на 2025 год
+              taxLabel = 'TVA 16%';
+              break;
+            case 'MT': // Мальта
+              taxRate = 0.18;
+              taxLabel = 'VAT 18%';
+              break;
+            case 'MD': // Молдова
+              taxRate = 0.20;
+              taxLabel = 'TVA 20%';
+              break;
+            case 'NL': // Нидерланды
+              taxRate = 0.21;
+              taxLabel = 'BTW 21%';
+              break;
+            case 'NO': // Норвегия
+              taxRate = 0.25;
+              taxLabel = 'MVA 25%';
+              break;
+            case 'PL': // Польша
+              taxRate = 0.23;
+              taxLabel = 'VAT 23%';
+              break;
+            case 'PT': // Португалия
+              taxRate = 0.23;
+              taxLabel = 'IVA 23%';
+              break;
+            case 'RO': // Румыния
+              taxRate = 0.19;
+              taxLabel = 'TVA 19%';
+              break;
+            case 'SK': // Словакия
+              taxRate = 0.23; // Обновлено с 20% на 23%
+              taxLabel = 'DPH 23%';
+              break;
+            case 'SI': // Словения
+              taxRate = 0.22;
+              taxLabel = 'DDV 22%';
+              break;
+            case 'ES': // Испания
+              taxRate = 0.21;
+              taxLabel = 'IVA 21%';
+              break;
+            case 'SE': // Швеция
+              taxRate = 0.25;
+              taxLabel = 'MOMS 25%';
+              break;
+            case 'CH': // Швейцария
+              taxRate = 0.081;
+              taxLabel = 'MWST 8.1%';
+              break;
+            case 'TR': // Турция
+              taxRate = 0.20;
+              taxLabel = 'KDV 20%';
+              break;
+            case 'UA': // Украина
+              taxRate = 0.20;
+              taxLabel = 'ПДВ 20%';
+              break;
+            case 'GB': // Великобритания
+              taxRate = 0.20;
+              taxLabel = 'VAT 20%';
+              break;
+            default:
+              // Для стран не из списка и не из США, используем 0% НДС
+              taxRate = 0;
+              taxLabel = 'No VAT';
+          }
+        }
+      }
+      
+      // Если страна определена и налоговая ставка больше 0, сохраняем информацию о налоге
+      if (taxRate > 0) {
+        taxAmount = Math.round(amount * taxRate);
+        // Добавляем информацию о налоге в метаданные
+        metadata.taxRate = taxRate.toString();
+        metadata.taxAmount = taxAmount.toString();
+        metadata.taxLabel = taxLabel;
+      }
+      
+      // Перевынесено из функции paymentIntent и добавлен экспорт
+// как вспомогательный модуль
+ // Пустая строка для корректного сопоставления
+      
+      // Создаем или получаем TaxRate для страны пользователя
+      let taxRateId = null;
+      
+      // Создаем TaxRate для стран с НДС
+      if (taxRate > 0) {
+        try {
+          // Сначала проверим, есть ли уже такая ставка
+          const taxRates = await stripe.taxRates.list({ 
+            limit: 100,
+            active: true
+          });
+          
+          // Ищем ставку с подходящим percentage
+          const existingRate = taxRates.data.find(rate => 
+            parseFloat(rate.percentage.toString()) === taxRate * 100 && 
+            rate.display_name === taxLabel
+          );
+          
+          if (existingRate) {
+            taxRateId = existingRate.id;
+            console.log(`Using existing tax rate: ${taxLabel} (${taxRateId})`);
+          } else {
+            // Получаем полное название страны для Stripe
+            const fullCountryName = country ? getFullCountryName(country) : undefined;
+            
+            // Создаем новую ставку налога
+            const newTaxRate = await stripe.taxRates.create({
+              display_name: taxLabel,
+              description: `${taxLabel} for ${fullCountryName || country}`,
+              percentage: Math.round(taxRate * 100),
+              inclusive: false, // НДС начисляется сверх цены
+              country: country || undefined,
+              tax_type: 'vat'
+            });
+            
+            taxRateId = newTaxRate.id;
+            console.log(`Created new tax rate: ${taxLabel} (${taxRateId})`);
+          }
+        } catch (taxError) {
+          console.error("Error creating/retrieving tax rate:", taxError);
+          // Продолжаем без tax rate в случае ошибки
+        }
+      }
+      
+      // Настраиваем параметры для PaymentIntent
+      // Согласно документации Stripe Tax Custom: https://docs.stripe.com/tax/custom
+      // Мы рассчитываем налоги самостоятельно и передаем их через tax.breakdown
+      // Важно: amount должен включать сумму налога
+      // Здесь налог еще не добавляем к amount, мы сделаем это для разных стран ниже
+      const paymentIntentParams: any = {
+        amount,  // Изначально устанавливаем базовую сумму без налога
+        currency,
         payment_method_types: ['card'],
-        metadata
+        metadata: {
+          ...metadata,
+          base_amount: amount.toString(),
+          tax_amount: taxAmount.toString(),
+          tax_rate: (taxRate * 100).toFixed(2) + '%',
+          tax_label: taxLabel,
+          country_code: country || 'unknown'
+        },
+        description: taxRate > 0 ? `Order with ${taxLabel} (${taxAmount} ${currency})` : 'Order without VAT'
+        // Примечание: параметр 'tax' не поддерживается в текущей версии API Stripe
+        // Налоговую информацию храним в метаданных и оформляем в description
+      };
+      
+      // Добавляем данные о местоположении клиента (для внутреннего учета)
+      if (country) {
+        // Обновляем метаданные дополнительной информацией о стране
+        paymentIntentParams.metadata.country = country;
+        
+        // Добавляем штат для США, если доступен
+        if (country === 'US' && metadata.state && metadata.state !== 'unknown') {
+          paymentIntentParams.metadata.state = metadata.state;
+        }
+      }
+      
+      // Комментируем этот код, так как мы используем кастомный расчет налогов
+      // В документации Stripe сказано, что нельзя использовать параметр tax_rates
+      // вместе с кастомным расчетом налогов
+      /* 
+      if (taxRateId) {
+        paymentIntentParams.tax_rates = [taxRateId];
+        console.log(`Using tax rate ID: ${taxRateId} for PaymentIntent`);
+      }
+      */
+      
+      // Рассчитываем налог в зависимости от страны
+      if (country === 'FR') {
+        // Франция (20% НДС)
+        taxRate = 0.20;
+        taxLabel = 'TVA 20%';
+        
+        // Рассчитываем сумму налога
+        taxAmount = Math.round(amount * taxRate);
+        
+        // Добавляем информацию о налоге в метаданные
+        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
+        paymentIntentParams.metadata.tax_rate = '20%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = country;
+        
+        // Увеличиваем общую сумму на величину налога
+        paymentIntentParams.amount = amount + taxAmount;
+        
+        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
+        
+        // Обновляем описание платежа
+        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
+        
+        console.log(`Applied French VAT: ${taxAmount} ${currency}`);
+      } else if (country === 'IT') {
+        // Италия (22% НДС)
+        taxRate = 0.22;
+        taxLabel = 'IVA 22%';
+        
+        // Рассчитываем сумму налога
+        taxAmount = Math.round(amount * taxRate);
+        
+        // Добавляем информацию о налоге в метаданные
+        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
+        paymentIntentParams.metadata.tax_rate = '22%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = country;
+        
+        // Увеличиваем общую сумму на величину налога
+        paymentIntentParams.amount = amount + taxAmount;
+        
+        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
+        
+        // Обновляем описание платежа
+        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
+        
+        console.log(`Applied Italian VAT: ${taxAmount} ${currency}`);
+      } else if (country === 'ES') {
+        // Испания (21% НДС)
+        taxRate = 0.21;
+        taxLabel = 'IVA 21%';
+        
+        // Рассчитываем сумму налога
+        taxAmount = Math.round(amount * taxRate);
+        
+        // Добавляем информацию о налоге в метаданные
+        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
+        paymentIntentParams.metadata.tax_rate = '21%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = country;
+        
+        // Увеличиваем общую сумму на величину налога
+        paymentIntentParams.amount = amount + taxAmount;
+        
+        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
+        
+        // Обновляем описание платежа
+        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
+        
+        console.log(`Applied Spanish VAT: ${taxAmount} ${currency}`);
+      } else if (country === 'unknown') {
+        // Для неизвестной страны не применяем налог
+        taxRate = 0;
+        taxLabel = 'No Tax (Unknown Location)';
+        taxAmount = 0;
+        
+        // Не добавляем налог к сумме
+        paymentIntentParams.metadata.tax_amount = '0';
+        paymentIntentParams.metadata.tax_rate = '0%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = 'unknown';
+        
+        console.log(`No tax applied for unknown country`);
+        
+        // Обновляем описание платежа
+        paymentIntentParams.description = `Order without tax (unknown country)`;
+      } else if (!country || country === 'DE') {
+        // Устанавливаем значения для Германии
+        const defaultCountry = 'DE';
+        taxRate = 0.19;
+        taxLabel = 'MwSt. 19%';
+        
+        // Вычисляем сумму налога (в центах/копейках)
+        taxAmount = Math.round(amount * taxRate);
+        
+        // Добавляем информацию о налогах в метаданные
+        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
+        paymentIntentParams.metadata.tax_rate = '19%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = defaultCountry;
+        
+        // Увеличиваем общую сумму на размер налога
+        paymentIntentParams.amount = amount + taxAmount;
+        
+        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
+        
+        // Обновляем описание платежа
+        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
+        
+        console.log(`Applied German VAT: ${taxAmount} ${currency}`);
+      } else if (country === 'US') {
+        // Для США налоги не применяются
+        taxRate = 0;
+        taxLabel = 'No Sales Tax';
+        taxAmount = 0;
+        
+        // Добавляем информацию об отсутствии налога в метаданные
+        paymentIntentParams.metadata.tax_amount = '0';
+        paymentIntentParams.metadata.tax_rate = '0%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = country;
+        
+        // Сумма остается неизменной
+        paymentIntentParams.description = 'Order with no sales tax';
+        
+        console.log('No tax applied for US customer');
+      } else {
+        // Для других стран ЕС (FR, IT, ES и т.д.)
+        // Используем ставку налога и метку, определенные в switch-case выше
+        
+        // Вычисляем сумму налога (в центах/копейках)
+        taxAmount = Math.round(amount * taxRate);
+        
+        // Добавляем информацию о налогах в метаданные
+        paymentIntentParams.metadata.tax_amount = taxAmount.toString();
+        paymentIntentParams.metadata.tax_rate = (taxRate * 100).toFixed(1) + '%';
+        paymentIntentParams.metadata.tax_label = taxLabel;
+        paymentIntentParams.metadata.country_code = country;
+        
+        // Увеличиваем общую сумму на размер налога
+        paymentIntentParams.amount = amount + taxAmount;
+        
+        console.log(`New total amount with tax for ${country}: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount}, rate: ${taxRate * 100}%)`);
+        
+        // Обновляем описание платежа
+        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
+        
+        console.log(`Applied ${country} tax (${taxLabel}): ${taxAmount} ${currency}`);
+      }
+      
+      // Получаем полное название страны для логирования
+      const fullCountryNameForLogs = country ? getFullCountryName(country) : 'unknown';
+      
+      // Подробное логирование для отладки
+      console.log(`Creating PaymentIntent:`, {
+        amount,
+        currency,
+        requested_country: requestCountry || 'not specified',
+        force_country: useForceCountry,
+        country: country || 'unknown',
+        country_full: fullCountryNameForLogs,
+        tax_behavior: 'exclusive', // Налог всегда добавляется сверху цены
+        tax_rate_applied: !!taxRateId,
+        tax_details: {
+          country,
+          taxRate,
+          taxLabel,
+          taxRateId: taxRateId || null,
+          product_price: req.body.amount || null,
+          metadata: JSON.stringify(metadata)
+        }
       });
       
-      console.log(`Created PaymentIntent: ${paymentIntent.id} with amount: ${amount} ${currency}`);
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
+      
+      console.log(`Created PaymentIntent: ${paymentIntent.id} with amount: ${paymentIntent.amount} ${currency} (including tax: ${taxAmount} ${currency})`);
       
       // Create an order in pending status
       const order = await storage.createOrder({
@@ -791,20 +1315,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount,
         currency,
         stripePaymentId: paymentIntent.id,
-        couponCode: couponCode || null
+        couponCode: couponCode || undefined
       });
       
       // Save order to Google Sheets
       await safeGoogleSheetsCall(googleSheets.saveOrder, order);
       
+      // Подготавливаем налоговую информацию для отправки клиенту
+      const taxInfo = {
+        amount: taxAmount,
+        rate: taxRate,
+        label: taxLabel,
+        display: taxLabel 
+      };
+      
       res.json({
         clientSecret: paymentIntent.client_secret,
-        orderId: order.id
+        orderId: order.id,
+        tax: taxInfo
       });
     } catch (error) {
       console.error("Error creating payment intent:", error);
       res.status(500).json({ message: "Error creating payment intent" });
     }
+  });
+  
+  // Тестовый эндпоинт для отладки налоговой информации (устаревший)
+  // Маршруты для отладки расчета налогов
+  app.use("/api/tax-debug", taxDebugRoutes);
+  
+  // Специальный маршрут для страницы тестирования налогов
+  app.get("/tax-test", (req, res) => {
+    res.sendFile("public/tax-test.html", { root: process.cwd() });
   });
   
   // Endpoint for creating or retrieving a subscription
@@ -840,7 +1382,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               subscription.latest_invoice.payment_intent &&
               typeof subscription.latest_invoice.payment_intent !== 'string'
                 ? subscription.latest_invoice.payment_intent.client_secret
-                : null
+                : undefined
           });
           
           return;
@@ -879,7 +1421,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Создаем подписку с информацией о стране пользователя
-      const subscription = await stripe.subscriptions.create({
+      // Примечание: Только Checkout Sessions и Subscriptions поддерживают automatic_tax
+      const subscriptionParams: any = {
         customer: user.stripeCustomerId,
         items: [{ price: priceId }],
         payment_behavior: 'default_incomplete',
@@ -890,16 +1433,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
           country: user.country || 'unknown',
           currency // Включаем информацию о валюте
         }
-      });
+      };
+      
+      // Для подписок automatic_tax действительно поддерживается, проверим наличие Stripe Tax
+      if (process.env.STRIPE_TAX_ENABLED === 'true') {
+        subscriptionParams.automatic_tax = { enabled: true };
+        console.log('Enabling automatic tax calculation for subscription');
+      }
+      
+      // Добавляем информацию о местоположении клиента для правильного расчета налогов
+      if (user.country) {
+        // Если у клиента уже есть данные о местоположении, не обновляем их здесь
+        // Иначе они будут добавлены через создание клиента выше
+        console.log(`Using country ${user.country} for subscription tax calculation`);
+      }
+      
+      const subscription = await stripe.subscriptions.create(subscriptionParams);
       
       // Проверяем, что у нас есть latest_invoice как объект, а не строка
       const latest_invoice = subscription.latest_invoice;
-      let clientSecret = null;
+      let clientSecret: string | undefined = undefined;
       
       if (latest_invoice && typeof latest_invoice !== 'string') {
         const payment_intent = latest_invoice.payment_intent;
         if (payment_intent && typeof payment_intent !== 'string') {
-          clientSecret = payment_intent.client_secret;
+          clientSecret = payment_intent.client_secret || undefined;
         }
       }
       
@@ -968,7 +1526,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Если подписка отменена, удаляем ID из профиля пользователя
           if (subscription.status === 'canceled') {
-            await storage.updateUserStripeSubscriptionId(user.id, null);
+            await storage.updateUserStripeSubscriptionId(user.id, "");
           }
           break;
           

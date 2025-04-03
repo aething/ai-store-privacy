@@ -43,6 +43,13 @@ export default {
   returns: "Returns & Refunds",
   shipping: "Shipping Policy",
   payment: "Payment Terms",
+  warranty: "Warranty & Liability",
+  deliveryPolicy: "Delivery Policy",
+  returnPolicy: "Return & Exchange Policy",
+  contactInfo: "Contact Information",
+  gdpr: "GDPR",
+  ftc: "FTC Rules",
+  dataSafety: "Data Safety for Google Play",
   
   // Checkout
   checkout: "Checkout",
@@ -95,6 +102,21 @@ export default {
   descending: "Descending",
   category: "Category",
   
+  // Tax Information
+  tax: {
+    unknown: "Tax information unavailable",
+    vat_de: "VAT 19% (MwSt.)",
+    vat_fr: "VAT 20% (TVA)",
+    vat_it: "VAT 22% (IVA)",
+    vat_es: "VAT 21% (IVA)",
+    vat_eu: "VAT {{rate}}%",
+    us_sales_tax: "No Sales Tax",
+    no_tax: "No Tax",
+    not_applicable: "N/A",
+    included: "Included",
+    excluded: "Excluded"
+  },
+  
   // Push Notifications
   pushNotifications: {
     title: "Push Notifications",
@@ -117,4 +139,4 @@ export default {
     loginRequiredShort: "Please login to enable notifications.",
     info: "You can change this setting at any time."
   }
-};
+}

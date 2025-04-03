@@ -14,6 +14,7 @@ import { useLocale } from "@/context/LocaleContext";
 import { ChevronRight, Trash2, RefreshCw, Settings, ShoppingBag, Mail, Lock, LogIn, LogOut } from "lucide-react";
 import { useProductsSync } from "@/hooks/use-products-sync";
 import CountrySelect from "@/components/CountrySelect";
+import { updateCountryAndReload } from "@/utils/userCountryUtils";
 
 const updateUserSchema = z.object({
   name: z.string().optional(),
@@ -182,22 +183,27 @@ export default function Account() {
           : "Your information has been updated.",
       });
       
-      // Если изменилась страна, после небольшой задержки перезагружаем страницу
+      // Если изменилась страна, используем утилиту для согласованного обновления
       if (countryChanged) {
-        console.log(`Country changed from ${user.country} to ${updatedUser.country}. Reloading page in 2 seconds...`);
-        
-        // Обновляем localStorage перед перезагрузкой страницы, чтобы не потерять учетные данные
-        localStorage.setItem("user", JSON.stringify(updatedUser));
+        console.log(`Country changed from ${user.country} to ${updatedUser.country}`);
         
         // Выводим предупреждение пользователю
         toast({
-          title: "Перезагрузка страницы",
-          description: "Страна изменена. Перезагружаем страницу для применения изменений...",
+          title: "Updating country",
+          description: "Your country has been changed. Page will reload to apply changes...",
         });
         
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        // Используем нашу утилиту для согласованного обновления с очисткой кэша
+        try {
+          await updateCountryAndReload(user.id, updatedUser.country, user, 1500);
+        } catch (error) {
+          console.error("Error during country update and reload:", error);
+          // Если утилита не сработала, используем старый подход
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
       }
     } catch (error: any) {
       console.error("Account update error:", error);
@@ -260,16 +266,22 @@ export default function Account() {
     setLocation(`/policy/${policyId}`);
   };
   
+  // Получаем доступ к объекту переводов
+  const { translations } = useLocale();
+  
+  // Определение политик с проверкой наличия ключей в локализации
+  // Если ключ не найден, используем fallback на английский
   const policies = [
-    { id: "delivery-policy", title: "Delivery Policy" },
-    { id: "return-policy", title: "Return & Exchange Policy" },
-    { id: "contact-info", title: "Contact Information" },
-    { id: "privacy-policy", title: "Privacy Policy" },
-    { id: "payment-terms", title: "Payment Terms" },
-    { id: "warranty", title: "Warranty & Liability" },
-    { id: "terms", title: "Terms of Service" },
-    { id: "gdpr", title: "GDPR" },
-    { id: "ftc", title: "FTC Rules" },
+    { id: "delivery-policy", title: translations.deliveryPolicy || "Delivery Policy" },
+    { id: "return-policy", title: translations.returnPolicy || "Return & Exchange Policy" },
+    { id: "contact-info", title: translations.contactInfo || "Contact Information" },
+    { id: "privacy-policy", title: translations.privacy || "Privacy Policy" },
+    { id: "payment-terms", title: translations.payment || "Payment Terms" },
+    { id: "warranty", title: translations.warranty || "Warranty & Liability" },
+    { id: "terms", title: translations.terms || "Terms of Service" },
+    { id: "gdpr", title: translations.gdpr || "GDPR" },
+    { id: "ftc", title: translations.ftc || "FTC Rules" },
+    { id: "data-safety", title: translations.dataSafety || "Data Safety for Google Play" },
   ];
   
   // Hook для синхронизации продуктов со Stripe
@@ -505,7 +517,20 @@ export default function Account() {
                         id="signup-country"
                         label="Country"
                         value={field.value || ''}
-                        onChange={field.onChange}
+                        onChange={(value) => {
+                          // Сохраняем значение в форме
+                          field.onChange(value);
+                          
+                          // Выводим логи для отладки
+                          console.log(`Signup country selected: ${value}`);
+                          
+                          // Добавляем индикатор выбранной страны на странице
+                          if (value) {
+                            // Устанавливаем это значение в localStorage, чтобы его можно было использовать
+                            // при создании нового пользователя
+                            localStorage.setItem('signup_country', value);
+                          }
+                        }}
                         error={signupErrors.country?.message}
                         required={true}
                       />
@@ -622,7 +647,30 @@ export default function Account() {
                   id="country"
                   label={t("country") || "Country"}
                   value={field.value || ''}
-                  onChange={field.onChange}
+                  onChange={(value) => {
+                    // Вызываем оригинальный обработчик
+                    field.onChange(value);
+                    
+                    // Если пользователь авторизован и страна изменилась, сразу применяем изменения
+                    if (user && user.country !== value) {
+                      console.log(`Country changed directly from ${user.country} to ${value}`);
+                      
+                      // Только если страна действительно изменилась, предлагаем обновление
+                      if (window.confirm(t("confirmCountryChange") || `Do you want to update your country to ${value}? Page will reload to apply changes.`)) {
+                        setIsLoading(true);
+                        updateCountryAndReload(user.id, value, user)
+                          .catch(error => {
+                            console.error("Error updating country:", error);
+                            setIsLoading(false);
+                            toast({
+                              title: "Error",
+                              description: "Failed to update country. Please try again.",
+                              variant: "destructive",
+                            });
+                          });
+                      }
+                    }
+                  }}
                   error={errors.country?.message}
                 />
               )}
@@ -746,6 +794,25 @@ export default function Account() {
         </Card>
       </div>
       
+      {/* Google Play Market */}
+      <div className="mb-8">
+        <h2 className="text-lg font-medium mb-4">Google Play Market</h2>
+        <Card className="p-4 rounded-lg">
+          <p className="text-gray-600 mb-4">
+            {t("viewAppOnPlayStore") || "View our app on Google Play with detailed information about features, data safety, and more."}
+          </p>
+          <button
+            onClick={() => setLocation('/playmarket')}
+            className="bg-green-600 text-white w-full py-3 rounded-full hover:bg-green-700 flex items-center justify-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="mr-2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Google Play Market
+          </button>
+        </Card>
+      </div>
+
       {/* Close Account Button */}
       <div className="mb-10 mt-10">
         <div className="border-t pt-6">

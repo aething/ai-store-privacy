@@ -48,6 +48,10 @@ export class MemStorage implements IStorage {
   private productIdCounter: number;
   private orderIdCounter: number;
   private googleSheetsAvailable: boolean;
+  
+  // Используем Google Sheets как хранилище пользователей
+  // Нам не нужно использовать файл для хранения данных, т.к. синхронизация происходит с Google Sheets
+  private USERS_FILE = './backups/users_data.json'; // Оставляем для совместимости с кодом
 
   constructor() {
     this.users = new Map();
@@ -57,6 +61,9 @@ export class MemStorage implements IStorage {
     this.productIdCounter = 1;
     this.orderIdCounter = 1;
     this.googleSheetsAvailable = false;
+    
+    // При инициализации загружаем сохраненные данные пользователей
+    this.loadUsersFromBackup();
 
     // Initialize with some products
     const productsList: InsertProduct[] = [
@@ -200,6 +207,22 @@ export class MemStorage implements IStorage {
     return user;
   }
 
+  /**
+   * Загружает пользователей из резервной копии 
+   * Это помогает сохранить данные между перезапусками сервера
+   */
+  private loadUsersFromBackup() {
+    console.log("Skipping loading from backup, using Google Sheets for data persistence.");
+  }
+  
+  /**
+   * Сохраняет данные пользователей в резервную копию (не используется)
+   * Вместо этого используется синхронизация с Google Sheets
+   */
+  private saveUsersToBackup() {
+    console.log("Skipping saving to backup, using Google Sheets for data persistence.");
+  }
+  
   async updateUser(id: number, userData: UpdateUser): Promise<User | undefined> {
     const user = this.users.get(id);
     if (!user) return undefined;
@@ -217,6 +240,10 @@ export class MemStorage implements IStorage {
     
     console.log("Storage: Updated user data:", updatedUser);
     this.users.set(id, updatedUser);
+    
+    // Не используем сохранение в файл, т.к. данные синхронизируются с Google Sheets
+    // this.saveUsersToBackup();
+    
     return updatedUser;
   }
 
