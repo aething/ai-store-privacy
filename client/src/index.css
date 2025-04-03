@@ -35,31 +35,22 @@ iframe.StripeField,
   border-radius: 0.375rem !important;
 }
 
-/* Агрессивная стилизация для полей ввода адреса - самый высокий приоритет !important */
-form [data-component-type="AddressElement"] iframe,
-form [data-component-id*="address-element"] iframe,
-form .AddressElement iframe,
-form .StripeAddressElement iframe,
-form .address-element iframe,
-form div[class*="AddressElement"] iframe,
-form div[class*="Input-"] iframe,
-form .address-element input[type],
-form .address-element div[role="presentation"] iframe,
-form [data-component-id*="autocomplete"] iframe,
-form [data-component-id*="address-element"] iframe,
-form [data-stripe-element-type="address"] iframe,
-.stripe-input-element [data-js-type="autocomplete"] iframe,
-.stripe-input-element [data-element-type="address"] iframe,
-.stripe-input-element [class*="AddressElement"] iframe,
-.stripe-input-element [class*="address-"] iframe {
-  border: 2px solid #9ca3af !important;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1) !important;
+/* Агрессивная стилизация для полей ввода адреса */
+[data-component-type="AddressElement"] iframe,
+[data-component-id*="address-element"] iframe,
+.AddressElement iframe,
+.StripeAddressElement iframe,
+.address-element iframe,
+div[class*="AddressElement"] iframe,
+div[class*="Input-"] iframe,
+.address-element input[type],
+.address-element div[role="presentation"] iframe {
+  border: 1px solid #9ca3af !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
   background-color: white !important;
   border-radius: 0.375rem !important;
   margin-bottom: 4px !important;
   padding: 8px 12px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
 }
 
 /* Стилизация для полей платежного элемента */
@@ -125,33 +116,6 @@ form div[role="presentation"] iframe,
   margin-bottom: 8px !important;
 }
 
-/* Перезапись встроенных стилей iframe */
-form iframe,
-form iframe.ElementsBaseField,
-form iframe.ElementsBaseField--focus,
-form iframe.ElementsField,
-.stripe-input-element iframe,
-.address-element iframe {
-  border-width: 2px !important;
-  border-style: solid !important;
-  border-color: #9ca3af !important;
-  border-radius: 0.375rem !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-  padding: 8px 12px !important;
-}
-
-/* Стили для визуальных контейнеров в AddressElement */
-.address-element div[role="button"],
-.address-element div[role="combobox"],
-.address-element div[class*="autocomplete-"],
-.address-element div[class*="dropdown-"] {
-  border: 2px solid #9ca3af !important;
-  border-radius: 0.375rem !important;
-  background-color: white !important;
-  margin-bottom: 8px !important;
-}
-
 /* Сверхспецифичные стили для AddressElement - все поля внутри него */
 form .AddressElement input,
 form .StripeAddressElement input,
@@ -161,63 +125,11 @@ form .StripeAddressElement input,
 [class*="Input-container"] input,
 *[data-component-type="AddressElement"] input,
 .address-element select,
-.address-element *[role="textbox"],
-form [data-field-type="address"] input,
-form [data-component-id*="address"] input,
-form [data-js-type="address"] input,
-form [data-field-type="country"] select,
-form [data-field-type="postalCode"] input,
-form [data-field-type="name"] input {
-  border: 2px solid #9ca3af !important;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1) !important;
+.address-element *[role="textbox"] {
+  border: 1px solid #9ca3af !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
   background-color: white !important;
   border-radius: 0.375rem !important;
   padding: 8px 12px !important;
-  margin: 2px 0 !important;
   font-family: system-ui, sans-serif !important;
-  max-width: 100% !important;
-  display: block !important;
-  width: 100% !important;
-}
-
-/* Дополнительные стили для специфичных элементов адреса */
-.stripe-input-element [data-field-type="name"],
-.stripe-input-element [data-field-type="address"],
-.stripe-input-element [data-field-type="postalCode"],
-.stripe-input-element [data-field-type="country"],
-.stripe-input-element [data-field-type="city"],
-.stripe-input-element [data-field-type="state"] {
-  margin-bottom: 8px !important;
-}
-
-/* Переопределение встроенных стилей Stripe */
-.address-element iframe[style*="border: none"],
-.stripe-input-element iframe[style*="border: none"] {
-  border: 2px solid #9ca3af !important;
-}
-
-/* Инлайновые стили для решения проблем с iframe внутри Stripe */
-.address-element iframe,
-.stripe-input-element iframe {
-  border: 2px solid #9ca3af !important;
-  border-radius: 0.375rem !important;
-  padding: 8px 12px !important;
-  background-color: white !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
-  display: block !important;
-  width: 100% !important;
-  min-height: 40px !important; 
-  margin-bottom: 8px !important;
-}
-
-/* Расширенные стили для решения проблем с контейнерами iframe */
-form [data-elements-internal-frame-id],
-form [data-elements-internal-frame-container],
-form [data-frame-id],
-form [data-frame-container] {
-  border: 2px solid #9ca3af !important;
-  border-radius: 0.375rem !important;
-  padding: 8px 12px !important;
-  background-color: white !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
 }
