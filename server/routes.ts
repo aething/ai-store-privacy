@@ -2013,14 +2013,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Рассчитываем новую итоговую сумму
       const newTotalAmount = newBaseAmount + newTaxAmount;
       
-      console.log(`Updating PaymentIntent ${paymentIntentId}:
-        Original quantity: ${originalQuantity} -> New quantity: ${parsedQuantity}
-        Unit amount: ${unitAmount} ${currency}
-        Original amount: ${originalAmount} ${currency} -> New base amount: ${newBaseAmount} ${currency}
-        Tax rate: ${taxRate * 100}% (${taxLabel})
-        New tax amount: ${newTaxAmount} ${currency}
-        New total amount: ${newTotalAmount} ${currency}
-      `);
+      // Скрываем конфиденциальную информацию в логах
+      console.log(`Updating PaymentIntent ${paymentIntentId}, quantity: ${originalQuantity} -> ${parsedQuantity}`);
       
       // Обновляем PaymentIntent
       const updatedPaymentIntent = await stripe.paymentIntents.update(

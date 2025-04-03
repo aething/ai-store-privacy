@@ -642,7 +642,8 @@ export default function Checkout() {
         toast({
           title: "Payment update error",
           description: "The payment will be recalculated at checkout.",
-          variant: "warning",
+          variant: "destructive",
+          className: "bg-red-50 border-red-400 text-red-900 font-medium shadow-lg",
         });
       }
     } catch (error) {
