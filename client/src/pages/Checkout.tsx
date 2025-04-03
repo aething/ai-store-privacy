@@ -249,8 +249,22 @@ const CheckoutForm = ({
           options={{
             defaultValues: {
               email: user?.email || '',
-            }
+            },
             // Используем стандартный функционал Stripe для обязательных полей
+            appearance: {
+              theme: 'flat',
+              variables: {
+                fontFamily: 'system-ui, sans-serif',
+                borderRadius: '4px',
+                colorBackground: 'white'
+              },
+              rules: {
+                '.Input': {
+                  border: '1px solid #9ca3af',
+                  boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
+                }
+              }
+            }
           }}
         />
         
@@ -264,6 +278,12 @@ const CheckoutForm = ({
               name="firstName"
               placeholder="John"
               className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              style={{
+                border: '1px solid #9ca3af',
+                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                fontFamily: 'system-ui, sans-serif',
+                backgroundColor: 'white'
+              }}
               onChange={(e) => {
                 // Простое взаимодействие без вызова типизированных методов
                 // Данные будут собраны при отправке формы
@@ -278,6 +298,12 @@ const CheckoutForm = ({
               name="lastName"
               placeholder="Doe"
               className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              style={{
+                border: '1px solid #9ca3af',
+                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                fontFamily: 'system-ui, sans-serif',
+                backgroundColor: 'white'
+              }}
               onChange={(e) => {
                 // Простое взаимодействие без вызова типизированных методов
                 // Данные будут собраны при отправке формы
@@ -295,6 +321,12 @@ const CheckoutForm = ({
             name="phone"
             placeholder="+1 (123) 456-7890"
             className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            style={{
+              border: '1px solid #9ca3af',
+              boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+              fontFamily: 'system-ui, sans-serif',
+              backgroundColor: 'white'
+            }}
             onChange={(e) => {
               // Простое взаимодействие без вызова типизированных методов
               // Данные будут собраны при отправке формы
@@ -311,6 +343,12 @@ const CheckoutForm = ({
             name="companyName"
             placeholder="Acme Corporation"
             className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            style={{
+              border: '1px solid #9ca3af',
+              boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+              fontFamily: 'system-ui, sans-serif',
+              backgroundColor: 'white'
+            }}
           />
         </div>
       </div>
@@ -346,6 +384,12 @@ const CheckoutForm = ({
             name="customerEmail" 
             className="w-full px-3 py-2 text-gray-900 rounded-md border border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             placeholder="email@example.com"
+            style={{
+              border: '1px solid #9ca3af',
+              boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+              fontFamily: 'system-ui, sans-serif',
+              backgroundColor: 'white'
+            }}
           />
         </div>
       </div>
