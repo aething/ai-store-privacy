@@ -188,7 +188,7 @@ const registerWithRetry = async (maxRetries = 3, delay = 1000) => {
   while (retries < maxRetries) {
     try {
       const success = await registerServiceWorker({
-        scriptPath: '/service-worker.js',
+        scriptPath: '/sw.js',
         reloadOnUpdate: false, // Не перезагружаем автоматически, чтобы не прерывать пользователя
         debug: true // Включаем отладочные сообщения
       });

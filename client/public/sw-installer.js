@@ -44,7 +44,7 @@
     function attemptRegistration(attempt = 1, maxAttempts = 3) {
       console.log(`🔄 Попытка регистрации Service Worker: ${attempt}/${maxAttempts}`);
       
-      navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(function(registration) {
           console.log('✅ Service Worker успешно зарегистрирован, scope:', registration.scope);
           

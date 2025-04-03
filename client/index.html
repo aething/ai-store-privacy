@@ -29,7 +29,7 @@
         window.swRegistered = true;
         console.log('🚀 Прямая регистрация Service Worker');
         
-        navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
           .then(registration => {
             console.log('✅ Service Worker успешно зарегистрирован напрямую:', registration.scope);
             // Активируем worker если он в состоянии ожидания

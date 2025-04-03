@@ -21,7 +21,7 @@ interface ServiceWorkerConfig {
 
 // Настройки по умолчанию
 const defaultConfig: ServiceWorkerConfig = {
-  scriptPath: '/service-worker.js',
+  scriptPath: '/sw.js',
   reloadOnUpdate: true,
   offlinePath: '/offline-enhanced.html', // Используем улучшенную оффлайн-страницу
   imageFallbackPath: '/images/image-placeholder.svg',
