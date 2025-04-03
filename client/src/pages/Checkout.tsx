@@ -334,45 +334,11 @@ const CheckoutForm = ({
       {/* Добавляем компонент для сбора полной информации о доставке */}
       <div className="mt-6 mb-4">
         <h3 className="text-base font-medium mb-3">Shipping Address</h3>
-        <AddressElement 
-          options={{
-            mode: 'shipping',
-            allowedCountries: ['US', 'CA', 'GB', 'DE', 'FR', 'IT', 'ES', 'AT', 'BE', 'NL', 'PT', 'IE', 'FI', 'SE', 'DK', 'NO'],
-            fields: {
-              phone: 'never' // Телефон уже собираем отдельно
-            },
-            validation: {
-              phone: {
-                required: 'never' // Валидацию телефона отключаем, так как собираем его отдельно
-              }
-            }
-          }}
-        />
+        <AddressElement />
       </div>
 
       <PaymentElement 
         id="payment-element"
-        options={{
-          layout: {
-            type: 'tabs', 
-            defaultCollapsed: false,
-          },
-          defaultValues: {
-            billingDetails: {
-              email: user?.email || '',
-              name: user?.username || '',
-              // Телефон передаем через наше собственное поле
-            }
-          },
-          fields: {
-            billingDetails: {
-              // Показываем только необходимые поля
-              email: 'never', // Email уже собираем в LinkAuthenticationElement
-              phone: 'never', // Телефон теперь собираем в нашем собственном поле
-              address: 'never' // Используем отдельный компонент AddressElement для сбора адреса
-            }
-          }
-        }}
       />
       
       <button 
@@ -1074,62 +1040,7 @@ export default function Checkout() {
           <Elements 
             stripe={stripePromise} 
             options={{ 
-              clientSecret,
-              appearance: {
-                theme: 'flat',
-                variables: {
-                  colorPrimary: '#6200EE',
-                  fontFamily: 'system-ui, sans-serif',
-                  borderRadius: '8px',
-                  // Уменьшаем заметность блока с информацией о налогах
-                  colorText: '#666',
-                  colorTextSecondary: '#888',
-                  colorBackground: '#f9f9f9',
-                  spacingUnit: '4px',
-                  fontSizeBase: '14px',
-                  fontSizeSm: '12px',
-                  fontWeightNormal: '400'
-                },
-                rules: {
-                  '.Tab': {
-                    border: '1px solid #e0e0e0',
-                  },
-                  '.Tab:hover': {
-                    color: 'var(--colorPrimary)',
-                  },
-                  '.Input': {
-                    borderColor: '#e0e0e0',
-                  },
-                  // Уменьшаем заметность блока с информацией о сумме и налогах
-                  '.CheckoutHeader': {
-                    fontSize: '12px',
-                    marginBottom: '0',
-                    opacity: '0.75',
-                    color: '#888 !important'
-                  },
-                  '.Price': {
-                    opacity: '0.6',
-                    fontSize: '12px',
-                    color: '#999 !important'
-                  },
-                  '.PickerItem': {
-                    opacity: '0.75',
-                    fontSize: '12px'
-                  },
-                  '.PickerItem-amount': {
-                    color: '#999 !important'
-                  }
-                }
-              },
-              // Конфигурация в соответствии с документацией https://docs.stripe.com/payments/link/mobile-payment-element-link
-              // и https://docs.stripe.com/payments/link/set-up-link-with-payment-element
-              // Убираем businessName, так как он не поддерживается в типе StripeElementsOptionsClientSecret
-              // При использовании clientSecret не нужно указывать режим payment и методы оплаты
-              // Stripe настроит их автоматически на основе возможностей платежного намерения
-              // В версии Stripe Elements с clientSecret нельзя использовать shipping опции в корне
-              // Они доступны только при сборе платежных данных через AddressElement
-              // Добавляем режим отладки для диагностики
-              loader: 'always'
+              clientSecret
             }}
           >
             <CheckoutForm 
