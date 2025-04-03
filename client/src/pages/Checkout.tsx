@@ -222,12 +222,21 @@ export default function Checkout() {
         console.log('Initializing payment with quantity:', quantity);
         
         // Создаем платежное намерение с текущим количеством
+        console.log('Creating payment intent with:', {
+          productId,
+          userId: user.id,
+          country: user.country,
+          price,
+          currency,
+          quantity
+        });
+        
         const data = await createPaymentIntent(
           productId, 
           user.id, 
           user.country,
-          undefined,
-          undefined,
+          price,
+          currency,
           quantity
         );
         
