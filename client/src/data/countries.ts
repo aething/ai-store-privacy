@@ -46,6 +46,8 @@ const europeanCountries = [
 
 // Другие основные страны, использующие USD и другие валюты
 // Для нашей системы используем USD для всех не-европейских стран
+// Исключены страны: Россия, Беларусь, Иран, Северная Корея, Сирия, Куба, Венесуэла, Мьянма, Судан, 
+// Афганистан, Ливия, Ирак, Сомали, Йемен, Зимбабве
 const otherCountries = [
   { code: 'US', name: 'United States', currencyType: 'USD' },
   { code: 'CA', name: 'Canada', currencyType: 'USD' },
@@ -54,7 +56,6 @@ const otherCountries = [
   { code: 'NZ', name: 'New Zealand', currencyType: 'USD' },
   { code: 'JP', name: 'Japan', currencyType: 'USD' },
   { code: 'CN', name: 'China', currencyType: 'USD' },
-  { code: 'RU', name: 'Russia', currencyType: 'USD' },
   { code: 'BR', name: 'Brazil', currencyType: 'USD' },
   { code: 'IN', name: 'India', currencyType: 'USD' },
   { code: 'ZA', name: 'South Africa', currencyType: 'USD' },
@@ -72,6 +73,19 @@ const otherCountries = [
   { code: 'TH', name: 'Thailand', currencyType: 'USD' },
   { code: 'VN', name: 'Vietnam', currencyType: 'USD' },
   { code: 'TR', name: 'Turkey', currencyType: 'USD' },
+  { code: 'PH', name: 'Philippines', currencyType: 'USD' },
+  { code: 'EG', name: 'Egypt', currencyType: 'USD' },
+  { code: 'NG', name: 'Nigeria', currencyType: 'USD' },
+  { code: 'KE', name: 'Kenya', currencyType: 'USD' },
+  { code: 'IL', name: 'Israel', currencyType: 'USD' },
+  { code: 'JO', name: 'Jordan', currencyType: 'USD' },
+  { code: 'LB', name: 'Lebanon', currencyType: 'USD' },
+  { code: 'UA', name: 'Ukraine', currencyType: 'USD' },
+  { code: 'GE', name: 'Georgia', currencyType: 'USD' },
+  { code: 'AM', name: 'Armenia', currencyType: 'USD' },
+  { code: 'AZ', name: 'Azerbaijan', currencyType: 'USD' },
+  { code: 'UZ', name: 'Uzbekistan', currencyType: 'USD' },
+  { code: 'KZ', name: 'Kazakhstan', currencyType: 'USD' },
 ];
 
 // Объединяем все страны и сортируем по имени
