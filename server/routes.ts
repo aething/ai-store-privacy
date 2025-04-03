@@ -1094,7 +1094,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           if (existingRate) {
             taxRateId = existingRate.id;
-            console.log(`Using existing tax rate: ${taxLabel} (${taxRateId})`);
+            // Не выводим номинальную сумму
           } else {
             // Получаем полное название страны для Stripe
             const fullCountryName = country ? getFullCountryName(country) : undefined;
@@ -1110,10 +1110,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
             
             taxRateId = newTaxRate.id;
-            console.log(`Created new tax rate: ${taxLabel} (${taxRateId})`);
+            // Не выводим конфиденциальную информацию в логи
           }
         } catch (taxError) {
-          console.error("Error creating/retrieving tax rate:", taxError);
+          console.error("Error creating/retrieving tax rate");
           // Продолжаем без tax rate в случае ошибки
         }
       }
@@ -1265,12 +1265,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Увеличиваем общую сумму на размер налога
         paymentIntentParams.amount = amount + taxAmount;
         
-        console.log(`New total amount with tax: ${paymentIntentParams.amount} ${currency} (base: ${amount}, tax: ${taxAmount})`);
+        // Обновляем описание платежа без конфиденциальной информации
+        paymentIntentParams.description = `Order with ${taxLabel}`;
         
-        // Обновляем описание платежа
-        paymentIntentParams.description = `Order with ${taxLabel} (${taxAmount} ${currency})`;
-        
-        console.log(`Applied German VAT: ${taxAmount} ${currency}`);
+        console.log(`Applied German VAT`);
       } else if (country === 'US') {
         // Для США налоги не применяются
         taxRate = 0;
@@ -1315,28 +1313,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fullCountryNameForLogs = country ? getFullCountryName(country) : 'unknown';
       
       // Подробное логирование для отладки
-      console.log(`Creating PaymentIntent:`, {
-        amount,
-        currency,
-        requested_country: requestCountry || 'not specified',
-        force_country: useForceCountry,
-        country: country || 'unknown',
-        country_full: fullCountryNameForLogs,
-        tax_behavior: 'exclusive', // Налог всегда добавляется сверху цены
-        tax_rate_applied: !!taxRateId,
-        tax_details: {
-          country,
-          taxRate,
-          taxLabel,
-          taxRateId: taxRateId || null,
-          product_price: req.body.amount || null,
-          metadata: JSON.stringify(metadata)
-        }
-      });
+      console.log(`Creating PaymentIntent for country: ${country || 'unknown'}`);
+      // Убираем вывод конфиденциальной информации
       
       const paymentIntent = await stripe.paymentIntents.create(paymentIntentParams);
       
-      console.log(`Created PaymentIntent: ${paymentIntent.id} with amount: ${paymentIntent.amount} ${currency} (including tax: ${taxAmount} ${currency})`);
+      console.log(`Created PaymentIntent: ${paymentIntent.id}`);
       
       // Create an order in pending status
       const order = await storage.createOrder({
