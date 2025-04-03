@@ -116,71 +116,38 @@ export default function Policy() {
     );
   }
   
+  // Функция для возврата на страницу Account к разделу политик
+  const goBackToAccountPolicies = () => {
+    // Прямой переход на страницу Account с якорем
+    window.location.href = '/account#policies-section';
+  };
+
   return (
-    <SwipeBack onSwipeBack={() => {
-      // Логируем для отладки
-      console.log('[Policy] Свайп назад - возвращаемся на страницу аккаунта с хэшем');
-      
-      // Принудительно устанавливаем режим ручного восстановления позиции прокрутки
-      try {
-        if ('scrollRestoration' in window.history) {
-          window.history.scrollRestoration = 'manual';
-        }
-      } catch (e) {
-        console.error('[Policy] Не удалось настроить scrollRestoration:', e);
-      }
-      
-      // Переходим напрямую по URL с хэшем
-      window.location.href = '/account#policies-section';
-    }}>
+    <SwipeBack onSwipeBack={goBackToAccountPolicies}>
       <div id="policy-root" ref={rootRef} className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
         {/* Header with close button */}
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-medium">{policy.title}</h2>
           <button 
             className="p-2 rounded-full hover:bg-gray-100"
-            onClick={() => {
-              // Логируем для отладки
-              console.log('[Policy] Закрываем политику - возвращаемся на страницу аккаунта с хэшем');
-              
-              // Принудительно устанавливаем режим ручного восстановления позиции прокрутки
-              try {
-                if ('scrollRestoration' in window.history) {
-                  window.history.scrollRestoration = 'manual';
-                }
-              } catch (e) {
-                console.error('[Policy] Не удалось настроить scrollRestoration:', e);
-              }
-              
-              // Переходим напрямую по URL с хэшем
-              window.location.href = '/account#policies-section';
-            }}
+            onClick={goBackToAccountPolicies}
             aria-label="Close"
           >
             <X size={20} />
           </button>
         </div>
         
-        {/* Удалили подсказку для свайпа, так как она может влиять на скроллинг */}
-        
-        {/* Простой контейнер без отдельной прокрутки */}
-        <div 
-          ref={contentRef}
-          className="flex-1 p-4"
-          id="info-content"
-        >
-          {/* Важный якорь для верхней части контента */}
-          <div id="content-top"></div>
-          
+        {/* Простой контейнер для содержимого */}
+        <div ref={contentRef} className="flex-1 p-4" id="info-content">
           <Card className="p-4 rounded-lg">
             <div dangerouslySetInnerHTML={{ __html: policy.content }} />
           </Card>
           
-          {/* Back to top button - использует scrollToTop из utils */}
+          {/* Кнопка прокрутки вверх */}
           <div className="flex justify-center mt-6 mb-4">
             <Button
               className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
-              onClick={() => scrollToTop(true)}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             >
               {t("scrollToTop")}
             </Button>

@@ -54,156 +54,39 @@ export default function Account() {
   const [showLoginForm, setShowLoginForm] = useState(true); // true = login, false = register
   const { t } = useLocale();
   
-  // Отображаем страницу Account
-  // Позиция скролла теперь управляется через компонент ScrollManager
-  
-  // При монтировании компонента проверяем, нужно ли восстановить позицию скролла
+  // Обрабатываем прокрутку к разделам при наличии хэша в URL
   useEffect(() => {
-    // Проверяем наличие хэша в URL для прямой навигации к разделу
-    const hash = window.location.hash;
-    
-    // Отладочный вывод
-    console.log('[Account] Текущий хэш URL:', hash);
-    
-    // Если хэш указан, скроллим к соответствующему разделу
-    if (hash) {
-      // Удаляем символ # из начала строки
-      const sectionId = hash.substring(1);
+    // Проверяем наличие хэша в URL
+    if (window.location.hash) {
+      const sectionId = window.location.hash.substring(1);
       
-      // Отключаем стандартные методы восстановления скролла
-      // Это предотвратит прокрутку вверх перед перемещением к разделу
-      try {
-        if ('scrollRestoration' in window.history) {
-          window.history.scrollRestoration = 'manual';
+      // Функция для прокрутки к элементу
+      const scrollToElement = () => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          console.log(`[Account] Прокрутка к элементу: #${sectionId}`);
+          
+          // Установка позиции скролла сразу без анимации
+          window.scrollTo(0, element.offsetTop - 20);
+          
+          return true;
         }
-      } catch (e) {
-        console.error('[Account] Не удалось настроить scrollRestoration:', e);
-      }
-      
-      // Предотвращаем прокрутку вверх, сразу устанавливая позицию прокрутки
-      // Это позволяет избежать мигания при прокрутке вверх-вниз
-      document.documentElement.scrollTop = window.innerHeight; // Устанавливаем примерное положение, чтобы избежать скачка вверх
-      
-      // Функция прокрутки к секции
-      const scrollToSection = () => {
-        const section = document.getElementById(sectionId);
-        if (section) {
-          console.log(`[Account] Скроллим к секции ${sectionId} по хэшу URL`);
-          
-          // Используем прямую установку положения вместо scrollIntoView 
-          // для предотвращения дополнительной анимации
-          const rect = section.getBoundingClientRect();
-          const scrollTop = rect.top + window.pageYOffset - 20; // С небольшим отступом сверху
-          
-          window.scrollTo({
-            top: scrollTop,
-            behavior: 'auto' // Используем 'auto' вместо 'smooth' для предотвращения видимой анимации
-          });
-          
-          console.log(`[Account] Установлена позиция прокрутки: ${scrollTop}px`);
-          return true; // Успешная прокрутка
-        } else {
-          console.log(`[Account] Секция ${sectionId} не найдена`);
-          return false;
-        }
+        return false;
       };
       
-      // Попытка прокрутки сразу
-      if (!scrollToSection()) {
-        // Если не удалось найти элемент сразу, пробуем еще раз с небольшой задержкой
-        setTimeout(scrollToSection, 100);
-        // И еще одна попытка с большей задержкой
-        setTimeout(scrollToSection, 300);
+      // Попытка прокрутки с таймаутами для более надежной работы
+      if (!scrollToElement()) {
+        setTimeout(scrollToElement, 100);
+        setTimeout(scrollToElement, 300);
       }
-      
-      // Прерываем дальнейшую обработку, чтобы не применять другие методы прокрутки
-      return;
     }
     
-    // Проверяем флаг восстановления скролла (старый механизм)
-    const shouldRestoreScroll = sessionStorage.getItem('restore_account_scroll') === 'true';
-    const restoreTimestamp = parseInt(sessionStorage.getItem('restore_account_timestamp') || '0');
-    
-    // Проверяем флаг скролла в начало (новый механизм)
-    const shouldScrollToTop = sessionStorage.getItem('account_scroll_to_top') === 'true';
-    // Проверяем флаг скролла к разделу Policies
-    const shouldScrollToPolicies = sessionStorage.getItem('account_scroll_to_policies') === 'true';
-    const scrollTimestamp = parseInt(sessionStorage.getItem('account_scroll_timestamp') || '0');
-    
-    const now = Date.now();
-    
-    // Определяем, что делать со скроллом (только если нет хэша в URL)
-    if (!hash && shouldScrollToPolicies && now - scrollTimestamp < 5000) {
-      // Если есть свежий флаг для скролла к разделу Policies
-      console.log('[Account] Скроллим к разделу Policies');
-      
-      // Импортируем утилиту для скролла
-      import("@/lib/scrollUtils").then(({ scrollToAccountPoliciesSection }) => {
-        // Прокручиваем к разделу Policies
-        scrollToAccountPoliciesSection(true);
-        
-        // Очищаем флаг
-        sessionStorage.removeItem('account_scroll_to_policies');
-        sessionStorage.removeItem('account_scroll_timestamp');
-      });
-    } else if (shouldScrollToTop && now - scrollTimestamp < 5000) {
-      // Если есть свежий флаг для скролла в начало, устанавливаем в начало
-      console.log('[Account] Скроллим в начало страницы');
-      
-      // Импортируем утилиту для скролла
-      import("@/lib/scrollUtils").then(({ scrollToTop }) => {
-        // Сначала форсированный скролл для надежности
-        window.scrollTo(0, 0);
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-        
-        // Затем более надежные методы с таймаутами
-        const scrollTopFn = () => scrollToTop(false);
-        
-        // Используем несколько попыток с разными задержками
-        const timers = [
-          setTimeout(scrollTopFn, 0),
-          setTimeout(scrollTopFn, 50),
-          setTimeout(scrollTopFn, 150),
-          setTimeout(scrollTopFn, 300),
-          setTimeout(scrollTopFn, 600)
-        ];
-        
-        // Очищаем флаг и таймеры
-        sessionStorage.removeItem('account_scroll_to_top');
-        sessionStorage.removeItem('account_scroll_timestamp');
-        
-        // Прерываем попытки восстановления через 1 секунду
-        setTimeout(() => {
-          timers.forEach(clearTimeout);
-        }, 1000);
-      });
-    } 
-    // Старый механизм восстановления позиции
-    else if (shouldRestoreScroll && now - restoreTimestamp < 5000) {
-      console.log('[Account] Восстанавливаем сохраненную позицию скролла');
-      
-      // Импортируем утилиту для восстановления позиции скролла
-      import("@/lib/scrollUtils").then(({ restoreScrollPositionForPath }) => {
-        // Используем несколько попыток восстановления с разными задержками для надежности
-        const timers = [
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 10),
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 50),
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 150),
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 300),
-          setTimeout(() => restoreScrollPositionForPath('/account', false), 600)
-        ];
-        
-        // Очищаем флаг восстановления, чтобы не повторять операцию
-        sessionStorage.removeItem('restore_account_scroll');
-        sessionStorage.removeItem('restore_account_timestamp');
-        
-        // Прерываем попытки восстановления через 1 секунду
-        setTimeout(() => {
-          timers.forEach(clearTimeout);
-        }, 1000);
-      });
-    }
+    // Очистка sessionStorage от старых флагов прокрутки
+    sessionStorage.removeItem('account_scroll_to_policies');
+    sessionStorage.removeItem('account_scroll_timestamp');
+    sessionStorage.removeItem('account_scroll_to_top');
+    sessionStorage.removeItem('restore_account_scroll');
+    sessionStorage.removeItem('restore_account_timestamp');
   }, []);
   
   const { register, handleSubmit, formState: { errors }, control } = useForm<UpdateUserForm>({
