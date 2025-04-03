@@ -231,6 +231,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "User with this email already exists" });
       }
       
+      // Убедимся, что страна указана
+      if (!userData.country) {
+        return res.status(400).json({ message: "Country selection is required" });
+      }
+      
       const user = await storage.createUser(userData);
       
       // Generate verification token
@@ -344,9 +349,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       try {
+        // Получаем входные данные от пользователя
         const userData = updateUserSchema.parse(req.body);
         console.log("Data after validation:", userData);
         
+        // Получаем текущего пользователя из базы
+        const currentUser = await storage.getUser(userId);
+        if (!currentUser) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        // Не позволяем менять страну после регистрации
+        if (userData.country && userData.country !== currentUser.country) {
+          console.log(`Attempt to change country from ${currentUser.country} to ${userData.country}`);
+          userData.country = currentUser.country; // Сохраняем исходную страну
+        }
+        
+        console.log("Data after country protection:", userData);
+        
+        // Обновляем пользователя с модифицированными данными
         const updatedUser = await storage.updateUser(userId, userData);
         
         if (!updatedUser) {

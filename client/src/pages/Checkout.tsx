@@ -85,6 +85,11 @@ export default function Checkout() {
   const [taxInfo, setTaxInfo] = useState<{rate: number; label: string; amount: number}>({ rate: 0, label: 'Tax', amount: 0 });
   const [stripeTaxInfo, setStripeTaxInfo] = useState<{amount: number; rate: number; label: string; display: string} | null>(null);
   
+  // Добавляем состояние для отслеживания количества и ID PaymentIntent
+  const [quantity, setQuantity] = useState(1);
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [isUpdatingQuantity, setIsUpdatingQuantity] = useState(false);
+  
   // Получаем productId из URL-параметров или из query-строки
   let productId: number | null = null;
   
@@ -329,11 +334,6 @@ export default function Checkout() {
   // Мы модифицируем эту логику, чтобы показывать информацию о товаре и налогах
   // даже если пользователь не авторизован, но при этом блокировать процесс оплаты
   
-  // Добавляем состояние для отслеживания количества и ID PaymentIntent
-  const [quantity, setQuantity] = useState(1);
-  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
-  const [isUpdatingQuantity, setIsUpdatingQuantity] = useState(false);
-  
   // Вычисляем стоимость с учетом количества
   const basePrice = price * quantity;
   const calculatedTaxAmount = taxAmount * quantity;
@@ -560,90 +560,7 @@ export default function Checkout() {
         <h2 className="text-lg font-medium">Checkout</h2>
       </div>
       
-      <Card className="p-4 mb-6">
-        <div className="flex items-center mb-4">
-          <img 
-            src={product.imageUrl} 
-            alt={product.title}
-            className="w-16 h-16 object-cover rounded mr-4"
-          />
-          <div>
-            <h3 className="font-medium">{product.title}</h3>
-            <p className="text-lg">{formatPrice(price, currency, isStripePrice)}</p>
-          </div>
-        </div>
-        
-        <div className="border-t border-b py-3 my-3">
-          {/* Используем таблицу с явным указанием ширины для лучшего выравнивания */}
-          <table className="w-full">
-            <tbody>
-              <tr className="mb-2">
-                <td className="text-left pb-2">Subtotal</td>
-                <td className="text-right pb-2">{formatPrice(price, currency, isStripePrice)}</td>
-              </tr>
-              
-              {/* Налоговая информация - всегда отображаем, независимо от состояния 
-                  Мы гарантированно показываем строку с налогом, даже если произошли ошибки */}
-              <tr className="mb-2 bg-yellow-50">
-                <td className="text-left pb-2 pt-2 font-medium">
-                  <span className="flex items-center">
-                    {stripeTaxInfo?.display || taxLabel || "VAT 19%"}
-                    <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || 'DE'}</span>
-                  </span>
-                </td>
-                <td className="text-right pb-2 pt-2 font-medium">
-                  {stripeTaxInfo 
-                    ? formatPrice(stripeTaxInfo.amount, currency, true) 
-                    : formatPrice(taxAmount || Math.round(price * 0.19), currency, isStripePrice)}
-                </td>
-              </tr>
-              
-              {/* Диагностическая строка с налогом удалена */}
-              
-              {/* Текст с информацией о НДС удален, так как дублируется ниже */}
-              
-              <tr className="mb-2">
-                <td className="text-left pb-2">Shipping</td>
-                <td className="text-right pb-2">Free</td>
-              </tr>
-              
-              <tr className="font-bold text-lg bg-green-50">
-                <td className="text-left pt-2 pb-2 border-t">Total</td>
-                <td className="text-right pt-2 pb-2 border-t">
-                  {stripeTaxInfo 
-                    ? formatPrice(price + stripeTaxInfo.amount, currency, true) 
-                    : formatPrice(price + (taxAmount || Math.round(price * 0.19)), currency, isStripePrice)}
-                </td>
-              </tr>
-              {/* Удалена отладочная строка с калькуляцией */}
-            </tbody>
-          </table>
-          
-
-          
-          {/* Пояснительный текст о налогах */}
-          <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
-            {user?.country === 'DE' ? (
-              <>
-                <div className="font-medium mb-1">Tax:</div>
-                <div>* VAT is applied according to EU regulations.</div>
-              </>
-            ) : user?.country === 'US' ? (
-              <>
-                <div className="font-medium mb-1">Tax:</div>
-                <div>* No sales tax is applied as nexus thresholds have not been reached.</div>
-                <div>* Sales will be tracked for future tax compliance.</div>
-              </>
-            ) : (
-              <>
-                <div className="font-medium mb-1">Tax:</div>
-                <div>* VAT is applied according to EU regulations.</div>
-                <div>* Complete tax details will be shown on your invoice.</div>
-              </>
-            )}
-          </div>
-        </div>
-      </Card>
+{renderProductInfo()}
       
       <Card className="p-4">
         <h3 className="font-medium mb-4">Payment Information</h3>
