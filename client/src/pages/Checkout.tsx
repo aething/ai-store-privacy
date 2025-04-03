@@ -54,42 +54,106 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
         elementsAvailable: !!elements, 
         userAvailable: !!user 
       });
+      
+      toast({
+        title: "Payment Error",
+        description: "Payment system is not fully loaded yet. Please try again.",
+        variant: "destructive",
+      });
+      
       return;
     }
     
+    // Начинаем обработку платежа
     setIsLoading(true);
     console.log('Начинаем обработку платежа...');
+    console.log('Выбранный метод оплаты:', paymentMethod);
     
     try {
-      console.log('Выбранный метод оплаты:', paymentMethod);
-      console.log('Используем confirmPayment с parameters:', {
-        returnUrl: window.location.origin + "/confirmation",
+      // Получаем email из элемента LinkAuthenticationElement
+      const linkAuthentication = elements.getElement(LinkAuthenticationElement);
+      
+      // Для отладки: проверка состояния элементов
+      const paymentElement = elements.getElement(PaymentElement);
+      console.log('PaymentElement status:', paymentElement ? 'loaded' : 'not loaded');
+      console.log('LinkAuthentication status:', linkAuthentication ? 'loaded' : 'not loaded');
+      
+      // Дополнительные параметры для confirmParams
+      const confirmParams = {
+        // URL для перенаправления после успешного платежа
+        return_url: window.location.origin + "/confirmation",
+        // Метаданные для отслеживания платежа
+        payment_method_data: {
+          billing_details: {
+            email: user.email,
+            name: user.username,
+          }
+        },
+        receipt_email: user.email,
+      };
+      
+      console.log('Используем confirmPayment с параметрами:', {
+        returnUrl: confirmParams.return_url,
+        email: user.email,
       });
       
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          // Redirects to the confirmation page after successful payment
-          return_url: window.location.origin + "/confirmation",
-        },
-      });
+      // Разные методы подтверждения в зависимости от выбранного способа оплаты
+      let result;
+      
+      // Для Link нужно особое подтверждение
+      if (paymentMethod === 'link') {
+        console.log('Используем особый процесс для Link...');
+        const { error: linkError } = await stripe.confirmPayment({
+          elements,
+          confirmParams,
+          redirect: 'if_required', // 'always' в продакшене
+        });
+        
+        result = { error: linkError };
+      } else {
+        // Стандартное подтверждение для всех остальных методов
+        result = await stripe.confirmPayment({
+          elements,
+          confirmParams,
+          redirect: 'if_required',
+        });
+      }
+      
+      const { error, paymentIntent } = result;
       
       if (error) {
         console.error('Ошибка подтверждения платежа:', error);
+        
+        // Отображение понятной ошибки пользователю
+        let errorMessage = "Payment failed. Please try again.";
+        
+        if (error.type === 'card_error' || error.type === 'validation_error') {
+          errorMessage = error.message || errorMessage;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         toast({
           title: "Payment Failed",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive",
         });
+      } else if (paymentIntent) {
+        // Платеж успешно обработан без перенаправления
+        console.log('Платеж успешно выполнен:', paymentIntent);
+        
+        // Ручное перенаправление на страницу успеха
+        const confirmationUrl = `${window.location.origin}/confirmation?payment_intent=${paymentIntent.id}&payment_intent_client_secret=${clientSecret}&redirect_status=succeeded`;
+        window.location.href = confirmationUrl;
       } else {
-        console.log('Платеж успешно инициирован, ожидаем перенаправление');
-        // Payment succeeded, redirect will happen automatically
+        console.log('Платеж успешно инициирован, ожидаем перенаправление...');
+        // В этом случае перенаправление будет выполнено автоматически
       }
     } catch (err) {
       console.error('Неожиданная ошибка при обработке платежа:', err);
       toast({
         title: "Payment Error",
-        description: "An unexpected error occurred during payment",
+        description: "An unexpected error occurred during payment. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -100,24 +164,59 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Элемент аутентификации для Link (сохраняет email для будущих покупок) */}
+      {/* Элемент Link для аутентификации пользователя */}
       <LinkAuthenticationElement
+        id="link-authentication-element"
         options={{
           defaultValues: {
             email: user?.email || '',
           },
+          // Всегда показывать поле email для Link
+          emailRequired: true
         }}
       />
+      
+      {/* Информация о заказе */}
+      <div className="bg-gray-50 p-3 rounded-lg mb-4 text-sm">
+        <div className="font-medium mb-1">Order Summary</div>
+        <div className="flex justify-between mb-1">
+          <span>Product:</span>
+          <span className="font-medium">{productId ? `#${productId}` : 'Selected product'}</span>
+        </div>
+        <div className="flex justify-between mb-1 text-green-700">
+          <span>Amount:</span>
+          <span className="font-medium">{formatPrice(amount, currency)}</span>
+        </div>
+      </div>
 
       {/* Основной элемент оплаты с поддержкой Apple Pay, Google Pay и Link */}
       <PaymentElement 
+        id="payment-element"
         options={{
           layout: {
             type: 'tabs', 
             defaultCollapsed: false,
           },
-          wallets: {
-            googlePay: 'auto',
-            applePay: 'auto',
+          defaultValues: {
+            billingDetails: {
+              email: user?.email || '',
+              name: user?.username || '',
+            }
+          },
+          fields: {
+            billingDetails: {
+              // Показываем только необходимые поля
+              email: 'never', // Email уже собираем в LinkAuthenticationElement
+              phone: 'auto',
+              address: {
+                country: 'auto',
+                postalCode: 'auto',
+                line1: 'auto',
+                line2: 'never', // Упрощаем форму
+                city: 'auto',
+                state: 'auto',
+              }
+            }
           }
         }}
       />
@@ -507,6 +606,19 @@ export default function Checkout() {
     
     return (
       <Card className="p-4 mb-6">
+        {isDemoMode && (
+          <div className="bg-amber-50 border border-amber-200 rounded-md p-2 mb-4 text-sm text-amber-800">
+            <div className="flex items-center space-x-1 font-medium mb-1">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clipRule="evenodd" />
+              </svg>
+              <span>Demo Mode</span>
+            </div>
+            <p>You are testing the checkout process with a demo account.</p>
+            <p>No actual payments will be processed.</p>
+          </div>
+        )}
+      
         <div className="flex items-center mb-4">
           <img 
             src={product.imageUrl} 
@@ -514,7 +626,12 @@ export default function Checkout() {
             className="w-16 h-16 object-cover rounded mr-4"
           />
           <div>
-            <h3 className="font-medium">{product.title}</h3>
+            <h3 className="font-medium flex items-center">
+              {product.title}
+              {isDemoMode && (
+                <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Demo</span>
+              )}
+            </h3>
             <p className="text-lg">{formatPrice(price, currency, isStripePrice)}</p>
           </div>
         </div>
@@ -591,8 +708,13 @@ export default function Checkout() {
           
           {/* Пояснительный текст о налогах */}
           <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
-            <div className="font-medium mb-1">Tax:</div>
+            <div className="font-medium mb-1">Tax Information:</div>
             <div>* VAT is applied according to EU regulations.</div>
+            {isDemoMode && (
+              <div className="mt-1 text-amber-600">
+                * In demo mode, tax calculations are simulated based on country settings.
+              </div>
+            )}
           </div>
         </div>
       </Card>
@@ -742,14 +864,24 @@ export default function Checkout() {
                 theme: 'stripe',
                 variables: {
                   colorPrimary: '#6200EE',
+                  fontFamily: 'system-ui, sans-serif',
+                  borderRadius: '8px'
                 }
               },
-              // Используем параметры в соответствии с документацией https://docs.stripe.com/payments/link/checkout-link
-              payment_method_creation: 'manual',
-              payment_method_types: ['card', 'apple_pay', 'google_pay', 'link'],
+              // Конфигурация в соответствии с документацией https://docs.stripe.com/payments/link/mobile-payment-element-link
+              // и https://docs.stripe.com/payments/link/set-up-link-with-payment-element
+              businessName: "Aething AI Platform",
+              // Включаем все доступные методы оплаты
+              payment_method_types: ['card', 'link', 'apple_pay', 'google_pay'],
+              // Настройка wallets для Apple Pay и Google Pay
               wallets: {
                 apple_pay: 'auto',
                 google_pay: 'auto'
+              },
+              shipping: {
+                allowed_countries: ['US', 'CA', 'DE', 'FR', 'GB', 'IT', 'ES'],
+                // Цифровые товары, доставки не требуется
+                type: 'digital'
               },
               // Добавляем режим отладки для диагностики
               loader: 'always'
