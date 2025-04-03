@@ -15,7 +15,21 @@ import { TaxDisplayBoxSimple } from "@/components/TaxDisplayBoxSimple";
 import { COMPANY_INFO, getVatIdForCountry } from "@shared/companyInfo";
 import { createPaymentIntent, updatePaymentIntentQuantity } from "@/api/payments";
 
-const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
+const CheckoutForm = ({ 
+  productId, 
+  amount, 
+  currency, 
+  product,
+  stripeTaxInfo,
+  clientSecret
+}: { 
+  productId: number; 
+  amount: number; 
+  currency: 'usd' | 'eur'; 
+  product?: Product;
+  stripeTaxInfo?: {amount: number; rate: number; label: string; display: string} | null;
+  clientSecret: string;
+}) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
@@ -922,7 +936,14 @@ export default function Checkout() {
               loader: 'always'
             }}
           >
-            <CheckoutForm productId={productId as number} amount={price} currency={currency} />
+            <CheckoutForm 
+              productId={productId as number} 
+              amount={price} 
+              currency={currency} 
+              product={product} 
+              stripeTaxInfo={stripeTaxInfo}
+              clientSecret={clientSecret}
+            />
           </Elements>
         ) : (
           <div className="flex justify-center py-4">
