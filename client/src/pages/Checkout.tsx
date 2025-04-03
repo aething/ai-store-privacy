@@ -204,18 +204,46 @@ const CheckoutForm = ({
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Элемент аутентификации для Link (сохраняет email для будущих покупок) */}
-      {/* Элемент Link для аутентификации пользователя */}
-      <LinkAuthenticationElement
-        id="link-authentication-element"
-        options={{
-          defaultValues: {
-            email: user?.email || '',
-          },
-          // Всегда показывать поле email для Link
-          emailRequired: true
-        }}
-      />
+      {/* Элемент аутентификации для Link (сохраняет email и телефон для будущих покупок) */}
+      <div className="space-y-4">
+        <LinkAuthenticationElement
+          id="link-authentication-element"
+          options={{
+            defaultValues: {
+              email: user?.email || '',
+            },
+            // Всегда показывать поле email для Link
+            emailRequired: true
+          }}
+        />
+        
+        {/* Добавляем поле для ввода телефона */}
+        <div className="mt-3">
+          <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number</label>
+          <input 
+            type="tel" 
+            id="phone"
+            name="phone"
+            placeholder="+1 (123) 456-7890"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            onChange={(e) => {
+              if (elements) {
+                // Обновляем данные платежного метода при изменении телефона
+                const paymentElement = elements.getElement(PaymentElement);
+                if (paymentElement) {
+                  paymentElement.update({
+                    fields: {
+                      billingDetails: {
+                        phone: e.target.value
+                      }
+                    }
+                  });
+                }
+              }
+            }}
+          />
+        </div>
+      </div>
       
       {/* Информация о заказе */}
       <div className="bg-gray-50 p-4 rounded-lg mb-4 text-sm shadow-sm">
@@ -250,13 +278,14 @@ const CheckoutForm = ({
             billingDetails: {
               email: user?.email || '',
               name: user?.username || '',
+              // Телефон передаем через наше собственное поле
             }
           },
           fields: {
             billingDetails: {
               // Показываем только необходимые поля
               email: 'never', // Email уже собираем в LinkAuthenticationElement
-              phone: 'auto',
+              phone: 'never', // Телефон теперь собираем в нашем собственном поле
               address: {
                 country: 'auto',
                 postalCode: 'auto',
