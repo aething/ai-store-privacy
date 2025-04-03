@@ -513,11 +513,31 @@ export default function Checkout() {
         if (data.tax) {
           console.log('Получена налоговая информация от Stripe:', data.tax);
           
-          // Преобразование налоговой суммы из центов в основную валюту
+          // Преобразование налоговой суммы, убедимся что она в правильном формате
           let taxAmountFixed = data.tax.amount || taxAmount;
+          
+          // Если налоговая сумма слишком большая относительно цены (более 50% от цены),
+          // это может означать, что она выражена в центах, а не в основных единицах валюты
           if (taxAmountFixed > price * 0.5) {
-            console.log('Конвертируем tax.amount из центов в основную валюту:', taxAmountFixed, '→', taxAmountFixed / 100);
-            taxAmountFixed = Math.round(taxAmountFixed / 100);
+            console.log('Налоговая сумма слишком большая, проверяем, нужна ли конвертация.');
+            
+            // Проверяем, что ставка налога близка к ожидаемой (19% для Германии и т.д.)
+            const expectedTaxAmount = Math.round(price * taxRate);
+            const expectedTaxAmountInCents = Math.round(price * 100 * taxRate);
+            
+            console.log(`Ожидаемый налог при ставке ${taxRate*100}%: 
+              - В основных единицах валюты: ${expectedTaxAmount}
+              - В центах: ${expectedTaxAmountInCents}
+              - Полученная сумма: ${taxAmountFixed}`);
+            
+            // Если разница между полученной суммой и ожидаемой суммой в центах менее 10%,
+            // то делим на 100 для конвертации в основную валюту
+            if (Math.abs(taxAmountFixed - expectedTaxAmountInCents) / expectedTaxAmountInCents < 0.1) {
+              console.log(`Конвертируем tax.amount из центов в основную валюту: ${taxAmountFixed} → ${Math.round(taxAmountFixed / 100)}`);
+              taxAmountFixed = Math.round(taxAmountFixed / 100);
+            } else {
+              console.log('Сумма налога не соответствует ожидаемой. Оставляем как есть.');
+            }
           }
           
           const stripeTax = {
@@ -632,9 +652,30 @@ export default function Checkout() {
         
         // Обновляем информацию о налогах и clientSecret для Stripe
         if (updatedTaxAmount) {
+          console.log(`Получен updatedTaxAmount: ${updatedTaxAmount}`);
+          
+          // Проверяем необходимость конвертации налоговой суммы
+          let taxAmountToUse = updatedTaxAmount;
+          const expectedTaxAmount = Math.round(price * quantity * taxRate);
+          
+          // Если сумма налога слишком высока относительно ожидаемой,
+          // возможно она в центах и нужно конвертировать
+          if (taxAmountToUse > expectedTaxAmount * 10) {
+            console.log(`Конвертируем налог из центов: ${taxAmountToUse} → ${Math.round(taxAmountToUse / 100)}`);
+            taxAmountToUse = Math.round(taxAmountToUse / 100);
+          }
+          
+          console.log(`Итоговый налог к установке: ${taxAmountToUse} (ожидалось около ${expectedTaxAmount})`);
+          
           setTaxInfo(prev => ({
             ...prev,
-            amount: updatedTaxAmount
+            amount: taxAmountToUse
+          }));
+          
+          // Также обновляем отображаемую информацию о налоге
+          setStripeTaxInfo(prev => ({
+            ...prev,
+            amount: taxAmountToUse
           }));
         }
         

@@ -820,7 +820,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Например, если передано 27.60 вместо 2760, умножаем ее на 100
       if (amount < 50 && String(amount).includes('.')) {
         console.log(`Обнаружена сумма, которая может быть в основных единицах валюты (${amount}). Конвертируем в центы/копейки.`);
-        amount = Math.round(amount * 100);
+        const convertedAmount = Math.round(amount * 100);
+        amount = convertedAmount;
         console.log(`Сконвертированная сумма: ${amount} (центы/копейки)`);
       }
       
@@ -2034,15 +2035,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Новое базовое количество: ${parsedQuantity}, сумма: ${newBaseAmount} ${currency}`);
       
       // ИСПРАВЛЕНИЕ: Проверяем, корректно ли сумма выражена в наименьших единицах (центах/копейках)
-      if (newBaseAmount < 100) {
-        console.log(`ВНИМАНИЕ: Очень маленькая сумма ${newBaseAmount} ${currency}. Проверяем, нужна ли конвертация.`);
+      let adjustedBaseAmount = newBaseAmount;
+      if (adjustedBaseAmount < 100) {
+        console.log(`ВНИМАНИЕ: Очень маленькая сумма ${adjustedBaseAmount} ${currency}. Проверяем, нужна ли конвертация.`);
         // Если это десятичное число, вероятно, оно выражено в основных единицах валюты
-        if (String(newBaseAmount).includes('.')) {
-          const convertedAmount = Math.round(newBaseAmount * 100);
+        if (String(adjustedBaseAmount).includes('.')) {
+          const convertedAmount = Math.round(adjustedBaseAmount * 100);
           console.log(`Конвертированная сумма: ${convertedAmount} ${currency} (центы/копейки)`);
-          newBaseAmount = convertedAmount;
+          adjustedBaseAmount = convertedAmount;
         }
       }
+      
+      // Используем скорректированную сумму вместо непосредственного изменения константы
+      newBaseAmount = adjustedBaseAmount;
       
       // Получаем информацию о налогах
       let taxRate = 0;
