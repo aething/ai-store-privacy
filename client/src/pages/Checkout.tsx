@@ -219,20 +219,20 @@ const CheckoutForm = ({
       
       {/* Информация о заказе */}
       <div className="bg-gray-50 p-4 rounded-lg mb-4 text-sm shadow-sm">
-        <div className="text-center font-semibold text-gray-800 text-base mb-2 border-b pb-2">
+        <h3 className="text-center font-bold text-gray-800 text-base mb-3 border-b pb-2">
           {product?.title || 'Your Purchase'}
-        </div>
-        <div className="flex justify-between items-center mb-1 text-gray-700">
+        </h3>
+        <div className="flex justify-between items-center mb-2 text-gray-700">
           <span>Price:</span>
           <span className="font-medium">{formatPrice(amount, currency)}</span>
         </div>
         {stripeTaxInfo && stripeTaxInfo.amount > 0 && (
-          <div className="flex justify-between items-center mb-1 text-gray-600 text-xs">
+          <div className="flex justify-between items-center mb-2 text-gray-700">
             <span>{stripeTaxInfo.label || 'Tax'}:</span>
             <span>{formatPrice(stripeTaxInfo.amount, currency)}</span>
           </div>
         )}
-        <div className="flex justify-between items-center mt-2 pt-2 border-t text-green-700 font-semibold">
+        <div className="flex justify-between items-center mt-3 pt-2 border-t text-green-700 font-bold">
           <span>Total:</span>
           <span>{formatPrice(amount + (stripeTaxInfo?.amount || 0), currency)}</span>
         </div>
