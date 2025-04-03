@@ -373,9 +373,10 @@ const CheckoutForm = ({
 
       {/* Основной элемент оплаты с поддержкой Apple Pay, Google Pay и Link */}
       {/* Добавляем компонент для сбора полной информации о доставке */}
-      <div className="mt-6 mb-4">
+      <div className="mt-6 mb-4 shipping-address-container">
         <h3 className="text-base font-medium mb-3">Shipping Address</h3>
         <AddressElement 
+          id="shipping-address-element"
           options={{
             mode: 'shipping',
             fields: {

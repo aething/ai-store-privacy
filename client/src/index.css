@@ -44,7 +44,12 @@ iframe.StripeField,
 div[class*="AddressElement"] iframe,
 div[class*="Input-"] iframe,
 .address-element input[type],
-.address-element div[role="presentation"] iframe {
+.address-element div[role="presentation"] iframe,
+.address-element * iframe,
+[data-field-type="addressElement"] iframe,
+[data-field-type="addressElement"] *,
+#shipping-address-element iframe,
+.stripe-input-element div iframe {
   border: 1px solid #9ca3af !important;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
   background-color: white !important;
@@ -125,11 +130,53 @@ form .StripeAddressElement input,
 [class*="Input-container"] input,
 *[data-component-type="AddressElement"] input,
 .address-element select,
-.address-element *[role="textbox"] {
+.address-element *[role="textbox"],
+.StripeElement--address div *,
+.StripeAddressElement div *,
+.address-element * div[role="button"],
+div[data-component-type="AddressElement"] *,
+[data-component-type="AddressElement"] div[class*="Input"],
+div[id^="stripe-"] *[class^="Input"],
+#shipping-address-element * {
   border: 1px solid #9ca3af !important;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
   background-color: white !important;
   border-radius: 0.375rem !important;
   padding: 8px 12px !important;
   font-family: system-ui, sans-serif !important;
+}
+
+/* Специальные стили для Shipping Address секции */
+.shipping-address-container .StripeElement,
+.shipping-address-container iframe,
+div[id="shipping-address-element"] > div,
+div[id="shipping-address-element"] iframe,
+div[id="shipping-address-element"] input,
+div[id="shipping-address-element"] select,
+div[id="shipping-address-element"] [role="button"],
+div[id="shipping-address-element"] div[role="presentation"] {
+  border: 1px solid #9ca3af !important;
+  display: block !important;
+  margin-bottom: 6px !important;
+  border-radius: 0.375rem !important;
+  padding: 2px !important;
+}
+
+/* Сверхагрессивные стили для обеспечения видимости границ */
+div[id="shipping-address-element"] .StripeElement,
+div[id="shipping-address-element"] .StripeElement--empty,
+div[id="shipping-address-element"] .StripeElement--focus,
+div[id="shipping-address-element"] .StripeElement--complete,
+div[id="shipping-address-element"] .StripeElement--invalid,
+div[id="shipping-address-element"] .StripeField,
+div[id="shipping-address-element"] *[role="textbox"],
+div[id="shipping-address-element"] input[type="text"],
+div[id="shipping-address-element"] input[type="tel"],
+div[id="shipping-address-element"] select,
+div[id="shipping-address-element"] .AddressElement,
+div[id="shipping-address-element"] .InputElement {
+  border: 1px solid #9ca3af !important;
+  outline: 1px solid #9ca3af !important;
+  box-shadow: inset 0 0 0 1px #9ca3af !important;
+  background-color: white !important;
 }
