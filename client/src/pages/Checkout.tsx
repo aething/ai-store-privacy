@@ -491,11 +491,19 @@ const CheckoutForm = ({
           },
           fields: {
             billingDetails: 'never'
+          },
+          wallets: {
+            applePay: 'auto',
+            googlePay: 'auto'
           }
           // Примечание: appearance не поддерживается в типе StripePaymentElementOptions
           // Мы применяем вместо этого CSS стили через классы
         }}
         className="stripe-input-element payment-element"
+        onChange={(event) => {
+          setPaymentMethod(event.value.type);
+          console.log('PaymentElement type changed:', event.value.type);
+        }}
       />
       
       <button 
@@ -1210,6 +1218,7 @@ export default function Checkout() {
                   borderRadius: '4px'
                 }
               }
+              // Wallets настраиваются автоматически, согласно документации Stripe
             }}
           >
             <CheckoutForm 

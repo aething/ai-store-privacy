@@ -1150,7 +1150,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const paymentIntentParams: any = {
         amount,  // Изначально устанавливаем базовую сумму без налога
         currency: lowerCurrency, // Используем валюту в нижнем регистре
-        payment_method_types: ['card'],
+        payment_method_types: ['card', 'apple_pay', 'google_pay', 'link'],
         metadata: {
           ...metadata,
           base_amount: amount.toString(),
@@ -2092,7 +2092,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Добавляем обновление описания, чтобы отразить новое количество
             description: `Order with ${taxLabel} (quantity: ${parsedQuantity})`,
             // Устанавливаем cancel_at_period_end в true для обновления client_secret
-            payment_method_types: ['card'],
+            payment_method_types: ['card', 'apple_pay', 'google_pay', 'link'],
           }
         );
         
