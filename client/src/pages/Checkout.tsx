@@ -252,7 +252,7 @@ const CheckoutForm = ({
             id="customerEmail"
             name="customerEmail"
             defaultValue={user?.email || ''}
-            placeholder="email@example.com"
+            placeholder="test@example.com"
             className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
             style={{
               border: '1px solid #9ca3af',
