@@ -2045,8 +2045,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Получаем информацию о налогах
-      const taxRate = metadata.tax_rate ? parseFloat(metadata.tax_rate) / 100 : 0;
+      let taxRate = 0;
+      const taxRateString = metadata.tax_rate;
+      
+      // Правильно парсим строку налоговой ставки, удаляя символ '%' если он есть
+      if (taxRateString) {
+        // Удаляем символ % из строки, если он есть
+        const cleanedRate = taxRateString.replace('%', '');
+        // Преобразуем в число и делим на 100 для получения десятичной дроби
+        taxRate = parseFloat(cleanedRate) / 100;
+      }
+      
       const taxLabel = metadata.tax_label || 'No Tax';
+      
+      console.log(`Извлеченная ставка налога: ${taxRate * 100}% из строки "${taxRateString}"`);
       
       // Рассчитываем новую сумму налога
       const newTaxAmount = Math.round(newBaseAmount * taxRate);
