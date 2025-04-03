@@ -13,6 +13,7 @@ import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { TaxDisplayBoxSimple } from "@/components/TaxDisplayBoxSimple";
 import { COMPANY_INFO, getVatIdForCountry } from "@shared/companyInfo";
+import { updatePaymentIntentQuantity } from "@/api/payments";
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
@@ -328,6 +329,97 @@ export default function Checkout() {
   // Мы модифицируем эту логику, чтобы показывать информацию о товаре и налогах
   // даже если пользователь не авторизован, но при этом блокировать процесс оплаты
   
+  // Добавляем состояние для отслеживания количества и ID PaymentIntent
+  const [quantity, setQuantity] = useState(1);
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [isUpdatingQuantity, setIsUpdatingQuantity] = useState(false);
+  
+  // Вычисляем стоимость с учетом количества
+  const basePrice = price * quantity;
+  const calculatedTaxAmount = taxAmount * quantity;
+  const totalPrice = basePrice + calculatedTaxAmount;
+  
+  // Функция для обновления количества и PaymentIntent
+  const handleQuantityChange = async (newQuantity: number) => {
+    if (newQuantity < 1 || newQuantity > 10) return;
+    if (!user || !paymentIntentId) return;
+    
+    setIsUpdatingQuantity(true);
+    
+    try {
+      setQuantity(newQuantity);
+      
+      // Вызываем API для обновления PaymentIntent с новым количеством
+      const { amount, taxAmount: updatedTaxAmount } = await updatePaymentIntentQuantity(
+        paymentIntentId,
+        user.id,
+        newQuantity
+      );
+      
+      console.log(`Updated payment intent with new quantity ${newQuantity}:`, {
+        amount,
+        taxAmount: updatedTaxAmount
+      });
+      
+      // Обновляем информацию о налогах
+      if (updatedTaxAmount) {
+        setTaxInfo(prev => ({
+          ...prev,
+          amount: updatedTaxAmount
+        }));
+      }
+      
+      toast({
+        title: "Quantity updated",
+        description: `Quantity changed to ${newQuantity}`,
+      });
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      // Восстанавливаем предыдущее значение в случае ошибки
+      setQuantity(1);
+      toast({
+        title: "Error updating quantity",
+        description: "Failed to update quantity. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingQuantity(false);
+    }
+  };
+  
+  // Обновляем функцию useEffect для сохранения ID PaymentIntent
+  useEffect(() => {
+    const getPaymentIntent = async () => {
+      if (!productId || !user || !product) return;
+      
+      try {
+        const data = await createPaymentIntent(
+          productId, 
+          user.id, 
+          user.country,
+          undefined,
+          undefined,
+          quantity // Передаем выбранное количество товара
+        );
+        
+        setClientSecret(data.clientSecret);
+        
+        // Сохраняем ID PaymentIntent для последующего обновления
+        if (data.id) {
+          setPaymentIntentId(data.id);
+        }
+        
+        setPaymentIntentError(false);
+        
+        // Обработка налоговой информации...
+      } catch (error) {
+        // Обработка ошибки...
+      }
+    };
+    
+    getPaymentIntent();
+  }, [productId, user, product, quantity]);
+
   const renderProductInfo = () => (
     <Card className="p-4 mb-6">
       <div className="flex items-center mb-4">
@@ -342,13 +434,47 @@ export default function Checkout() {
         </div>
       </div>
       
+      {/* Селектор количества */}
+      <div className="border-b pb-4 mb-3">
+        <div className="flex items-center justify-between">
+          <label htmlFor="quantity" className="font-medium">Quantity:</label>
+          <div className="flex items-center">
+            <button 
+              type="button"
+              onClick={() => handleQuantityChange(quantity - 1)}
+              disabled={quantity <= 1 || isUpdatingQuantity}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 
+                        text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+            >
+              -
+            </button>
+            <span className="mx-3 font-medium w-6 text-center">{quantity}</span>
+            <button 
+              type="button"
+              onClick={() => handleQuantityChange(quantity + 1)}
+              disabled={quantity >= 10 || isUpdatingQuantity}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 
+                        text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+            >
+              +
+            </button>
+          </div>
+        </div>
+        
+        {isUpdatingQuantity && (
+          <div className="text-center mt-2 text-sm text-blue-600">
+            Updating quantity...
+          </div>
+        )}
+      </div>
+      
       <div className="border-t border-b py-3 my-3">
         {/* Используем таблицу с явным указанием ширины для лучшего выравнивания */}
         <table className="w-full">
           <tbody>
             <tr className="mb-2">
-              <td className="text-left pb-2">Subtotal</td>
-              <td className="text-right pb-2">{formatPrice(price, currency, isStripePrice)}</td>
+              <td className="text-left pb-2">Subtotal ({quantity} × {formatPrice(price, currency, isStripePrice)})</td>
+              <td className="text-right pb-2">{formatPrice(basePrice, currency, isStripePrice)}</td>
             </tr>
             
             {/* Налоговая информация - всегда отображаем, используя запасные значения */}
@@ -360,11 +486,9 @@ export default function Checkout() {
                 </span>
               </td>
               <td className="text-right pb-2 pt-2 font-medium">
-                {formatPrice(stripeTaxInfo?.amount || taxAmount, currency, isStripePrice)}
+                {formatPrice(calculatedTaxAmount, currency, isStripePrice)}
               </td>
             </tr>
-            
-            {/* Удалено пояснение о том, что цены не включают НДС */}
             
             <tr className="mb-2">
               <td className="text-left pb-2">Shipping</td>
@@ -374,19 +498,17 @@ export default function Checkout() {
             <tr className="font-bold text-lg bg-green-50">
               <td className="text-left pt-2 pb-2 border-t">Total</td>
               <td className="text-right pt-2 pb-2 border-t">
-                {formatPrice(price + taxAmount, currency, isStripePrice)}
+                {formatPrice(totalPrice, currency, isStripePrice)}
               </td>
             </tr>
             {/* Отладочная строка, показывающая как выполняется расчет итоговой суммы */}
             <tr className="text-xs">
               <td colSpan={2} className="text-center pt-1 text-green-700 italic">
-                ({formatPrice(price, currency, isStripePrice)} + {formatPrice(taxAmount, currency, isStripePrice)})
+                ({formatPrice(basePrice, currency, isStripePrice)} + {formatPrice(calculatedTaxAmount, currency, isStripePrice)})
               </td>
             </tr>
           </tbody>
         </table>
-        
-
         
         {/* Пояснительный текст о налогах */}
         <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">

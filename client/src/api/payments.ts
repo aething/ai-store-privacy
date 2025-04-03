@@ -76,7 +76,8 @@ export async function createPaymentIntent(
   userId: number,
   country?: string | null,
   price?: number,
-  currency?: string
+  currency?: string,
+  quantity: number = 1 // Добавлен новый параметр quantity со значением по умолчанию 1
 ) {
   // Если цена не указана, то получаем её из продукта
   // Это должен делать вызывающий код
@@ -87,20 +88,25 @@ export async function createPaymentIntent(
   // Рассчитываем налог на основе страны пользователя
   const { rate, label } = calculateTaxRate(country);
   
+  // Вычисляем базовую сумму с учетом количества
+  const baseAmount = price * quantity;
+  
   // Вычисляем сумму налога (округляем до целого)
-  const taxAmount = rate > 0 ? Math.round(price * rate) : 0;
+  const taxAmount = rate > 0 ? Math.round(baseAmount * rate) : 0;
   
   // Вычисляем полную сумму с налогом
-  const totalAmount = price + taxAmount;
+  const totalAmount = baseAmount + taxAmount;
   
   // Формируем метаданные для создания платежного намерения
   const metadata = {
     country: country || 'unknown',
     taxRate: rate.toString(),
     taxLabel: label,
-    basePrice: price.toString(),
+    basePrice: price.toString(), // Цена за единицу товара
+    baseAmount: baseAmount.toString(), // Общая базовая сумма с учетом количества
     taxAmount: taxAmount.toString(),
-    totalWithTax: totalAmount.toString()
+    totalWithTax: totalAmount.toString(),
+    quantity: quantity.toString() // Добавляем количество в метаданные
   };
   
   console.log('Creating payment intent with tax calculation:', {
@@ -109,6 +115,8 @@ export async function createPaymentIntent(
     country,
     currency,
     basePrice: price,
+    quantity,
+    baseAmount,
     taxRate: rate,
     taxAmount,
     totalWithTax: totalAmount,
@@ -123,15 +131,16 @@ export async function createPaymentIntent(
     },
     body: JSON.stringify({
       productId,
-      amount: totalAmount, // ВАЖНО: отправляем ПОЛНУЮ сумму с налогом
-      baseAmount: price,   // Базовая цена для информации
-      taxAmount,          // ВАЖНО: явно передаем сумму налога
-      taxRate: rate,      // ВАЖНО: явно передаем ставку налога
-      taxLabel: label,    // ВАЖНО: явно передаем метку налога
+      amount: baseAmount, // Отправляем базовую сумму для правильного расчета налогов
+      baseAmount,        // Базовая сумма для информации
+      taxAmount,         // Явно передаем сумму налога
+      taxRate: rate,     // Явно передаем ставку налога
+      taxLabel: label,   // Явно передаем метку налога
       currency,
       userId,
-      country,           // ВАЖНО: явно передаем страну
-      override_user_country: true, // ВАЖНО: принудительно использовать переданную страну
+      country,           // Явно передаем страну
+      quantity,          // Добавляем количество товара
+      override_user_country: true, // Принудительно использовать переданную страну
       use_provided_country: true,  // Для совместимости со старым API
       force_country: country,      // Для совместимости со старым API
       metadata: {
@@ -146,6 +155,39 @@ export async function createPaymentIntent(
     const errorText = await response.text();
     console.error('Error creating payment intent:', errorText);
     throw new Error('Error creating payment intent');
+  }
+  
+  return await response.json();
+}
+
+// Добавляем новую функцию для обновления PaymentIntent с новым количеством
+export async function updatePaymentIntentQuantity(
+  paymentIntentId: string,
+  userId: number,
+  quantity: number
+) {
+  if (!paymentIntentId || !userId || quantity < 1) {
+    throw new Error('Invalid parameters for updating payment intent');
+  }
+  
+  console.log(`Updating payment intent ${paymentIntentId} with new quantity: ${quantity}`);
+  
+  const response = await fetch('/api/update-payment-intent', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      paymentIntentId,
+      userId,
+      quantity
+    }),
+  });
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Error updating payment intent:', errorText);
+    throw new Error('Error updating payment intent');
   }
   
   return await response.json();

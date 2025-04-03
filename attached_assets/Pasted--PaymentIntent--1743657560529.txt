@@ -1,0 +1,74 @@
+Динамическое обновление PaymentIntent (рекомендуется)
+
+Лучший способ, если клиент может менять количество до оплаты.
+
+Как это работает?
+
+Создаете PaymentIntent с начальным количеством товаров.
+При изменении количества — обновляете PaymentIntent через Stripe API.
+Обновляете UI с новыми данными (цена, налоги и т. д.).
+Пример кода (Node.js + Stripe.js)
+
+Backend (создание PaymentIntent)
+
+javascript
+Copy
+const stripe = require('stripe')('sk_test_...');
+
+app.post('/create-payment-intent', async (req, res) => {
+  const { items } = req.body; // [{ id: "prod_123", quantity: 2 }]
+  
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: calculateTotal(items), // сумма в центах (например, $10 = 1000)
+    currency: 'usd',
+    metadata: { items: JSON.stringify(items) }, // сохраняем для дальнейшего обновления
+  });
+
+  res.send({ clientSecret: paymentIntent.client_secret });
+});
+Backend (обновление количества)
+
+javascript
+Copy
+app.post('/update-payment-intent', async (req, res) => {
+  const { paymentIntentId, newItems } = req.body;
+
+  const paymentIntent = await stripe.paymentIntents.update(
+    paymentIntentId,
+    { 
+      amount: calculateTotal(newItems),
+      metadata: { items: JSON.stringify(newItems) },
+    }
+  );
+
+  res.send({ updatedAmount: paymentIntent.amount });
+});
+Frontend (Stripe.js + обработка изменений)
+
+javascript
+Copy
+const stripe = Stripe('pk_test_...');
+
+// 1. Создаем PaymentIntent
+const { clientSecret } = await fetch('/create-payment-intent', {
+  method: 'POST',
+  body: JSON.stringify({ items: initialItems }),
+}).then(res => res.json());
+
+// 2. Инициализируем Stripe Elements
+const elements = stripe.elements();
+const paymentElement = elements.create('payment');
+paymentElement.mount('#payment-element');
+
+// 3. При изменении количества обновляем PaymentIntent
+async function updateQuantity(newItems) {
+  const { updatedAmount } = await fetch('/update-payment-intent', {
+    method: 'POST',
+    body: JSON.stringify({ 
+      paymentIntentId: paymentIntent.id, 
+      newItems 
+    }),
+  }).then(res => res.json());
+
+  document.getElementById('total').textContent = `$${(updatedAmount / 100).toFixed(2)}`;
+}

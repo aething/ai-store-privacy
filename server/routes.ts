@@ -776,10 +776,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment routes
   app.post("/api/create-payment-intent", async (req: Request, res: Response) => {
     try {
-      const { amount, userId, productId, currency = "usd", couponCode, country: requestCountry, force_country } = req.body;
+      const { amount, userId, productId, currency = "usd", couponCode, country: requestCountry, force_country, quantity = 1 } = req.body;
       
       if (!amount || !userId || !productId) {
         return res.status(400).json({ message: "Amount, userId, and productId are required" });
+      }
+      
+      // Валидация количества
+      const parsedQuantity = parseInt(quantity.toString(), 10);
+      if (isNaN(parsedQuantity) || parsedQuantity < 1) {
+        return res.status(400).json({ message: "Quantity must be a positive number" });
       }
       
       // Validate currency
@@ -818,6 +824,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const metadata: Record<string, string> = {
         userId: userId.toString(),
         productId: productId.toString(),
+        quantity: parsedQuantity.toString(),
         currency,
         country: country || 'unknown'
       };
@@ -1920,6 +1927,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error sending test email:", error);
       res.status(500).json({ message: "Error sending test email" });
+    }
+  });
+  
+  // API endpoint для обновления существующего PaymentIntent с новым количеством товаров
+  app.post("/api/update-payment-intent", async (req: Request, res: Response) => {
+    try {
+      const { paymentIntentId, quantity, userId } = req.body;
+      
+      if (!paymentIntentId || !quantity || !userId) {
+        return res.status(400).json({ 
+          message: "Payment intent ID, quantity and userId are required" 
+        });
+      }
+      
+      // Валидация количества
+      const parsedQuantity = parseInt(quantity.toString(), 10);
+      if (isNaN(parsedQuantity) || parsedQuantity < 1) {
+        return res.status(400).json({ message: "Quantity must be a positive number" });
+      }
+      
+      // Проверка авторизации (userId должен совпадать с сессией)
+      if (!req.isAuthenticated() || req.user?.id !== parseInt(userId.toString(), 10)) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      
+      // Получаем Stripe динамически
+      const Stripe = await import('stripe').then(module => module.default);
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+        apiVersion: '2025-02-24.acacia',
+        telemetry: false
+      });
+      
+      // Получаем текущий PaymentIntent
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (!paymentIntent) {
+        return res.status(404).json({ message: "Payment intent not found" });
+      }
+      
+      // Получаем метаданные для извлечения информации о продукте и пользователе
+      const metadata = paymentIntent.metadata || {};
+      
+      // Проверяем, что платеж связан с правильным пользователем
+      if (metadata.userId && parseInt(metadata.userId, 10) !== parseInt(userId.toString(), 10)) {
+        return res.status(403).json({ message: "Payment intent does not belong to this user" });
+      }
+      
+      // Получаем информацию о продукте
+      const productId = metadata.productId ? parseInt(metadata.productId, 10) : null;
+      
+      if (!productId) {
+        return res.status(400).json({ message: "Product ID not found in payment intent metadata" });
+      }
+      
+      const product = await storage.getProduct(productId);
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      
+      // Получаем базовую сумму за единицу товара
+      const originalAmount = metadata.base_amount ? parseInt(metadata.base_amount, 10) : paymentIntent.amount;
+      const currency = paymentIntent.currency;
+      const originalQuantity = metadata.quantity ? parseInt(metadata.quantity, 10) : 1;
+      
+      // Рассчитываем новую базовую сумму на основе количества
+      const unitAmount = Math.round(originalAmount / originalQuantity);
+      const newBaseAmount = unitAmount * parsedQuantity;
+      
+      // Получаем информацию о налогах
+      const taxRate = metadata.tax_rate ? parseFloat(metadata.tax_rate) / 100 : 0;
+      const taxLabel = metadata.tax_label || 'No Tax';
+      
+      // Рассчитываем новую сумму налога
+      const newTaxAmount = Math.round(newBaseAmount * taxRate);
+      
+      // Рассчитываем новую итоговую сумму
+      const newTotalAmount = newBaseAmount + newTaxAmount;
+      
+      console.log(`Updating PaymentIntent ${paymentIntentId}:
+        Original quantity: ${originalQuantity} -> New quantity: ${parsedQuantity}
+        Unit amount: ${unitAmount} ${currency}
+        Original amount: ${originalAmount} ${currency} -> New base amount: ${newBaseAmount} ${currency}
+        Tax rate: ${taxRate * 100}% (${taxLabel})
+        New tax amount: ${newTaxAmount} ${currency}
+        New total amount: ${newTotalAmount} ${currency}
+      `);
+      
+      // Обновляем PaymentIntent
+      const updatedPaymentIntent = await stripe.paymentIntents.update(
+        paymentIntentId,
+        {
+          amount: newTotalAmount,
+          metadata: {
+            ...metadata,
+            quantity: parsedQuantity.toString(),
+            base_amount: newBaseAmount.toString(),
+            tax_amount: newTaxAmount.toString(),
+            total_amount: newTotalAmount.toString(),
+            updated_at: new Date().toISOString()
+          }
+        }
+      );
+      
+      // Возвращаем обновленный PaymentIntent клиенту
+      res.json({
+        id: updatedPaymentIntent.id,
+        clientSecret: updatedPaymentIntent.client_secret,
+        amount: updatedPaymentIntent.amount,
+        currency: updatedPaymentIntent.currency,
+        baseAmount: newBaseAmount,
+        taxAmount: newTaxAmount,
+        quantity: parsedQuantity,
+        tax: {
+          rate: taxRate,
+          label: taxLabel,
+          amount: newTaxAmount
+        }
+      });
+    } catch (error) {
+      console.error("Error updating payment intent:", error);
+      res.status(500).json({ message: "Error updating payment intent" });
     }
   });
 

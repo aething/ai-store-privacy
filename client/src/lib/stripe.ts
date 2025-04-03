@@ -106,7 +106,10 @@ export async function createPaymentIntent(
   productId: number, 
   userId: number, 
   country?: string | null,
-  couponCode?: string | null
+  couponCode?: string | null,
+  overridePrice?: number,
+  overrideCurrency?: string,
+  quantity: number = 1
 ) {
   console.log('Creating payment intent for:', { productId, userId, country });
   
@@ -131,8 +134,12 @@ export async function createPaymentIntent(
   
   const product: Product = await response.json();
   
-  // Use the appropriate price based on currency
-  const baseAmount = currency === 'eur' ? product.priceEUR : product.price;
+  // Use the appropriate price based on currency or override
+  const baseAmount = overridePrice || (currency === 'eur' ? product.priceEUR : product.price);
+  const finalCurrency = overrideCurrency || currency;
+  
+  // Применяем множитель количества к базовой цене
+  const baseAmountWithQuantity = baseAmount * quantity;
   
   // Расчет налога в зависимости от страны пользователя
   let taxRate = 0;
@@ -182,14 +189,16 @@ export async function createPaymentIntent(
     }
   }
   
-  // Вычисляем сумму налога
-  const taxAmount = taxRate > 0 ? Math.round(baseAmount * taxRate) : 0;
+  // Вычисляем сумму налога с учетом количества
+  const taxAmount = taxRate > 0 ? Math.round(baseAmountWithQuantity * taxRate) : 0;
   
   // Вычисляем полную сумму с налогом
-  const totalAmount = baseAmount + taxAmount;
+  const totalAmount = baseAmountWithQuantity + taxAmount;
   
   console.log('Payment calculation with tax:', {
     baseAmount,
+    baseAmountWithQuantity,
+    quantity,
     taxRate,
     taxAmount,
     totalAmount,
@@ -201,7 +210,7 @@ export async function createPaymentIntent(
   const isStripePrice = !!product.stripeProductId;
   
   // For Stripe products, convert dollar/euro amounts to cents
-  const baseAmountInCents = isStripePrice ? Math.round(baseAmount * 100) : baseAmount;
+  const baseAmountInCents = isStripePrice ? Math.round(baseAmountWithQuantity * 100) : baseAmountWithQuantity;
   const totalAmountInCents = isStripePrice ? Math.round(totalAmount * 100) : totalAmount;
   const taxAmountInCents = isStripePrice ? Math.round(taxAmount * 100) : taxAmount;
   
@@ -214,15 +223,18 @@ export async function createPaymentIntent(
     taxLabel: taxLabel,
     userId,
     productId,
-    currency,
+    currency: finalCurrency,
+    quantity, // Передаем количество
     couponCode: couponCode || undefined, // Only include if we have a coupon
     metadata: {
       country: country || 'unknown',
       taxRate: taxRate.toString(),
       taxLabel: taxLabel,
-      baseAmount: baseAmount.toString(),
+      basePrice: baseAmount.toString(),       // Цена за единицу
+      baseAmount: baseAmountWithQuantity.toString(), // Общая базовая сумма с учетом количества
       taxAmount: taxAmount.toString(),
-      totalWithTax: totalAmount.toString()
+      totalWithTax: totalAmount.toString(),
+      quantity: quantity.toString()           // Добавляем количество в метаданные
     }
   });
   
