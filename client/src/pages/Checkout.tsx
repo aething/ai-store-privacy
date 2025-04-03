@@ -86,6 +86,9 @@ const CheckoutForm = ({
       const lastName = (document.getElementById('lastName') as HTMLInputElement)?.value || '';
       const fullName = `${firstName} ${lastName}`.trim() || user.username || '';
       
+      // Получаем имя для доставки
+      const shippingName = (document.getElementById('shipping_name') as HTMLInputElement)?.value || fullName;
+      
       // Получаем телефон из поля формы
       const phone = (document.getElementById('phone') as HTMLInputElement)?.value || '';
       
@@ -104,6 +107,21 @@ const CheckoutForm = ({
         toast({
           title: "Missing Information",
           description: "Please provide your phone number for delivery updates.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // Проверяем заполнение адресных полей
+      const shippingCountry = (document.getElementById('shipping_address_country') as HTMLSelectElement)?.value;
+      const shippingLine1 = (document.getElementById('shipping_address_line1') as HTMLInputElement)?.value;
+      const shippingPostalCode = (document.getElementById('shipping_address_postal_code') as HTMLInputElement)?.value;
+      
+      if (!shippingCountry || !shippingLine1 || !shippingPostalCode) {
+        toast({
+          title: "Missing Shipping Information",
+          description: "Please complete all shipping address fields.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -138,9 +156,13 @@ const CheckoutForm = ({
         // так как эти настройки используются автоматически из конфигурации Stripe
         receipt_email: email, // Используем email из поля ввода
         shipping: {
-          name: fullName,
-          phone: phone
-          // Address details will be automatically collected from the AddressElement
+          name: shippingName,
+          phone: phone,
+          address: {
+            country: shippingCountry || user?.country || 'DE',
+            line1: shippingLine1 || '',
+            postal_code: shippingPostalCode || ''
+          }
         }
       };
       
@@ -375,17 +397,89 @@ const CheckoutForm = ({
       {/* Добавляем компонент для сбора полной информации о доставке */}
       <div className="mt-6 mb-4">
         <h3 className="text-base font-medium mb-3">Shipping Address</h3>
-        <AddressElement 
-          options={{
-            mode: 'shipping',
-            fields: {
-              phone: 'always'
-            }
-            // Примечание: appearance не поддерживается в типе StripeAddressElementOptions
-            // Мы применяем вместо этого CSS стили через классы
-          }}
-          className="stripe-input-element address-element"
-        />
+        <div className="custom-shipping-form space-y-3">
+          {/* Full Name */}
+          <div className="form-field">
+            <label htmlFor="shipping_name" className="block text-sm font-medium mb-1">Full Name</label>
+            <input 
+              type="text" 
+              id="shipping_name"
+              name="shipping_name"
+              placeholder="John Doe"
+              className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              style={{
+                border: '1px solid #9ca3af',
+                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                fontFamily: 'system-ui, sans-serif',
+                backgroundColor: 'white'
+              }}
+              required
+            />
+          </div>
+          
+          {/* Country */}
+          <div className="form-field">
+            <label htmlFor="shipping_address_country" className="block text-sm font-medium mb-1">Country</label>
+            <select 
+              id="shipping_address_country"
+              name="shipping_address_country"
+              className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              style={{
+                border: '1px solid #9ca3af',
+                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                fontFamily: 'system-ui, sans-serif',
+                backgroundColor: 'white'
+              }}
+              required
+            >
+              <option value="">Select Country</option>
+              <option value="DE">Germany</option>
+              <option value="FR">France</option>
+              <option value="IT">Italy</option>
+              <option value="ES">Spain</option>
+              <option value="US">United States</option>
+              <option value="GB">United Kingdom</option>
+            </select>
+          </div>
+          
+          {/* Address */}
+          <div className="form-field">
+            <label htmlFor="shipping_address_line1" className="block text-sm font-medium mb-1">Address</label>
+            <input 
+              type="text" 
+              id="shipping_address_line1"
+              name="shipping_address_line1"
+              placeholder="123 Main St"
+              className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              style={{
+                border: '1px solid #9ca3af',
+                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                fontFamily: 'system-ui, sans-serif',
+                backgroundColor: 'white'
+              }}
+              required
+            />
+          </div>
+          
+          {/* ZIP Code */}
+          <div className="form-field">
+            <label htmlFor="shipping_address_postal_code" className="block text-sm font-medium mb-1">ZIP Code</label>
+            <input 
+              type="text" 
+              id="shipping_address_postal_code"
+              name="shipping_address_postal_code"
+              placeholder="10115"
+              className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              style={{
+                border: '1px solid #9ca3af',
+                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                fontFamily: 'system-ui, sans-serif',
+                backgroundColor: 'white'
+              }}
+              required
+            />
+          </div>
+        </div>
       </div>
 
       <PaymentElement 
