@@ -107,8 +107,8 @@ export function formatPrice(
     return currency === 'eur' ? '€0.00' : '$0.00';
   }
   
-  // Конвертируем цены из центов умноженных на 100 в тысячи (для отображения €1,399.99 вместо €27.60)
-  const amount = isStripePrice ? price : price / 10000;
+  // Используем цену напрямую, без деления (для отображения €1,399.99)
+  const amount = isStripePrice ? price : price;
   
   if (currency === 'eur') {
     return `€${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
@@ -127,7 +127,7 @@ export function getPriceForCountry(
   product: { price: number; priceEUR: number; stripeProductId?: string }, 
   country: string | undefined | null
 ): number {
-  // ВАЖНО: Все цены в базе данных хранятся в центах и умножены на 100 для отображения в тысячах
+  // ВАЖНО: Все цены в базе данных хранятся непосредственно в их полном значении
   // (например, 1399900 представляет €1,399.99)
   // Эта функция возвращает цену в этом формате для API Stripe
   
@@ -152,8 +152,8 @@ export function formatCurrency(
     return getCurrencySymbol(currency) + '0.00';
   }
   
-  // Конвертируем цены из центов умноженных на 100 в тысячи (для отображения €1,399.99 вместо €27.60)
-  const value = isStripePrice ? amount : amount / 10000;
+  // Используем цену напрямую, без деления (для отображения €1,399.99)
+  const value = isStripePrice ? amount : amount;
   
   const currencyCode = currency.toLowerCase();
   
