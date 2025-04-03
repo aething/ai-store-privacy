@@ -204,15 +204,23 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
       />
       
       {/* Информация о заказе */}
-      <div className="bg-gray-50 p-3 rounded-lg mb-4 text-sm">
-        <div className="font-medium mb-1">Order Summary</div>
-        <div className="flex justify-between mb-1">
-          <span>Product:</span>
-          <span className="font-medium">{productId ? `#${productId}` : 'Selected product'}</span>
+      <div className="bg-gray-50 p-4 rounded-lg mb-4 text-sm shadow-sm">
+        <div className="text-center font-semibold text-gray-800 text-base mb-2 border-b pb-2">
+          {product?.title || 'Your Purchase'}
         </div>
-        <div className="flex justify-between mb-1 text-green-700">
-          <span>Amount:</span>
+        <div className="flex justify-between items-center mb-1 text-gray-700">
+          <span>Price:</span>
           <span className="font-medium">{formatPrice(amount, currency)}</span>
+        </div>
+        {stripeTaxInfo && stripeTaxInfo.amount > 0 && (
+          <div className="flex justify-between items-center mb-1 text-gray-600 text-xs">
+            <span>{stripeTaxInfo.label || 'Tax'}:</span>
+            <span>{formatPrice(stripeTaxInfo.amount, currency)}</span>
+          </div>
+        )}
+        <div className="flex justify-between items-center mt-2 pt-2 border-t text-green-700 font-semibold">
+          <span>Total:</span>
+          <span>{formatPrice(amount + (stripeTaxInfo?.amount || 0), currency)}</span>
         </div>
       </div>
 
