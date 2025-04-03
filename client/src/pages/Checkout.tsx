@@ -89,15 +89,8 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
             name: user.username,
           }
         },
-        // Зарегистрированный домен для Apple Pay и Google Pay
-        payment_method_options: {
-          apple_pay: {
-            pmd_registration_id: REGISTERED_DOMAIN_ID
-          },
-          google_pay: {
-            pmd_registration_id: REGISTERED_DOMAIN_ID
-          }
-        },
+        // Зарегистрированный домен не указываем в confirmParams,
+        // так как эти настройки используются автоматически из конфигурации Stripe
         receipt_email: user.email,
       };
       
@@ -121,36 +114,24 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
         result = { error: linkError };
       } 
       else if (paymentMethod === 'apple_pay') {
-        console.log('Используем особый процесс для Apple Pay с PMD ID...');
-        // Специфическая обработка для Apple Pay
+        console.log('Используем особый процесс для Apple Pay...');
+        // Стандартная обработка для Apple Pay - специфические настройки не требуются
+        // поскольку они настраиваются в платежном намерении на сервере
         const { error: applePayError } = await stripe.confirmPayment({
           elements,
-          confirmParams: {
-            ...confirmParams,
-            payment_method_options: {
-              apple_pay: {
-                pmd_registration_id: REGISTERED_DOMAIN_ID
-              }
-            }
-          },
+          confirmParams,
           redirect: 'if_required',
         });
         
         result = { error: applePayError };
       }
       else if (paymentMethod === 'google_pay') {
-        console.log('Используем особый процесс для Google Pay с PMD ID...');
-        // Специфическая обработка для Google Pay
+        console.log('Используем особый процесс для Google Pay...');
+        // Стандартная обработка для Google Pay - специфические настройки не требуются
+        // поскольку они настраиваются в платежном намерении на сервере
         const { error: googlePayError } = await stripe.confirmPayment({
           elements,
-          confirmParams: {
-            ...confirmParams,
-            payment_method_options: {
-              google_pay: {
-                pmd_registration_id: REGISTERED_DOMAIN_ID
-              }
-            }
-          },
+          confirmParams,
           redirect: 'if_required',
         });
         
@@ -917,25 +898,12 @@ export default function Checkout() {
               // Конфигурация в соответствии с документацией https://docs.stripe.com/payments/link/mobile-payment-element-link
               // и https://docs.stripe.com/payments/link/set-up-link-with-payment-element
               businessName: "Aething AI Platform",
-              // Режим оплаты required для корректной работы Google Pay и Apple Pay
-              mode: 'payment',
-              // Включаем поддерживаемые методы платежей
-              payment_method_types: ['card', 'link'],
+              // При использовании clientSecret не нужно указывать режим payment и методы оплаты
+              // Stripe настроит их автоматически на основе возможностей платежного намерения
               // Настройка кошельков (Google Pay и Apple Pay)
               wallets: {
                 apple_pay: 'auto',
                 google_pay: 'auto'
-              },
-              // Используем зарегистрированный Domain ID для Apple Pay и Google Pay
-              payment_method_options: {
-                apple_pay: {
-                  // Зарегистрированный домен для Apple Pay
-                  pmd_registration_id: REGISTERED_DOMAIN_ID
-                },
-                google_pay: {
-                  // Зарегистрированный домен для Google Pay
-                  pmd_registration_id: REGISTERED_DOMAIN_ID
-                }
               },
               shipping: {
                 allowed_countries: ['US', 'CA', 'DE', 'FR', 'GB', 'IT', 'ES'],
