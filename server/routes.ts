@@ -815,6 +815,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Добавляем диагностическую информацию о передаваемой сумме
       console.log(`Received amount: ${amount} ${currency} ` +
         `(это эквивалентно ${(amount/100).toFixed(2)} ${currency} в основных единицах валюты)`);
+        
+      // ВАЖНО: Проверяем, если сумма не соответствует сотням центов/копеек
+      // Например, если передано 27.60 вместо 2760, умножаем ее на 100
+      if (amount < 50 && String(amount).includes('.')) {
+        console.log(`Обнаружена сумма, которая может быть в основных единицах валюты (${amount}). Конвертируем в центы/копейки.`);
+        amount = Math.round(amount * 100);
+        console.log(`Сконвертированная сумма: ${amount} (центы/копейки)`);
+      }
       
       
       // Валидация количества
@@ -2017,9 +2025,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currency = paymentIntent.currency;
       const originalQuantity = metadata.quantity ? parseInt(metadata.quantity, 10) : 1;
       
+      console.log(`Original amount: ${originalAmount} ${currency} (единица товара: ${originalAmount/originalQuantity})`);
+      
       // Рассчитываем новую базовую сумму на основе количества
       const unitAmount = Math.round(originalAmount / originalQuantity);
       const newBaseAmount = unitAmount * parsedQuantity;
+      
+      console.log(`Новое базовое количество: ${parsedQuantity}, сумма: ${newBaseAmount} ${currency}`);
+      
+      // ИСПРАВЛЕНИЕ: Проверяем, корректно ли сумма выражена в наименьших единицах (центах/копейках)
+      if (newBaseAmount < 100) {
+        console.log(`ВНИМАНИЕ: Очень маленькая сумма ${newBaseAmount} ${currency}. Проверяем, нужна ли конвертация.`);
+        // Если это десятичное число, вероятно, оно выражено в основных единицах валюты
+        if (String(newBaseAmount).includes('.')) {
+          const convertedAmount = Math.round(newBaseAmount * 100);
+          console.log(`Конвертированная сумма: ${convertedAmount} ${currency} (центы/копейки)`);
+          newBaseAmount = convertedAmount;
+        }
+      }
       
       // Получаем информацию о налогах
       const taxRate = metadata.tax_rate ? parseFloat(metadata.tax_rate) / 100 : 0;
@@ -2046,7 +2069,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             tax_amount: newTaxAmount.toString(),
             total_amount: newTotalAmount.toString(),
             updated_at: new Date().toISOString()
-          }
+          },
+          // Добавляем обновление описания, чтобы отразить новое количество
+          description: `Order with ${taxLabel} (quantity: ${parsedQuantity})`
         }
       );
       
