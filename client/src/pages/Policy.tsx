@@ -52,8 +52,11 @@ export default function Policy() {
       path: window.location.pathname
     });
     
-    // Сохраняем позиции для возврата
-    saveScrollPositionForPath('/account');
+    // Важно: НЕ перезаписываем позицию аккаунта здесь, чтобы сохранить исходную
+    // Это позволит при возврате восстановить позицию страницы аккаунта, где был пользователь
+    // saveScrollPositionForPath('/account'); - это приводило к сбросу запомненной позиции
+    
+    // Позицию главной страницы можно перезаписать, если потребуется
     saveScrollPositionForPath('/');
   };
   

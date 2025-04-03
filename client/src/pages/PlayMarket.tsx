@@ -54,27 +54,43 @@ export default function PlayMarket() {
   
   // Скроллим содержимое страницы в начало при загрузке
   useEffect(() => {
-    // Функция для принудительного скроллинга с задержкой и повторением
+    // Надежная функция для скроллинга в самое начало страницы
     const forceScrollToTop = () => {
-      // Мгновенный скроллинг в начало страницы
-      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      // Гарантированно устанавливаем позицию скролла в самое начало
+      window.scrollTo(0, 0);
       
-      // Дополнительный скроллинг с задержкой для надежности
-      setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 10);
-      setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 50);
-      setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 100);
-      setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 300);
+      // Используем также body и documentElement для максимальной совместимости
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
     };
     
-    // Вызываем функцию сразу при монтировании
+    // Используем несколько подходов для гарантированного скролла в начало
+    
+    // 1. Сразу скроллим при монтировании компонента
     forceScrollToTop();
     
-    // Также используем requestAnimationFrame для гарантии скролла после рендеринга
+    // 2. Используем requestAnimationFrame для скролла после рендеринга
     requestAnimationFrame(() => {
       forceScrollToTop();
+      
+      // Еще один RAF для страховки после всех возможных обновлений DOM
+      requestAnimationFrame(forceScrollToTop);
     });
     
-    // Очистка таймеров не требуется из-за короткого времени задержки
+    // 3. Используем таймеры с разными интервалами для надежности
+    const timers = [
+      setTimeout(forceScrollToTop, 0),
+      setTimeout(forceScrollToTop, 10),
+      setTimeout(forceScrollToTop, 50),
+      setTimeout(forceScrollToTop, 100),
+      setTimeout(forceScrollToTop, 300),
+      setTimeout(forceScrollToTop, 500) // Дополнительная проверка через 500мс
+    ];
+    
+    // Удаляем таймеры при размонтировании компонента
+    return () => {
+      timers.forEach(clearTimeout);
+    };
   }, []);
   
   // Функция для обработки установки приложения
