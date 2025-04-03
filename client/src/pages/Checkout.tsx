@@ -386,6 +386,19 @@ const CheckoutForm = ({
             // Мы применяем вместо этого CSS стили через классы
           }}
           className="stripe-input-element address-element"
+          onChange={(event) => {
+            // При изменении Address элемента добавляем класс для стилизации
+            // Этот хук помогает применить стили при динамической загрузке элементов
+            const addressElements = document.querySelectorAll('.address-element iframe');
+            addressElements.forEach(el => {
+              if (el instanceof HTMLElement) {
+                el.style.border = '2px solid #9ca3af';
+                el.style.borderRadius = '0.375rem';
+                el.style.padding = '8px 12px';
+                el.style.backgroundColor = 'white';
+              }
+            });
+          }}
         />
       </div>
 
@@ -575,6 +588,40 @@ export default function Checkout() {
   const taxLabel = taxInfo?.label || DEFAULT_TAX_LABEL;
   const taxAmount = taxInfo?.amount || Math.round(price * DEFAULT_TAX_RATE);
 
+  // Добавляем эффект для стилизации iframe элементов после загрузки страницы
+  useEffect(() => {
+    // Функция, которая применяет стили к iframe элементам
+    const applyStylesToAddressElements = () => {
+      console.log('Applying styles to address elements');
+      const addressIframes = document.querySelectorAll('.address-element iframe, .stripe-input-element iframe');
+      
+      addressIframes.forEach(iframe => {
+        if (iframe instanceof HTMLElement) {
+          iframe.style.border = '2px solid #9ca3af';
+          iframe.style.borderRadius = '0.375rem';
+          iframe.style.padding = '8px 12px';
+          iframe.style.backgroundColor = 'white';
+        }
+      });
+    };
+    
+    // Запускаем функцию при загрузке и с небольшой задержкой
+    // для элементов, которые могут загружаться асинхронно
+    applyStylesToAddressElements();
+    
+    // Запускаем также с небольшой задержкой для асинхронно загружаемых элементов
+    const styleTimeouts = [
+      setTimeout(applyStylesToAddressElements, 500),
+      setTimeout(applyStylesToAddressElements, 1000),
+      setTimeout(applyStylesToAddressElements, 2000)
+    ];
+    
+    // Очистка таймаутов при размонтировании компонента
+    return () => {
+      styleTimeouts.forEach(timeout => clearTimeout(timeout));
+    };
+  }, [clientSecret]); // Запускаем после получения clientSecret, когда Stripe элементы загружены
+  
   // Этот useEffect отвечает за создание PaymentIntent
   useEffect(() => {
     // Выходим сразу, если нет необходимых данных
