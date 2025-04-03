@@ -14,6 +14,7 @@ import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { TaxDisplayBoxSimple } from "@/components/TaxDisplayBoxSimple";
 import { COMPANY_INFO, getVatIdForCountry } from "@shared/companyInfo";
 import { createPaymentIntent, updatePaymentIntentQuantity } from "@/api/payments";
+import { countries } from "@/data/countries";
 
 const CheckoutForm = ({ 
   productId, 
@@ -433,12 +434,11 @@ const CheckoutForm = ({
               required
             >
               <option value="">Select Country</option>
-              <option value="DE">Germany</option>
-              <option value="FR">France</option>
-              <option value="IT">Italy</option>
-              <option value="ES">Spain</option>
-              <option value="US">United States</option>
-              <option value="GB">United Kingdom</option>
+              {countries.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.name}
+                </option>
+              ))}
             </select>
           </div>
           
