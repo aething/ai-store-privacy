@@ -65,12 +65,27 @@ export default function Account() {
     
     // Проверяем флаг скролла в начало (новый механизм)
     const shouldScrollToTop = sessionStorage.getItem('account_scroll_to_top') === 'true';
-    const scrollToTopTimestamp = parseInt(sessionStorage.getItem('account_scroll_timestamp') || '0');
+    // Проверяем флаг скролла к разделу Policies
+    const shouldScrollToPolicies = sessionStorage.getItem('account_scroll_to_policies') === 'true';
+    const scrollTimestamp = parseInt(sessionStorage.getItem('account_scroll_timestamp') || '0');
     
     const now = Date.now();
     
     // Определяем, что делать со скроллом
-    if (shouldScrollToTop && now - scrollToTopTimestamp < 5000) {
+    if (shouldScrollToPolicies && now - scrollTimestamp < 5000) {
+      // Если есть свежий флаг для скролла к разделу Policies
+      console.log('[Account] Скроллим к разделу Policies');
+      
+      // Импортируем утилиту для скролла
+      import("@/lib/scrollUtils").then(({ scrollToAccountPoliciesSection }) => {
+        // Прокручиваем к разделу Policies
+        scrollToAccountPoliciesSection(true);
+        
+        // Очищаем флаг
+        sessionStorage.removeItem('account_scroll_to_policies');
+        sessionStorage.removeItem('account_scroll_timestamp');
+      });
+    } else if (shouldScrollToTop && now - scrollTimestamp < 5000) {
       // Если есть свежий флаг для скролла в начало, устанавливаем в начало
       console.log('[Account] Скроллим в начало страницы');
       
@@ -882,7 +897,7 @@ export default function Account() {
       )}
       
       {/* Policies */}
-      <div className="mb-8">
+      <div id="policies-section" className="mb-8">
         <h2 className="text-lg font-medium mb-4">{t("policies")}</h2>
         <Card className="rounded-lg divide-y">
           {policies.map((policy, index) => (

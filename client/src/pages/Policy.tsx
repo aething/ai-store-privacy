@@ -118,24 +118,26 @@ export default function Policy() {
   
   return (
     <SwipeBack onSwipeBack={() => {
-      // Принудительно устанавливаем скролл в начало для страницы Account
-      import("@/lib/scrollUtils").then(({ clearScrollPositionForPath }) => {
+      // Устанавливаем скролл для страницы Account к разделу Policies
+      import("@/lib/scrollUtils").then(({ scrollToAccountPoliciesSection }) => {
         // Логируем для отладки
-        console.log('[Policy] Свайп назад - возвращаемся на страницу Account с установкой скролла в начало');
+        console.log('[Policy] Свайп назад - возвращаемся с прокруткой к разделу Policies');
         
-        // Удаляем сохраненную позицию скролла для страницы аккаунта
-        clearScrollPositionForPath('/account');
-        
-        // Устанавливаем флаг, чтобы страница аккаунт установила скролл в начало
-        sessionStorage.setItem('account_scroll_to_top', 'true');
+        // Устанавливаем флаг для прокрутки к разделу Policies
+        sessionStorage.setItem('account_scroll_to_policies', 'true');
         sessionStorage.setItem('account_scroll_timestamp', Date.now().toString());
         
         // Используем более надежное API для работы с историей браузера
         if (window.history && window.history.length > 1) {
           window.history.back();
+          
+          // Устанавливаем таймер для прокрутки после возврата
+          setTimeout(() => {
+            scrollToAccountPoliciesSection(true);
+          }, 300); // Задержка для уверенности, что страница уже загрузилась
         } else {
           // Запасной вариант, если история недоступна
-          window.location.href = '/account';
+          window.location.href = '/account#policies-section';
         }
       });
     }}>
@@ -146,25 +148,26 @@ export default function Policy() {
           <button 
             className="p-2 rounded-full hover:bg-gray-100"
             onClick={() => {
-              // Принудительно устанавливаем скролл в начало для страницы Account
-              // Это нужно чтобы гарантировать, что при возврате страница будет в начале
-              import("@/lib/scrollUtils").then(({ clearScrollPositionForPath }) => {
+              // Устанавливаем скролл для страницы Account к разделу Policies
+              import("@/lib/scrollUtils").then(({ scrollToAccountPoliciesSection }) => {
                 // Логируем для отладки
-                console.log('[Policy] Закрываем политику, сбрасываем позицию скролла Account');
+                console.log('[Policy] Закрываем политику, устанавливаем прокрутку к разделу Policies');
                 
-                // Удаляем сохраненную позицию скролла для страницы аккаунта
-                clearScrollPositionForPath('/account');
-                
-                // Устанавливаем флаг, чтобы страница аккаунт установила скролл в начало
-                sessionStorage.setItem('account_scroll_to_top', 'true');
+                // Устанавливаем флаг для прокрутки к разделу Policies
+                sessionStorage.setItem('account_scroll_to_policies', 'true');
                 sessionStorage.setItem('account_scroll_timestamp', Date.now().toString());
                 
                 // Используем более надежное API для работы с историей браузера
                 if (window.history && window.history.length > 1) {
                   window.history.back();
+                  
+                  // Устанавливаем таймер для прокрутки после возврата
+                  setTimeout(() => {
+                    scrollToAccountPoliciesSection(true);
+                  }, 300); // Задержка для уверенности, что страница уже загрузилась
                 } else {
                   // Запасной вариант, если история недоступна
-                  window.location.href = '/account';
+                  window.location.href = '/account#policies-section';
                 }
               });
             }}

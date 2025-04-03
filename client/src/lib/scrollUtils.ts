@@ -365,5 +365,40 @@ export function isNavigatingFrom(): boolean {
   return false; // Для совместимости со старым кодом
 }
 
+/**
+ * Прокручивает страницу Account к разделу Policies
+ * @param smooth Использовать плавную анимацию
+ */
+export function scrollToAccountPoliciesSection(smooth: boolean = true): void {
+  // Функция для выполнения прокрутки
+  const scrollToPoliciesSection = (delay: number = 0) => {
+    setTimeout(() => {
+      // Находим раздел Policies по ID или классу
+      const policiesSection = document.querySelector('#policies-section');
+      
+      if (policiesSection) {
+        policiesSection.scrollIntoView({
+          behavior: smooth ? 'smooth' : 'auto',
+          block: 'start'
+        });
+        console.log(`[ScrollUtils] Прокручено к разделу Policies (задержка: ${delay}ms)`);
+      } else {
+        // Если элемент не найден, используем приблизительную прокрутку
+        const approximatePosition = window.innerHeight * 1.5; // Примерно 1.5 экрана вниз
+        window.scrollTo({
+          top: approximatePosition,
+          behavior: smooth ? 'smooth' : 'auto'
+        });
+        console.log(`[ScrollUtils] Приблизительная прокрутка к разделу Policies (${approximatePosition}px, задержка: ${delay}ms)`);
+      }
+    }, delay);
+  };
+  
+  // Прокручиваем несколько раз с разными задержками для надежности
+  scrollToPoliciesSection(0);
+  scrollToPoliciesSection(100);
+  scrollToPoliciesSection(300);
+}
+
 // Инициализируем систему при загрузке модуля
 initScrollSystem();
