@@ -478,12 +478,6 @@ export default function Checkout() {
                   {formatPrice(totalPrice, currency, isStripePrice)}
                 </td>
               </tr>
-              {/* Отладочная строка, показывающая как выполняется расчет итоговой суммы */}
-              <tr className="text-xs">
-                <td colSpan={2} className="text-center pt-1 text-green-700 italic">
-                  ({formatPrice(basePrice, currency, isStripePrice)} + {formatPrice(calculatedTaxAmount, currency, isStripePrice)})
-                </td>
-              </tr>
             </tbody>
           </table>
           
