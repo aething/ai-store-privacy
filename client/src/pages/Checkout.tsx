@@ -336,6 +336,20 @@ const CheckoutForm = ({
         </div>
       </div>
 
+      {/* Поле для ввода email */}
+      <div className="mt-6 mb-4">
+        <h3 className="text-base font-medium mb-3">Email Address</h3>
+        <div className="relative">
+          <input 
+            type="email" 
+            id="customerEmail" 
+            name="customerEmail" 
+            className="w-full px-3 py-2 text-gray-900 rounded-md border border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            placeholder="email@example.com"
+          />
+        </div>
+      </div>
+
       {/* Основной элемент оплаты с поддержкой Apple Pay, Google Pay и Link */}
       {/* Добавляем компонент для сбора полной информации о доставке */}
       <div className="mt-6 mb-4">
