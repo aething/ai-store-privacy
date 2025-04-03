@@ -613,11 +613,17 @@ export default function Checkout() {
       
       // Вызываем API для обновления PaymentIntent с новым количеством
       try {
-        const { amount, taxAmount: updatedTaxAmount } = await updatePaymentIntentQuantity(
+        console.log(`Calling updatePaymentIntentQuantity with ID: ${paymentIntentId}, userID: ${user.id}, quantity: ${newQuantity}`);
+        const result = await updatePaymentIntentQuantity(
           paymentIntentId,
           user.id,
           newQuantity
         );
+        
+        // Добавляем больше логов для отладки
+        console.log('Result from update API:', result);
+        
+        const { amount, taxAmount: updatedTaxAmount } = result;
         
         console.log(`Updated payment intent with new quantity ${newQuantity}:`, {
           amount,
