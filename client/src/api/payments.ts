@@ -94,14 +94,21 @@ export async function createPaymentIntent(
   // Рассчитываем налог на основе страны пользователя
   const { rate, label } = calculateTaxRate(country);
   
-  // Вычисляем базовую сумму с учетом количества
-  const baseAmount = price * quantity;
+  // Stripe требует указывать суммы в мельчайших единицах валюты (центы, копейки)
+  // Сначала вычисляем базовую сумму как валюту с плавающей точкой
+  const baseAmountFloat = price * quantity;
   
-  // Вычисляем сумму налога (округляем до целого)
-  const taxAmount = rate > 0 ? Math.round(baseAmount * rate) : 0;
+  // Вычисляем сумму налога (как валюту с плавающей точкой)
+  const taxAmountFloat = rate > 0 ? baseAmountFloat * rate : 0;
   
-  // Вычисляем полную сумму с налогом
-  const totalAmount = baseAmount + taxAmount;
+  // Вычисляем полную сумму с налогом (как валюту с плавающей точкой)
+  const totalAmountFloat = baseAmountFloat + taxAmountFloat;
+  
+  // Теперь конвертируем все суммы в мельчайшие единицы валюты (центы, копейки)
+  // Умножаем на 100 и округляем, чтобы получить целое число
+  const baseAmount = Math.round(baseAmountFloat * 100);
+  const taxAmount = Math.round(taxAmountFloat * 100);
+  const totalAmount = Math.round(totalAmountFloat * 100);
   
   // Формируем метаданные для создания платежного намерения
   const metadata = {

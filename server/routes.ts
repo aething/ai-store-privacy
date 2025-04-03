@@ -803,6 +803,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Amount, userId, and productId are required" });
       }
       
+      // ВАЖНО: Проверка, что сумма передана в виде мельчайших единиц валюты (центы, копейки)
+      // Stripe требует суммы в центах/копейках, поэтому amount должен быть целым числом
+      // и должен быть достаточно большим (например, €10.00 = 1000 центов, $3248.00 = 324800 центов)
+      if (amount < 1000) {
+        console.warn(`WARNING: Received very small amount: ${amount} ${currency}. ` +
+          `This might indicate that the amount is not in the smallest currency unit (cents/pennies). ` +
+          `For example, $3248.00 should be passed as 324800, not 3248.`);
+      }
+      
+      // Добавляем диагностическую информацию о передаваемой сумме
+      console.log(`Received amount: ${amount} ${currency} ` +
+        `(это эквивалентно ${(amount/100).toFixed(2)} ${currency} в основных единицах валюты)`);
+      
+      
       // Валидация количества
       const parsedQuantity = parseInt(quantity.toString(), 10);
       if (isNaN(parsedQuantity) || parsedQuantity < 1) {
