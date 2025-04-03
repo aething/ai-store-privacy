@@ -630,7 +630,7 @@ export default function Checkout() {
           taxAmount: updatedTaxAmount
         });
         
-        // Обновляем информацию о налогах
+        // Обновляем информацию о налогах и clientSecret для Stripe
         if (updatedTaxAmount) {
           setTaxInfo(prev => ({
             ...prev,
@@ -638,10 +638,11 @@ export default function Checkout() {
           }));
         }
         
-        toast({
-          title: "Quantity updated",
-          description: `Quantity changed to ${newQuantity}`,
-        });
+        // Обновляем clientSecret, чтобы Stripe перегрузил форму оплаты с новыми данными
+        if (result.clientSecret) {
+          console.log('Обновляем clientSecret для Stripe Elements');
+          setClientSecret(result.clientSecret);
+        }
       } catch (apiError) {
         console.error("Error updating payment intent via API:", apiError);
         // Показываем уведомление, но не сбрасываем количество

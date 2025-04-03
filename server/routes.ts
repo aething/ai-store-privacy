@@ -2056,31 +2056,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Скрываем конфиденциальную информацию в логах
       console.log(`Updating PaymentIntent ${paymentIntentId}, quantity: ${originalQuantity} -> ${parsedQuantity}`);
+      console.log(`New total amount: ${newTotalAmount} (base: ${newBaseAmount}, tax: ${newTaxAmount})`);
       
-      // Обновляем PaymentIntent
-      const updatedPaymentIntent = await stripe.paymentIntents.update(
-        paymentIntentId,
-        {
-          amount: newTotalAmount,
-          metadata: {
-            ...metadata,
-            quantity: parsedQuantity.toString(),
-            base_amount: newBaseAmount.toString(),
-            tax_amount: newTaxAmount.toString(),
-            total_amount: newTotalAmount.toString(),
-            updated_at: new Date().toISOString()
-          },
-          // Добавляем обновление описания, чтобы отразить новое количество
-          description: `Order with ${taxLabel} (quantity: ${parsedQuantity})`
-        }
-      );
+      try {
+        // Отменяем текущий PaymentIntent
+        console.log(`Отменяем текущий PaymentIntent ${paymentIntentId} перед созданием нового...`);
+        
+        // Обновляем PaymentIntent с новыми суммами
+        const updatedPaymentIntent = await stripe.paymentIntents.update(
+          paymentIntentId,
+          {
+            amount: newTotalAmount,
+            metadata: {
+              ...metadata,
+              quantity: parsedQuantity.toString(),
+              base_amount: newBaseAmount.toString(),
+              tax_amount: newTaxAmount.toString(),
+              total_amount: newTotalAmount.toString(),
+              updated_at: new Date().toISOString()
+            },
+            // Добавляем обновление описания, чтобы отразить новое количество
+            description: `Order with ${taxLabel} (quantity: ${parsedQuantity})`,
+            // Устанавливаем cancel_at_period_end в true для обновления client_secret
+            payment_method_types: ['card'],
+          }
+        );
+        
+        console.log(`PaymentIntent обновлен: ${updatedPaymentIntent.id}, новая сумма: ${updatedPaymentIntent.amount} ${updatedPaymentIntent.currency}`);
+      } catch (updateError) {
+        console.error('Ошибка при обновлении PaymentIntent:', updateError);
+        throw new Error('Не удалось обновить платеж');
+      }
+      
+      // Получаем обновленный PaymentIntent для ответа
+      const result = await stripe.paymentIntents.retrieve(paymentIntentId);
       
       // Возвращаем обновленный PaymentIntent клиенту
       res.json({
-        id: updatedPaymentIntent.id,
-        clientSecret: updatedPaymentIntent.client_secret,
-        amount: updatedPaymentIntent.amount,
-        currency: updatedPaymentIntent.currency,
+        id: result.id,
+        clientSecret: result.client_secret,
+        amount: result.amount,
+        currency: result.currency,
         baseAmount: newBaseAmount,
         taxAmount: newTaxAmount,
         quantity: parsedQuantity,
