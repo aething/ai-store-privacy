@@ -46,6 +46,9 @@ const injectStripeScript = (): Promise<void> => {
   });
 };
 
+// Зарегистрированный домен ID для Apple Pay и Google Pay в Stripe
+export const REGISTERED_DOMAIN_ID = 'pmd_1R9hc8AiJjJJTX2U9R70fM4m';
+
 // Модифицированная функция для загрузки Stripe с ручным добавлением скрипта
 const customLoadStripe = async (key: string, maxRetries = 5): Promise<Stripe | null> => {
   // Сначала пробуем загрузить скрипт вручную
@@ -65,12 +68,17 @@ const customLoadStripe = async (key: string, maxRetries = 5): Promise<Stripe | n
         await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
       }
       
-      // Пробуем загрузить Stripe с нашим ключом
+      // Пробуем загрузить Stripe с нашим ключом и настройками PMD для Apple Pay/Google Pay
       const stripe = await loadStripe(key, {
         stripeAccount: undefined,
+        // Указываем наш зарегистрированный домен для Apple Pay и Google Pay
+        apiVersion: undefined, // Используем последнюю версию API
+        betas: ['payment_element_apple_pay_beta_1', 'payment_element_google_pay_beta_1'],
+        // Дополнительные опции для новых методов оплаты
+        locale: 'auto',
       });
       
-      console.log('Stripe loaded successfully!');
+      console.log('Stripe loaded successfully with PMD support!');
       return stripe;
     } catch (error) {
       lastError = error;

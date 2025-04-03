@@ -6,7 +6,7 @@ import { useAppContext } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import { useStripe, Elements, PaymentElement, useElements, LinkAuthenticationElement, AddressElement } from '@stripe/react-stripe-js';
 import { useEffect, useState } from "react";
-import stripePromise from "@/lib/stripe";
+import stripePromise, { REGISTERED_DOMAIN_ID } from "@/lib/stripe";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import { apiRequest } from "@/lib/queryClient";
 import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
@@ -89,6 +89,15 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
             name: user.username,
           }
         },
+        // Зарегистрированный домен для Apple Pay и Google Pay
+        payment_method_options: {
+          apple_pay: {
+            pmd_registration_id: REGISTERED_DOMAIN_ID
+          },
+          google_pay: {
+            pmd_registration_id: REGISTERED_DOMAIN_ID
+          }
+        },
         receipt_email: user.email,
       };
       
@@ -100,7 +109,7 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
       // Разные методы подтверждения в зависимости от выбранного способа оплаты
       let result;
       
-      // Для Link нужно особое подтверждение
+      // Специфические обработки для разных платежных методов
       if (paymentMethod === 'link') {
         console.log('Используем особый процесс для Link...');
         const { error: linkError } = await stripe.confirmPayment({
@@ -110,8 +119,45 @@ const CheckoutForm = ({ productId, amount, currency }: { productId: number; amou
         });
         
         result = { error: linkError };
-      } else {
-        // Стандартное подтверждение для всех остальных методов
+      } 
+      else if (paymentMethod === 'apple_pay') {
+        console.log('Используем особый процесс для Apple Pay с PMD ID...');
+        // Специфическая обработка для Apple Pay
+        const { error: applePayError } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            ...confirmParams,
+            payment_method_options: {
+              apple_pay: {
+                pmd_registration_id: REGISTERED_DOMAIN_ID
+              }
+            }
+          },
+          redirect: 'if_required',
+        });
+        
+        result = { error: applePayError };
+      }
+      else if (paymentMethod === 'google_pay') {
+        console.log('Используем особый процесс для Google Pay с PMD ID...');
+        // Специфическая обработка для Google Pay
+        const { error: googlePayError } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            ...confirmParams,
+            payment_method_options: {
+              google_pay: {
+                pmd_registration_id: REGISTERED_DOMAIN_ID
+              }
+            }
+          },
+          redirect: 'if_required',
+        });
+        
+        result = { error: googlePayError };
+      }
+      else {
+        // Стандартное подтверждение для всех остальных методов (обычные карты)
         result = await stripe.confirmPayment({
           elements,
           confirmParams,
@@ -871,12 +917,23 @@ export default function Checkout() {
               // Конфигурация в соответствии с документацией https://docs.stripe.com/payments/link/mobile-payment-element-link
               // и https://docs.stripe.com/payments/link/set-up-link-with-payment-element
               businessName: "Aething AI Platform",
-              // Включаем все доступные методы оплаты
+              // Включаем все доступные методы оплаты с зарегистрированным доменом
               payment_method_types: ['card', 'link', 'apple_pay', 'google_pay'],
               // Настройка wallets для Apple Pay и Google Pay
               wallets: {
                 apple_pay: 'auto',
                 google_pay: 'auto'
+              },
+              // Используем зарегистрированный Domain ID для Apple Pay и Google Pay
+              payment_method_options: {
+                apple_pay: {
+                  // Зарегистрированный домен для Apple Pay
+                  pmd_registration_id: REGISTERED_DOMAIN_ID
+                },
+                google_pay: {
+                  // Зарегистрированный домен для Google Pay
+                  pmd_registration_id: REGISTERED_DOMAIN_ID
+                }
               },
               shipping: {
                 allowed_countries: ['US', 'CA', 'DE', 'FR', 'GB', 'IT', 'ES'],
