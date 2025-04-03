@@ -3,9 +3,11 @@ import { UseFormRegisterReturn } from "react-hook-form";
 
 interface MaterialInputProps extends InputHTMLAttributes<HTMLInputElement> {
   id: string;
+  name?: string;
   label: string;
   register?: UseFormRegisterReturn;
   error?: string;
+  autoComplete?: string;
 }
 
 const MaterialInput = forwardRef<HTMLInputElement, MaterialInputProps>(

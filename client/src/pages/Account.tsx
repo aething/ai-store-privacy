@@ -506,13 +506,20 @@ export default function Account() {
         
         <Card className="p-6 mb-4">
           {showLoginForm ? (
-            <form onSubmit={handleLoginSubmit(handleLogin)}>
+            <form 
+              id="login-form" 
+              name="login-form"
+              onSubmit={handleLoginSubmit(handleLogin)}
+              autoComplete="on"
+            >
               <div className="space-y-4">
                 <div>
                   <div className="relative">
                     <MaterialInput
                       id="username"
+                      name="username"
                       label="Username"
+                      autoComplete="username"
                       register={registerLogin("username")}
                       error={loginErrors.username?.message}
                     />
@@ -526,8 +533,10 @@ export default function Account() {
                   <div className="relative">
                     <MaterialInput
                       id="password"
+                      name="password"
                       type="password"
                       label="Password"
+                      autoComplete="current-password"
                       register={registerLogin("password")}
                       error={loginErrors.password?.message}
                     />
@@ -548,12 +557,19 @@ export default function Account() {
               </div>
             </form>
           ) : (
-            <form onSubmit={handleSignupSubmit(handleRegister)}>
+            <form 
+              id="signup-form"
+              name="signup-form"
+              onSubmit={handleSignupSubmit(handleRegister)}
+              autoComplete="on"
+            >
               <div className="space-y-4">
                 <div>
                   <MaterialInput
                     id="signup-username"
+                    name="username"
                     label="Username"
+                    autoComplete="username"
                     register={registerSignup("username")}
                     error={signupErrors.username?.message}
                   />
@@ -562,8 +578,10 @@ export default function Account() {
                 <div>
                   <MaterialInput
                     id="signup-email"
+                    name="email"
                     type="email"
                     label="Email"
+                    autoComplete="email"
                     register={registerSignup("email")}
                     error={signupErrors.email?.message}
                   />
@@ -572,8 +590,10 @@ export default function Account() {
                 <div>
                   <MaterialInput
                     id="signup-password"
+                    name="password"
                     type="password"
                     label="Password"
+                    autoComplete="new-password"
                     register={registerSignup("password")}
                     error={signupErrors.password?.message}
                   />
@@ -706,16 +726,25 @@ export default function Account() {
       <div className="mb-6">
         <h2 className="text-lg font-medium mb-4">{t("personalInformation")}</h2>
         <Card className="p-4 rounded-lg">
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form 
+            id="profile-form"
+            name="profile-form"
+            onSubmit={handleSubmit(onSubmit)}
+            autoComplete="on"
+          >
             <MaterialInput
               id="name"
+              name="name"
               label={t("name") || "Full Name"}
+              autoComplete="name"
               register={register("name")}
               error={errors.name?.message}
             />
             <MaterialInput
               id="phone"
+              name="phone"
               label={t("phone") || "Phone Number"}
+              autoComplete="tel"
               register={register("phone")}
               error={errors.phone?.message}
             />
