@@ -295,6 +295,18 @@ const CheckoutForm = ({
             }}
           />
         </div>
+        
+        {/* Поле для ввода названия компании покупателя */}
+        <div>
+          <label htmlFor="companyName" className="block text-sm font-medium mb-1">Company Name (Optional)</label>
+          <input 
+            type="text" 
+            id="companyName"
+            name="companyName"
+            placeholder="Acme Corporation"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
       </div>
       
       {/* Информация о заказе */}
@@ -1114,11 +1126,8 @@ export default function Checkout() {
               // Убираем businessName, так как он не поддерживается в типе StripeElementsOptionsClientSecret
               // При использовании clientSecret не нужно указывать режим payment и методы оплаты
               // Stripe настроит их автоматически на основе возможностей платежного намерения
-              // Настройка кошельков (Google Pay и Apple Pay)
-              wallets: {
-                apple_pay: 'auto',
-                google_pay: 'auto'
-              },
+              // В версии Stripe Elements с clientSecret нельзя использовать напрямую wallets
+              // Они настраиваются автоматически на основе возможностей платежа
               shipping: {
                 allowed_countries: ['US', 'CA', 'DE', 'FR', 'GB', 'IT', 'ES'],
                 // Цифровые товары, доставки не требуется
