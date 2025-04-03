@@ -249,9 +249,25 @@ const CheckoutForm = ({
           options={{
             defaultValues: {
               email: user?.email || '',
+            },
+            appearance: {
+              theme: 'flat',
+              variables: {
+                fontFamily: 'system-ui, sans-serif',
+                borderRadius: '4px'
+              },
+              rules: {
+                '.Input': {
+                  border: '1px solid #9ca3af',
+                  boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                  backgroundColor: 'white'
+                },
+                '.Input:focus': {
+                  boxShadow: '0 0 0 1px #3b82f6, 0 1px 2px 0 rgb(0 0 0 / 0.05)'
+                }
+              }
             }
           }}
-          className="border border-gray-400 rounded-md p-3 shadow-sm"
         />
         
         {/* Добавляем поля для ввода имени и фамилии */}
@@ -389,9 +405,25 @@ const CheckoutForm = ({
             mode: 'shipping',
             fields: {
               phone: 'always'
+            },
+            appearance: {
+              theme: 'flat',
+              variables: {
+                fontFamily: 'system-ui, sans-serif',
+                borderRadius: '4px'
+              },
+              rules: {
+                '.Input': {
+                  border: '1px solid #9ca3af',
+                  boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                  backgroundColor: 'white'
+                },
+                '.Input:focus': {
+                  boxShadow: '0 0 0 1px #3b82f6, 0 1px 2px 0 rgb(0 0 0 / 0.05)'
+                }
+              }
             }
           }}
-          className="border border-gray-400 rounded-md p-3 shadow-sm"
         />
       </div>
 
@@ -404,9 +436,25 @@ const CheckoutForm = ({
           },
           fields: {
             billingDetails: 'never'
+          },
+          appearance: {
+            theme: 'flat',
+            variables: {
+              fontFamily: 'system-ui, sans-serif',
+              borderRadius: '4px'
+            },
+            rules: {
+              '.Input': {
+                border: '1px solid #9ca3af',
+                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                backgroundColor: 'white'
+              },
+              '.Input:focus': {
+                boxShadow: '0 0 0 1px #3b82f6, 0 1px 2px 0 rgb(0 0 0 / 0.05)'
+              }
+            }
           }
         }}
-        className="border border-gray-400 rounded-md p-3 shadow-sm"
       />
       
       <button 
