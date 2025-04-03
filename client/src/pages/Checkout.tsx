@@ -27,7 +27,7 @@ const CheckoutForm = ({
   amount: number; 
   currency: 'usd' | 'eur'; 
   product?: Product;
-  stripeTaxInfo?: {amount: number; rate: number; label: string; display: string} | null;
+  stripeTaxInfo?: {amount: number; rate: number; label: string; display?: string} | null;
   clientSecret: string;
 }) => {
   const stripe = useStripe();
@@ -395,7 +395,7 @@ export default function Checkout() {
   const [stripeLoadingFailed, setStripeLoadingFailed] = useState(false);
   const [paymentIntentError, setPaymentIntentError] = useState(false);
   const [taxInfo, setTaxInfo] = useState<{rate: number; label: string; amount: number}>({ rate: 0, label: 'Tax', amount: 0 });
-  const [stripeTaxInfo, setStripeTaxInfo] = useState<{amount: number; rate: number; label: string; display: string} | null>(null);
+  const [stripeTaxInfo, setStripeTaxInfo] = useState<{amount: number; rate: number; label: string; display?: string} | null>(null);
   const [demoUser, setDemoUser] = useState<any>(null);
   
   // Добавляем состояние для отслеживания количества и ID PaymentIntent
@@ -1076,7 +1076,7 @@ export default function Checkout() {
             options={{ 
               clientSecret,
               appearance: {
-                theme: 'stripe',
+                theme: 'flat',
                 variables: {
                   colorPrimary: '#6200EE',
                   fontFamily: 'system-ui, sans-serif',
@@ -1126,13 +1126,8 @@ export default function Checkout() {
               // Убираем businessName, так как он не поддерживается в типе StripeElementsOptionsClientSecret
               // При использовании clientSecret не нужно указывать режим payment и методы оплаты
               // Stripe настроит их автоматически на основе возможностей платежного намерения
-              // В версии Stripe Elements с clientSecret нельзя использовать напрямую wallets
-              // Они настраиваются автоматически на основе возможностей платежа
-              shipping: {
-                allowed_countries: ['US', 'CA', 'DE', 'FR', 'GB', 'IT', 'ES'],
-                // Цифровые товары, доставки не требуется
-                type: 'digital'
-              },
+              // В версии Stripe Elements с clientSecret нельзя использовать shipping опции в корне
+              // Они доступны только при сборе платежных данных через AddressElement
               // Добавляем режим отладки для диагностики
               loader: 'always'
             }}
