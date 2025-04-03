@@ -35,6 +35,35 @@ iframe.StripeField,
   border-radius: 0.375rem !important;
 }
 
+/* Агрессивная стилизация для полей ввода адреса */
+[data-component-type="AddressElement"] iframe,
+[data-component-id*="address-element"] iframe,
+.AddressElement iframe,
+.StripeAddressElement iframe,
+.address-element iframe,
+div[class*="AddressElement"] iframe,
+div[class*="Input-"] iframe,
+.address-element input[type],
+.address-element div[role="presentation"] iframe {
+  border: 1px solid #9ca3af !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  background-color: white !important;
+  border-radius: 0.375rem !important;
+  margin-bottom: 4px !important;
+  padding: 8px 12px !important;
+}
+
+/* Стилизация для полей платежного элемента */
+.payment-element iframe,
+.payment-element [data-component-id*="payment-element"] iframe,
+[id="payment-element"] iframe {
+  border: 1px solid #9ca3af !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  background-color: white !important;
+  border-radius: 0.375rem !important;
+  padding: 8px 12px !important;
+}
+
 /* Stripe Additional Styling for Different Elements */
 .StripePaymentElement *,
 .StripeAddressElement *,
@@ -42,10 +71,65 @@ iframe.StripeField,
   font-family: system-ui, sans-serif !important;
 }
 
-/* Try to target the actual inputs regardless of wrappers */
-#payment-element [role="presentation"] iframe,
-#link-authentication-element [role="presentation"] iframe {
+/* Специфические стили для элементов Stripe AddressElement */
+.StripeElement--address .Input,
+.StripeAddressElement .Input,
+.address-element .Input,
+div[data-component-type="AddressElement"] .Input,
+[class*="AddressElement_"] .Input {
   border: 1px solid #9ca3af !important;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
   border-radius: 0.375rem !important;
+  padding: 8px 12px !important;
+}
+
+/* Стили для выпадающих списков в AddressElement */
+.address-element select,
+.StripeAddressElement select,
+div[data-component-type="AddressElement"] select,
+[class*="AddressElement_"] select {
+  border: 1px solid #9ca3af !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  border-radius: 0.375rem !important;
+  padding: 8px 12px !important;
+  margin: 4px 0 !important;
+}
+
+/* Try to target the actual inputs regardless of wrappers */
+#payment-element [role="presentation"] iframe,
+#link-authentication-element [role="presentation"] iframe,
+.stripe-input-element [role="presentation"] iframe,
+div[class*="ElementsUI"] iframe,
+div[class*="ModalContainer"] iframe,
+div[id^="stripe-"] iframe,
+div[class^="stripe-"] iframe,
+form div[role="presentation"] iframe,
+.address-element * iframe {
+  border: 1px solid #9ca3af !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  border-radius: 0.375rem !important;
+}
+
+/* Специальные стили для контейнеров iframes в Stripe */
+.address-element > div,
+[data-component-type="AddressElement"] > div {
+  margin-bottom: 8px !important;
+}
+
+/* Сверхспецифичные стили для AddressElement - все поля внутри него */
+form .AddressElement input,
+form .StripeAddressElement input,
+.address-element input,
+.stripe-input-element input,
+[class*="StripeElement"] input,
+[class*="Input-container"] input,
+*[data-component-type="AddressElement"] input,
+.address-element select,
+.address-element *[role="textbox"] {
+  border: 1px solid #9ca3af !important;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+  background-color: white !important;
+  border-radius: 0.375rem !important;
+  padding: 8px 12px !important;
+  font-family: system-ui, sans-serif !important;
 }

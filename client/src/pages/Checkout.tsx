@@ -129,14 +129,14 @@ const CheckoutForm = ({
         // Метаданные для отслеживания платежа
         payment_method_data: {
           billing_details: {
-            email: user.email,
+            email: email, // Используем email из поля ввода
             name: fullName,
             phone: phone
           }
         },
         // Зарегистрированный домен не указываем в confirmParams,
         // так как эти настройки используются автоматически из конфигурации Stripe
-        receipt_email: user.email,
+        receipt_email: email, // Используем email из поля ввода
         shipping: {
           name: fullName,
           phone: phone
@@ -146,7 +146,7 @@ const CheckoutForm = ({
       
       console.log('Используем confirmPayment с параметрами:', {
         returnUrl: confirmParams.return_url,
-        email: user.email,
+        email: email, // Теперь используем email из поля ввода
         name: fullName,
         phone: phone,
         shipping: confirmParams.shipping
@@ -382,8 +382,10 @@ const CheckoutForm = ({
             fields: {
               phone: 'always'
             }
+            // Примечание: appearance не поддерживается в типе StripeAddressElementOptions
+            // Мы применяем вместо этого CSS стили через классы
           }}
-          className="stripe-input-element"
+          className="stripe-input-element address-element"
         />
       </div>
 
@@ -397,8 +399,10 @@ const CheckoutForm = ({
           fields: {
             billingDetails: 'never'
           }
+          // Примечание: appearance не поддерживается в типе StripePaymentElementOptions
+          // Мы применяем вместо этого CSS стили через классы
         }}
-        className="stripe-input-element"
+        className="stripe-input-element payment-element"
       />
       
       <button 
