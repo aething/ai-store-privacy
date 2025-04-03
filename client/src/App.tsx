@@ -16,9 +16,9 @@ import Subscribe from "@/pages/Subscribe";
 import PlayMarket from "@/pages/PlayMarket";
 import StripeCatalog from "@/pages/StripeCatalog";
 import DebugPage from "@/pages/DebugPage";
+import { AppProvider } from "@/context/AppContext";
+import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import ContextProviderWrapper from "@/components/ContextProviderWrapper";
 
 // Подключаем тесты в режиме разработки
 if (import.meta.env.DEV) {
@@ -27,49 +27,39 @@ if (import.meta.env.DEV) {
 
 function Router() {
   return (
-    <ErrorBoundary componentName="Router">
-      <Switch>
-        <Route path="/" component={Shop} />
-        <Route path="/account" component={Account} />
-        <Route path="/product/:id" component={ProductDetail} />
-        <Route path="/product-debug/:id" component={ProductDetailDebug} />
-        <Route path="/policy/:id" component={Policy} />
-        <Route path="/info/:id" component={InfoPage} />
-        <Route path="/checkout/:id" component={Checkout} />
-        <Route path="/confirmation" component={Confirmation} />
-        <Route path="/subscribe" component={Subscribe} />
-        <Route path="/playmarket" component={PlayMarket} />
-        <Route path="/stripe-catalog" component={StripeCatalog} />
-        <Route path="/debug" component={DebugPage} />
-        <Route component={NotFound} />
-      </Switch>
-    </ErrorBoundary>
+    <Switch>
+      <Route path="/" component={Shop} />
+      <Route path="/account" component={Account} />
+      <Route path="/product/:id" component={ProductDetail} />
+      <Route path="/product-debug/:id" component={ProductDetailDebug} />
+      <Route path="/policy/:id" component={Policy} />
+      <Route path="/info/:id" component={InfoPage} />
+      <Route path="/checkout/:id" component={Checkout} />
+      <Route path="/confirmation" component={Confirmation} />
+      <Route path="/subscribe" component={Subscribe} />
+      <Route path="/playmarket" component={PlayMarket} />
+      <Route path="/stripe-catalog" component={StripeCatalog} />
+      <Route path="/debug" component={DebugPage} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
 function App() {
-  // Log initialization information
-  console.log("App component initializing");
-  
   return (
-    <ErrorBoundary componentName="QueryClientProvider">
-      <QueryClientProvider client={queryClient}>
-        <ContextProviderWrapper>
+    <QueryClientProvider client={queryClient}>
+      <AppProvider>
+        <LocaleProvider>
           {/* ScrollManager следит за изменениями URL и управляет скроллом */}
-          <ErrorBoundary componentName="ScrollManager">
-            <ScrollManager />
-          </ErrorBoundary>
+          <ScrollManager />
           
-          <ErrorBoundary componentName="Layout">
-            <Layout>
-              <Router />
-            </Layout>
-          </ErrorBoundary>
-          
+          <Layout>
+            <Router />
+          </Layout>
           <Toaster />
-        </ContextProviderWrapper>
-      </QueryClientProvider>
-    </ErrorBoundary>
+        </LocaleProvider>
+      </AppProvider>
+    </QueryClientProvider>
   );
 }
 
