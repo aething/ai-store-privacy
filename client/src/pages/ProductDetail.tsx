@@ -202,7 +202,7 @@ export default function ProductDetail() {
               )}
               {product.stripeProductId && (
                 <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  Stripe Price
+                  Stripe
                 </span>
               )}
             </span>
@@ -226,110 +226,124 @@ export default function ProductDetail() {
           </div>
           
           {/* Hardware & Software Tabs */}
-          <Card className="rounded-lg p-4 bg-white mb-6">
-            <Tabs defaultValue="hardware" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="hardware" className="flex items-center">
-                  <Cpu className="mr-2 h-4 w-4" />
-                  Hardware
-                </TabsTrigger>
-                <TabsTrigger value="software" className="flex items-center">
-                  <Monitor className="mr-2 h-4 w-4" />
-                  Software
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="hardware" className="p-2">
-                {product.hardwareInfo ? (
-                  <div className="space-y-6">
-                    <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                      <h3 className="text-lg font-semibold text-blue-700 mb-2">Hardware Specifications</h3>
-                      <div className="space-y-4 text-blue-900">
-                        {product.hardwareInfo && product.hardwareInfo.split('. ').map((paragraph, index) => (
-                          paragraph.trim() && (
-                            <p key={index} className="text-blue-800">
-                              {paragraph.trim() + (paragraph.endsWith('.') ? '' : '.')}
-                            </p>
-                          )
-                        ))}
-                      </div>
+          <Tabs defaultValue="hardware" className="w-full mb-6">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="hardware" className="flex items-center">
+                <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                  <rect x="9" y="9" width="6" height="6"></rect>
+                  <line x1="9" y1="2" x2="9" y2="4"></line>
+                  <line x1="15" y1="2" x2="15" y2="4"></line>
+                  <line x1="9" y1="20" x2="9" y2="22"></line>
+                  <line x1="15" y1="20" x2="15" y2="22"></line>
+                  <line x1="20" y1="9" x2="22" y2="9"></line>
+                  <line x1="20" y1="14" x2="22" y2="14"></line>
+                  <line x1="2" y1="9" x2="4" y2="9"></line>
+                  <line x1="2" y1="14" x2="4" y2="14"></line>
+                </svg>
+                Hardware
+              </TabsTrigger>
+              <TabsTrigger value="software" className="flex items-center">
+                <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                Software
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="hardware" className="p-0">
+              {product.hardwareInfo ? (
+                <div className="space-y-6">
+                  <div className="bg-blue-50/15 rounded-lg p-4 border-l-2 border-blue-400">
+                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Hardware Specifications</h3>
+                    <div className="space-y-4 text-gray-800">
+                      {product.hardwareInfo && product.hardwareInfo.split('. ').map((paragraph, index) => (
+                        paragraph.trim() && (
+                          <p key={index} className="text-gray-700">
+                            {paragraph.trim() + (paragraph.endsWith('.') ? '' : '.')}
+                          </p>
+                        )
+                      ))}
                     </div>
+                  </div>
 
-                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 border-l-4 border-indigo-600">
-                      <h3 className="text-lg font-semibold text-indigo-700 mb-3">AI Capabilities & Performance</h3>
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <div className="bg-indigo-600 rounded-md p-1 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13a10 10 0 0 1 14 0"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M2 8.82a15 15 0 0 1 20 0"/><line x1="12" y1="20" x2="12" y2="20"/></svg>
-                          </div>
-                          <div>
-                            <span className="font-medium text-indigo-900">AI Performance:</span>
-                            <p className="text-indigo-700">Up to 67 TOPS (INT8), a 70% improvement over prior version</p>
-                          </div>
+                  <div className="bg-gray-50 rounded-lg p-4 border-l-2 border-gray-400">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">AI Capabilities & Performance</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="bg-gray-200 rounded-md p-1 text-gray-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13a10 10 0 0 1 14 0"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M2 8.82a15 15 0 0 1 20 0"/><line x1="12" y1="20" x2="12" y2="20"/></svg>
                         </div>
-                        
-                        <div className="flex items-start gap-3">
-                          <div className="bg-indigo-600 rounded-md p-1 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-                          </div>
-                          <div>
-                            <span className="font-medium text-indigo-900">Generative AI:</span>
-                            <p className="text-indigo-700">Support for transformer models and LLMs up to 8B parameters (Llama-3.1-8B)</p>
-                          </div>
+                        <div>
+                          <span className="font-medium text-gray-900">AI Performance:</span>
+                          <p className="text-gray-700">Up to 67 TOPS (INT8), a 70% improvement over prior version</p>
                         </div>
-                        
-                        <div className="flex items-start gap-3">
-                          <div className="bg-indigo-600 rounded-md p-1 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                          </div>
-                          <div>
-                            <span className="font-medium text-indigo-900">Energy Efficiency:</span>
-                            <p className="text-indigo-700">7–25 watts power draw, making it a leader in energy-efficient AI computing</p>
-                          </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <div className="bg-gray-200 rounded-md p-1 text-gray-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
                         </div>
-                        
-                        <div className="flex items-start gap-3">
-                          <div className="bg-indigo-600 rounded-md p-1 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m14 5-10 8.5c-.14.12-.08.35.12.35l15.08-.05c.38 0 .55-.48.33-.75L14.25 5.05a.2.2 0 0 0-.25-.05Z"/><path d="m5 6 14 6"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg>
-                          </div>
-                          <div>
-                            <span className="font-medium text-indigo-900">Software Stack:</span>
-                            <p className="text-indigo-700">Full compatibility with NVIDIA JetPack SDK v6.1, CUDA, TensorRT, cuDNN</p>
-                          </div>
+                        <div>
+                          <span className="font-medium text-gray-900">Generative AI:</span>
+                          <p className="text-gray-700">Support for transformer models and LLMs up to 8B parameters (Llama-3.1-8B)</p>
                         </div>
-                        
-                        <div className="flex items-start gap-3">
-                          <div className="bg-indigo-600 rounded-md p-1 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m8 12 3 3 5-5"/></svg>
-                          </div>
-                          <div>
-                            <span className="font-medium text-indigo-900">Applications:</span>
-                            <p className="text-indigo-700">Robotics, computer vision, multimodal agents, and IoT at the network edge</p>
-                          </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <div className="bg-gray-200 rounded-md p-1 text-gray-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                         </div>
-                        
-                        <div className="flex items-start gap-3">
-                          <div className="bg-indigo-600 rounded-md p-1 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                          </div>
-                          <div>
-                            <span className="font-medium text-indigo-900">Features:</span>
-                            <p className="text-indigo-700">Local LLM execution for enhanced privacy and reduced latency</p>
-                          </div>
+                        <div>
+                          <span className="font-medium text-gray-900">Energy Efficiency:</span>
+                          <p className="text-gray-700">7–25 watts power draw, making it a leader in energy-efficient AI computing</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <div className="bg-gray-200 rounded-md p-1 text-gray-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m14 5-10 8.5c-.14.12-.08.35.12.35l15.08-.05c.38 0 .55-.48.33-.75L14.25 5.05a.2.2 0 0 0-.25-.05Z"/><path d="m5 6 14 6"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">Software Stack:</span>
+                          <p className="text-gray-700">Full compatibility with NVIDIA JetPack SDK v6.1, CUDA, TensorRT, cuDNN</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <div className="bg-gray-200 rounded-md p-1 text-gray-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m8 12 3 3 5-5"/></svg>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">Applications:</span>
+                          <p className="text-gray-700">Robotics, computer vision, multimodal agents, and IoT at the network edge</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <div className="bg-gray-200 rounded-md p-1 text-gray-700">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">Features:</span>
+                          <p className="text-gray-700">Local LLM execution for enhanced privacy and reduced latency</p>
                         </div>
                       </div>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-gray-400 text-center py-4">
-                    No hardware information available
-                  </div>
-                )}
-              </TabsContent>
-              <TabsContent value="software" className="p-2">
+                </div>
+              ) : (
+                <div className="text-gray-400 text-center py-4">
+                  No hardware information available
+                </div>
+              )}
+            </TabsContent>
+              <TabsContent value="software" className="p-0">
                 {product.softwareInfo ? (
                   <div className="space-y-6">
-                    <div className="bg-emerald-50 rounded-lg p-4 border-l-4 border-emerald-500">
-                      <h3 className="text-lg font-semibold text-emerald-700 mb-3">Software Architecture</h3>
+                    <div className="bg-gray-50/15 rounded-lg p-4 border-l-2 border-gray-400">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">Software Architecture</h3>
                       <div className="grid gap-3 md:grid-cols-2">
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
                           <div className="flex items-center gap-2 mb-2">
@@ -373,48 +387,48 @@ export default function ProductDetail() {
                       </div>
                     </div>
                     
-                    <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
-                      <h3 className="text-lg font-semibold text-violet-700 mb-3">AI Framework Support</h3>
+                    <div className="bg-gray-50/15 rounded-lg p-4 border-l-2 border-gray-400">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">AI Framework Support</h3>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <h4 className="font-medium text-violet-900 mb-2">Deep Learning</h4>
+                          <h4 className="font-medium text-gray-800 mb-2">Deep Learning</h4>
                           <ul className="space-y-1 text-sm">
                             <li className="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
                               <span>PyTorch 2.0+</span>
                             </li>
                             <li className="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
                               <span>TensorFlow 2.12+</span>
                             </li>
                             <li className="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
                               <span>ONNX Runtime</span>
                             </li>
                             <li className="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
                               <span>JAX</span>
                             </li>
                           </ul>
                         </div>
                         
                         <div>
-                          <h4 className="font-medium text-violet-900 mb-2">Machine Learning</h4>
+                          <h4 className="font-medium text-gray-800 mb-2">Machine Learning</h4>
                           <ul className="space-y-1 text-sm">
                             <li className="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
                               <span>scikit-learn</span>
                             </li>
                             <li className="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
                               <span>XGBoost</span>
                             </li>
                             <li className="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
                               <span>LightGBM</span>
                             </li>
                             <li className="flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-500"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
                               <span>Spark ML</span>
                             </li>
                           </ul>
@@ -422,23 +436,25 @@ export default function ProductDetail() {
                       </div>
                     </div>
                     
-                    <div className="bg-amber-50 rounded-lg p-4 border-l-4 border-amber-500">
-                      <h3 className="text-lg font-semibold text-amber-700 mb-2">Edge Computing</h3>
-                      <p className="text-amber-800 mb-3">
-                        {product.softwareInfo}
+                    <div className="bg-gray-50/15 rounded-lg p-4 border-l-2 border-gray-400">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">Edge Computing</h3>
+                      <p className="text-gray-700 mb-4">
+                        {product.softwareInfo?.split('.').map((paragraph, index) => (
+                          paragraph.trim() && <p key={index} className="mb-2">{paragraph.trim() + '.'}</p>
+                        ))}
                       </p>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                        <div className="bg-white rounded p-3 shadow-sm border border-amber-100">
-                          <h4 className="font-medium flex items-center gap-2 text-amber-900 mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><path d="m9 18 6-6-6-6"/></svg>
+                        <div className="bg-white rounded p-3 shadow-sm border border-gray-200">
+                          <h4 className="font-medium flex items-center gap-2 text-gray-800 mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 17h6"/><path d="M9 13h6"/></svg>
                             Model Optimization
                           </h4>
                           <p className="text-sm text-gray-600">TensorRT, TF-TRT, and OpenVINO support with INT8 quantization and weight pruning</p>
                         </div>
                         
-                        <div className="bg-white rounded p-3 shadow-sm border border-amber-100">
-                          <h4 className="font-medium flex items-center gap-2 text-amber-900 mb-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><path d="m9 18 6-6-6-6"/></svg>
+                        <div className="bg-white rounded p-3 shadow-sm border border-gray-200">
+                          <h4 className="font-medium flex items-center gap-2 text-gray-800 mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M13 2L3 14h9l-1 8L21 10h-9l1-8z"/></svg>
                             Real-time Processing
                           </h4>
                           <p className="text-sm text-gray-600">Process data streams with latency as low as 15ms for real-time applications</p>
@@ -453,9 +469,7 @@ export default function ProductDetail() {
                 )}
               </TabsContent>
             </Tabs>
-          </Card>
           
-
         </div>
       </div>
     </SwipeBack>
