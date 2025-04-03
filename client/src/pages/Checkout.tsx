@@ -944,7 +944,45 @@ export default function Checkout() {
                 variables: {
                   colorPrimary: '#6200EE',
                   fontFamily: 'system-ui, sans-serif',
-                  borderRadius: '8px'
+                  borderRadius: '8px',
+                  // Уменьшаем заметность блока с информацией о налогах
+                  colorText: '#666',
+                  colorTextSecondary: '#888',
+                  colorBackground: '#f9f9f9',
+                  spacingUnit: '4px',
+                  fontSizeBase: '14px',
+                  fontSizeSm: '12px',
+                  fontWeightNormal: '400'
+                },
+                rules: {
+                  '.Tab': {
+                    border: '1px solid #e0e0e0',
+                  },
+                  '.Tab:hover': {
+                    color: 'var(--colorPrimary)',
+                  },
+                  '.Input': {
+                    borderColor: '#e0e0e0',
+                  },
+                  // Уменьшаем заметность блока с информацией о сумме и налогах
+                  '.CheckoutHeader': {
+                    fontSize: '12px',
+                    marginBottom: '0',
+                    opacity: '0.75',
+                    color: '#888 !important'
+                  },
+                  '.Price': {
+                    opacity: '0.6',
+                    fontSize: '12px',
+                    color: '#999 !important'
+                  },
+                  '.PickerItem': {
+                    opacity: '0.75',
+                    fontSize: '12px'
+                  },
+                  '.PickerItem-amount': {
+                    color: '#999 !important'
+                  }
                 }
               },
               // Конфигурация в соответствии с документацией https://docs.stripe.com/payments/link/mobile-payment-element-link
