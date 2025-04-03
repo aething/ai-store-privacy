@@ -70,8 +70,8 @@ export class MemStorage implements IStorage {
       {
         title: "AI-Driven Solutions",
         description: "Built on the NVIDIA Jetson Orin Nano Ecosystem. This powerful AI platform delivers exceptional performance for edge computing applications, enabling real-time processing and analysis.",
-        price: 14999, // $149.99
-        priceEUR: 13999, // €139.99
+        price: 1499900, // $1,499.99
+        priceEUR: 1399900, // €1,399.99
         imageUrl: "https://images.unsplash.com/photo-1673203834806-c320f851c9f9?auto=format&fit=crop&w=400&h=300",
         category: "Productivity",
         features: [
@@ -94,8 +94,8 @@ export class MemStorage implements IStorage {
       {
         title: "Machine Learning Systems",
         description: "ML Systems Leveraging the NVIDIA DGX Spark. Advanced computing platform designed for enterprise-grade machine learning development and deployment.",
-        price: 29999, // $299.99
-        priceEUR: 27999, // €279.99
+        price: 2999900, // $2,999.99
+        priceEUR: 2799900, // €2,799.99
         imageUrl: "https://images.unsplash.com/photo-1677442135146-1d91a759eee8?auto=format&fit=crop&w=400&h=300",
         category: "Smart Home",
         features: [
@@ -118,8 +118,8 @@ export class MemStorage implements IStorage {
       {
         title: "Intelligent Automation Systems",
         description: "AI-Driven Platform based on NVIDIA's Founders Edition. Cutting-edge system delivering automated solutions for industrial and enterprise applications.",
-        price: 19999, // $199.99
-        priceEUR: 18999, // €189.99
+        price: 1999900, // $1,999.99
+        priceEUR: 1899900, // €1,899.99
         imageUrl: "https://images.unsplash.com/photo-1655720031554-a929595d5fb0?auto=format&fit=crop&w=400&h=300",
         category: "Education",
         features: [
@@ -142,8 +142,8 @@ export class MemStorage implements IStorage {
       {
         title: "AI Healthcare Analytics",
         description: "Advanced monitoring systems with built-in NVIDIA accelerated computing for real-time health analytics and predictive diagnostics.",
-        price: 24999, // $249.99
-        priceEUR: 22999, // €229.99
+        price: 2499900, // $2,499.99
+        priceEUR: 2299900, // €2,299.99
         imageUrl: "https://images.unsplash.com/photo-1686191669169-b42fcd632af0?auto=format&fit=crop&w=600&h=400",
         category: "Health & Fitness",
         features: [
