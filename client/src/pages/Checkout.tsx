@@ -251,6 +251,7 @@ const CheckoutForm = ({
               email: user?.email || '',
             }
           }}
+          className="border border-gray-400 rounded-md p-3 shadow-sm"
         />
         
         {/* Добавляем поля для ввода имени и фамилии */}
@@ -390,6 +391,7 @@ const CheckoutForm = ({
               phone: 'always'
             }
           }}
+          className="border border-gray-400 rounded-md p-3 shadow-sm"
         />
       </div>
 
@@ -404,6 +406,7 @@ const CheckoutForm = ({
             billingDetails: 'never'
           }
         }}
+        className="border border-gray-400 rounded-md p-3 shadow-sm"
       />
       
       <button 
