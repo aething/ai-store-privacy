@@ -249,30 +249,6 @@ const CheckoutForm = ({
           options={{
             defaultValues: {
               email: user?.email || '',
-            },
-            // Используем стандартный функционал Stripe для обязательных полей
-            appearance: {
-              theme: 'flat',
-              variables: {
-                fontFamily: 'system-ui, sans-serif',
-                borderRadius: '4px',
-                colorBackground: 'white',
-                colorPrimary: '#3b82f6',
-                colorBorder: '#6b7280',
-                colorBorderFocus: '#3b82f6'
-              },
-              rules: {
-                '.Input': {
-                  border: '2px solid #9ca3af',
-                  boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
-                },
-                '.Label': {
-                  fontWeight: '500'
-                },
-                '.Input:focus': {
-                  boxShadow: '0 0 0 1px #3b82f6, 0 1px 2px 0 rgb(0 0 0 / 0.05)'
-                }
-              }
             }
           }}
         />
@@ -412,29 +388,6 @@ const CheckoutForm = ({
             mode: 'shipping',
             fields: {
               phone: 'always'
-            },
-            appearance: {
-              theme: 'flat',
-              variables: {
-                fontFamily: 'system-ui, sans-serif',
-                borderRadius: '4px',
-                colorBackground: 'white',
-                colorPrimary: '#3b82f6',
-                colorBorder: '#6b7280',
-                colorBorderFocus: '#3b82f6'
-              },
-              rules: {
-                '.Input': {
-                  border: '2px solid #9ca3af',
-                  boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
-                },
-                '.Label': {
-                  fontWeight: '500'
-                },
-                '.Input:focus': {
-                  boxShadow: '0 0 0 1px #3b82f6, 0 1px 2px 0 rgb(0 0 0 / 0.05)'
-                }
-              }
             }
           }}
         />
@@ -443,29 +396,6 @@ const CheckoutForm = ({
       <PaymentElement 
         id="payment-element"
         options={{
-          appearance: {
-            theme: 'flat',
-            variables: {
-              fontFamily: 'system-ui, sans-serif',
-              borderRadius: '4px',
-              colorBackground: 'white',
-              colorPrimary: '#3b82f6',
-              colorBorder: '#9ca3af',
-              colorBorderFocus: '#3b82f6'
-            },
-            rules: {
-              '.Input': {
-                border: '2px solid #9ca3af',
-                boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
-              },
-              '.Label': {
-                fontWeight: '500'
-              },
-              '.Input:focus': {
-                boxShadow: '0 0 0 1px #3b82f6, 0 1px 2px 0 rgb(0 0 0 / 0.05)'
-              }
-            }
-          },
           layout: {
             type: 'tabs',
             defaultCollapsed: false
