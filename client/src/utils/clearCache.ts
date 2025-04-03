@@ -89,9 +89,23 @@ export function clearUserCache(preserveCountry = false): void {
 }
 
 /**
- * Перезагружает страницу
+ * Перезагружает страницу с защитой от частых перезагрузок
  */
 export function reloadPage(): void {
+  // Защита от слишком частых перезагрузок - проверяем время с последней перезагрузки
+  const lastReload = parseInt(localStorage.getItem('sw_last_reload') || '0');
+  const now = Date.now();
+  const MIN_RELOAD_INTERVAL = 10000; // минимум 10 секунд между перезагрузками
+  
+  if (now - lastReload < MIN_RELOAD_INTERVAL) {
+    console.log('Предотвращена слишком частая перезагрузка страницы');
+    return; // не выполняем перезагрузку
+  }
+  
+  // Сохраняем время перезагрузки
+  localStorage.setItem('sw_last_reload', now.toString());
+  
+  // Выполняем перезагрузку
   window.location.reload();
 }
 

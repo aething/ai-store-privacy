@@ -103,9 +103,34 @@ export async function registerServiceWorker(config: Partial<ServiceWorkerConfig>
             // Сохраняем версию Service Worker
             localStorage.setItem('sw-version', APP_VERSION);
 
-            // Предлагаем перезагрузить страницу, если включена опция reloadOnUpdate
+            // Обработка обновления без принудительной перезагрузки
+            // Это решает проблему с перезагрузкой и "дерганием" страницы
             if (mergedConfig.reloadOnUpdate) {
+              // Проверяем, достаточно ли времени прошло с последней перезагрузки
+              const lastReload = parseInt(localStorage.getItem('sw_last_reload') || '0');
+              const now = Date.now();
+              const timeSinceLastReload = now - lastReload;
+              const MIN_RELOAD_INTERVAL = 30000; // 30 секунд минимум между перезагрузками
+              
+              if (timeSinceLastReload < MIN_RELOAD_INTERVAL) {
+                console.log('Слишком скоро после последней перезагрузки, не перезагружаем');
+                return;
+              }
+              
+              // Проверяем время с момента загрузки страницы, чтобы не беспокоить
+              // пользователя сразу после открытия страницы
+              const pageLoadTime = window._pageLoadTime || now;
+              const timeOnPage = now - pageLoadTime;
+              const MIN_PAGE_VIEW_TIME = 60000; // 1 минута минимум, чтобы предлагать обновление
+              
+              if (timeOnPage < MIN_PAGE_VIEW_TIME) {
+                console.log('Пользователь недостаточно долго на странице, не предлагаем перезагрузку');
+                return;
+              }
+              
+              // Только теперь предлагаем обновление
               if (confirm('Доступно обновление приложения. Обновить сейчас?')) {
+                localStorage.setItem('sw_last_reload', now.toString());
                 window.location.reload();
               }
             }

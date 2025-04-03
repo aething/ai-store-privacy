@@ -226,10 +226,21 @@
     
     // Обработка контроллера для обновления страницы
     if ('serviceWorker' in navigator) {
-      // Перезагрузка страницы при активации нового service worker
+      // По умолчанию отключаем автоматическую перезагрузку страницы
+      // Это предотвращает "дергание" страницы при загрузке
       let refreshing = false;
+      
+      // Проверяем, посмотрел ли пользователь страницу достаточно долго
+      // прежде чем делать перезагрузку при обновлении Service Worker
+      const MIN_PAGE_VIEW_TIME = 30000; // 30 секунд
+      const pageLoadTime = Date.now();
+      
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing && isSafeToReload()) {
+        // Проверяем, достаточно ли времени пользователь смотрел страницу
+        const timeOnPage = Date.now() - pageLoadTime;
+        const shouldReloadAutomatically = timeOnPage > MIN_PAGE_VIEW_TIME;
+        
+        if (!refreshing && isSafeToReload() && shouldReloadAutomatically) {
           console.log('Service Worker контроллер изменился - перезагрузка страницы');
           refreshing = true;
           // Сохраняем время перезагрузки
@@ -237,22 +248,23 @@
           // Перезагружаем страницу без добавления параметров
           window.location.reload();
         } else {
-          console.log('Предотвращена лишняя перезагрузка страницы');
+          console.log('Предотвращена перезагрузка страницы: ' + 
+            (!isSafeToReload() ? 'слишком скоро после предыдущей, ' : '') + 
+            (!shouldReloadAutomatically ? 'пользователь недостаточно долго на странице' : ''));
         }
       });
       
-      // Периодическая проверка состояния Service Worker
-      setInterval(() => {
+      // Периодическая проверка состояния Service Worker (только для отображения в UI)
+      const statusCheckInterval = setInterval(() => {
         if (navigator.serviceWorker.controller) {
-          console.log('Service Worker контроллер активен:', navigator.serviceWorker.controller.state);
-          // Сообщение для отладки
+          // Сообщение только для отладки
           const statusElement = document.getElementById('service-worker-status');
           if (statusElement) {
             statusElement.textContent = 'Service Worker активен и контролирует страницу';
             statusElement.style.color = '#4CAF50';
           }
         }
-      }, 5000);
+      }, 10000); // Снижаем частоту проверок до 10 секунд
     }
   </script>
 </body>

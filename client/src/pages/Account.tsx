@@ -262,8 +262,15 @@ export default function Account() {
   
   // Навигация к политике
   const navigateToPolicy = (policyId: string) => {
-    // Переходим на страницу политики
-    setLocation(`/policy/${policyId}`);
+    // Сохраняем текущую позицию скролла перед переходом
+    // для правильного возврата на эту же позицию
+    import("@/lib/scrollUtils").then(({ saveScrollPositionForPath }) => {
+      saveScrollPositionForPath('/account');
+      console.log('[Account] Сохранена позиция скролла перед переходом на policy');
+      
+      // Переходим на страницу политики
+      setLocation(`/policy/${policyId}`);
+    });
   };
   
   // Получаем доступ к объекту переводов

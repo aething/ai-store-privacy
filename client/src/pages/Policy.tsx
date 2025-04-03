@@ -115,9 +115,19 @@ export default function Policy() {
   
   return (
     <SwipeBack onSwipeBack={() => {
-      // При свайпе назад используем history.back() для работы 
-      // с механизмом восстановления позиции скролла
-      window.history.back();
+      // Подготавливаем возврат на Account с восстановлением позиции скролла
+      import("@/lib/scrollUtils").then(({ restoreScrollPositionForPath }) => {
+        // Логируем для отладки
+        console.log('[Policy] Свайп назад - возвращаемся на страницу Account');
+        
+        // Используем history.back() для более естественной навигации и работы с браузерной историей
+        window.history.back();
+        
+        // Дополнительно через таймаут пробуем восстановить позицию скролла
+        setTimeout(() => {
+          restoreScrollPositionForPath('/account', false);
+        }, 50);
+      });
     }}>
       <div id="policy-root" ref={rootRef} className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
         {/* Header with close button */}
@@ -126,9 +136,19 @@ export default function Policy() {
           <button 
             className="p-2 rounded-full hover:bg-gray-100"
             onClick={() => {
-              // Возвращаемся на страницу Account с помощью history.back()
-              // для правильной работы с механизмом восстановления позиции скролла
-              window.history.back();
+              // Подготавливаем возврат на Account с восстановлением позиции скролла
+              import("@/lib/scrollUtils").then(({ restoreScrollPositionForPath }) => {
+                // Логируем для отладки
+                console.log('[Policy] Возвращаемся на страницу Account с восстановлением позиции');
+                
+                // Используем history.back() для более естественной навигации и работы с браузерной историей
+                window.history.back();
+                
+                // Дополнительно через таймаут пробуем восстановить позицию скролла
+                setTimeout(() => {
+                  restoreScrollPositionForPath('/account', false);
+                }, 50);
+              });
             }}
             aria-label="Close"
           >

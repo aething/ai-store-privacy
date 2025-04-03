@@ -1,3 +1,13 @@
+// Для отслеживания времени загрузки страницы и защиты от перезагрузок
+declare global {
+  interface Window {
+    _pageLoadTime: number;
+  }
+}
+
+// Сохраняем время загрузки страницы для дальнейшего использования в защите от перезагрузок
+window._pageLoadTime = Date.now();
+
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";

@@ -2,6 +2,8 @@
  * Принудительная регистрация Service Worker
  * Этот скрипт загружается непосредственно на всех страницах для обеспечения
  * надежной регистрации Service Worker даже при проблемах с основным приложением
+ * 
+ * ОБНОВЛЕНО: Добавлены проверки против частых перезагрузок и "дергания" страницы
  */
 
 (function() {
@@ -12,161 +14,123 @@
     controlling: false
   };
   
-  // Убедимся, что скрипт выполняется только один раз
+  // Убедимся, что скрипт выполняется только один раз за сессию
   if (window.serviceWorkerInitialized) {
-    console.log('🔄 SW-installer уже запущен, пропускаем инициализацию');
+    console.log('SW-installer уже запущен, пропускаем повторную инициализацию');
     return;
   }
   
   window.serviceWorkerInitialized = true;
-  console.log('🚀 SW-installer запущен впервые');
+  console.log('SW-installer запущен');
   
-  // Запускаем регистрацию только после полной загрузки страницы
-  if (document.readyState === 'complete' || document.readyState === 'loaded' || document.readyState === 'interactive') {
-    registerServiceWorker();
+  // Защита от слишком частых регистраций
+  const lastRegistrationAttempt = parseInt(localStorage.getItem('sw_last_registration') || '0');
+  const now = Date.now();
+  const MIN_REGISTRATION_INTERVAL = 60000; // Минимум 1 минута между попытками регистрации
+  
+  if (now - lastRegistrationAttempt < MIN_REGISTRATION_INTERVAL) {
+    console.log('Последняя попытка регистрации Service Worker была недавно, откладываем регистрацию');
+    return;
+  }
+  
+  // Запоминаем время попытки регистрации
+  localStorage.setItem('sw_last_registration', now.toString());
+  
+  // Защита от слишком частых перезагрузок страницы
+  const lastPageReload = parseInt(localStorage.getItem('sw_last_reload') || '0');
+  const PAGE_RELOAD_THRESHOLD = 10000; // 10 секунд между перезагрузками
+  
+  if (now - lastPageReload < PAGE_RELOAD_THRESHOLD) {
+    console.warn('Возможно зацикливание перезагрузок, пропускаем регистрацию Service Worker');
+    return;
+  }
+  
+  // Запускаем регистрацию после некоторой задержки, чтобы не мешать загрузке страницы
+  // и проверяем, что страница полностью загружена
+  if (document.readyState === 'complete') {
+    // Страница уже загружена - запускаем через небольшую задержку
+    setTimeout(registerServiceWorker, 1000);
   } else {
-    window.addEventListener('DOMContentLoaded', registerServiceWorker);
+    // Ждем полной загрузки страницы
+    window.addEventListener('load', function() {
+      setTimeout(registerServiceWorker, 1000);
+    });
   }
 
   /**
-   * Регистрирует Service Worker с повторными попытками
+   * Регистрирует Service Worker без лишних повторных попыток
    */
   function registerServiceWorker() {
-    console.log('🛠️ Старт прямой регистрации Service Worker...');
+    console.log('Начинаем регистрацию Service Worker...');
     
     if (!('serviceWorker' in navigator)) {
-      console.warn('❌ Service Worker не поддерживается в этом браузере');
+      console.warn('Service Worker не поддерживается в этом браузере');
       updateStatus(false, 'не поддерживается браузером');
       return;
     }
     
-    // Функция для регистрации с повторными попытками
-    function attemptRegistration(attempt = 1, maxAttempts = 3) {
-      console.log(`🔄 Попытка регистрации Service Worker: ${attempt}/${maxAttempts}`);
-      
+    // Проверяем, контролирует ли уже Service Worker страницу
+    if (navigator.serviceWorker.controller) {
+      console.log('Service Worker уже контролирует страницу');
+      window.serviceWorkerStatus.controlling = true;
+      window.serviceWorkerStatus.active = true;
+      window.serviceWorkerStatus.registered = true;
+      updateStatus(true, 'уже активен');
+      return; // Не нужно ничего делать, если контроллер уже есть
+    }
+    
+    // Функция для однократной регистрации без агрессивных повторов
+    function attemptRegistration() {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(function(registration) {
-          console.log('✅ Service Worker успешно зарегистрирован, scope:', registration.scope);
+          console.log('Service Worker успешно зарегистрирован, scope:', registration.scope);
           
-          // Обновляем статус отображения
+          // Обновляем статус
+          window.serviceWorkerStatus.registered = true;
           updateStatus(true, 'зарегистрирован');
           
-          // Если есть ожидающий Service Worker, активируем его
-          if (registration.waiting) {
-            console.log('🔄 Активация ожидающего Service Worker');
-            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
-          
-          // Интервал проверки контроллера - для подтверждения активации
-          const checkInterval = setInterval(function() {
-            if (navigator.serviceWorker.controller) {
-              console.log('✅ Service Worker контролирует страницу');
-              updateStatus(true, 'активен и контролирует страницу');
-              clearInterval(checkInterval);
-            }
-          }, 1000);
-          
-          // Таймаут для остановки проверок через 10 секунд
-          setTimeout(function() {
-            clearInterval(checkInterval);
-          }, 10000);
+          // Не вызываем принудительную активацию, так как это может вызвать перезагрузку
+          // и "дергание" страницы
         })
         .catch(function(error) {
-          console.error('❌ Ошибка при регистрации Service Worker:', error);
-          
-          // Если не достигли максимального количества попыток - пробуем еще раз
-          if (attempt < maxAttempts) {
-            setTimeout(function() {
-              attemptRegistration(attempt + 1, maxAttempts);
-            }, 2000); // Задержка перед следующей попыткой
-          } else {
-            updateStatus(false, 'ошибка регистрации');
-            console.error('❌ Достигнуто максимальное количество попыток регистрации Service Worker');
-          }
+          console.error('Ошибка при регистрации Service Worker:', error);
+          updateStatus(false, 'ошибка регистрации');
         });
     }
     
-    // Обновляем глобальный статус
-    window.serviceWorkerStatus.registered = false;
-    window.serviceWorkerStatus.active = false;
-    window.serviceWorkerStatus.controlling = false;
-    
-    // Применяем более агрессивную стратегию регистрации
-    const forceRegistration = true; // Всегда регистрируем заново
-    
-    // Проверяем, уже была ли выполнена регистрация
-    if (window.parent && window.parent.swRegistered) {
-      console.log('ℹ️ Service Worker уже регистрируется родительским скриптом, пропускаем');
-      return;
-    }
-    
-    // Защита от зацикливания через localStorage
-    const lastReloadTime = parseInt(localStorage.getItem('sw_last_reload') || '0');
-    const now = Date.now();
-    const RELOAD_THRESHOLD = 3000; // 3 секунды минимальный интервал между перезагрузками
-    
-    // Если с момента последней перезагрузки прошло меньше порогового значения
-    if (now - lastReloadTime < RELOAD_THRESHOLD) {
-      console.warn('⚠️ Обнаружено возможное зацикливание перезагрузок, пропускаем регистрацию Service Worker');
-      updateStatus(false, 'регистрация отложена для предотвращения зацикливания');
-      return;
-    }
-    
-    // Обновляем глобальный статус
-    window.serviceWorkerStatus.registered = false;
-    window.serviceWorkerStatus.active = false;
-    window.serviceWorkerStatus.controlling = false;
-    
-    // Проверяем текущие регистрации
+    // Проверяем текущие регистрации перед созданием новой
     navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      // Обновляем статус регистрации
-      window.serviceWorkerStatus.registered = registrations.length > 0;
-      
-      // Проверяем, есть ли активный контроллер
-      if (navigator.serviceWorker.controller) {
-        console.log('✅ Service Worker уже контролирует страницу');
-        window.serviceWorkerStatus.controlling = true;
-        updateStatus(true, 'уже активен и контролирует страницу');
-        return; // Не делаем ничего, если контроллер уже есть
-      }
-      
-      // Проверяем, есть ли уже активные регистрации
-      if (registrations.length > 0) {
-        console.log(`🔍 Найдено ${registrations.length} существующих регистраций`);
-        
-        // Проверяем их состояние
-        let hasWaiting = false;
-        let hasActive = false;
-        
-        registrations.forEach(reg => {
-          if (reg.waiting) {
-            hasWaiting = true;
-            console.log('🔄 Есть ожидающий Service Worker, активируем его');
-            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
-          if (reg.active) {
-            hasActive = true;
-            window.serviceWorkerStatus.active = true;
-            console.log('🔄 Есть активный Service Worker, скажем ему пропустить ожидание');
-            // НЕ вызываем skipWaiting у активного - это вызывает перезагрузку
-          }
-        });
-        
-        // Регистрируем заново только если нет ни одного активного
-        if (!hasActive) {
-          console.log('🔄 Нет активных Service Worker, регистрируем заново');
-          attemptRegistration();
-        }
+      // Если нет регистраций, создаем новую
+      if (registrations.length === 0) {
+        console.log('Нет активных регистраций Service Worker, регистрируем новый');
+        attemptRegistration();
         return;
       }
       
-      console.log('🔍 Нет активных регистраций Service Worker, регистрируем новый');
-      // Если регистраций нет или они все неактивны, регистрируем заново
-      attemptRegistration();
+      // Если есть регистрации, проверим их состояние
+      console.log(`Найдено ${registrations.length} существующих регистраций Service Worker`);
+      
+      // Проверяем, есть ли активный Service Worker
+      let hasActive = false;
+      
+      registrations.forEach(reg => {
+        if (reg.active) {
+          hasActive = true;
+          window.serviceWorkerStatus.active = true;
+          console.log('Найден активный Service Worker');
+        }
+      });
+      
+      // Если нет активного Service Worker, регистрируем новый
+      if (!hasActive) {
+        console.log('Нет активных Service Worker, регистрируем новый');
+        attemptRegistration();
+      } else {
+        console.log('Service Worker уже активен, не требуется повторная регистрация');
+        updateStatus(true, 'активен');
+      }
     }).catch(function(error) {
-      console.error('❌ Ошибка при получении регистраций:', error);
-      // В случае ошибки всё равно пробуем зарегистрировать
-      attemptRegistration();
+      console.error('Ошибка при получении регистраций Service Worker:', error);
     });
   }
   
