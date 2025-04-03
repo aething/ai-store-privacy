@@ -809,8 +809,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Quantity must be a positive number" });
       }
       
-      // Validate currency
-      if (currency !== "usd" && currency !== "eur") {
+      // Validate currency - ensure lowercase comparison
+      const lowerCurrency = currency.toLowerCase();
+      if (lowerCurrency !== "usd" && lowerCurrency !== "eur") {
         return res.status(400).json({ message: "Currency must be either 'usd' or 'eur'" });
       }
       
@@ -1122,7 +1123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Здесь налог еще не добавляем к amount, мы сделаем это для разных стран ниже
       const paymentIntentParams: any = {
         amount,  // Изначально устанавливаем базовую сумму без налога
-        currency,
+        currency: lowerCurrency, // Используем валюту в нижнем регистре
         payment_method_types: ['card'],
         metadata: {
           ...metadata,

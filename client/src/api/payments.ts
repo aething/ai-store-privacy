@@ -136,7 +136,7 @@ export async function createPaymentIntent(
       taxAmount,         // Явно передаем сумму налога
       taxRate: rate,     // Явно передаем ставку налога
       taxLabel: label,   // Явно передаем метку налога
-      currency,
+      currency: currency.toLowerCase(), // Всегда используем нижний регистр для валюты
       userId,
       country,           // Явно передаем страну
       quantity,          // Добавляем количество товара
