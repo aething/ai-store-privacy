@@ -54,8 +54,9 @@ const CheckoutForm = ({
     
     const element = elements.getElement(PaymentElement);
     if (element) {
-      element.on('change', onChange);
-      return () => element.off('change', onChange);
+      // Используем addEventListener и removeEventListener вместо on/off
+      element.addEventListener('change', onChange);
+      return () => element.removeEventListener('change', onChange);
     }
   }, [elements]);
   
@@ -252,9 +253,8 @@ const CheckoutForm = ({
           options={{
             defaultValues: {
               email: user?.email || '',
-            },
-            // Всегда показывать поле email для Link
-            emailRequired: true
+            }
+            // Используем стандартный функционал Stripe для обязательных полей
           }}
         />
         
@@ -269,19 +269,8 @@ const CheckoutForm = ({
               placeholder="John"
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               onChange={(e) => {
-                if (elements) {
-                  const paymentElement = elements.getElement(PaymentElement);
-                  if (paymentElement) {
-                    const lastName = (document.getElementById('lastName') as HTMLInputElement)?.value || '';
-                    paymentElement.update({
-                      fields: {
-                        billingDetails: {
-                          name: `${e.target.value} ${lastName}`.trim()
-                        }
-                      }
-                    });
-                  }
-                }
+                // Простое взаимодействие без вызова типизированных методов
+                // Данные будут собраны при отправке формы
               }}
             />
           </div>
@@ -294,19 +283,8 @@ const CheckoutForm = ({
               placeholder="Doe"
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               onChange={(e) => {
-                if (elements) {
-                  const paymentElement = elements.getElement(PaymentElement);
-                  if (paymentElement) {
-                    const firstName = (document.getElementById('firstName') as HTMLInputElement)?.value || '';
-                    paymentElement.update({
-                      fields: {
-                        billingDetails: {
-                          name: `${firstName} ${e.target.value}`.trim()
-                        }
-                      }
-                    });
-                  }
-                }
+                // Простое взаимодействие без вызова типизированных методов
+                // Данные будут собраны при отправке формы
               }}
             />
           </div>
