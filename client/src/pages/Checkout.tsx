@@ -4,7 +4,7 @@ import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
-import { useStripe, Elements, PaymentElement, useElements, LinkAuthenticationElement, AddressElement } from '@stripe/react-stripe-js';
+import { useStripe, Elements, PaymentElement, useElements, AddressElement } from '@stripe/react-stripe-js';
 import { useEffect, useState } from "react";
 import stripePromise, { REGISTERED_DOMAIN_ID } from "@/lib/stripe";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
@@ -110,15 +110,16 @@ const CheckoutForm = ({
         return;
       }
       
-      // Получаем email из элемента LinkAuthenticationElement
-      const linkAuthentication = elements.getElement(LinkAuthenticationElement);
+      // Получаем email из стандартного поля ввода
+      const emailInput = document.getElementById('customerEmail') as HTMLInputElement;
+      const email = emailInput?.value || user.email || '';
       
       // Для отладки: проверка состояния элементов
       const paymentElement = elements.getElement(PaymentElement);
       const addressElement = elements.getElement(AddressElement);
       
       console.log('PaymentElement status:', paymentElement ? 'loaded' : 'not loaded');
-      console.log('LinkAuthentication status:', linkAuthentication ? 'loaded' : 'not loaded');
+      console.log('Email input value:', email);
       console.log('AddressElement status:', addressElement ? 'loaded' : 'not loaded');
       
       // Дополнительные параметры для confirmParams
@@ -244,15 +245,24 @@ const CheckoutForm = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Элемент аутентификации для Link (сохраняет email и телефон для будущих покупок) */}
       <div className="space-y-4">
-        <LinkAuthenticationElement
-          id="link-authentication-element"
-          options={{
-            defaultValues: {
-              email: user?.email || '',
-            }
-          }}
-          className="stripe-input-element"
-        />
+        <div>
+          <label htmlFor="customerEmail" className="block text-sm font-medium mb-1">Email Address</label>
+          <input 
+            type="email" 
+            id="customerEmail"
+            name="customerEmail"
+            defaultValue={user?.email || ''}
+            placeholder="email@example.com"
+            className="w-full px-3 py-2 border border-gray-400 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            style={{
+              border: '1px solid #9ca3af',
+              boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+              fontFamily: 'system-ui, sans-serif',
+              backgroundColor: 'white'
+            }}
+            required
+          />
+        </div>
         
         {/* Добавляем поля для ввода имени и фамилии */}
         <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
@@ -360,25 +370,7 @@ const CheckoutForm = ({
         </div>
       </div>
 
-      {/* Поле для ввода email */}
-      <div className="mt-6 mb-4">
-        <h3 className="text-base font-medium mb-3">Email Address</h3>
-        <div className="relative">
-          <input 
-            type="email" 
-            id="customerEmail" 
-            name="customerEmail" 
-            className="w-full px-3 py-2 text-gray-900 rounded-md border border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            placeholder="email@example.com"
-            style={{
-              border: '2px solid #9ca3af',
-              boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-              fontFamily: 'system-ui, sans-serif',
-              backgroundColor: 'white'
-            }}
-          />
-        </div>
-      </div>
+
 
       {/* Основной элемент оплаты с поддержкой Apple Pay, Google Pay и Link */}
       {/* Добавляем компонент для сбора полной информации о доставке */}
