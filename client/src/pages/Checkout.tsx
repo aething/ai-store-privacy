@@ -84,33 +84,74 @@ const CheckoutForm = ({
     console.log('Выбранный метод оплаты:', paymentMethod);
     
     try {
+      // Получаем имя и фамилию из полей формы
+      const firstName = (document.getElementById('firstName') as HTMLInputElement)?.value || '';
+      const lastName = (document.getElementById('lastName') as HTMLInputElement)?.value || '';
+      const fullName = `${firstName} ${lastName}`.trim() || user.username || '';
+      
+      // Получаем телефон из поля формы
+      const phone = (document.getElementById('phone') as HTMLInputElement)?.value || '';
+      
+      // Проверяем заполнение обязательных полей
+      if (!firstName || !lastName) {
+        toast({
+          title: "Missing Information",
+          description: "Please provide your first and last name for delivery.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!phone) {
+        toast({
+          title: "Missing Information",
+          description: "Please provide your phone number for delivery updates.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       // Получаем email из элемента LinkAuthenticationElement
       const linkAuthentication = elements.getElement(LinkAuthenticationElement);
       
       // Для отладки: проверка состояния элементов
       const paymentElement = elements.getElement(PaymentElement);
+      const addressElement = elements.getElement(AddressElement);
+      
       console.log('PaymentElement status:', paymentElement ? 'loaded' : 'not loaded');
       console.log('LinkAuthentication status:', linkAuthentication ? 'loaded' : 'not loaded');
+      console.log('AddressElement status:', addressElement ? 'loaded' : 'not loaded');
       
       // Дополнительные параметры для confirmParams
-      const confirmParams = {
+      const confirmParams: any = {
         // URL для перенаправления после успешного платежа
         return_url: window.location.origin + "/confirmation",
         // Метаданные для отслеживания платежа
         payment_method_data: {
           billing_details: {
             email: user.email,
-            name: user.username,
+            name: fullName,
+            phone: phone
           }
         },
         // Зарегистрированный домен не указываем в confirmParams,
         // так как эти настройки используются автоматически из конфигурации Stripe
         receipt_email: user.email,
+        shipping: {
+          name: fullName,
+          phone: phone
+          // Address details will be automatically collected from the AddressElement
+        }
       };
       
       console.log('Используем confirmPayment с параметрами:', {
         returnUrl: confirmParams.return_url,
         email: user.email,
+        name: fullName,
+        phone: phone,
+        shipping: confirmParams.shipping
       });
       
       // Разные методы подтверждения в зависимости от выбранного способа оплаты
@@ -217,8 +258,62 @@ const CheckoutForm = ({
           }}
         />
         
-        {/* Добавляем поле для ввода телефона */}
-        <div className="mt-3">
+        {/* Добавляем поля для ввода имени и фамилии */}
+        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
+          <div className="flex-1">
+            <label htmlFor="firstName" className="block text-sm font-medium mb-1">First Name</label>
+            <input 
+              type="text" 
+              id="firstName"
+              name="firstName"
+              placeholder="John"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              onChange={(e) => {
+                if (elements) {
+                  const paymentElement = elements.getElement(PaymentElement);
+                  if (paymentElement) {
+                    const lastName = (document.getElementById('lastName') as HTMLInputElement)?.value || '';
+                    paymentElement.update({
+                      fields: {
+                        billingDetails: {
+                          name: `${e.target.value} ${lastName}`.trim()
+                        }
+                      }
+                    });
+                  }
+                }
+              }}
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="lastName" className="block text-sm font-medium mb-1">Last Name</label>
+            <input 
+              type="text" 
+              id="lastName"
+              name="lastName"
+              placeholder="Doe"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              onChange={(e) => {
+                if (elements) {
+                  const paymentElement = elements.getElement(PaymentElement);
+                  if (paymentElement) {
+                    const firstName = (document.getElementById('firstName') as HTMLInputElement)?.value || '';
+                    paymentElement.update({
+                      fields: {
+                        billingDetails: {
+                          name: `${firstName} ${e.target.value}`.trim()
+                        }
+                      }
+                    });
+                  }
+                }
+              }}
+            />
+          </div>
+        </div>
+        
+        {/* Поле для ввода телефона */}
+        <div>
           <label htmlFor="phone" className="block text-sm font-medium mb-1">Phone Number</label>
           <input 
             type="tel" 
@@ -267,6 +362,25 @@ const CheckoutForm = ({
       </div>
 
       {/* Основной элемент оплаты с поддержкой Apple Pay, Google Pay и Link */}
+      {/* Добавляем компонент для сбора полной информации о доставке */}
+      <div className="mt-6 mb-4">
+        <h3 className="text-base font-medium mb-3">Shipping Address</h3>
+        <AddressElement 
+          options={{
+            mode: 'shipping',
+            allowedCountries: ['US', 'CA', 'GB', 'DE', 'FR', 'IT', 'ES', 'AT', 'BE', 'NL', 'PT', 'IE', 'FI', 'SE', 'DK', 'NO'],
+            fields: {
+              phone: 'never' // Телефон уже собираем отдельно
+            },
+            validation: {
+              phone: {
+                required: 'never' // Валидацию телефона отключаем, так как собираем его отдельно
+              }
+            }
+          }}
+        />
+      </div>
+
       <PaymentElement 
         id="payment-element"
         options={{
@@ -286,14 +400,7 @@ const CheckoutForm = ({
               // Показываем только необходимые поля
               email: 'never', // Email уже собираем в LinkAuthenticationElement
               phone: 'never', // Телефон теперь собираем в нашем собственном поле
-              address: {
-                country: 'auto',
-                postalCode: 'auto',
-                line1: 'auto',
-                line2: 'never', // Упрощаем форму
-                city: 'auto',
-                state: 'auto',
-              }
+              address: 'never' // Используем отдельный компонент AddressElement для сбора адреса
             }
           }
         }}
