@@ -6,14 +6,14 @@ import { useAppContext } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
 import { useEffect, useState } from "react";
-import stripePromise, { createPaymentIntent } from "@/lib/stripe";
+import stripePromise from "@/lib/stripe";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import { apiRequest } from "@/lib/queryClient";
 import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { TaxDisplayBoxSimple } from "@/components/TaxDisplayBoxSimple";
 import { COMPANY_INFO, getVatIdForCountry } from "@shared/companyInfo";
-import { updatePaymentIntentQuantity } from "@/api/payments";
+import { createPaymentIntent, updatePaymentIntentQuantity } from "@/api/payments";
 
 const CheckoutForm = ({ productId, amount, currency }: { productId: number; amount: number; currency: 'usd' | 'eur' }) => {
   const stripe = useStripe();
