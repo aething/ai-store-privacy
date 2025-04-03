@@ -234,8 +234,8 @@
           refreshing = true;
           // Сохраняем время перезагрузки
           localStorage.setItem('sw_last_reload', Date.now().toString());
-          // Добавляем параметр для предотвращения зацикливания
-          window.location.href = window.location.pathname + '?sw_skip=true';
+          // Перезагружаем страницу без добавления параметров
+          window.location.reload();
         } else {
           console.log('Предотвращена лишняя перезагрузка страницы');
         }
