@@ -111,7 +111,7 @@ export default function Checkout() {
     enabled: !!productId,
   });
   
-  // Determine currency and price based on user's country
+  // Определяем валюту и цену на основе страны пользователя
   // Если пользователь не авторизован, используем 'DE' (Германию) по умолчанию
   const defaultCountry = 'DE'; 
   const currency = getCurrencyForCountry(user?.country || defaultCountry);
@@ -212,46 +212,40 @@ export default function Checkout() {
   const taxLabel = taxInfo?.label || DEFAULT_TAX_LABEL;
   const taxAmount = taxInfo?.amount || Math.round(price * DEFAULT_TAX_RATE);
 
+  // Этот useEffect отвечает за создание PaymentIntent
   useEffect(() => {
-    const getPaymentIntent = async () => {
-      if (!productId || !user || !product) return;
-      
-      // Всегда обновляем базовые налоговые данные независимо от Stripe
-      const country = user?.country || defaultCountry;
-      const { rate, label } = calculateTaxRate(country);
-      const amount = rate > 0 ? Math.round(price * rate) : 0;
-      
-      console.log('Basic tax calculation for display:', { 
-        country, 
-        rate, 
-        label,
-        amount, 
-        price,
-        total: price + amount
-      });
-      
-      // Обновляем информацию о налогах в локальном состоянии
-      setTaxInfo({ rate, label, amount });
-      
+    // Выходим сразу, если нет необходимых данных
+    if (!productId || !user || !product) return;
+    
+    const fetchPaymentIntent = async () => {
       try {
-        // Use our helper function to create a payment intent
+        console.log('Initializing payment with quantity:', quantity);
+        
+        // Создаем платежное намерение с текущим количеством
         const data = await createPaymentIntent(
           productId, 
           user.id, 
-          user.country
+          user.country,
+          undefined,
+          undefined,
+          quantity
         );
         
         setClientSecret(data.clientSecret);
+        
+        // Сохраняем ID PaymentIntent для последующего обновления
+        if (data.id) {
+          setPaymentIntentId(data.id);
+        }
+        
         setPaymentIntentError(false);
         
-        // Сохраняем информацию о налогах, полученную от Stripe
-        console.log('Получены данные из API:', data);
+        // Если пришла налоговая информация от Stripe, используем ее
         if (data.tax) {
           console.log('Получена налоговая информация от Stripe:', data.tax);
           
           // Преобразование налоговой суммы из центов в основную валюту
-          // Если сумма больше цены товара, значит она в центах и нужно делить на 100
-          let taxAmountFixed = data.tax.amount || amount;
+          let taxAmountFixed = data.tax.amount || taxAmount;
           if (taxAmountFixed > price * 0.5) {
             console.log('Конвертируем tax.amount из центов в основную валюту:', taxAmountFixed, '→', taxAmountFixed / 100);
             taxAmountFixed = Math.round(taxAmountFixed / 100);
@@ -259,59 +253,55 @@ export default function Checkout() {
           
           const stripeTax = {
             amount: taxAmountFixed,
-            rate: data.tax.rate || rate,
-            label: data.tax.label || label,
-            display: data.tax.label || `${(rate * 100).toFixed(1)}% ${label} (${country})`
+            rate: data.tax.rate || taxRate,
+            label: data.tax.label || taxLabel,
+            display: data.tax.label || `${(taxRate * 100).toFixed(1)}% ${taxLabel} (${user.country})`
           };
           
           setStripeTaxInfo(stripeTax);
           
-          // Также обновляем базовую налоговую информацию данными от Stripe
-          // Используем уже преобразованную сумму taxAmountFixed вместо raw data.tax.amount
+          // Также обновляем базовую налоговую информацию
           setTaxInfo({
-            rate: data.tax.rate || rate,
-            label: data.tax.label || label,
-            amount: taxAmountFixed, // Используем преобразованное значение
+            rate: data.tax.rate || taxRate,
+            label: data.tax.label || taxLabel,
+            amount: taxAmountFixed
           });
-          
-          console.log('Tax information updated from Stripe:', stripeTax);
         } else {
-          // Если нет налоговой информации от Stripe, 
-          // используем наши локальные расчеты, которые уже установлены
+          // Если нет налоговой информации от Stripe, используем локальные расчеты
           console.log('No tax information from Stripe, using local calculation');
           
-          // Устанавливаем stripeTaxInfo, используя локальные расчеты
           setStripeTaxInfo({
-            amount: amount,
-            rate: rate,
-            label: label,
-            display: `${(rate * 100).toFixed(1)}% ${label} (${country})`
+            amount: taxAmount,
+            rate: taxRate,
+            label: taxLabel,
+            display: `${(taxRate * 100).toFixed(1)}% ${taxLabel} (${user.country || defaultCountry})`
           });
         }
+        
+        console.log('Payment intent created successfully');
       } catch (error) {
-        console.error('Error creating payment intent:', error);
+        console.error('Payment initialization error:', error);
         setPaymentIntentError(true);
         
         // Даже при ошибке платежной системы показываем правильную налоговую информацию
-        // используя уже рассчитанные выше значения
         setStripeTaxInfo({
-          amount: amount,
-          rate: rate,
-          label: label,
-          display: `${(rate * 100).toFixed(1)}% ${label} (${country})`
+          amount: taxAmount,
+          rate: taxRate,
+          label: taxLabel,
+          display: `${(taxRate * 100).toFixed(1)}% ${taxLabel} (${user?.country || defaultCountry})`
         });
         
         toast({
-          title: "Payment System Error",
-          description: "Could not initialize payment. Tax information is calculated locally.",
+          title: "Payment Error",
+          description: "Could not initialize the payment. Please try again later.",
           variant: "destructive",
         });
       }
     };
     
-    getPaymentIntent();
-  }, [productId, user, product, price, toast, defaultCountry]);
-  
+    fetchPaymentIntent();
+  }, [productId, user, product, quantity, taxRate, taxLabel, taxAmount, price, defaultCountry, toast]);
+
   if (!product) {
     return (
       <div>
@@ -330,9 +320,6 @@ export default function Checkout() {
       </div>
     );
   }
-  
-  // Мы модифицируем эту логику, чтобы показывать информацию о товаре и налогах
-  // даже если пользователь не авторизован, но при этом блокировать процесс оплаты
   
   // Вычисляем стоимость с учетом количества
   const basePrice = price * quantity;
@@ -386,138 +373,129 @@ export default function Checkout() {
       setIsUpdatingQuantity(false);
     }
   };
-  
-  // Обновляем функцию useEffect для сохранения ID PaymentIntent
-  useEffect(() => {
-    const getPaymentIntent = async () => {
-      if (!productId || !user || !product) return;
-      
-      try {
-        const data = await createPaymentIntent(
-          productId, 
-          user.id, 
-          user.country,
-          undefined,
-          undefined,
-          quantity // Передаем выбранное количество товара
-        );
-        
-        setClientSecret(data.clientSecret);
-        
-        // Сохраняем ID PaymentIntent для последующего обновления
-        if (data.id) {
-          setPaymentIntentId(data.id);
-        }
-        
-        setPaymentIntentError(false);
-        
-        // Обработка налоговой информации...
-      } catch (error) {
-        // Обработка ошибки...
-      }
-    };
-    
-    getPaymentIntent();
-  }, [productId, user, product, quantity]);
 
-  const renderProductInfo = () => (
-    <Card className="p-4 mb-6">
-      <div className="flex items-center mb-4">
-        <img 
-          src={product.imageUrl} 
-          alt={product.title}
-          className="w-16 h-16 object-cover rounded mr-4"
-        />
-        <div>
-          <h3 className="font-medium">{product.title}</h3>
-          <p className="text-lg">{formatPrice(price, currency, isStripePrice)}</p>
-        </div>
-      </div>
-      
-      {/* Селектор количества */}
-      <div className="border-b pb-4 mb-3">
-        <div className="flex items-center justify-between">
-          <label htmlFor="quantity" className="font-medium">Quantity:</label>
-          <div className="flex items-center">
-            <button 
-              type="button"
-              onClick={() => handleQuantityChange(quantity - 1)}
-              disabled={quantity <= 1 || isUpdatingQuantity}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 
-                        text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-            >
-              -
-            </button>
-            <span className="mx-3 font-medium w-6 text-center">{quantity}</span>
-            <button 
-              type="button"
-              onClick={() => handleQuantityChange(quantity + 1)}
-              disabled={quantity >= 10 || isUpdatingQuantity}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 
-                        text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-            >
-              +
-            </button>
+  const renderProductInfo = () => {
+    // Проверка загрузки продукта
+    if (!product) {
+      return (
+        <Card className="p-4 mb-6">
+          <div className="flex items-center mb-4 animate-pulse">
+            <div className="w-16 h-16 bg-gray-200 rounded mr-4"></div>
+            <div>
+              <div className="h-5 bg-gray-200 rounded w-24 mb-2"></div>
+              <div className="h-6 bg-gray-200 rounded w-16"></div>
+            </div>
+          </div>
+          <div className="h-10 bg-gray-200 rounded mb-3"></div>
+          <div className="space-y-2">
+            <div className="h-5 bg-gray-200 rounded"></div>
+            <div className="h-5 bg-gray-200 rounded"></div>
+            <div className="h-5 bg-gray-200 rounded"></div>
+          </div>
+          <div className="text-center mt-4">Loading product information...</div>
+        </Card>
+      );
+    }
+    
+    return (
+      <Card className="p-4 mb-6">
+        <div className="flex items-center mb-4">
+          <img 
+            src={product.imageUrl} 
+            alt={product.title}
+            className="w-16 h-16 object-cover rounded mr-4"
+          />
+          <div>
+            <h3 className="font-medium">{product.title}</h3>
+            <p className="text-lg">{formatPrice(price, currency, isStripePrice)}</p>
           </div>
         </div>
         
-        {isUpdatingQuantity && (
-          <div className="text-center mt-2 text-sm text-blue-600">
-            Updating quantity...
+        {/* Селектор количества */}
+        <div className="border-b pb-4 mb-3">
+          <div className="flex items-center justify-between">
+            <label htmlFor="quantity" className="font-medium">Quantity:</label>
+            <div className="flex items-center">
+              <button 
+                type="button"
+                onClick={() => handleQuantityChange(quantity - 1)}
+                disabled={quantity <= 1 || isUpdatingQuantity}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 
+                          text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+              >
+                -
+              </button>
+              <span className="mx-3 font-medium w-6 text-center">{quantity}</span>
+              <button 
+                type="button"
+                onClick={() => handleQuantityChange(quantity + 1)}
+                disabled={quantity >= 10 || isUpdatingQuantity}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 
+                          text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+              >
+                +
+              </button>
+            </div>
           </div>
-        )}
-      </div>
-      
-      <div className="border-t border-b py-3 my-3">
-        {/* Используем таблицу с явным указанием ширины для лучшего выравнивания */}
-        <table className="w-full">
-          <tbody>
-            <tr className="mb-2">
-              <td className="text-left pb-2">Subtotal ({quantity} × {formatPrice(price, currency, isStripePrice)})</td>
-              <td className="text-right pb-2">{formatPrice(basePrice, currency, isStripePrice)}</td>
-            </tr>
-            
-            {/* Налоговая информация - всегда отображаем, используя запасные значения */}
-            <tr className="mb-2 bg-yellow-50">
-              <td className="text-left pb-2 pt-2 font-medium">
-                <span className="flex items-center">
-                  {stripeTaxInfo?.display || taxLabel}
-                  <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || defaultCountry}</span>
-                </span>
-              </td>
-              <td className="text-right pb-2 pt-2 font-medium">
-                {formatPrice(calculatedTaxAmount, currency, isStripePrice)}
-              </td>
-            </tr>
-            
-            <tr className="mb-2">
-              <td className="text-left pb-2">Shipping</td>
-              <td className="text-right pb-2">Free</td>
-            </tr>
-            
-            <tr className="font-bold text-lg bg-green-50">
-              <td className="text-left pt-2 pb-2 border-t">Total</td>
-              <td className="text-right pt-2 pb-2 border-t">
-                {formatPrice(totalPrice, currency, isStripePrice)}
-              </td>
-            </tr>
-            {/* Отладочная строка, показывающая как выполняется расчет итоговой суммы */}
-            <tr className="text-xs">
-              <td colSpan={2} className="text-center pt-1 text-green-700 italic">
-                ({formatPrice(basePrice, currency, isStripePrice)} + {formatPrice(calculatedTaxAmount, currency, isStripePrice)})
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        
-        {/* Пояснительный текст о налогах */}
-        <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
-          <div className="font-medium mb-1">Tax:</div>
-          <div>* VAT is applied according to EU regulations.</div>
+          
+          {isUpdatingQuantity && (
+            <div className="text-center mt-2 text-sm text-blue-600">
+              Updating quantity...
+            </div>
+          )}
         </div>
-      </div>
-    </Card>
-  );
+        
+        <div className="border-t border-b py-3 my-3">
+          {/* Используем таблицу с явным указанием ширины для лучшего выравнивания */}
+          <table className="w-full">
+            <tbody>
+              <tr className="mb-2">
+                <td className="text-left pb-2">Subtotal ({quantity} × {formatPrice(price, currency, isStripePrice)})</td>
+                <td className="text-right pb-2">{formatPrice(basePrice, currency, isStripePrice)}</td>
+              </tr>
+              
+              {/* Налоговая информация - всегда отображаем, используя запасные значения */}
+              <tr className="mb-2 bg-yellow-50">
+                <td className="text-left pb-2 pt-2 font-medium">
+                  <span className="flex items-center">
+                    {stripeTaxInfo?.display || taxLabel}
+                    <span className="ml-1 bg-blue-100 text-blue-700 text-xs px-1 py-0.5 rounded">{user?.country || defaultCountry}</span>
+                  </span>
+                </td>
+                <td className="text-right pb-2 pt-2 font-medium">
+                  {formatPrice(calculatedTaxAmount, currency, isStripePrice)}
+                </td>
+              </tr>
+              
+              <tr className="mb-2">
+                <td className="text-left pb-2">Shipping</td>
+                <td className="text-right pb-2">Free</td>
+              </tr>
+              
+              <tr className="font-bold text-lg bg-green-50">
+                <td className="text-left pt-2 pb-2 border-t">Total</td>
+                <td className="text-right pt-2 pb-2 border-t">
+                  {formatPrice(totalPrice, currency, isStripePrice)}
+                </td>
+              </tr>
+              {/* Отладочная строка, показывающая как выполняется расчет итоговой суммы */}
+              <tr className="text-xs">
+                <td colSpan={2} className="text-center pt-1 text-green-700 italic">
+                  ({formatPrice(basePrice, currency, isStripePrice)} + {formatPrice(calculatedTaxAmount, currency, isStripePrice)})
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          {/* Пояснительный текст о налогах */}
+          <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">
+            <div className="font-medium mb-1">Tax:</div>
+            <div>* VAT is applied according to EU regulations.</div>
+          </div>
+        </div>
+      </Card>
+    );
+  };
   
   if (!user) {
     return (
@@ -560,7 +538,7 @@ export default function Checkout() {
         <h2 className="text-lg font-medium">Checkout</h2>
       </div>
       
-{renderProductInfo()}
+      {renderProductInfo()}
       
       <Card className="p-4">
         <h3 className="font-medium mb-4">Payment Information</h3>
