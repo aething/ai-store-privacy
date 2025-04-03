@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal React Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #333;
+    }
+    
+    .logs {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    
+    .log-line {
+      margin: 0;
+      padding: 2px 0;
+    }
+    
+    .log-info {
+      color: #0366d6;
+    }
+    
+    .log-error {
+      color: #d73a49;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Минимальное тестирование React</h1>
+    <p>Эта страница тестирует только рендеринг простейшего React-приложения без сложной логики.</p>
+    
+    <div id="root">
+      <!-- React приложение будет здесь -->
+      <p>Загрузка минимального приложения...</p>
+    </div>
+    
+    <div class="logs" id="console-log">
+      <p class="log-line log-info">Инициализация логов...</p>
+    </div>
+  </div>
+  
+  <script>
+    // Перехватываем консоль для отображения на странице
+    const originalConsole = {
+      log: console.log,
+      error: console.error,
+      warn: console.warn
+    };
+    
+    const logElement = document.getElementById('console-log');
+    
+    function addLogLine(message, type = 'info') {
+      const line = document.createElement('p');
+      line.className = `log-line log-${type}`;
+      line.textContent = message;
+      logElement.appendChild(line);
+      logElement.scrollTop = logElement.scrollHeight;
+    }
+    
+    console.log = function(...args) {
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+      ).join(' ');
+      addLogLine(message, 'info');
+      originalConsole.log(...args);
+    };
+    
+    console.error = function(...args) {
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+      ).join(' ');
+      addLogLine(message, 'error');
+      originalConsole.error(...args);
+    };
+    
+    console.warn = function(...args) {
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+      ).join(' ');
+      addLogLine(message, 'warn');
+      originalConsole.warn(...args);
+    };
+    
+    // Логируем информацию о загрузке
+    console.log('Страница загружена, запускаем минимальное приложение React...');
+  </script>
+  
+  <!-- Загружаем минимальное приложение React -->
+  <script type="module" src="/src/minimal-main.tsx"></script>
+</body>
+</html>
