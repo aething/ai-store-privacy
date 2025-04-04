@@ -1,12 +1,12 @@
 /* 
- * Service Worker для Progressive Web App (PWA)
- * Обеспечивает основную функциональность работы в оффлайн-режиме,
- * кэширование статических ресурсов и улучшение производительности
+ * Service Worker for Progressive Web App (PWA)
+ * Provides core functionality for offline mode,
+ * static resource caching and performance optimization
  */
 
 const CACHE_NAME = 'ai-store-v1';
 
-// Ресурсы, которые будут кэшироваться при установке 
+// Resources that will be cached during installation
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -25,7 +25,7 @@ const STATIC_ASSETS = [
   '/images/app-screenshot.jpg'
 ];
 
-// Установка сервис-воркера
+// Service worker installation
 self.addEventListener('install', event => {
   console.log('[Service Worker] Installing Service Worker...');
   event.waitUntil(

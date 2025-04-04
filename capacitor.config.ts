@@ -1,39 +1,39 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 /**
- * Конфигурация Capacitor для подготовки к публикации в Google Play Market
- * Настройки оптимизированы согласно рекомендациям Google для PWA и гибридных приложений
+ * Capacitor configuration for Google Play Store publication
+ * Settings are optimized according to Google recommendations for PWA and hybrid applications
  * https://developer.android.com/google-play/guides/subscription-validation
  */
 const config: CapacitorConfig = {
-  // Уникальный идентификатор приложения для Google Play Store
+  // Unique application identifier for Google Play Store
   appId: 'com.aething.aistore',
   
-  // Название приложения, которое будет отображаться в Google Play
+  // Application name to be displayed in Google Play
   appName: 'AI Store',
   
-  // Каталог собранного фронтенда
+  // Frontend build directory
   webDir: 'client/dist',
   
-  // Отключаем встроенный runtime
+  // Disable built-in runtime
   bundledWebRuntime: false,
   
-  // Настройки сервера
+  // Server settings
   server: {
-    // Рекомендуется использовать https для всех приложений в Play Market
+    // HTTPS is recommended for all applications in Play Market
     androidScheme: 'https',
-    // В релизной версии рекомендуется отключить cleartext (HTTP без шифрования)
+    // In release version, it's recommended to disable cleartext (unencrypted HTTP)
     cleartext: false
   },
   
-  // Настройки для Android
+  // Android settings
   android: {
-    // Минимальная рекомендуемая версия Android API - 23 (Android 6.0 Marshmallow)
+    // Minimum recommended Android API version - 23 (Android 6.0 Marshmallow)
     minSdkVersion: 23,
-    // Целевая версия SDK должна регулярно обновляться согласно требованиям Google Play
-    targetSdkVersion: 33,
+    // Target SDK version should be regularly updated according to Google Play requirements
+    targetSdkVersion: 34,
     
-    // Настройки для build.gradle
+    // Build.gradle settings
     buildOptions: {
       keystorePath: undefined,
       keystorePassword: undefined,
@@ -42,15 +42,15 @@ const config: CapacitorConfig = {
       signingType: 'apksigner'
     },
     
-    // Включаем инструменты аналитики для Google Play
+    // Enable analytics tools for Google Play
     useLegacyBridgeMode: false,
     
-    // Настройки манифеста
+    // Manifest settings
     overrideUserAgent: false,
     backgroundColor: '#FFFFFF'
   },
   
-  // Настройки Push-уведомлений (опционально)
+  // Push Notifications settings (optional)
   plugins: {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"]
