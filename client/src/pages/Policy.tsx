@@ -147,7 +147,17 @@ export default function Policy() {
             <div className="flex justify-center mt-6">
               <Button
                 className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={() => {
+                  // Плавная прокрутка наверх
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  
+                  // Гарантируем достижение верха страницы через таймаут
+                  setTimeout(() => {
+                    window.scrollTo(0, 0);
+                    rootRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
+                    document.getElementById('policy-root')?.scrollIntoView({ behavior: 'auto', block: 'start' });
+                  }, 300);
+                }}
               >
                 {t("scrollToTop")}
               </Button>

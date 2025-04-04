@@ -50,6 +50,14 @@ export default function InfoPage() {
       behavior: 'smooth', 
       block: 'start' 
     });
+    
+    // Гарантируем достижение верха страницы через таймаут
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      if (pageRef.current) {
+        pageRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
+      }
+    }, 300);
   };
 
   useEffect(() => {
