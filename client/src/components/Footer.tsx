@@ -7,6 +7,7 @@ export default function Footer() {
 
   // Навигация к информационной странице
   const goToInfoPage = (pageId: string) => {
+    // Исправлено: используем правильный маршрут /info/ вместо /policy/
     setLocation(`/info/${pageId}`);
   };
 
