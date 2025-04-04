@@ -104,9 +104,15 @@ export default function ProductDetail() {
 
   // Получаем локализованные данные продукта и UI
   const localizedInfo = productTranslations[currentLocale]?.[product.id];
-  const localizedProduct = localizedInfo || productTranslations['en']?.[product.id] || { 
+  // Используем английские переводы как запасной вариант
+  const enTranslation = productTranslations['en']?.[product.id];
+  
+  // Создаем объект с полными данными, включая learnMoreTitle и learnMoreContent
+  const localizedProduct = localizedInfo || enTranslation || { 
     title: product.title,
-    description: product.description
+    description: product.description,
+    learnMoreTitle: enTranslation?.learnMoreTitle || "Technical Details",
+    learnMoreContent: enTranslation?.learnMoreContent || product.description
   };
   
   // Получаем локализованные UI элементы
