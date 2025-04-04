@@ -105,14 +105,6 @@ export async function createPaymentIntent(
   // Вычисляем полную сумму с налогом (в центах)
   const totalAmount = baseAmount + taxAmount;
   
-  console.log(`Расчет цены для API Stripe:
-  - Базовая цена: ${price} центов (${(price/100).toFixed(2)} ${currency})
-  - Количество: ${quantity}
-  - Итого без налога: ${baseAmount} центов (${(baseAmount/100).toFixed(2)} ${currency})
-  - Налог (${rate * 100}%): ${taxAmount} центов (${(taxAmount/100).toFixed(2)} ${currency})
-  - Итого с налогом: ${totalAmount} центов (${(totalAmount/100).toFixed(2)} ${currency})
-  `);
-  
   // Создаем структуру line_items для более точного представления товаров в корзине
   const lineItems = [{
     product_id: productId.toString(),
@@ -135,19 +127,7 @@ export async function createPaymentIntent(
     items: JSON.stringify(lineItems) // Сохраняем детальную информацию о товарах для последующего обновления
   };
   
-  console.log('Creating payment intent with tax calculation:', {
-    productId,
-    userId,
-    country,
-    currency,
-    basePrice: price,
-    quantity,
-    baseAmount,
-    taxRate: rate,
-    taxAmount,
-    totalWithTax: totalAmount,
-    taxLabel: label
-  });
+  // Payment intent creation with tax calculation
   
   // Отправляем запрос на сервер для создания платежного намерения
   const response = await fetch('/api/create-payment-intent', {
@@ -197,8 +177,6 @@ export async function updatePaymentIntentQuantity(
   if (!paymentIntentId || !userId || quantity < 1) {
     throw new Error('Invalid parameters for updating payment intent');
   }
-  
-  console.log(`[PAYMENT API] Updating payment intent ${paymentIntentId} with new quantity: ${quantity}`);
   
   // Готовим данные с line_items для обновления PaymentIntent
   // Если productId не предоставлен, серверная сторона получит его из метаданных

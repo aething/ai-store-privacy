@@ -732,24 +732,14 @@ export default function Checkout() {
           // Если налоговая сумма слишком большая относительно цены (более 50% от цены),
           // это может означать, что она выражена в центах, а не в основных единицах валюты
           if (taxAmountFixed > price * 0.5) {
-            console.log('Налоговая сумма слишком большая, проверяем, нужна ли конвертация.');
-            
             // Проверяем, что ставка налога близка к ожидаемой (19% для Германии и т.д.)
             const expectedTaxAmount = Math.round(price * taxRate);
             const expectedTaxAmountInCents = Math.round(price * 100 * taxRate);
             
-            console.log(`Ожидаемый налог при ставке ${taxRate*100}%: 
-              - В основных единицах валюты: ${expectedTaxAmount}
-              - В центах: ${expectedTaxAmountInCents}
-              - Полученная сумма: ${taxAmountFixed}`);
-            
             // Если разница между полученной суммой и ожидаемой суммой в центах менее 10%,
             // то делим на 100 для конвертации в основную валюту
             if (Math.abs(taxAmountFixed - expectedTaxAmountInCents) / expectedTaxAmountInCents < 0.1) {
-              console.log(`Конвертируем tax.amount из центов в основную валюту: ${taxAmountFixed} → ${Math.round(taxAmountFixed / 100)}`);
               taxAmountFixed = Math.round(taxAmountFixed / 100);
-            } else {
-              console.log('Сумма налога не соответствует ожидаемой. Оставляем как есть.');
             }
           }
           
@@ -770,7 +760,7 @@ export default function Checkout() {
           });
         } else {
           // Если нет налоговой информации от Stripe, используем локальные расчеты
-          console.log('No tax information from Stripe, using local calculation');
+          // No tax information from Stripe, using local calculation
           
           setStripeTaxInfo({
             amount: taxAmount,
@@ -780,7 +770,7 @@ export default function Checkout() {
           });
         }
         
-        console.log('Payment intent created successfully');
+        // Payment intent created successfully
       } catch (error) {
         console.error('Payment initialization error:', error);
         setPaymentIntentError(true);
@@ -839,9 +829,7 @@ export default function Checkout() {
     // Устанавливаем флаг обновления для блокировки кнопок
     setIsUpdatingQuantity(true);
     
-    try {
-      // Отключаем логирование изменения количества
-      
+    try {      
       // Сначала обновляем визуально количество
       setQuantity(newQuantity);
       
@@ -851,7 +839,6 @@ export default function Checkout() {
       
       // Предварительно обновляем отображаемую налоговую информацию для лучшего UX
       if (stripeTaxInfo) {
-        // Отключаем логирование обновления налоговой информации
         // Рассчитываем новую сумму налога на основе ставки и нового количества
         const updatedTaxAmount = Math.round(price * newQuantity * stripeTaxInfo.rate);
         
@@ -903,7 +890,6 @@ export default function Checkout() {
           // Например, если ожидается около 1000, а получено 100000 - значит, скорее всего, 
           // произошла ошибка с единицами измерения
           if (taxAmountToUse > expectedTaxAmount * 10) {
-            // Отключаем отладочные сообщения о конвертации налога
             taxAmountToUse = Math.round(taxAmountToUse / 100);
           }
           
