@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import SwipeBack from "@/components/SwipeBack";
 import { useLocale } from "@/context/LocaleContext";
+import productTranslations from "@/locales/products";
 import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -21,7 +22,7 @@ export default function ProductDetail() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { user } = useAppContext();
-  const { t, currentLocale, getLocalizedProductInfo } = useLocale();
+  const { t, currentLocale } = useLocale();
   const [couponCode, setCouponCode] = useState('');
   
   const productId = match ? parseInt(params.id) : null;
@@ -40,11 +41,11 @@ export default function ProductDetail() {
     scrollToTop(false);
     
     // Сохраняем текущую позицию скролла главной страницы перед уходом
-    saveScrollPositionForPath('/');
+    saveScrollPositionForPath();
     
     // Также добавляем событие перед уходом со страницы для сохранения позиции
     const handleBeforeUnload = () => {
-      saveScrollPositionForPath('/');
+      saveScrollPositionForPath();
     };
     
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -57,7 +58,7 @@ export default function ProductDetail() {
   // Функция возврата на главную с сохранением позиции скролла
   const handleGoBack = () => {
     // Сохраняем текущую позицию скролла перед переходом
-    saveScrollPositionForPath('/product/' + productId);
+    saveScrollPositionForPath();
     console.log('[ProductDetail] Сохраняем позицию скролла перед уходом');
     
     // Используем history.back() для корректной работы системы восстановления позиции скролла
@@ -101,7 +102,11 @@ export default function ProductDetail() {
   }
 
   // Получаем локализованные данные продукта
-  const localizedProduct = getLocalizedProductInfo(product.id);
+  const localizedInfo = productTranslations[currentLocale]?.[product.id];
+  const localizedProduct = localizedInfo || productTranslations['en']?.[product.id] || { 
+    title: product.title,
+    description: product.description
+  };
   
   // Отладочная информация
   console.log("Product debug:", {

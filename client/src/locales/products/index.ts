@@ -1,8 +1,9 @@
 /**
- * Index file for all product translations
+ * Product translations aggregator
  */
 
 import { ProductTranslations } from '@/types';
+
 import en from './en';
 import de from './de';
 import es from './es';
@@ -11,8 +12,8 @@ import it from './it';
 import ja from './ja';
 import zh from './zh';
 
-// Map of all available translations by locale
-const translations: Record<string, ProductTranslations> = {
+// Экспортируем локализованные описания продуктов, индексированные по языку и ID
+export const productTranslations: Record<string, ProductTranslations> = {
   en,
   de,
   es,
@@ -22,4 +23,4 @@ const translations: Record<string, ProductTranslations> = {
   zh
 };
 
-export default translations;
+export default productTranslations;

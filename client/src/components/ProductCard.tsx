@@ -7,7 +7,8 @@ import { getProductImage } from "@/lib/imagePreloader";
 import { useProductImage } from "@/hooks/useProductImage";
 import { saveScrollPosition } from "@/lib/scrollUtils";
 import { useLocale } from "@/context/LocaleContext";
-// Получаем локализованную информацию через контекст
+// Импортируем локализованные переводы продуктов
+import productTranslations from "@/locales/products";
 
 interface ProductCardProps {
   product: Product;
@@ -16,7 +17,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const [, setLocation] = useLocation();
   const { user } = useAppContext();
-  const { currentLocale, t, getLocalizedProductInfo } = useLocale();
+  const { currentLocale, t } = useLocale();
   
   // Используем наш новый хук для загрузки изображения
   const { imageSrc, isLoaded } = useProductImage(product.id, product.imageUrl);
@@ -32,7 +33,11 @@ export default function ProductCard({ product }: ProductCardProps) {
   const price = getPriceForCountry(product, user?.country);
   
   // Получаем локализованные данные продукта
-  const localizedProduct = getLocalizedProductInfo(product.id);
+  const localizedInfo = productTranslations[currentLocale]?.[product.id];
+  const localizedProduct = localizedInfo || productTranslations['en']?.[product.id] || { 
+    title: product.title,
+    description: product.description
+  };
   
   // Проверяем, является ли это ценой из Stripe (по наличию stripeProductId)
   const isStripePrice = !!product.stripeProductId;

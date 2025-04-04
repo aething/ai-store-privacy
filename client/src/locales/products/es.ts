@@ -17,8 +17,8 @@ const translations: ProductTranslations = {
   },
   // Product ID 3
   3: {
-    title: "Sistema de Cámara Inteligente de Visión por Computadora",
-    description: "Sistema completo de procesamiento de visión con capacidades de IA integradas para detección, seguimiento y reconocimiento de objetos en tiempo real en diversos entornos."
+    title: "Sistema de Cámara Inteligente para Visión por Computadora",
+    description: "Sistema completo de procesamiento de visión con capacidades de IA integradas para la detección, seguimiento y reconocimiento de objetos en tiempo real en diversos entornos."
   },
   // Product ID 4
   4: {
@@ -27,7 +27,7 @@ const translations: ProductTranslations = {
   },
   // Product ID 5
   5: {
-    title: "Plataforma de Desarrollo de Robots con IA",
+    title: "Plataforma de Desarrollo de Robótica con IA",
     description: "Kit completo de desarrollo de robótica con procesamiento de IA integrado, conjunto de sensores y controles de actuadores para construir sistemas autónomos inteligentes."
   }
 };

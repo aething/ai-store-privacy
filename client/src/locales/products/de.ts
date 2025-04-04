@@ -8,7 +8,7 @@ const translations: ProductTranslations = {
   // Product ID 1
   1: {
     title: "KI-Entwicklungskit für Edge-Computing",
-    description: "Hochleistungsfähige KI-Entwicklungsplattform, optimiert für Edge-Computing mit fortschrittlichen neuronalen Verarbeitungsfähigkeiten und einem umfassenden Software-Ökosystem."
+    description: "Hochleistungs-KI-Entwicklungsplattform, optimiert für Edge-Computing mit fortschrittlichen neuronalen Verarbeitungsfähigkeiten und einem umfassenden Software-Ökosystem."
   },
   // Product ID 2
   2: {
@@ -17,18 +17,18 @@ const translations: ProductTranslations = {
   },
   // Product ID 3
   3: {
-    title: "Computer Vision Smart-Kamerasystem",
+    title: "Computer Vision Smart Camera System",
     description: "Komplettes Bildverarbeitungssystem mit integrierten KI-Fähigkeiten für Echtzeit-Objekterkennung, -verfolgung und -erkennung in verschiedenen Umgebungen."
   },
   // Product ID 4
   4: {
     title: "Entwicklungskit für natürliche Sprachverarbeitung",
-    description: "Spezialisiertes Hardware- und Software-Toolkit zur Entwicklung und Bereitstellung fortschrittlicher NLP-Anwendungen mit Unterstützung für mehrere Sprachmodelle."
+    description: "Spezialisiertes Hardware- und Software-Toolkit für die Entwicklung und Bereitstellung fortschrittlicher NLP-Anwendungen mit Unterstützung für mehrere Sprachmodelle."
   },
   // Product ID 5
   5: {
-    title: "KI-Roboter-Entwicklungsplattform",
-    description: "Umfassendes Robotik-Entwicklungskit mit integrierter KI-Verarbeitung, Sensorsuite und Aktorsteuerungen zum Aufbau intelligenter autonomer Systeme."
+    title: "KI-Robotik-Entwicklungsplattform",
+    description: "Umfassendes Robotik-Entwicklungskit mit integrierter KI-Verarbeitung, Sensorsuite und Aktor-Steuerungen zum Aufbau intelligenter autonomer Systeme."
   }
 };
 
