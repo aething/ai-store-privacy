@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from "react";
 
-// Import all language translations
+// Import all general language translations
 import en from "../locales/en";
 import es from "../locales/es";
 import de from "../locales/de";
@@ -8,6 +8,9 @@ import fr from "../locales/fr";
 import it from "../locales/it";
 import zh from "../locales/zh";
 import ja from "../locales/ja";
+
+// Import product-specific translations
+import productTranslations from "../locales/products";
 
 // Define locale types
 export type LocaleCode = 'en' | 'es' | 'de' | 'fr' | 'it' | 'zh' | 'ja';
@@ -29,7 +32,8 @@ export interface LocaleContextType {
   setLocale: (locale: LocaleCode) => void;
   t: (key: string) => string;
   getLocaleOptions: () => { value: LocaleCode; label: string }[];
-  translations: any; // Добавляем доступ к объекту переводов
+  translations: any; // Доступ к объекту переводов
+  getLocalizedProductInfo: (productId: number) => { title: string; description: string };
 }
 
 // Create context
@@ -76,13 +80,32 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
     document.documentElement.lang = currentLocale;
   }, [currentLocale]);
 
+  // Function to get localized product information
+  const getLocalizedProductInfo = (productId: number) => {
+    // Try to get from product translations for current locale
+    const localizedInfo = productTranslations[currentLocale]?.[productId];
+    
+    // Fallback to English if translation not available
+    if (!localizedInfo && currentLocale !== 'en') {
+      return productTranslations['en']?.[productId] || { 
+        title: `Product #${productId}`, 
+        description: "No description available" 
+      };
+    }
+    
+    return localizedInfo || { 
+      title: `Product #${productId}`, 
+      description: "No description available" 
+    };
+  };
+
   const value = {
     currentLocale,
     setLocale,
     t,
     getLocaleOptions,
-    // Добавляем доступ к текущим переводам
-    translations: localesData[currentLocale].translations
+    translations: localesData[currentLocale].translations,
+    getLocalizedProductInfo
   };
 
   return (

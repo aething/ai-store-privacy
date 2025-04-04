@@ -14,13 +14,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProductImage } from "@/hooks/useProductImage";
 import { getProductImage } from "@/lib/imagePreloader";
 import { scrollToTop, saveScrollPositionForPath } from "@/lib/scrollUtils";
+// Используем локализованную информацию через контекст
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { user } = useAppContext();
-  const { t } = useLocale();
+  const { t, currentLocale, getLocalizedProductInfo } = useLocale();
   const [couponCode, setCouponCode] = useState('');
   
   const productId = match ? parseInt(params.id) : null;
@@ -99,10 +100,14 @@ export default function ProductDetail() {
     );
   }
 
+  // Получаем локализованные данные продукта
+  const localizedProduct = getLocalizedProductInfo(product.id);
+  
   // Отладочная информация
   console.log("Product debug:", {
     id: product.id,
     title: product.title,
+    localizedTitle: localizedProduct.title,
     price: product.price,
     priceEUR: product.priceEUR,
     hasStripeId: !!product.stripeProductId,
@@ -171,7 +176,7 @@ export default function ProductDetail() {
             {imageSrc && (
               <img 
                 src={imageSrc}
-                alt={product.title} 
+                alt={localizedProduct.title} 
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   // Если не удалось загрузить изображение по URL, используем локальное изображение
@@ -190,7 +195,7 @@ export default function ProductDetail() {
         
         {/* Title, Coupon and Buy Button */}
         <div className="mb-6">
-          <h1 className="font-medium text-xl mb-3">{product.title}</h1>
+          <h1 className="font-medium text-xl mb-3">{localizedProduct.title}</h1>
           
           {/* Price and Buy Button in one row */}
           <div className="flex justify-between items-center mb-4">
@@ -210,7 +215,7 @@ export default function ProductDetail() {
               className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700"
               onClick={handleBuyNow}
             >
-              Buy Now
+              {t('buyNow')}
             </button>
           </div>
           

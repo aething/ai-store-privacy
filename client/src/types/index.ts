@@ -52,3 +52,19 @@ export interface InfoPage {
   description: string;
   content: string; // Может содержать HTML-разметку для форматирования
 }
+
+/**
+ * Локализованная информация о продукте
+ */
+export interface LocalizedProductInfo {
+  title: string;
+  description: string;
+}
+
+/**
+ * Тип для хранения переводов продуктов
+ * Ключ - ID продукта
+ */
+export interface ProductTranslations {
+  [productId: number]: LocalizedProductInfo;
+}

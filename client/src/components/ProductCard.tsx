@@ -6,6 +6,8 @@ import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/cu
 import { getProductImage } from "@/lib/imagePreloader";
 import { useProductImage } from "@/hooks/useProductImage";
 import { saveScrollPosition } from "@/lib/scrollUtils";
+import { useLocale } from "@/context/LocaleContext";
+// Получаем локализованную информацию через контекст
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +16,7 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const [, setLocation] = useLocation();
   const { user } = useAppContext();
+  const { currentLocale, t, getLocalizedProductInfo } = useLocale();
   
   // Используем наш новый хук для загрузки изображения
   const { imageSrc, isLoaded } = useProductImage(product.id, product.imageUrl);
@@ -28,8 +31,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const currency = getCurrencyForCountry(user?.country);
   const price = getPriceForCountry(product, user?.country);
   
-  // Добавляем отладочный вывод для определения валюты
-  console.log(`DEBUG ProductCard: User country=${user?.country}, Currency=${currency}, Product ID=${product.id}, Price=${price}`);
+  // Получаем локализованные данные продукта
+  const localizedProduct = getLocalizedProductInfo(product.id);
   
   // Проверяем, является ли это ценой из Stripe (по наличию stripeProductId)
   const isStripePrice = !!product.stripeProductId;
@@ -39,7 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const formattedPrice = formatPrice(price, currency, false);
   
   // Обрезаем описание до фиксированной длины и добавляем многоточие
-  const shortDescription = product.description.substring(0, 60) + "...";
+  const shortDescription = localizedProduct.description.substring(0, 60) + "...";
   
   // Определяем CSS для фона во время загрузки изображения
   const bgStyle = !imageSrc ? { backgroundColor: '#f3f4f6' } : {};
@@ -62,7 +65,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {imageSrc && (
           <img 
             src={imageSrc}
-            alt={product.title} 
+            alt={localizedProduct.title} 
             className="w-full h-full object-cover"
             onError={(e) => {
               // Если не удалось загрузить изображение по URL, используем локальное изображение
@@ -78,7 +81,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Содержимое карточки - фиксированная высота */}
       <div className="p-4 flex flex-col flex-grow">
         {/* Заголовок с фиксированной высотой и одинаковым отображением */}
-        <h3 className="font-medium text-lg h-14 line-clamp-2">{product.title}</h3>
+        <h3 className="font-medium text-lg h-14 line-clamp-2">{localizedProduct.title}</h3>
         
         {/* Описание с фиксированной высотой */}
         <p className="text-text-secondary text-sm mb-3 h-12 line-clamp-2">{shortDescription}</p>
@@ -93,7 +96,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               setLocation(`/checkout/${product.id}`);
             }}
           >
-            Buy Now
+            {t('buyNow')}
           </button>
         </div>
       </div>
