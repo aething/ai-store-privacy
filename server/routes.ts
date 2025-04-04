@@ -1510,7 +1510,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Вычисляем новую полную сумму
       const newTotalAmount = newBaseAmount + newTaxAmount;
-      console.log(`Updating PaymentIntent ${paymentIntentId}, quantity: ${metadata.quantity || '1'} -> ${parsedQuantity}`);
+      console.log(`[PAYMENT DEBUG] Updating PaymentIntent ${paymentIntentId}, quantity: ${metadata.quantity || '1'} -> ${parsedQuantity}`);
       console.log(`New total amount: ${newTotalAmount} (base: ${newBaseAmount}, tax: ${newTaxAmount})`);
       
       // Обновляем или отменяем текущий PaymentIntent и создаем новый
@@ -1555,9 +1555,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           // Обновляем PaymentIntent с новой суммой и метаданными
+          console.log(`[PAYMENT DEBUG] Вызываем stripe.paymentIntents.update для ID: ${paymentIntentId}, сумма: ${newTotalAmount}, метаданные:`, updatedMetadata);
           const updatedPaymentIntent = await stripe.paymentIntents.update(paymentIntentId, {
             amount: newTotalAmount,
             metadata: updatedMetadata
+          });
+          console.log(`[PAYMENT DEBUG] Результат обновления:`, {
+            id: updatedPaymentIntent.id,
+            amount: updatedPaymentIntent.amount,
+            metadata: updatedPaymentIntent.metadata,
+            status: updatedPaymentIntent.status
           });
           
           console.log(`PaymentIntent обновлен: ${paymentIntentId}, новая сумма: ${newTotalAmount} ${order.currency}`);
@@ -2272,172 +2279,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // API endpoint для обновления существующего PaymentIntent с новым количеством товаров
-  app.post("/api/update-payment-intent", async (req: Request, res: Response) => {
-    try {
-      const { paymentIntentId, quantity, userId } = req.body;
-      
-      if (!paymentIntentId || !quantity) {
-        return res.status(400).json({ 
-          message: "Payment intent ID and quantity are required" 
-        });
-      }
-      
-      // Валидация количества
-      const parsedQuantity = parseInt(quantity.toString(), 10);
-      if (isNaN(parsedQuantity) || parsedQuantity < 1) {
-        return res.status(400).json({ message: "Quantity must be a positive number" });
-      }
-      
-      // ВАЖНО: Временно отключаем проверку авторизации для тестирования
-      // В продакшене это нужно будет вернуть
-      // Позволяем обновлять платеж без авторизации для демо-режима
-      /*
-      if (!req.isAuthenticated() || req.user?.id !== parseInt(userId.toString(), 10)) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-      */
-      
-      // Получаем Stripe динамически
-      const Stripe = await import('stripe').then(module => module.default);
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-        apiVersion: '2025-02-24.acacia',
-        telemetry: false
-      });
-      
-      // Получаем текущий PaymentIntent
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-      
-      if (!paymentIntent) {
-        return res.status(404).json({ message: "Payment intent not found" });
-      }
-      
-      // Получаем метаданные для извлечения информации о продукте и пользователе
-      const metadata = paymentIntent.metadata || {};
-      
-      // Проверяем, что платеж связан с правильным пользователем
-      if (metadata.userId && parseInt(metadata.userId, 10) !== parseInt(userId.toString(), 10)) {
-        return res.status(403).json({ message: "Payment intent does not belong to this user" });
-      }
-      
-      // Получаем информацию о продукте
-      const productId = metadata.productId ? parseInt(metadata.productId, 10) : null;
-      
-      if (!productId) {
-        return res.status(400).json({ message: "Product ID not found in payment intent metadata" });
-      }
-      
-      const product = await storage.getProduct(productId);
-      
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      
-      // Получаем базовую сумму за единицу товара
-      const originalAmount = metadata.base_amount ? parseInt(metadata.base_amount, 10) : paymentIntent.amount;
-      const currency = paymentIntent.currency;
-      const originalQuantity = metadata.quantity ? parseInt(metadata.quantity, 10) : 1;
-      
-      console.log(`Original amount: ${originalAmount} ${currency} (единица товара: ${originalAmount/originalQuantity})`);
-      
-      // Рассчитываем новую базовую сумму на основе количества
-      const unitAmount = Math.round(originalAmount / originalQuantity);
-      let baseAmount = unitAmount * parsedQuantity;
-      
-      console.log(`Новое базовое количество: ${parsedQuantity}, сумма: ${baseAmount} ${currency}`);
-      
-      // ИСПРАВЛЕНИЕ: Проверяем, корректно ли сумма выражена в наименьших единицах (центах/копейках)
-      if (baseAmount < 100) {
-        console.log(`ВНИМАНИЕ: Очень маленькая сумма ${baseAmount} ${currency}. Проверяем, нужна ли конвертация.`);
-        // Если это десятичное число, вероятно, оно выражено в основных единицах валюты
-        if (String(baseAmount).includes('.')) {
-          const convertedAmount = Math.round(baseAmount * 100);
-          console.log(`Конвертированная сумма: ${convertedAmount} ${currency} (центы/копейки)`);
-          baseAmount = convertedAmount;
-        }
-      }
-      
-      // Получаем информацию о налогах
-      let taxRate = 0;
-      const taxRateString = metadata.tax_rate;
-      
-      // Правильно парсим строку налоговой ставки, удаляя символ '%' если он есть
-      if (taxRateString) {
-        // Удаляем символ % из строки, если он есть
-        const cleanedRate = taxRateString.replace('%', '');
-        // Преобразуем в число и делим на 100 для получения десятичной дроби
-        taxRate = parseFloat(cleanedRate) / 100;
-      }
-      
-      const taxLabel = metadata.tax_label || 'No Tax';
-      
-      console.log(`Извлеченная ставка налога: ${taxRate * 100}% из строки "${taxRateString}"`);
-      
-      // Рассчитываем новую сумму налога
-      const newTaxAmount = Math.round(baseAmount * taxRate);
-      
-      // Рассчитываем новую итоговую сумму
-      const newTotalAmount = baseAmount + newTaxAmount;
-      
-      // Скрываем конфиденциальную информацию в логах
-      console.log(`Updating PaymentIntent ${paymentIntentId}, quantity: ${originalQuantity} -> ${parsedQuantity}`);
-      console.log(`New total amount: ${newTotalAmount} (base: ${baseAmount}, tax: ${newTaxAmount})`);
-      
-      try {
-        // Отменяем текущий PaymentIntent
-        console.log(`Отменяем текущий PaymentIntent ${paymentIntentId} перед созданием нового...`);
-        
-        // Обновляем PaymentIntent с новыми суммами
-        const updatedPaymentIntent = await stripe.paymentIntents.update(
-          paymentIntentId,
-          {
-            amount: newTotalAmount,
-            metadata: {
-              ...metadata,
-              quantity: parsedQuantity.toString(),
-              base_amount: baseAmount.toString(),
-              tax_amount: newTaxAmount.toString(),
-              total_amount: newTotalAmount.toString(),
-              updated_at: new Date().toISOString()
-            },
-            // Добавляем обновление описания, чтобы отразить новое количество
-            description: `Order with ${taxLabel} (quantity: ${parsedQuantity})`,
-            // Устанавливаем правильные типы платежей для всех регионов
-            payment_method_types: currency === 'eur' 
-              ? ['card', 'ideal', 'sepa_debit'] 
-              : ['card'],
-          }
-        );
-        
-        console.log(`PaymentIntent обновлен: ${updatedPaymentIntent.id}, новая сумма: ${updatedPaymentIntent.amount} ${updatedPaymentIntent.currency}`);
-      } catch (updateError) {
-        console.error('Ошибка при обновлении PaymentIntent:', updateError);
-        throw new Error('Не удалось обновить платеж');
-      }
-      
-      // Получаем обновленный PaymentIntent для ответа
-      const result = await stripe.paymentIntents.retrieve(paymentIntentId);
-      
-      // Возвращаем обновленный PaymentIntent клиенту
-      res.json({
-        id: result.id,
-        clientSecret: result.client_secret,
-        amount: result.amount,
-        currency: result.currency,
-        baseAmount: baseAmount,
-        taxAmount: newTaxAmount,
-        quantity: parsedQuantity,
-        tax: {
-          rate: taxRate,
-          label: taxLabel,
-          amount: newTaxAmount
-        }
-      });
-    } catch (error) {
-      console.error("Error updating payment intent:", error);
-      res.status(500).json({ message: "Error updating payment intent" });
-    }
-  });
+  // DEPRECATED: Этот дублирующийся endpoint перенесен на строку 1406 
+  // Все остальное закомментировано или удалено
 
   const httpServer = createServer(app);
   return httpServer;

@@ -826,16 +826,8 @@ export default function Checkout() {
   const handleQuantityChange = async (newQuantity: number) => {
     if (newQuantity < 1 || newQuantity > 10) return;
     
-    console.log(`[QUANTITY DEBUG] Вызвана функция handleQuantityChange с новым количеством: ${newQuantity}`);
-    console.log(`[QUANTITY DEBUG] Текущее состояние - quantity: ${quantity}, productId: ${productId}, paymentIntentId: ${paymentIntentId}`);
-    
+    // Устанавливаем флаг обновления для блокировки кнопок
     setIsUpdatingQuantity(true);
-    
-    // Показываем уведомление о начале обновления
-    toast({
-      title: "Updating quantity",
-      description: `Changing quantity to ${newQuantity}...`,
-    });
     
     try {
       // Сначала обновляем визуально количество
@@ -844,14 +836,6 @@ export default function Checkout() {
       // Также напрямую обновляем расчетную цену (для мгновенной обратной связи)
       const newBaseAmount = price * newQuantity;
       const newTaxAmount = Math.round(price * newQuantity * taxRate);
-      
-      console.log(`[QUANTITY DEBUG] Новые расчетные суммы: 
-      - Базовая цена за единицу: ${price} 
-      - Новое количество: ${newQuantity}
-      - Новая базовая сумма: ${newBaseAmount}
-      - Ставка налога: ${taxRate * 100}%
-      - Новый налог: ${newTaxAmount}
-      - Итого: ${newBaseAmount + newTaxAmount}`);
       
       // Если пользователь не авторизован или нет ID платежа, просто обновляем UI
       if (!user || !paymentIntentId) {
@@ -1094,33 +1078,7 @@ export default function Checkout() {
             </tbody>
           </table>
           
-          {/* Отладочная информация о платеже - только для тестирования */}
-          <div className="mt-4 p-2 bg-slate-100 rounded-md text-xs text-slate-700">
-            <h4 className="font-bold mb-1">Детали платежа:</h4>
-            <pre className="whitespace-pre-wrap break-all">
-              {JSON.stringify({
-                paymentIntentId,
-                basePrice: price,
-                quantity,
-                taxRate,
-                taxAmount,
-                totalAmount: basePrice + calculatedTaxAmount,
-                currency
-              }, null, 2)}
-            </pre>
-            
-            <div className="mt-2">
-              <button 
-                onClick={() => toast({
-                  title: "Debug info",
-                  description: `Payment details logged to console`,
-                })}
-                className="px-2 py-1 text-xs bg-slate-200 hover:bg-slate-300 rounded"
-              >
-                Log Payment Details
-              </button>
-            </div>
-          </div>
+
           
           {/* Пояснительный текст о налогах */}
           <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">

@@ -198,7 +198,7 @@ export async function updatePaymentIntentQuantity(
     throw new Error('Invalid parameters for updating payment intent');
   }
   
-  console.log(`Updating payment intent ${paymentIntentId} with new quantity: ${quantity}`);
+  console.log(`[PAYMENT API] Updating payment intent ${paymentIntentId} with new quantity: ${quantity}`);
   
   // Готовим данные с line_items для обновления PaymentIntent
   // Если productId не предоставлен, серверная сторона получит его из метаданных
