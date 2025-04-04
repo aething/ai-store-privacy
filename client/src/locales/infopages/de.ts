@@ -4,6 +4,7 @@
 
 import { InfoPage } from "@/types";
 
+// Немецкие переводы информационных страниц
 export const de: InfoPage[] = [
   {
     id: 0,

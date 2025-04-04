@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { User } from "@/types";
+import { getLocaleFromCountry } from "./LocaleContext";
 
 interface AppContextType {
   user: User | null;
@@ -7,6 +8,7 @@ interface AppContextType {
   isAuthenticated: boolean;
   login: (user: User) => void;
   logout: () => void;
+  updateUserCountry?: (userId: number, country: string) => Promise<User | null>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -92,12 +94,40 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   
   const isAuthenticated = !!user;
   
+  // Функция для обновления языка на основе страны пользователя
+  const updateLocaleBasedOnCountry = (country: string | undefined | null) => {
+    if (country) {
+      // Проверяем, выбирал ли пользователь язык вручную
+      const savedLocale = localStorage.getItem("locale");
+      const isAutomaticLocale = !savedLocale || savedLocale === "en";
+      
+      // Если локаль установлена автоматически или это первый вход, обновляем на основе страны
+      if (isAutomaticLocale) {
+        const newLocale = getLocaleFromCountry(country);
+        console.log(`[AppContext] Updating locale based on country ${country} to ${newLocale}`);
+        localStorage.setItem("locale", newLocale);
+        
+        // Запускаем событие для LocaleContext
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'locale',
+          newValue: newLocale,
+          oldValue: savedLocale || null,
+          storageArea: localStorage
+        }));
+      }
+    }
+  };
+
   const login = (userData: User) => {
     console.log("[AppContext] Login user:", {
       id: userData.id,
       username: userData.username,
       country: userData.country
     });
+    
+    // Обновляем язык на основе страны пользователя при входе
+    updateLocaleBasedOnCountry(userData.country);
+    
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
   };
@@ -118,6 +148,45 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     }
   };
   
+  // Функция для обновления страны пользователя
+  const updateUserCountry = async (userId: number, country: string): Promise<User | null> => {
+    if (!user) return null;
+    
+    try {
+      const response = await fetch(`/api/users/${userId}/country`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ country }),
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update country: ${response.status} ${response.statusText}`);
+      }
+      
+      const updatedUser = await response.json();
+      console.log("[AppContext] User country updated:", {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        country: updatedUser.country
+      });
+      
+      // Обновляем пользователя в состоянии и localStorage
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      
+      // Обновляем язык на основе новой страны
+      updateLocaleBasedOnCountry(updatedUser.country);
+      
+      return updatedUser;
+    } catch (error) {
+      console.error("[AppContext] Error updating user country:", error);
+      return null;
+    }
+  };
+  
   return (
     <AppContext.Provider
       value={{
@@ -125,7 +194,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         setUser,
         isAuthenticated,
         login,
-        logout
+        logout,
+        updateUserCountry
       }}
     >
       {children}
