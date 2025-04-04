@@ -864,14 +864,14 @@ export default function Checkout() {
       
       // Если пользователь не авторизован или нет ID платежа, просто обновляем UI
       if (!user || !paymentIntentId) {
-        console.log('[QUANTITY DEBUG] User not authenticated or PaymentIntent ID not available, skipping API call');
+        // Отключаем логирование для неавторизованных пользователей
         setIsUpdatingQuantity(false);
         return;
       }
       
       // Вызываем API для обновления PaymentIntent с новым количеством
       try {
-        console.log(`[QUANTITY DEBUG] Calling updatePaymentIntentQuantity with ID: ${paymentIntentId}, userID: ${user.id}, quantity: ${newQuantity}`);
+        // Отключаем логирование вызова API обновления количества
         const result = await updatePaymentIntentQuantity(
           paymentIntentId,
           user.id,
@@ -880,7 +880,7 @@ export default function Checkout() {
         );
         
         // Добавляем больше логов для отладки
-        console.log('[QUANTITY DEBUG] Result from update API:', result);
+        // Отключаем логирование результата API
         
         const { 
           amount, 
@@ -889,16 +889,11 @@ export default function Checkout() {
           clientSecret: newClientSecret
         } = result;
         
-        console.log(`[QUANTITY DEBUG] Updated payment intent with new quantity ${newQuantity}:`, {
-          amount,
-          baseAmount,
-          taxAmount: updatedTaxAmount,
-          clientSecret: newClientSecret ? '(новый клиентский секрет получен)' : '(не изменился)'
-        });
+        // Отключаем логирование обновления количества
         
         // Обновляем информацию о налогах и clientSecret для Stripe
         if (updatedTaxAmount !== undefined) {
-          console.log(`[QUANTITY DEBUG] Получен updatedTaxAmount: ${updatedTaxAmount}`);
+          // Отключаем отладочные сообщения
           
           // Проверяем необходимость конвертации налоговой суммы
           let taxAmountToUse = updatedTaxAmount;
@@ -908,19 +903,18 @@ export default function Checkout() {
           // Например, если ожидается около 1000, а получено 100000 - значит, скорее всего, 
           // произошла ошибка с единицами измерения
           if (taxAmountToUse > expectedTaxAmount * 10) {
-            console.log(`[QUANTITY DEBUG] Конвертируем налог из центов: ${taxAmountToUse} → ${Math.round(taxAmountToUse / 100)}`);
+            // Отключаем отладочные сообщения о конвертации налога
             taxAmountToUse = Math.round(taxAmountToUse / 100);
           }
           
           // Дополнительная проверка для выявления абсурдно больших значений
           // Например, если налог составляет больше 100% от суммы заказа
           if (taxAmountToUse > price * newQuantity * 1.5) {
-            console.log(`[QUANTITY DEBUG] Обнаружен неправдоподобно высокий налог: ${taxAmountToUse}, возможно ошибка в расчетах`);
-            console.log(`[QUANTITY DEBUG] Принудительно устанавливаем рассчитанное значение: ${expectedTaxAmount}`);
+            // Отключаем все отладочные сообщения
             taxAmountToUse = expectedTaxAmount;
           }
           
-          console.log(`[QUANTITY DEBUG] Итоговый налог к установке: ${taxAmountToUse} (ожидалось около ${expectedTaxAmount})`);
+          // Отключаем отладочное сообщение итогового налога
           
           setTaxInfo(prev => ({
             ...prev,
@@ -939,7 +933,7 @@ export default function Checkout() {
         
         // Обновляем clientSecret, чтобы Stripe перегрузил форму оплаты с новыми данными
         if (newClientSecret && newClientSecret !== clientSecret) {
-          console.log('[QUANTITY DEBUG] Обновляем clientSecret для Stripe Elements');
+          // Отключаем отладочное сообщение обновления clientSecret
           setClientSecret(newClientSecret);
           
           // Также обновляем опции для Stripe Elements, чтобы они отразили новый clientSecret
@@ -955,7 +949,7 @@ export default function Checkout() {
           description: `Successfully updated to ${newQuantity} items`,
         });
       } catch (apiError) {
-        console.error("[QUANTITY DEBUG] Error updating payment intent via API:", apiError);
+        // Отключаем отладочное сообщение об ошибке API
         // Показываем уведомление, но не сбрасываем количество
         toast({
           title: "Payment update error",
@@ -965,7 +959,7 @@ export default function Checkout() {
         });
       }
     } catch (error) {
-      console.error("[QUANTITY DEBUG] Error updating quantity:", error);
+      // Отключаем отладочное сообщение об ошибке количества
       // Восстанавливаем предыдущее значение в случае ошибки
       setQuantity(1);
       toast({
