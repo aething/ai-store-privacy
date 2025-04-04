@@ -826,62 +826,92 @@ export default function Checkout() {
   const handleQuantityChange = async (newQuantity: number) => {
     if (newQuantity < 1 || newQuantity > 10) return;
     
+    console.log(`[QUANTITY DEBUG] Вызвана функция handleQuantityChange с новым количеством: ${newQuantity}`);
+    console.log(`[QUANTITY DEBUG] Текущее состояние - quantity: ${quantity}, productId: ${productId}, paymentIntentId: ${paymentIntentId}`);
+    
     setIsUpdatingQuantity(true);
+    
+    // Показываем уведомление о начале обновления
+    toast({
+      title: "Updating quantity",
+      description: `Changing quantity to ${newQuantity}...`,
+    });
     
     try {
       // Сначала обновляем визуально количество
       setQuantity(newQuantity);
       
+      // Также напрямую обновляем расчетную цену (для мгновенной обратной связи)
+      const newBaseAmount = price * newQuantity;
+      const newTaxAmount = Math.round(price * newQuantity * taxRate);
+      
+      console.log(`[QUANTITY DEBUG] Новые расчетные суммы: 
+      - Базовая цена за единицу: ${price} 
+      - Новое количество: ${newQuantity}
+      - Новая базовая сумма: ${newBaseAmount}
+      - Ставка налога: ${taxRate * 100}%
+      - Новый налог: ${newTaxAmount}
+      - Итого: ${newBaseAmount + newTaxAmount}`);
+      
       // Если пользователь не авторизован или нет ID платежа, просто обновляем UI
       if (!user || !paymentIntentId) {
-        console.log('User not authenticated or PaymentIntent ID not available, skipping API call');
+        console.log('[QUANTITY DEBUG] User not authenticated or PaymentIntent ID not available, skipping API call');
+        setIsUpdatingQuantity(false);
         return;
       }
       
       // Вызываем API для обновления PaymentIntent с новым количеством
       try {
-        console.log(`Calling updatePaymentIntentQuantity with ID: ${paymentIntentId}, userID: ${user.id}, quantity: ${newQuantity}`);
+        console.log(`[QUANTITY DEBUG] Calling updatePaymentIntentQuantity with ID: ${paymentIntentId}, userID: ${user.id}, quantity: ${newQuantity}`);
         const result = await updatePaymentIntentQuantity(
           paymentIntentId,
           user.id,
-          newQuantity
+          newQuantity,
+          productId // Важно: передаем ID продукта для корректного обновления
         );
         
         // Добавляем больше логов для отладки
-        console.log('Result from update API:', result);
+        console.log('[QUANTITY DEBUG] Result from update API:', result);
         
-        const { amount, taxAmount: updatedTaxAmount } = result;
+        const { 
+          amount, 
+          taxAmount: updatedTaxAmount, 
+          baseAmount, 
+          clientSecret: newClientSecret
+        } = result;
         
-        console.log(`Updated payment intent with new quantity ${newQuantity}:`, {
+        console.log(`[QUANTITY DEBUG] Updated payment intent with new quantity ${newQuantity}:`, {
           amount,
-          taxAmount: updatedTaxAmount
+          baseAmount,
+          taxAmount: updatedTaxAmount,
+          clientSecret: newClientSecret ? '(новый клиентский секрет получен)' : '(не изменился)'
         });
         
         // Обновляем информацию о налогах и clientSecret для Stripe
-        if (updatedTaxAmount) {
-          console.log(`Получен updatedTaxAmount: ${updatedTaxAmount}`);
+        if (updatedTaxAmount !== undefined) {
+          console.log(`[QUANTITY DEBUG] Получен updatedTaxAmount: ${updatedTaxAmount}`);
           
           // Проверяем необходимость конвертации налоговой суммы
           let taxAmountToUse = updatedTaxAmount;
-          const expectedTaxAmount = Math.round(price * quantity * taxRate);
+          const expectedTaxAmount = Math.round(price * newQuantity * taxRate);
           
           // Проверяем является ли сумма подозрительно большой
           // Например, если ожидается около 1000, а получено 100000 - значит, скорее всего, 
           // произошла ошибка с единицами измерения
           if (taxAmountToUse > expectedTaxAmount * 10) {
-            console.log(`Конвертируем налог из центов: ${taxAmountToUse} → ${Math.round(taxAmountToUse / 100)}`);
+            console.log(`[QUANTITY DEBUG] Конвертируем налог из центов: ${taxAmountToUse} → ${Math.round(taxAmountToUse / 100)}`);
             taxAmountToUse = Math.round(taxAmountToUse / 100);
           }
           
           // Дополнительная проверка для выявления абсурдно больших значений
           // Например, если налог составляет больше 100% от суммы заказа
-          if (taxAmountToUse > price * quantity * 1.5) {
-            console.log(`Обнаружен неправдоподобно высокий налог: ${taxAmountToUse}, возможно ошибка в расчетах`);
-            console.log(`Принудительно устанавливаем рассчитанное значение: ${expectedTaxAmount}`);
+          if (taxAmountToUse > price * newQuantity * 1.5) {
+            console.log(`[QUANTITY DEBUG] Обнаружен неправдоподобно высокий налог: ${taxAmountToUse}, возможно ошибка в расчетах`);
+            console.log(`[QUANTITY DEBUG] Принудительно устанавливаем рассчитанное значение: ${expectedTaxAmount}`);
             taxAmountToUse = expectedTaxAmount;
           }
           
-          console.log(`Итоговый налог к установке: ${taxAmountToUse} (ожидалось около ${expectedTaxAmount})`);
+          console.log(`[QUANTITY DEBUG] Итоговый налог к установке: ${taxAmountToUse} (ожидалось около ${expectedTaxAmount})`);
           
           setTaxInfo(prev => ({
             ...prev,
@@ -899,12 +929,24 @@ export default function Checkout() {
         }
         
         // Обновляем clientSecret, чтобы Stripe перегрузил форму оплаты с новыми данными
-        if (result.clientSecret) {
-          console.log('Обновляем clientSecret для Stripe Elements');
-          setClientSecret(result.clientSecret);
+        if (newClientSecret && newClientSecret !== clientSecret) {
+          console.log('[QUANTITY DEBUG] Обновляем clientSecret для Stripe Elements');
+          setClientSecret(newClientSecret);
+          
+          // Также обновляем опции для Stripe Elements, чтобы они отразили новый clientSecret
+          setStripeOptions(prev => ({
+            ...prev,
+            clientSecret: newClientSecret
+          }));
         }
+        
+        // Показываем уведомление об успешном обновлении
+        toast({
+          title: "Quantity updated",
+          description: `Successfully updated to ${newQuantity} items`,
+        });
       } catch (apiError) {
-        console.error("Error updating payment intent via API:", apiError);
+        console.error("[QUANTITY DEBUG] Error updating payment intent via API:", apiError);
         // Показываем уведомление, но не сбрасываем количество
         toast({
           title: "Payment update error",
@@ -914,7 +956,7 @@ export default function Checkout() {
         });
       }
     } catch (error) {
-      console.error("Error updating quantity:", error);
+      console.error("[QUANTITY DEBUG] Error updating quantity:", error);
       // Восстанавливаем предыдущее значение в случае ошибки
       setQuantity(1);
       toast({
@@ -1051,6 +1093,34 @@ export default function Checkout() {
               </tr>
             </tbody>
           </table>
+          
+          {/* Отладочная информация о платеже - только для тестирования */}
+          <div className="mt-4 p-2 bg-slate-100 rounded-md text-xs text-slate-700">
+            <h4 className="font-bold mb-1">Детали платежа:</h4>
+            <pre className="whitespace-pre-wrap break-all">
+              {JSON.stringify({
+                paymentIntentId,
+                basePrice: price,
+                quantity,
+                taxRate,
+                taxAmount,
+                totalAmount: basePrice + calculatedTaxAmount,
+                currency
+              }, null, 2)}
+            </pre>
+            
+            <div className="mt-2">
+              <button 
+                onClick={() => toast({
+                  title: "Debug info",
+                  description: `Payment details logged to console`,
+                })}
+                className="px-2 py-1 text-xs bg-slate-200 hover:bg-slate-300 rounded"
+              >
+                Log Payment Details
+              </button>
+            </div>
+          </div>
           
           {/* Пояснительный текст о налогах */}
           <div className="mt-3 text-xs text-gray-500 p-2 bg-gray-50 rounded-md">

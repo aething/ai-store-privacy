@@ -1405,6 +1405,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Эндпоинт для обновления платежного намерения при изменении количества
   app.post("/api/update-payment-intent", async (req: Request, res: Response) => {
     try {
+      console.log("🔄 ВЫЗОВ API ОБНОВЛЕНИЯ ПЛАТЕЖА:", JSON.stringify(req.body, null, 2));
       const { paymentIntentId, quantity, userId, productId, newItems } = req.body;
       
       if (!paymentIntentId || !quantity || !userId) {
