@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>AI Store - Offline</title>
+  <link rel="icon" href="/icons/icon-128x128.png" type="image/png">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f7f9fc;
+      color: #333;
+    }
+    
+    .offline-container {
+      text-align: center;
+      max-width: 480px;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      background-color: white;
+    }
+    
+    .icon {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
+    
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #666;
+      margin-bottom: 24px;
+    }
+    
+    .button {
+      display: inline-block;
+      background-color: #6200ee;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    
+    .button:hover {
+      background-color: #5000ca;
+    }
+    
+    .cached-info {
+      margin-top: 32px;
+      font-size: 14px;
+      color: #888;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #121212;
+        color: #eee;
+      }
+      
+      .offline-container {
+        background-color: #1e1e1e;
+      }
+      
+      h1 {
+        color: #ffffff;
+      }
+      
+      p {
+        color: #bbbbbb;
+      }
+      
+      .cached-info {
+        color: #999;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <img src="/icons/icon-128x128.png" alt="AI Store Logo" class="icon">
+    <h1>You are offline</h1>
+    <p>Unfortunately, you cannot access this page without an internet connection. Some features are available offline, such as viewing previously accessed products.</p>
+    <a href="/" class="button">Go to Home Page</a>
+    
+    <div class="cached-info">
+      <p>AI Store has saved some content for offline use. Try accessing the home page or your account page.</p>
+    </div>
+  </div>
+
+  <script>
+    // Check if we're online when the page loads
+    window.addEventListener('online', function() {
+      // When connection is restored, redirect to home
+      window.location.reload();
+    });
+    
+    // Register button click
+    document.querySelector('.button').addEventListener('click', function(e) {
+      if (!navigator.onLine) {
+        // If still offline, show message
+        e.preventDefault();
+        alert('Still offline. Please try again when your connection is restored.');
+      }
+    });
+  </script>
+</body>
+</html>

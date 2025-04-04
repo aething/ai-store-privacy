@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { useOfflineNavigation } from '../components/OfflineNavigationProvider';
 
 /**
- * Страница, отображаемая в оффлайн-режиме для недоступных маршрутов
+ * Page displayed in offline mode for unavailable routes
  */
 const OfflinePage: React.FC = () => {
   const { isOnline, offlineData } = useOfflineNavigation();

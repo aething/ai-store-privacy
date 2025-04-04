@@ -14,6 +14,7 @@ import Confirmation from "@/pages/Confirmation";
 import Subscribe from "@/pages/Subscribe";
 import PlayMarket from "@/pages/PlayMarket";
 import StripeCatalog from "@/pages/StripeCatalog";
+import OfflinePage from "@/pages/OfflinePage";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/playmarket" component={PlayMarket} />
       <Route path="/stripe-catalog" component={StripeCatalog} />
+      <Route path="/offline-enhanced" component={OfflinePage} />
       <Route component={NotFound} />
     </Switch>
   );
