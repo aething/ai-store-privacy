@@ -1386,6 +1386,184 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Эндпоинт для обновления платежного намерения при изменении количества
+  app.post("/api/update-payment-intent", async (req: Request, res: Response) => {
+    try {
+      const { paymentIntentId, quantity, userId } = req.body;
+      
+      if (!paymentIntentId || !quantity || !userId) {
+        return res.status(400).json({ 
+          message: "Payment intent ID, quantity, and user ID are required" 
+        });
+      }
+      
+      // Проверяем количество
+      const parsedQuantity = parseInt(quantity.toString());
+      if (isNaN(parsedQuantity) || parsedQuantity < 1 || parsedQuantity > 10) {
+        return res.status(400).json({ message: "Quantity must be between 1 and 10" });
+      }
+      
+      // Получаем информацию о заказе
+      const order = await storage.getOrderByStripePaymentId(paymentIntentId);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Проверяем, что заказ принадлежит пользователю
+      if (order.userId !== userId) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+      
+      // Получаем информацию о продукте
+      if (!order.productId) {
+        return res.status(404).json({ message: "Product ID is missing in order" });
+      }
+      
+      const product = await storage.getProduct(order.productId);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      
+      // Получаем данные пользователя
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Импортируем Stripe динамически
+      const Stripe = await import('stripe').then(module => module.default);
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+        apiVersion: '2025-02-24.acacia',
+        telemetry: false
+      });
+      
+      // Получаем текущий PaymentIntent
+      const currentPaymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      // Получаем метаданные текущего PaymentIntent
+      const metadata = currentPaymentIntent.metadata || {};
+      
+      // Получаем базовую цену за единицу товара из метаданных
+      const basePrice = parseInt(metadata.basePrice || '0', 10);
+      console.log(`Original amount: ${basePrice} ${order.currency} (единица товара: ${basePrice})`);
+      
+      // Если базовая цена не найдена, используем сумму из заказа
+      const originalUnitPrice = basePrice || order.amount;
+      
+      // Вычисляем новую базовую сумму
+      const newBaseAmount = originalUnitPrice * parsedQuantity;
+      console.log(`Новое базовое количество: ${parsedQuantity}, сумма: ${newBaseAmount} ${order.currency}`);
+      
+      // Получаем налоговую ставку из метаданных
+      const taxRateStr = metadata.taxRate || '0%';
+      const taxRatePercentage = parseFloat(taxRateStr.replace('%', ''));
+      console.log(`Извлеченная ставка налога: ${taxRatePercentage}% из строки "${taxRateStr}"`);
+      
+      // Вычисляем сумму налога
+      const taxRate = taxRatePercentage / 100;
+      const newTaxAmount = Math.round(newBaseAmount * taxRate);
+      
+      // Вычисляем новую полную сумму
+      const newTotalAmount = newBaseAmount + newTaxAmount;
+      console.log(`Updating PaymentIntent ${paymentIntentId}, quantity: ${metadata.quantity || '1'} -> ${parsedQuantity}`);
+      console.log(`New total amount: ${newTotalAmount} (base: ${newBaseAmount}, tax: ${newTaxAmount})`);
+      
+      // Обновляем или отменяем текущий PaymentIntent и создаем новый
+      if (currentPaymentIntent.status === 'requires_payment_method' || currentPaymentIntent.status === 'requires_confirmation') {
+        console.log(`Отменяем текущий PaymentIntent ${paymentIntentId} перед созданием нового...`);
+        
+        try {
+          // Обновляем PaymentIntent с новой суммой и метаданными
+          const updatedPaymentIntent = await stripe.paymentIntents.update(paymentIntentId, {
+            amount: newTotalAmount,
+            metadata: {
+              ...metadata,
+              quantity: parsedQuantity.toString(),
+              baseAmount: newBaseAmount.toString(),
+              taxAmount: newTaxAmount.toString(),
+              totalWithTax: newTotalAmount.toString()
+            }
+          });
+          
+          console.log(`PaymentIntent обновлен: ${paymentIntentId}, новая сумма: ${newTotalAmount} ${order.currency}`);
+          
+          // Возвращаем информацию о налоге и обновленный clientSecret
+          res.json({
+            id: updatedPaymentIntent.id,
+            clientSecret: updatedPaymentIntent.client_secret,
+            amount: newBaseAmount,
+            taxAmount: newTaxAmount,
+            totalAmount: newTotalAmount,
+            quantity: parsedQuantity
+          });
+        } catch (updateError) {
+          console.error("Error updating payment intent:", updateError);
+          
+          // Если не удалось обновить, создаем новый PaymentIntent
+          const newPaymentIntentParams = {
+            amount: newTotalAmount,
+            currency: order.currency,
+            metadata: {
+              ...metadata,
+              quantity: parsedQuantity.toString(),
+              baseAmount: newBaseAmount.toString(),
+              taxAmount: newTaxAmount.toString(),
+              totalWithTax: newTotalAmount.toString(),
+              previousPaymentIntentId: paymentIntentId
+            }
+          };
+          
+          const newPaymentIntent = await stripe.paymentIntents.create(newPaymentIntentParams);
+          
+          // Обновляем заказ с новым ID платежа
+          await storage.updateOrderStripePaymentId(order.id, newPaymentIntent.id);
+          
+          // Возвращаем информацию о новом платеже
+          res.json({
+            id: newPaymentIntent.id,
+            clientSecret: newPaymentIntent.client_secret,
+            amount: newBaseAmount,
+            taxAmount: newTaxAmount,
+            totalAmount: newTotalAmount,
+            quantity: parsedQuantity
+          });
+        }
+      } else {
+        // Если платеж уже находится в другом состоянии, создаем новый
+        const newPaymentIntentParams = {
+          amount: newTotalAmount,
+          currency: order.currency,
+          metadata: {
+            ...metadata,
+            quantity: parsedQuantity.toString(),
+            baseAmount: newBaseAmount.toString(),
+            taxAmount: newTaxAmount.toString(),
+            totalWithTax: newTotalAmount.toString(),
+            previousPaymentIntentId: paymentIntentId
+          }
+        };
+        
+        const newPaymentIntent = await stripe.paymentIntents.create(newPaymentIntentParams);
+        
+        // Обновляем заказ с новым ID платежа
+        await storage.updateOrderStripePaymentId(order.id, newPaymentIntent.id);
+        
+        // Возвращаем информацию о новом платеже
+        res.json({
+          id: newPaymentIntent.id,
+          clientSecret: newPaymentIntent.client_secret,
+          amount: newBaseAmount,
+          taxAmount: newTaxAmount,
+          totalAmount: newTotalAmount,
+          quantity: parsedQuantity
+        });
+      }
+    } catch (error) {
+      console.error("Error updating payment intent:", error);
+      res.status(500).json({ message: "Error updating payment intent" });
+    }
+  });
+  
   // Тестовый эндпоинт для отладки налоговой информации (устаревший)
   // Маршруты для отладки расчета налогов
   app.use("/api/tax-debug", taxDebugRoutes);

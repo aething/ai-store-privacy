@@ -1219,6 +1219,7 @@ export default function Checkout() {
                 }
               },
               // Настройка Google Pay и Apple Pay
+              // @ts-ignore - Новые свойства API Stripe могут отсутствовать в типах
               wallets: {
                 googlePay: {
                   merchantName: 'Aething Inc.',

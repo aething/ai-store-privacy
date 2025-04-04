@@ -22,7 +22,7 @@ export interface IStorage {
 
   // Product methods
   getProducts(): Promise<Product[]>;
-  getProduct(id: number): Promise<Product | undefined>;
+  getProduct(id: number | null | undefined): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   syncStripeProducts(): Promise<Product[]>;
   getProductByStripeId(stripeId: string): Promise<Product | undefined>;
@@ -328,7 +328,8 @@ export class MemStorage implements IStorage {
     return Array.from(this.products.values());
   }
 
-  async getProduct(id: number): Promise<Product | undefined> {
+  async getProduct(id: number | null | undefined): Promise<Product | undefined> {
+    if (id === null || id === undefined) return undefined;
     return this.products.get(id);
   }
 
