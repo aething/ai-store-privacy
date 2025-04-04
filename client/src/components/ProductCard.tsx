@@ -1,4 +1,4 @@
-import { useLocation } from "wouter";
+import { Link } from "wouter";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
@@ -15,7 +15,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const [, setLocation] = useLocation();
   const { user } = useAppContext();
   const { currentLocale, t } = useLocale();
   
@@ -25,7 +24,6 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleClick = () => {
     // Сохраняем позицию скролла перед переходом на страницу детального просмотра
     saveScrollPosition();
-    setLocation(`/product/${product.id}`);
   };
   
   // Determine currency and price based on user's country
@@ -53,58 +51,58 @@ export default function ProductCard({ product }: ProductCardProps) {
   const bgStyle = !imageSrc ? { backgroundColor: '#f3f4f6' } : {};
   
   return (
-    <Card 
-      className="product-card flex-none w-64 rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow flex flex-col"
-      onClick={handleClick}
-    >
-      {/* Изображение продукта - фиксированная высота */}
-      <div className="h-48 bg-surface relative" style={bgStyle}>
-        {/* Индикатор загрузки, если изображение еще не загружено */}
-        {!imageSrc && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="animate-pulse rounded-md bg-gray-200 h-full w-full"></div>
-          </div>
-        )}
-        
-        {/* Само изображение с проверкой на наличие источника */}
-        {imageSrc && (
-          <img 
-            src={imageSrc}
-            alt={localizedProduct.title} 
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              // Если не удалось загрузить изображение по URL, используем локальное изображение
-              const fallbackImage = getProductImage(product.id);
-              if (e.currentTarget.src !== fallbackImage) {
-                e.currentTarget.src = fallbackImage;
-              }
-            }}
-          />
-        )}
-      </div>
-      
-      {/* Содержимое карточки - фиксированная высота */}
-      <div className="p-4 flex flex-col flex-grow">
-        {/* Заголовок с фиксированной высотой и одинаковым отображением */}
-        <h3 className="font-medium text-lg h-14 line-clamp-2">{localizedProduct.title}</h3>
-        
-        {/* Описание с фиксированной высотой */}
-        <p className="text-text-secondary text-sm mb-3 h-12 line-clamp-2">{shortDescription}</p>
-        
-        {/* Секция с ценой и кнопкой - всегда внизу карточки */}
-        <div className="flex justify-between items-center mt-auto">
-          <span className="font-medium">{formattedPrice}</span>
-          <button 
-            className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700"
-            onClick={(e) => {
-              e.stopPropagation();
-              setLocation(`/checkout/${product.id}`);
-            }}
-          >
-            {t('buyNow')}
-          </button>
+    <Link href={`/product/${product.id}`} onClick={handleClick}>
+      <Card 
+        className="product-card flex-none w-64 rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow flex flex-col"
+      >
+        {/* Изображение продукта - фиксированная высота */}
+        <div className="h-48 bg-surface relative" style={bgStyle}>
+          {/* Индикатор загрузки, если изображение еще не загружено */}
+          {!imageSrc && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="animate-pulse rounded-md bg-gray-200 h-full w-full"></div>
+            </div>
+          )}
+          
+          {/* Само изображение с проверкой на наличие источника */}
+          {imageSrc && (
+            <img 
+              src={imageSrc}
+              alt={localizedProduct.title} 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Если не удалось загрузить изображение по URL, используем локальное изображение
+                const fallbackImage = getProductImage(product.id);
+                if (e.currentTarget.src !== fallbackImage) {
+                  e.currentTarget.src = fallbackImage;
+                }
+              }}
+            />
+          )}
         </div>
-      </div>
-    </Card>
+        
+        {/* Содержимое карточки - фиксированная высота */}
+        <div className="p-4 flex flex-col flex-grow">
+          {/* Заголовок с фиксированной высотой и одинаковым отображением */}
+          <h3 className="font-medium text-lg h-14 line-clamp-2">{localizedProduct.title}</h3>
+          
+          {/* Описание с фиксированной высотой */}
+          <p className="text-text-secondary text-sm mb-3 h-12 line-clamp-2">{shortDescription}</p>
+          
+          {/* Секция с ценой и кнопкой - всегда внизу карточки */}
+          <div className="flex justify-between items-center mt-auto">
+            <span className="font-medium">{formattedPrice}</span>
+            <Link href={`/checkout/${product.id}`}>
+              <button 
+                className="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {t('buyNow')}
+              </button>
+            </Link>
+          </div>
+        </div>
+      </Card>
+    </Link>
   );
 }
