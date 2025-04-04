@@ -19,36 +19,36 @@ const OfflinePage: React.FC = () => {
           </div>
           <div className="ml-3">
             <p className="text-sm leading-5 text-orange-700">
-              Вы находитесь в <strong>оффлайн-режиме</strong>. Некоторые функции недоступны.
+              You are in <strong>offline mode</strong>. Some features are unavailable.
             </p>
           </div>
         </div>
       </div>
 
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-4">Работа в автономном режиме</h1>
+        <h1 className="text-2xl font-bold mb-4">Working in Offline Mode</h1>
         <p className="text-gray-700 mb-4">
-          Приложение работает в оффлайн-режиме. Вы можете просматривать доступные страницы,
-          но некоторые функции, требующие соединения с сервером, будут недоступны.
+          The application is working in offline mode. You can browse available pages,
+          but some features that require a server connection will be unavailable.
         </p>
       </div>
 
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Доступные страницы</h2>
+        <h2 className="text-xl font-semibold mb-3">Available Pages</h2>
         <ul className="space-y-2 list-disc pl-5">
           <li>
             <Link href="/" className="text-blue-600 hover:underline">
-              Главная страница
+              Home Page
             </Link>
           </li>
           <li>
             <Link href="/account" className="text-blue-600 hover:underline">
-              Личный кабинет
+              My Account
             </Link>
           </li>
           {offlineData.products && offlineData.products.length > 0 && (
             <li>
-              <span className="block mb-1">Кэшированные продукты:</span>
+              <span className="block mb-1">Cached Products:</span>
               <ul className="ml-4 space-y-1">
                 {offlineData.products.slice(0, 5).map((product: any) => (
                   <li key={product.id}>
@@ -56,13 +56,13 @@ const OfflinePage: React.FC = () => {
                       href={`/product/${product.id}`} 
                       className="text-blue-600 hover:underline"
                     >
-                      {product.name || product.title || `Продукт ${product.id}`}
+                      {product.name || product.title || `Product ${product.id}`}
                     </Link>
                   </li>
                 ))}
                 {offlineData.products.length > 5 && (
                   <li className="text-gray-500 italic">
-                    ... и ещё {offlineData.products.length - 5} продуктов
+                    ... and {offlineData.products.length - 5} more products
                   </li>
                 )}
               </ul>
@@ -72,21 +72,21 @@ const OfflinePage: React.FC = () => {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">Что можно делать в оффлайн-режиме</h2>
+        <h2 className="text-xl font-semibold mb-3">What You Can Do Offline</h2>
         <ul className="space-y-2 list-disc pl-5 text-gray-700">
-          <li>Просматривать ранее загруженные продукты</li>
-          <li>Просматривать информацию в своем личном кабинете</li>
-          <li>Получать доступ к базовым функциям приложения</li>
+          <li>View previously loaded products</li>
+          <li>View information in your account</li>
+          <li>Access basic application features</li>
         </ul>
       </div>
 
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-3">Недоступные функции</h2>
+        <h2 className="text-xl font-semibold mb-3">Unavailable Features</h2>
         <ul className="space-y-2 list-disc pl-5 text-gray-700">
-          <li>Оформление заказов</li>
-          <li>Обновление данных аккаунта</li>
-          <li>Поиск по каталогу</li>
-          <li>Загрузка новых продуктов</li>
+          <li>Placing orders</li>
+          <li>Updating account information</li>
+          <li>Searching the catalog</li>
+          <li>Loading new products</li>
         </ul>
       </div>
 
@@ -100,10 +100,10 @@ const OfflinePage: React.FC = () => {
             </div>
             <div className="ml-3">
               <p className="text-sm leading-5 text-green-700">
-                Соединение восстановлено! Теперь вы можете использовать все функции приложения.
+                Connection restored! You can now use all features of the application.
               </p>
               <Link href="/" className="mt-2 inline-block text-sm text-green-600 hover:underline">
-                Вернуться на главную
+                Return to Home
               </Link>
             </div>
           </div>

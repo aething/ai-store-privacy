@@ -135,13 +135,13 @@ const showOfflineStatusNotification = (isOnline: boolean) => {
     document.body.appendChild(notificationEl);
   }
   
-  // Обновляем содержимое и стиль в зависимости от статуса
+  // Обновляем содержимое и стиль в зависимости от статуса (на английском языке)
   if (isOnline) {
-    notificationEl.textContent = 'Соединение восстановлено';
+    notificationEl.textContent = 'Connection restored';
     notificationEl.style.backgroundColor = '#4CAF50';
     notificationEl.style.color = 'white';
   } else {
-    notificationEl.textContent = 'Вы находитесь в автономном режиме';
+    notificationEl.textContent = 'You are in offline mode';
     notificationEl.style.backgroundColor = '#FF9800';
     notificationEl.style.color = 'white';
   }

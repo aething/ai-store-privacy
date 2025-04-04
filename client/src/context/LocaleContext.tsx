@@ -1,26 +1,24 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from "react";
 
-// Import all language translations
+// В соответствии с требованиями задачи, оставляем только английский язык
+// в первом релизе. Другие языки будут добавлены в следующих версиях.
 import en from "../locales/en";
-import es from "../locales/es";
-import de from "../locales/de";
-import fr from "../locales/fr";
-import it from "../locales/it";
-import zh from "../locales/zh";
-import ja from "../locales/ja";
 
-// Define locale types
+// Для сохранения типизации, оставляем все языковые коды, но используем только английский
 export type LocaleCode = 'en' | 'es' | 'de' | 'fr' | 'it' | 'zh' | 'ja';
 
-// Available locales object
+// Временно оставляем только английский локализацию
 const localesData = {
   en: { name: "English", translations: en },
+  // Остальные языки закомментированы до следующего релиза
+  /*
   es: { name: "Español", translations: es },
   de: { name: "Deutsch", translations: de },
   fr: { name: "Français", translations: fr },
   it: { name: "Italiano", translations: it },
   zh: { name: "中文", translations: zh },
   ja: { name: "日本語", translations: ja }
+  */
 };
 
 // Define context type
@@ -42,18 +40,20 @@ interface LocaleProviderProps {
 
 // Create provider component
 export function LocaleProvider({ children }: LocaleProviderProps) {
-  // Get stored locale or default to English
-  const [currentLocale, setCurrentLocale] = useState<LocaleCode>(() => {
-    const savedLocale = localStorage.getItem("locale") as LocaleCode;
-    return (savedLocale && Object.keys(localesData).includes(savedLocale)) 
-      ? savedLocale 
-      : "en";
-  });
+  // В текущей версии приложения всегда используем только английский язык
+  const [currentLocale, setCurrentLocale] = useState<LocaleCode>("en");
 
   // Update locale and save to localStorage
+  // В текущей версии приложения используется только английский язык
   const setLocale = (locale: LocaleCode) => {
-    setCurrentLocale(locale);
-    localStorage.setItem("locale", locale);
+    // Всегда устанавливаем английский язык независимо от переданного параметра
+    setCurrentLocale("en");
+    localStorage.setItem("locale", "en");
+    
+    // Для отладки логгируем попытку изменения языка
+    if (locale !== "en") {
+      console.log(`[LocaleContext] Attempt to change language to ${locale} was ignored. Only English is supported in this version.`);
+    }
   };
 
   // Translation function
