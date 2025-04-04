@@ -161,6 +161,10 @@ export default function InfoPage() {
     );
   }
 
+  // Гарантируем, что pageContent не null и имеет все нужные свойства
+  const title = pageContent?.title || "";
+  const content = pageContent?.content || "";
+  
   return (
     <SwipeBack onSwipeBack={() => setLocation("/")}>
       <div className="max-w-4xl mx-auto relative" ref={pageRef}>
@@ -189,12 +193,12 @@ export default function InfoPage() {
           <div id="content-top" ref={contentRef}></div>
           
           <h1 className="text-2xl font-bold mb-6">
-            {pageContent.title}
+            {title}
           </h1>
           
           <div className="prose max-w-none">
             <ReactMarkdown>
-              {pageContent.content}
+              {content}
             </ReactMarkdown>
           </div>
           

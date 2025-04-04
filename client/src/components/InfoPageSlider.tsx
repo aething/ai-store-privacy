@@ -33,8 +33,14 @@ export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageS
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   
+  // Проверяем, что infoPages существует и является массивом
+  if (!infoPages || !Array.isArray(infoPages)) {
+    console.error('InfoPageSlider: infoPages is not an array', infoPages);
+    return null;
+  }
+  
   // Фильтруем страницы, удаляя невалидные страницы
-  const validInfoPages = Array.isArray(infoPages) ? infoPages.filter(page => {
+  const validInfoPages = infoPages.filter(page => {
     if (!page) return false;
     
     // Проверяем наличие обязательных полей
@@ -49,7 +55,7 @@ export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageS
     }
     
     return true;
-  }) : [];
+  });
   
   if (validInfoPages.length === 0) {
     console.log('No valid info pages to display');

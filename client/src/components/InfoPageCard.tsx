@@ -24,34 +24,30 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
   const [, setLocation] = useLocation();
   const { t } = useLocale();
 
+  // Проверяем, что infoPage существует
   if (!infoPage) {
     console.error('InfoPage is undefined or null');
     return null;
   }
 
-  // Получаем ID страницы в строковом или числовом формате
-  const pageId = 'id' in infoPage && infoPage.id ? infoPage.id.toString() : '';
-
-  // Проверяем наличие обязательных полей
-  if (!pageId) {
+  // Безопасно получаем id - предотвращаем ошибки доступа к свойствам
+  const id = infoPage && typeof infoPage === 'object' && 'id' in infoPage ? infoPage.id : null;
+  if (id === null || id === undefined) {
     console.error('InfoPage without valid id:', infoPage);
     return null;
   }
-
-  // Получаем заголовок
-  let title = '';
-  if ('title' in infoPage && infoPage.title) {
-    title = infoPage.title;
-  } else {
+  
+  const pageId = id.toString();
+  
+  // Безопасно получаем title
+  const title = infoPage && typeof infoPage === 'object' && 'title' in infoPage ? infoPage.title : null;
+  if (!title) {
     console.error('InfoPage without title:', infoPage);
     return null;
   }
-
-  // Получаем описание (может быть опциональным)
-  let description = '';
-  if ('description' in infoPage && infoPage.description) {
-    description = infoPage.description;
-  }
+  
+  // Безопасно получаем description (опционально)
+  const description = infoPage && typeof infoPage === 'object' && 'description' in infoPage ? infoPage.description || '' : '';
 
   return (
     <Card 
