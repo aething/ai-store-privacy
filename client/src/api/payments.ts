@@ -113,6 +113,14 @@ export async function createPaymentIntent(
   - Итого с налогом: ${totalAmount} центов (${(totalAmount/100).toFixed(2)} ${currency})
   `);
   
+  // Создаем структуру line_items для более точного представления товаров в корзине
+  const lineItems = [{
+    product_id: productId.toString(),
+    quantity: quantity,
+    unit_amount: price,
+    currency: currency
+  }];
+  
   // Формируем метаданные для создания платежного намерения
   const metadata = {
     country: country || 'unknown',
@@ -123,7 +131,8 @@ export async function createPaymentIntent(
     taxAmount: taxAmount.toString(),
     totalWithTax: totalAmount.toString(),
     quantity: quantity.toString(), // Важно! Количество товаров в заказе
-    unitPrice: price.toString() // Альтернативное поле для единичной цены (для совместимости)
+    unitPrice: price.toString(), // Альтернативное поле для единичной цены (для совместимости)
+    items: JSON.stringify(lineItems) // Сохраняем детальную информацию о товарах для последующего обновления
   };
   
   console.log('Creating payment intent with tax calculation:', {
@@ -182,7 +191,8 @@ export async function createPaymentIntent(
 export async function updatePaymentIntentQuantity(
   paymentIntentId: string,
   userId: number,
-  quantity: number
+  quantity: number,
+  productId?: number
 ) {
   if (!paymentIntentId || !userId || quantity < 1) {
     throw new Error('Invalid parameters for updating payment intent');
@@ -190,6 +200,9 @@ export async function updatePaymentIntentQuantity(
   
   console.log(`Updating payment intent ${paymentIntentId} with new quantity: ${quantity}`);
   
+  // Готовим данные с line_items для обновления PaymentIntent
+  // Если productId не предоставлен, серверная сторона получит его из метаданных
+  // существующего PaymentIntent
   const response = await fetch('/api/update-payment-intent', {
     method: 'POST',
     headers: {
@@ -199,7 +212,12 @@ export async function updatePaymentIntentQuantity(
     body: JSON.stringify({
       paymentIntentId,
       userId,
-      quantity
+      quantity,
+      productId, // Опционально передаем ID продукта, если он известен
+      newItems: productId ? [{ 
+        product_id: productId.toString(), 
+        quantity 
+      }] : undefined // Передаем новую структуру товаров, если известен ID продукта
     }),
   });
   

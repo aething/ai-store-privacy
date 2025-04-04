@@ -1382,11 +1382,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         display: taxLabel 
       };
       
+      // Отправляем полную информацию о платеже для клиента
       res.json({
         id: paymentIntent.id,
         clientSecret: paymentIntent.client_secret,
         orderId: order.id,
-        tax: taxInfo
+        amount: amount, // Базовая сумма без налога
+        taxAmount: taxAmount, // Сумма налога
+        totalWithTax: paymentIntentParams.amount, // Общая сумма с налогом
+        taxRate: taxRate, // Ставка налога (как десятичное число)
+        quantity: parsedQuantity, // Количество
+        unitPrice: unitPrice, // Цена за единицу
+        currency: currency.toLowerCase(), // Валюта
+        tax: taxInfo // Информация о налоге в структурированном виде
       });
     } catch (error) {
       console.error("Error creating payment intent:", error);
@@ -1397,13 +1405,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Эндпоинт для обновления платежного намерения при изменении количества
   app.post("/api/update-payment-intent", async (req: Request, res: Response) => {
     try {
-      const { paymentIntentId, quantity, userId } = req.body;
+      const { paymentIntentId, quantity, userId, productId, newItems } = req.body;
       
       if (!paymentIntentId || !quantity || !userId) {
         return res.status(400).json({ 
           message: "Payment intent ID, quantity, and user ID are required" 
         });
       }
+      
+      // Поддержка новой структуры с items от клиента
+      // Если клиент передал newItems, используем его для получения структуры товаров
+      console.log(`Update request with ${newItems ? 'items structure' : 'direct quantity'}:`, 
+        newItems ? JSON.stringify(newItems) : `quantity: ${quantity}`); 
       
       // Проверяем количество
       const parsedQuantity = parseInt(quantity.toString());
@@ -1504,16 +1517,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Отменяем текущий PaymentIntent ${paymentIntentId} перед созданием нового...`);
         
         try {
+          // Проверяем, есть ли в запросе структура товаров newItems
+          // и при необходимости обновляем метаданные с новой структурой
+          let updatedMetadata: Record<string, string> = {
+            ...metadata,
+            quantity: parsedQuantity.toString(),
+            baseAmount: newBaseAmount.toString(),
+            taxAmount: newTaxAmount.toString(),
+            totalWithTax: newTotalAmount.toString()
+          };
+          
+          // Если переданы newItems, обновляем items в метаданных
+          if (newItems) {
+            console.log('Updating line items in metadata:', JSON.stringify(newItems));
+            // Обновляем метаданные с новой структурой товаров
+            updatedMetadata = {
+              ...updatedMetadata,
+              items: JSON.stringify(newItems)
+            };
+          } else if (metadata.items) {
+            // Если в метаданных уже есть items, обновляем количество
+            try {
+              const existingItems = JSON.parse(metadata.items);
+              const updatedItems = existingItems.map((item: any) => ({
+                ...item,
+                quantity: parsedQuantity
+              }));
+              updatedMetadata = {
+                ...updatedMetadata,
+                items: JSON.stringify(updatedItems)
+              };
+              console.log('Updated existing items in metadata with new quantity');
+            } catch (e) {
+              console.error('Error parsing items from metadata:', e);
+            }
+          }
+          
           // Обновляем PaymentIntent с новой суммой и метаданными
           const updatedPaymentIntent = await stripe.paymentIntents.update(paymentIntentId, {
             amount: newTotalAmount,
-            metadata: {
-              ...metadata,
-              quantity: parsedQuantity.toString(),
-              baseAmount: newBaseAmount.toString(),
-              taxAmount: newTaxAmount.toString(),
-              totalWithTax: newTotalAmount.toString()
-            }
+            metadata: updatedMetadata
           });
           
           console.log(`PaymentIntent обновлен: ${paymentIntentId}, новая сумма: ${newTotalAmount} ${order.currency}`);
@@ -1531,17 +1574,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error("Error updating payment intent:", updateError);
           
           // Если не удалось обновить, создаем новый PaymentIntent
+          // Создаем обновленные метаданные с учетом items, если есть
+          let updatedMetadata: Record<string, string> = {
+            ...metadata,
+            quantity: parsedQuantity.toString(),
+            baseAmount: newBaseAmount.toString(),
+            taxAmount: newTaxAmount.toString(),
+            totalWithTax: newTotalAmount.toString(),
+            previousPaymentIntentId: paymentIntentId
+          };
+          
+          // Если переданы newItems или в метаданных уже есть items, обновляем структуру
+          if (newItems) {
+            updatedMetadata = {
+              ...updatedMetadata,
+              items: JSON.stringify(newItems)
+            };
+          } else if (metadata.items) {
+            try {
+              const existingItems = JSON.parse(metadata.items);
+              const updatedItems = existingItems.map((item: any) => ({
+                ...item,
+                quantity: parsedQuantity
+              }));
+              updatedMetadata = {
+                ...updatedMetadata,
+                items: JSON.stringify(updatedItems)
+              };
+            } catch (e) {
+              console.error('Error parsing items from metadata:', e);
+            }
+          }
+          
           const newPaymentIntentParams = {
             amount: newTotalAmount,
             currency: order.currency,
-            metadata: {
-              ...metadata,
-              quantity: parsedQuantity.toString(),
-              baseAmount: newBaseAmount.toString(),
-              taxAmount: newTaxAmount.toString(),
-              totalWithTax: newTotalAmount.toString(),
-              previousPaymentIntentId: paymentIntentId
-            }
+            metadata: updatedMetadata
           };
           
           const newPaymentIntent = await stripe.paymentIntents.create(newPaymentIntentParams);
@@ -1561,17 +1629,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       } else {
         // Если платеж уже находится в другом состоянии, создаем новый
+        // Готовим обновленные метаданные как для всех других случаев
+        let updatedMetadata: Record<string, string> = {
+          ...metadata,
+          quantity: parsedQuantity.toString(),
+          baseAmount: newBaseAmount.toString(),
+          taxAmount: newTaxAmount.toString(),
+          totalWithTax: newTotalAmount.toString(),
+          previousPaymentIntentId: paymentIntentId
+        };
+        
+        // Обновляем items если нужно
+        if (newItems) {
+          updatedMetadata = {
+            ...updatedMetadata,
+            items: JSON.stringify(newItems)
+          };
+        } else if (metadata.items) {
+          try {
+            const existingItems = JSON.parse(metadata.items);
+            const updatedItems = existingItems.map((item: any) => ({
+              ...item,
+              quantity: parsedQuantity
+            }));
+            updatedMetadata = {
+              ...updatedMetadata,
+              items: JSON.stringify(updatedItems)
+            };
+          } catch (e) {
+            console.error('Error parsing items from metadata:', e);
+          }
+        }
+        
         const newPaymentIntentParams = {
           amount: newTotalAmount,
           currency: order.currency,
-          metadata: {
-            ...metadata,
-            quantity: parsedQuantity.toString(),
-            baseAmount: newBaseAmount.toString(),
-            taxAmount: newTaxAmount.toString(),
-            totalWithTax: newTotalAmount.toString(),
-            previousPaymentIntentId: paymentIntentId
-          }
+          metadata: updatedMetadata
         };
         
         const newPaymentIntent = await stripe.paymentIntents.create(newPaymentIntentParams);
