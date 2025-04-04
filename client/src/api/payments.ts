@@ -5,6 +5,8 @@
  * включая расчет налогов в зависимости от страны пользователя.
  */
 
+import { errorLogger, LogEventType } from '../services/errorLogging';
+
 // Функция для определения ставки налога на основе страны пользователя
 export const calculateTaxRate = (country?: string | null) => {
   if (!country) return { rate: 0, label: 'No VAT/Tax' };
@@ -160,7 +162,23 @@ export async function createPaymentIntent(
   
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Error creating payment intent: ${errorText}`);
+    const errorMessage = `Error creating payment intent: ${errorText}`;
+    
+    // Логируем ошибку создания платежа
+    errorLogger.logPaymentError(errorMessage, {
+      productId,
+      currency,
+      country,
+      quantity,
+      baseAmount,
+      taxAmount,
+      totalAmount: baseAmount + taxAmount,
+      taxRate: rate,
+      responseStatus: response.status,
+      responseUrl: response.url
+    });
+    
+    throw new Error(errorMessage);
   }
   
   return await response.json();
@@ -200,7 +218,19 @@ export async function updatePaymentIntentQuantity(
   
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Error updating payment intent: ${errorText}`);
+    const errorMessage = `Error updating payment intent: ${errorText}`;
+    
+    // Логируем ошибку обновления платежа
+    errorLogger.logPaymentError(errorMessage, {
+      paymentIntentId,
+      userId,
+      quantity,
+      productId,
+      responseStatus: response.status,
+      responseUrl: response.url
+    });
+    
+    throw new Error(errorMessage);
   }
   
   return await response.json();

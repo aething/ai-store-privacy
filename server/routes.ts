@@ -11,6 +11,7 @@ import * as email from "./email";
 import nodemailer from "nodemailer";
 import { createPaymentIntentWithTaxInfo } from "./tax-demo-route";
 import taxDebugRoutes from "./routes/tax-debug";
+import * as logs from "./logs";
 
 // Функция для получения полного названия страны по коду ISO
 function getFullCountryName(countryCode: string): string {
@@ -2071,6 +2072,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Маршруты для работы с логами мобильного приложения
+  app.post("/api/logs", logs.saveClientLogs);
+  app.get("/api/logs/stats", logs.getLogsStats);
+  app.get("/api/logs/:type", logs.getRecentLogs);
+  
   // API routes for push notifications
   app.post("/api/push/subscribe", pushNotification.registerPushSubscription);
   app.post("/api/push/unsubscribe", pushNotification.unregisterPushSubscription);
@@ -2256,6 +2262,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // DEPRECATED: Этот дублирующийся endpoint перенесен на строку 1406 
   // Все остальное закомментировано или удалено
+
+  // Маршруты для логов уже зарегистрированы выше
 
   const httpServer = createServer(app);
   return httpServer;

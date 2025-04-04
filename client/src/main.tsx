@@ -178,12 +178,16 @@ if (typeof window !== 'undefined') {
 // Инициализация обработчиков для оффлайн-режима
 import { initOfflineNavigation, loadOfflineData } from './utils/offlineNavigation';
 import initApiInterceptors from './utils/apiInterceptors';
+import { initErrorHandlers } from './utils/errorHandler';
 
 // Загружаем кэшированные данные
 loadOfflineData();
 
 // Инициализируем перехватчики API для оффлайн-режима
 initApiInterceptors();
+
+// Инициализируем обработчики ошибок
+initErrorHandlers();
 
 // Инициализация и рендеринг приложения
 createRoot(document.getElementById("root")!).render(<App />);

@@ -8,6 +8,7 @@
  */
 
 import { OFFLINE_DATA } from './offlineNavigation';
+import { errorLogger, LogEventType } from '../services/errorLogging';
 
 // Инициализируем флаг для отслеживания статуса сети
 let isOfflineMode = !navigator.onLine;
@@ -82,6 +83,12 @@ export function initApiInterceptors() {
       
       return response;
     } catch (error) {
+      // Логируем ошибку сети
+      errorLogger.logNetworkError(
+        'Ошибка сети при запросе к API', 
+        { url, method: init?.method || 'GET', error: String(error) }
+      );
+      
       // Если произошла ошибка сети, пробуем использовать кэш, даже если мы "онлайн"
       if (url.includes('/api/products')) {
         return createMockResponse(OFFLINE_DATA.products, url);
