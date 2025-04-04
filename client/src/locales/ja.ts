@@ -47,6 +47,12 @@ export default {
   shipping: "配送ポリシー",
   payment: "支払い条件",
   warranty: "保証",
+  deliveryPolicy: "配送ポリシー",
+  returnPolicy: "返品・交換ポリシー",
+  contactInfo: "連絡先情報",
+  gdpr: "GDPR",
+  ftc: "FTC規則",
+  dataSafety: "Google Play用データセキュリティ",
   
   // Checkout
   checkout: "チェックアウト",
