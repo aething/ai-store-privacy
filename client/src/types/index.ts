@@ -59,6 +59,15 @@ export interface InfoPage {
 export interface LocalizedProductInfo {
   title: string;
   description: string;
+  hardwareInfo?: string;
+  softwareInfo?: string;
+  hardwareTabLabel?: string;
+  softwareTabLabel?: string;
+  hardwareSpecsLabel?: string;
+  aiCapabilitiesLabel?: string;
+  softwareArchitectureLabel?: string;
+  learnMoreContent?: string;
+  learnMoreTitle?: string;
 }
 
 /**
@@ -67,4 +76,21 @@ export interface LocalizedProductInfo {
  */
 export interface ProductTranslations {
   [productId: number]: LocalizedProductInfo;
+}
+
+/**
+ * Тип для хранения общих UI переводов для продуктов
+ */
+export interface ProductUITranslations {
+  hardwareTab: string;
+  softwareTab: string;
+  hardwareSpecsHeading: string;
+  aiCapabilitiesHeading: string;
+  softwareArchitectureHeading: string;
+  noHardwareInfo: string;
+  noSoftwareInfo: string;
+  specificationLabel: string;
+  imageDisclaimer: string;
+  enterCouponCode: string;
+  learnMore: string;
 }

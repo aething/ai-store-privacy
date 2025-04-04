@@ -8,6 +8,7 @@ import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/cu
 import SwipeBack from "@/components/SwipeBack";
 import { useLocale } from "@/context/LocaleContext";
 import productTranslations from "@/locales/products";
+import productUITranslations from "@/locales/products/ui";
 import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -101,12 +102,15 @@ export default function ProductDetail() {
     );
   }
 
-  // Получаем локализованные данные продукта
+  // Получаем локализованные данные продукта и UI
   const localizedInfo = productTranslations[currentLocale]?.[product.id];
   const localizedProduct = localizedInfo || productTranslations['en']?.[product.id] || { 
     title: product.title,
     description: product.description
   };
+  
+  // Получаем локализованные UI элементы
+  const uiText = productUITranslations[currentLocale] || productUITranslations['en'];
   
   // Отладочная информация
   console.log("Product debug:", {
@@ -194,7 +198,7 @@ export default function ProductDetail() {
             )}
           </div>
           <p className="text-xs text-gray-500 italic text-center">
-            Images are for illustration purposes only. Refer to the description for full specifications.
+            {uiText.imageDisclaimer}
           </p>
         </div>
         
@@ -228,7 +232,7 @@ export default function ProductDetail() {
           <div className="mb-4">
             <Input
               type="text"
-              placeholder="Enter coupon code (optional)"
+              placeholder={uiText.enterCouponCode}
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
               className="w-full"
@@ -251,7 +255,7 @@ export default function ProductDetail() {
                   <line x1="2" y1="9" x2="4" y2="9"></line>
                   <line x1="2" y1="14" x2="4" y2="14"></line>
                 </svg>
-                Hardware
+                {localizedProduct.hardwareTabLabel || uiText.hardwareTab}
               </TabsTrigger>
               <TabsTrigger value="software" className="flex items-center">
                 <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -259,14 +263,14 @@ export default function ProductDetail() {
                   <line x1="8" y1="21" x2="16" y2="21"></line>
                   <line x1="12" y1="17" x2="12" y2="21"></line>
                 </svg>
-                Software
+                {localizedProduct.softwareTabLabel || uiText.softwareTab}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="hardware" className="p-0">
               {product.hardwareInfo ? (
                 <div className="space-y-6">
                   <div className="bg-blue-50/15 rounded-lg p-4 border-l-2 border-blue-400">
-                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Hardware Specifications</h3>
+                    <h3 className="text-lg font-semibold text-blue-800 mb-4">{localizedProduct.hardwareSpecsLabel || uiText.hardwareSpecsHeading}</h3>
                     <div className="space-y-4 text-gray-800">
                       {product.hardwareInfo && product.hardwareInfo.split('. ').map((paragraph, index) => (
                         paragraph.trim() && (
@@ -279,7 +283,7 @@ export default function ProductDetail() {
                   </div>
 
                   <div className="bg-gray-50 rounded-lg p-4 border-l-2 border-gray-400">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">AI Capabilities & Performance</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">{localizedProduct.aiCapabilitiesLabel || uiText.aiCapabilitiesHeading}</h3>
                     <div className="space-y-4">
                       <div className="flex items-start gap-3">
                         <div className="bg-gray-200 rounded-md p-1 text-gray-700">
@@ -353,7 +357,7 @@ export default function ProductDetail() {
                 {product.softwareInfo ? (
                   <div className="space-y-6">
                     <div className="bg-gray-50/15 rounded-lg p-4 border-l-2 border-gray-400">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-3">Software Architecture</h3>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">{localizedProduct.softwareArchitectureLabel || uiText.softwareArchitectureHeading}</h3>
                       <div className="grid gap-3 md:grid-cols-2">
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
                           <div className="flex items-center gap-2 mb-2">

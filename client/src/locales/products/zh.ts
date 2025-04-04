@@ -5,30 +5,37 @@
 import { ProductTranslations } from '@/types';
 
 const translations: ProductTranslations = {
-  // Product ID 1
   1: {
-    title: "边缘计算AI开发套件",
-    description: "为边缘计算优化的高性能AI开发平台，具有先进的神经处理能力和全面的软件生态系统。"
+    title: "AI边缘计算模块（开发者版）",
+    description: "先进的AI计算模块，专为边缘部署设计，配备6核ARM CPU、8GB RAM和专用神经处理单元，提供高达67 TOPS的性能。完美适用于AI开发、机器人技术和计算机视觉应用。",
+    hardwareInfo: "AI边缘计算模块采用最新的Jetson Orin Nano架构，配备运行速度高达1.5 GHz的6核ARM Cortex-A78AE处理器。它配备8GB LPDDR5内存，为边缘AI应用提供卓越性能。NPU支持所有主要深度学习框架，并提供高达67 TOPS的AI性能，同时优化能源效率。",
+    softwareInfo: "该模块配备完整软件堆栈，包括基于Linux的操作系统、CUDA库以及对TensorFlow、PyTorch和ONNX运行时的全面支持。集成SDK包含模型优化、可视化和部署工具。内置AI模型管理和版本控制功能，支持无缝空中更新。",
+    hardwareTabLabel: "硬件",
+    softwareTabLabel: "软件",
+    hardwareSpecsLabel: "硬件规格",
+    aiCapabilitiesLabel: "AI功能和性能",
+    softwareArchitectureLabel: "软件架构",
+    learnMoreTitle: "技术详情",
+    learnMoreContent: "AI边缘计算模块代表了边缘部署AI硬件的尖端水平。凭借其强大的NPU和优化的软件堆栈，它能够以最小的功耗在边缘部署复杂的神经网络，包括Transformer和LLM模型。"
   },
-  // Product ID 2
   2: {
-    title: "边缘AI加速模块",
-    description: "紧凑型计算模块，配备专用神经处理单元，旨在以最小功耗在边缘部署AI模型。"
+    title: "企业级AI服务器（机架式）",
+    description: "高性能AI服务器，适用于企业部署，配备多个GPU，针对大规模机器学习工作负载、数据处理和AI应用托管进行优化。具有冗余电源和先进冷却系统，支持24/7全天候运行。",
+    hardwareInfo: "企业级AI服务器采用2U机架式机箱，支持最多4个高性能GPU（NVIDIA A100或同等产品）。它配备双Intel Xeon处理器，总计高达64个内核，256GB DDR4 ECC内存（可扩展至1TB），以及RAID配置的8TB NVMe存储。系统包括冗余1600W电源和先进冷却系统，确保最佳性能。",
+    softwareInfo: "服务器预装Ubuntu Server LTS，并包含完整AI软件堆栈，包括CUDA、cuDNN和TensorRT。它支持Docker和Kubernetes进行容器化部署，并包含分布式训练和推理工具。管理软件提供全面的监控、调度和资源分配功能。",
+    hardwareTabLabel: "硬件",
+    softwareTabLabel: "软件",
+    hardwareSpecsLabel: "硬件规格",
+    aiCapabilitiesLabel: "AI功能和性能",
+    softwareArchitectureLabel: "软件架构"
   },
-  // Product ID 3
   3: {
-    title: "计算机视觉智能摄像系统",
-    description: "完整的视觉处理系统，集成AI功能，用于在各种环境中实时进行物体检测、跟踪和识别。"
-  },
-  // Product ID 4
-  4: {
-    title: "自然语言处理开发套件",
-    description: "专用的硬件和软件工具包，用于开发和部署高级NLP应用程序，支持多种语言模型。"
-  },
-  // Product ID 5
-  5: {
-    title: "AI机器人开发平台",
-    description: "综合性机器人开发套件，集成AI处理、传感器套件和执行器控制，用于构建智能自主系统。"
+    title: "AI视觉套件（完整套装）",
+    description: "完整的AI视觉开发套件，配备高分辨率摄像头模块、处理单元和预训练模型，用于计算机视觉应用。非常适合开发基于视觉的AI解决方案原型，如物体检测、人脸识别和活动分析。",
+    hardwareInfo: "AI视觉套件包含基于Jetson Xavier NX平台的主计算模块，配备6核NVIDIA Carmel CPU和384核Volta GPU，含48个张量核心。它配备8GB LPDDR4x内存和16GB eMMC存储。该套件包括两个配备广角镜头的4K摄像头模块，支持低光环境下的红外功能，以及硬件加速图像处理。",
+    softwareInfo: "视觉套件配备完整软件堆栈，包括常见计算机视觉任务的预训练模型，如物体检测、分类、分割和跟踪。SDK提供摄像头控制、图像处理和模型部署API。系统支持TensorFlow、PyTorch和OpenCV，并提供额外的数据集管理和模型训练工具。",
+    hardwareTabLabel: "硬件",
+    softwareTabLabel: "软件"
   }
 };
 
