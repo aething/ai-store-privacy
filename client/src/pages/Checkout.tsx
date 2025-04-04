@@ -376,18 +376,10 @@ const CheckoutForm = ({
         <h3 className="text-center font-bold text-gray-800 text-base mb-3 border-b pb-2">
           {product?.title || 'Your Purchase'}
         </h3>
-        {quantity > 1 && (
-          <div className="flex justify-between items-center mb-2 text-gray-700">
-            <span>Subtotal ({quantity} × {formatPrice(price, currency, false)}):</span>
-            <span className="font-medium">{formatPrice(price * quantity, currency, false)}</span>
-          </div>
-        )}
-        {quantity === 1 && (
-          <div className="flex justify-between items-center mb-2 text-gray-700">
-            <span>Price:</span>
-            <span className="font-medium">{formatPrice(price, currency, false)}</span>
-          </div>
-        )}
+        <div className="flex justify-between items-center mb-2 text-gray-700">
+          <span>Price:</span>
+          <span className="font-medium">{formatPrice(price, currency, false)}</span>
+        </div>
         {stripeTaxInfo && stripeTaxInfo.amount > 0 && (
           <div className="flex justify-between items-center mb-2 text-gray-700">
             <span>{stripeTaxInfo.label || 'Tax'}:</span>
@@ -396,7 +388,7 @@ const CheckoutForm = ({
         )}
         <div className="flex justify-between items-center mt-3 pt-2 border-t text-green-700 font-bold">
           <span>Total:</span>
-          <span>{formatPrice(price * quantity + (stripeTaxInfo?.amount || 0), currency, false)}</span>
+          <span>{formatPrice(price + (stripeTaxInfo?.amount || 0), currency, false)}</span>
         </div>
       </div>
 
