@@ -23,7 +23,8 @@ const CheckoutForm = ({
   product,
   stripeTaxInfo,
   clientSecret,
-  price
+  price,
+  quantity
 }: { 
   productId: number; 
   amount: number; 
@@ -32,6 +33,7 @@ const CheckoutForm = ({
   stripeTaxInfo?: {amount: number; rate: number; label: string; display?: string} | null;
   clientSecret: string;
   price: number;
+  quantity: number;
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -378,9 +380,15 @@ const CheckoutForm = ({
         <h3 className="text-center font-bold text-gray-800 text-base mb-3 border-b pb-2">
           {product?.title || 'Your Purchase'}
         </h3>
+        {/* Добавляем количество для отображения */}
+        <div className="quantity-info text-sm text-gray-500 mb-1">
+          {/* Отображаем количество только если оно больше 1 */}
+          {quantity > 1 && <div>Quantity: {quantity}</div>}
+        </div>
+        
         <div className="flex justify-between items-center mb-2 text-gray-700">
-          <span>Price:</span>
-          <span className="font-medium">{formatPrice(price, currency, false)}</span>
+          <span>{quantity > 1 ? 'Subtotal:' : 'Price:'}</span>
+          <span className="font-medium">{formatPrice(price * quantity, currency, false)}</span>
         </div>
         {stripeTaxInfo && stripeTaxInfo.amount > 0 && (
           <div className="flex justify-between items-center mb-2 text-gray-700">
@@ -390,7 +398,7 @@ const CheckoutForm = ({
         )}
         <div className="flex justify-between items-center mt-3 pt-2 border-t text-green-700 font-bold">
           <span>Total:</span>
-          <span>{formatPrice(price + (stripeTaxInfo?.amount || 0), currency, false)}</span>
+          <span>{formatPrice((price * quantity) + (stripeTaxInfo?.amount || 0), currency, false)}</span>
         </div>
       </div>
 
@@ -1297,6 +1305,7 @@ export default function Checkout() {
               stripeTaxInfo={stripeTaxInfo}
               clientSecret={clientSecret}
               price={price}
+              quantity={quantity}
             />
           </Elements>
         ) : (
