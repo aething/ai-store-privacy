@@ -39,7 +39,7 @@ const TaxDisplayBoxSimple: React.FC<TaxDisplayBoxProps> = ({
 
   // Если налоговая информация не предоставлена, показываем информацию с 19% налогом по умолчанию
   if (!tax) {
-    console.warn("Tax information is missing, using default 19% rate");
+    console.warn(`Tax information is missing, using default 19% rate on subtotal ${subtotal}`);
     const defaultTaxAmount = Math.round(subtotal * 0.19); // 19% по умолчанию
     
     return (

@@ -376,10 +376,18 @@ const CheckoutForm = ({
         <h3 className="text-center font-bold text-gray-800 text-base mb-3 border-b pb-2">
           {product?.title || 'Your Purchase'}
         </h3>
-        <div className="flex justify-between items-center mb-2 text-gray-700">
-          <span>Price:</span>
-          <span className="font-medium">{formatPrice(amount, currency, false)}</span>
-        </div>
+        {quantity > 1 && (
+          <div className="flex justify-between items-center mb-2 text-gray-700">
+            <span>Subtotal ({quantity} × {formatPrice(price, currency, false)}):</span>
+            <span className="font-medium">{formatPrice(price * quantity, currency, false)}</span>
+          </div>
+        )}
+        {quantity === 1 && (
+          <div className="flex justify-between items-center mb-2 text-gray-700">
+            <span>Price:</span>
+            <span className="font-medium">{formatPrice(price, currency, false)}</span>
+          </div>
+        )}
         {stripeTaxInfo && stripeTaxInfo.amount > 0 && (
           <div className="flex justify-between items-center mb-2 text-gray-700">
             <span>{stripeTaxInfo.label || 'Tax'}:</span>
@@ -388,7 +396,7 @@ const CheckoutForm = ({
         )}
         <div className="flex justify-between items-center mt-3 pt-2 border-t text-green-700 font-bold">
           <span>Total:</span>
-          <span>{formatPrice(amount + (stripeTaxInfo?.amount || 0), currency, false)}</span>
+          <span>{formatPrice(price * quantity + (stripeTaxInfo?.amount || 0), currency, false)}</span>
         </div>
       </div>
 
@@ -834,12 +842,27 @@ export default function Checkout() {
     setIsUpdatingQuantity(true);
     
     try {
+      console.log("[QUANTITY DEBUG] Changing quantity from", quantity, "to", newQuantity);
+      
       // Сначала обновляем визуально количество
       setQuantity(newQuantity);
       
       // Также напрямую обновляем расчетную цену (для мгновенной обратной связи)
       const newBaseAmount = price * newQuantity;
       const newTaxAmount = Math.round(price * newQuantity * taxRate);
+      
+      // Предварительно обновляем отображаемую налоговую информацию для лучшего UX
+      if (stripeTaxInfo) {
+        console.log("[QUANTITY DEBUG] Предварительно обновляем налоговую информацию");
+        // Рассчитываем новую сумму налога на основе ставки и нового количества
+        const updatedTaxAmount = Math.round(price * newQuantity * stripeTaxInfo.rate);
+        
+        // Обновляем отображаемую информацию о налоге
+        setStripeTaxInfo({
+          ...stripeTaxInfo,
+          amount: updatedTaxAmount
+        });
+      }
       
       // Если пользователь не авторизован или нет ID платежа, просто обновляем UI
       if (!user || !paymentIntentId) {
