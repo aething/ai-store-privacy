@@ -4,10 +4,24 @@ import InfoPageCard from "./InfoPageCard";
 import { useLocale } from "@/context/LocaleContext";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { InfoPageTranslations } from "@/locales/infopages";
+
+// Определяем расширенный тип для переводов с добавлением id
+type ExtendedInfoPageTranslations = InfoPageTranslations & {
+  id: string | number;
+};
+
+// Определяем универсальный тип для информационных страниц
+type UniversalInfoPage = InfoPage | ExtendedInfoPageTranslations | { 
+  id: string | number;
+  title: string;
+  description?: string;
+  content?: string;
+};
 
 interface InfoPageSliderProps {
   title: string;
-  infoPages: InfoPage[];
+  infoPages: UniversalInfoPage[];
   titleKey?: string; // Ключ для локализации заголовка
 }
 
@@ -93,12 +107,16 @@ export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageS
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {infoPages.map((infoPage) => (
-          <InfoPageCard 
-            key={infoPage.id} 
-            infoPage={infoPage} 
-          />
-        ))}
+        {infoPages.map((infoPage) => {
+          // Получаем ID для ключа, безопасно проверяя его наличие
+          const key = 'id' in infoPage && infoPage.id ? infoPage.id.toString() : Math.random().toString();
+          return (
+            <InfoPageCard 
+              key={key} 
+              infoPage={infoPage} 
+            />
+          );
+        })}
       </div>
       
       {infoPages.length > 2 && (
