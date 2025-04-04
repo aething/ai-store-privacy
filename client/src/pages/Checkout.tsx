@@ -819,7 +819,11 @@ export default function Checkout() {
   
   // Вычисляем стоимость с учетом количества
   const basePrice = price * quantity;
-  const calculatedTaxAmount = taxAmount * quantity;
+  
+  // Правильно рассчитываем сумму налога на основе текущего количества и ставки налога
+  const calculatedTaxAmount = Math.round(price * quantity * taxRate);
+  
+  // Рассчитываем итоговую сумму заказа
   const totalPrice = basePrice + calculatedTaxAmount;
   
   // Функция для обновления количества и PaymentIntent
@@ -1060,7 +1064,7 @@ export default function Checkout() {
                   </span>
                 </td>
                 <td className="text-right pb-2 pt-2 font-medium">
-                  {formatPrice(calculatedTaxAmount, currency, false)}
+                  {formatPrice(stripeTaxInfo?.amount || calculatedTaxAmount, currency, false)}
                 </td>
               </tr>
               
@@ -1072,7 +1076,7 @@ export default function Checkout() {
               <tr className="font-bold text-lg bg-green-50">
                 <td className="text-left pt-2 pb-2 border-t">Total</td>
                 <td className="text-right pt-2 pb-2 border-t">
-                  {formatPrice(totalPrice, currency, false)}
+                  {formatPrice(basePrice + (stripeTaxInfo?.amount || calculatedTaxAmount), currency, false)}
                 </td>
               </tr>
             </tbody>
