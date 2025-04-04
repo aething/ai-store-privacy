@@ -139,20 +139,20 @@ export default function Policy() {
         </div>
         
         {/* Простой контейнер для содержимого */}
-        <div ref={contentRef} className="flex-1 p-4" id="info-content">
+        <div className="flex-1 p-4" id="info-content" ref={contentRef}>
           <Card className="p-4 rounded-lg">
             <div dangerouslySetInnerHTML={{ __html: policy.content }} />
+            
+            {/* Кнопка прокрутки вверх */}
+            <div className="flex justify-center mt-6">
+              <Button
+                className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                {t("scrollToTop")}
+              </Button>
+            </div>
           </Card>
-          
-          {/* Кнопка прокрутки вверх */}
-          <div className="flex justify-center mt-6 mb-4">
-            <Button
-              className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            >
-              {t("scrollToTop")}
-            </Button>
-          </div>
         </div>
       </div>
     </SwipeBack>

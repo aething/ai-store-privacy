@@ -34,11 +34,6 @@ export default function InfoPage() {
     // Сбрасываем глобальный скролл страницы
     window.scrollTo(0, 0);
     
-    // Сбрасываем скролл контента
-    if (contentRef.current) {
-      contentRef.current.scrollTop = 0;
-    }
-    
     // Принудительно устанавливаем фокус на верхнюю часть страницы
     if (pageRef.current) {
       pageRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
@@ -50,19 +45,11 @@ export default function InfoPage() {
     // Использовать плавную прокрутку для кнопки
     window.scrollTo({ top: 0, behavior: "smooth" });
     
-    // Прокрутить контент наверх
-    if (contentRef.current) {
-      contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    
     // Скроллим к якорю
     document.getElementById('content-top')?.scrollIntoView({ 
       behavior: 'smooth', 
       block: 'start' 
     });
-    
-    // Дополнительно принудительно установим позицию через небольшой таймаут
-    setTimeout(resetScrollPosition, 300);
   };
 
   useEffect(() => {
@@ -122,36 +109,25 @@ export default function InfoPage() {
           </div>
         )}
         
-        <Card className="overflow-hidden shadow-md rounded-lg mt-2">
-          {/* Content - прокручиваемая область */}
+        <Card className="overflow-hidden shadow-md rounded-lg mt-2 p-4 sm:p-6">
+          {/* Якорь для верхней части контента */}
+          <div id="content-top" ref={contentRef}></div>
+          
+          <h1 className="text-2xl font-bold mb-2">{infoPage.title}</h1>
+          <p className="text-gray-500 mb-6">{infoPage.description}</p>
+          
           <div 
-            ref={contentRef}
-            className="p-4 sm:p-6 overflow-y-auto"
-            style={{ 
-              maxHeight: "calc(100vh - 200px)",
-              scrollBehavior: "smooth"
-            }}
-            id="info-content"
-          >
-            {/* Якорь для верхней части контента */}
-            <div id="content-top"></div>
-            
-            <h1 className="text-2xl font-bold mb-2">{infoPage.title}</h1>
-            <p className="text-gray-500 mb-6">{infoPage.description}</p>
-            
-            <div 
-              className="prose max-w-none" 
-              dangerouslySetInnerHTML={{ __html: infoPage.content }} 
-            />
-            
-            <div className="mt-8 flex justify-center">
-              <Button
-                className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
-                onClick={scrollToTop}
-              >
-                {t("scrollToTop")}
-              </Button>
-            </div>
+            className="prose max-w-none" 
+            dangerouslySetInnerHTML={{ __html: infoPage.content }} 
+          />
+          
+          <div className="mt-8 flex justify-center">
+            <Button
+              className="bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
+              onClick={scrollToTop}
+            >
+              {t("scrollToTop")}
+            </Button>
           </div>
         </Card>
       </div>
