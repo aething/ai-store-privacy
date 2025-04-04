@@ -8,6 +8,22 @@ const translations: ProductTranslations = {
   1: {
     title: "Módulo de Computación IA de Borde (Edición para Desarrolladores)",
     description: "Módulo de computación de IA avanzado diseñado para despliegue en el borde con CPU ARM de 6 núcleos, 8GB de RAM y unidad de procesamiento neuronal especializada que ofrece hasta 67 TOPS de rendimiento. Perfecto para desarrollo de IA, robótica y aplicaciones de visión por computadora.",
+    features: [
+      "Procesador ARM Cortex-A78AE de 6 núcleos",
+      "8GB RAM LPDDR5",
+      "67 TOPS de rendimiento IA (INT8)",
+      "Soporte para modelos transformer y LLMs",
+      "Consumo de energía optimizado de 7-25W"
+    ],
+    specifications: {
+      "Procesador": "ARM Cortex-A78AE, 6 núcleos, hasta 1.5GHz",
+      "Memoria": "8GB LPDDR5",
+      "Almacenamiento": "16GB eMMC 5.1",
+      "GPU": "NVIDIA Ampere con 1024 CUDA cores",
+      "NPU": "Unidad de procesamiento neuronal dedicada, 67 TOPS (INT8)",
+      "Interfaces": "USB 3.2, HDMI 2.1, Gigabit Ethernet, M.2 Key-E",
+      "Consumo de energía": "7-25W (configurable)"
+    },
     hardwareInfo: "El Módulo de Computación IA de Borde presenta la arquitectura más reciente de Jetson Orin Nano con un procesador ARM Cortex-A78AE de 6 núcleos que funciona a hasta 1,5 GHz. Viene con 8GB de memoria LPDDR5 y ofrece un rendimiento excepcional para aplicaciones de IA de borde. La NPU soporta todos los principales frameworks de aprendizaje profundo y proporciona hasta 67 TOPS de rendimiento de IA con eficiencia energética optimizada.",
     softwareInfo: "Este módulo viene con una pila de software completa que incluye un sistema operativo basado en Linux, bibliotecas CUDA y soporte completo para TensorFlow, PyTorch y ONNX runtime. El SDK integrado incluye herramientas para optimización de modelos, visualización e implementación. La gestión y versionado de modelos de IA están integrados, permitiendo actualizaciones inalámbricas sin problemas.",
     hardwareTabLabel: "Hardware",
@@ -21,6 +37,23 @@ const translations: ProductTranslations = {
   2: {
     title: "Servidor IA Empresarial (Montaje en Rack)",
     description: "Servidor de IA de alto rendimiento para implementaciones empresariales con múltiples GPUs, optimizado para cargas de trabajo de aprendizaje automático a gran escala, procesamiento de datos y alojamiento de aplicaciones de IA. Cuenta con fuentes de alimentación redundantes y refrigeración avanzada para operación 24/7.",
+    features: [
+      "Soporte para 4 GPUs de alto rendimiento",
+      "Procesadores Intel Xeon duales (hasta 64 núcleos)",
+      "256GB RAM DDR4 ECC (ampliable a 1TB)",
+      "8TB almacenamiento NVMe en RAID",
+      "Fuentes de alimentación redundantes de 1600W"
+    ],
+    specifications: {
+      "Factor de forma": "Chasis montable en rack 2U",
+      "Procesador": "Intel Xeon duales, hasta 64 núcleos en total",
+      "Memoria": "256GB DDR4 ECC (ampliable a 1TB)",
+      "Almacenamiento": "8TB NVMe en configuración RAID",
+      "GPUs": "Hasta 4 NVIDIA A100 (o equivalente)",
+      "Red": "Dual 25GbE SFP28 + 1GbE de gestión",
+      "Alimentación": "Fuentes de alimentación redundantes de 1600W, 80 Plus Platinum",
+      "Refrigeración": "Sistema térmico avanzado con ventiladores redundantes"
+    },
     hardwareInfo: "El Servidor IA Empresarial viene en un chasis montable en rack 2U con soporte para hasta 4 GPUs de alto rendimiento (NVIDIA A100 o equivalente). Cuenta con procesadores Intel Xeon duales con hasta 64 núcleos en total, 256GB de memoria DDR4 ECC (ampliable a 1TB), y 8TB de almacenamiento NVMe en configuración RAID. El sistema incluye fuentes de alimentación redundantes de 1600W y un sistema de refrigeración avanzado para un rendimiento óptimo.",
     softwareInfo: "El servidor viene preinstalado con Ubuntu Server LTS e incluye una pila de software de IA completa con CUDA, cuDNN y TensorRT. Soporta Docker y Kubernetes para implementaciones en contenedores, e incluye herramientas para entrenamiento e inferencia distribuidos. El software de gestión proporciona capacidades integrales de monitoreo, programación y asignación de recursos.",
     hardwareTabLabel: "Hardware",
@@ -34,6 +67,22 @@ const translations: ProductTranslations = {
   3: {
     title: "Kit de Visión IA (Paquete Completo)",
     description: "Kit completo de desarrollo de visión por IA con módulos de cámara de alta resolución, unidad de procesamiento y modelos pre-entrenados para aplicaciones de visión por computadora. Ideal para prototipar soluciones de IA basadas en visión como detección de objetos, reconocimiento facial y análisis de actividad.",
+    features: [
+      "CPU NVIDIA Carmel de 6 núcleos",
+      "GPU Volta de 384 núcleos con 48 Tensor Cores",
+      "Dos módulos de cámara 4K con IR para poca luz",
+      "Modelos pre-entrenados de visión por computadora",
+      "Procesamiento de imágenes acelerado por hardware"
+    ],
+    specifications: {
+      "Procesador": "NVIDIA Carmel, 6 núcleos",
+      "GPU": "NVIDIA Volta con 384 CUDA cores y 48 Tensor Cores",
+      "Memoria": "8GB LPDDR4x",
+      "Almacenamiento": "16GB eMMC 5.1",
+      "Cámaras": "2 × 4K con lentes gran angular e IR",
+      "Interfaces": "USB 3.1, HDMI 2.0, Gigabit Ethernet",
+      "Capacidades de visión": "Detección de objetos, seguimiento, segmentación, reconocimiento facial"
+    },
     hardwareInfo: "El Kit de Visión IA incluye un módulo de computación principal basado en la plataforma Jetson Xavier NX, con una CPU NVIDIA Carmel de 6 núcleos y una GPU Volta de 384 núcleos con 48 Tensor Cores. Viene con 8GB de memoria LPDDR4x y 16GB de almacenamiento eMMC. El kit incluye dos módulos de cámara 4K con lentes gran angular, capacidades infrarrojas para operación con poca luz y procesamiento de imágenes acelerado por hardware.",
     softwareInfo: "El Kit de Visión viene con una pila de software completa que incluye modelos pre-entrenados para tareas comunes de visión por computadora como detección de objetos, clasificación, segmentación y seguimiento. El SDK proporciona APIs para control de cámara, procesamiento de imágenes e implementación de modelos. El sistema soporta TensorFlow, PyTorch y OpenCV, con herramientas adicionales para gestión de conjuntos de datos y entrenamiento de modelos.",
     hardwareTabLabel: "Hardware",

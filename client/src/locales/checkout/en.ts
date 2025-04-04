@@ -1,6 +1,3 @@
-/**
- * English localization for checkout page
- */
 import { CheckoutTranslations } from '@/types';
 
 export const en: CheckoutTranslations = {
@@ -10,29 +7,29 @@ export const en: CheckoutTranslations = {
   
   // Form fields
   emailAddress: "Email Address",
-  emailPlaceholder: "email@example.com",
+  emailPlaceholder: "example@domain.com",
   firstName: "First Name",
-  firstNamePlaceholder: "John",
+  firstNamePlaceholder: "Enter your first name",
   lastName: "Last Name",
-  lastNamePlaceholder: "Doe",
+  lastNamePlaceholder: "Enter your last name",
   phoneNumber: "Phone Number",
-  phonePlaceholder: "+1 234 567 8900",
-  companyName: "Company Name",
-  companyNameOptional: "Company Name (Optional)",
-  companyPlaceholder: "Example Company Inc.",
+  phonePlaceholder: "+1 XXX XXX XXXX",
+  companyName: "Company",
+  companyNameOptional: "Company (optional)",
+  companyPlaceholder: "Company name",
   
   // Shipping address
   shippingAddress: "Shipping Address",
   fullName: "Full Name",
-  fullNamePlaceholder: "John Doe",
+  fullNamePlaceholder: "Enter full name",
   country: "Country",
-  selectCountry: "Select Country",
+  selectCountry: "Select a country",
   address: "Address",
-  addressPlaceholder: "123 Example St.",
-  zipCode: "ZIP Code",
-  zipPlaceholder: "12345",
+  addressPlaceholder: "Street address, apt, suite, etc.",
+  zipCode: "ZIP / Postal Code",
+  zipPlaceholder: "e.g. 10001",
   city: "City",
-  cityPlaceholder: "New York",
+  cityPlaceholder: "e.g. New York",
   
   // Order summary
   subtotal: "Subtotal",
@@ -44,17 +41,17 @@ export const en: CheckoutTranslations = {
   paymentInformation: "Payment Information",
   cardInformation: "Card Information",
   paymentMethods: "Payment Methods",
-  payButton: "Pay Now",
+  payButton: "Pay",
   processingPayment: "Processing Payment...",
   
   // Errors
   paymentError: "Payment Error",
-  paymentNotLoadedError: "The payment system is not fully loaded yet. Please try again.",
+  paymentNotLoadedError: "Could not load payment information. Please try again.",
   missingInformation: "Missing Information",
-  missingNameError: "Please provide your name for delivery.",
-  missingPhoneError: "Please provide your phone number for delivery updates.",
-  missingShippingError: "Please complete all shipping address fields.",
+  missingNameError: "Please provide your full name",
+  missingPhoneError: "Please provide a valid phone number",
+  missingShippingError: "Please complete all shipping information",
   paymentFailedTitle: "Payment Failed",
-  paymentFailedDefault: "Payment failed. Please try again.",
-  unexpectedError: "An unexpected error occurred during payment. Please try again later."
+  paymentFailedDefault: "We couldn't process your payment. Please check the details and try again.",
+  unexpectedError: "An unexpected error occurred. Please try again."
 };

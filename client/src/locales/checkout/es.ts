@@ -1,6 +1,3 @@
-/**
- * Spanish localization for checkout page
- */
 import { CheckoutTranslations } from '@/types';
 
 export const es: CheckoutTranslations = {
@@ -10,51 +7,51 @@ export const es: CheckoutTranslations = {
   
   // Form fields
   emailAddress: "Correo Electrónico",
-  emailPlaceholder: "email@ejemplo.es",
+  emailPlaceholder: "ejemplo@dominio.com",
   firstName: "Nombre",
-  firstNamePlaceholder: "Juan",
-  lastName: "Apellido",
-  lastNamePlaceholder: "Pérez",
+  firstNamePlaceholder: "Introduce tu nombre",
+  lastName: "Apellidos",
+  lastNamePlaceholder: "Introduce tus apellidos",
   phoneNumber: "Número de Teléfono",
-  phonePlaceholder: "+34 612 345 678",
-  companyName: "Nombre de la Empresa",
-  companyNameOptional: "Nombre de la Empresa (Opcional)",
-  companyPlaceholder: "Empresa Ejemplo S.L.",
+  phonePlaceholder: "+34 XXX XXX XXX",
+  companyName: "Empresa",
+  companyNameOptional: "Empresa (opcional)",
+  companyPlaceholder: "Nombre de la empresa",
   
   // Shipping address
   shippingAddress: "Dirección de Envío",
   fullName: "Nombre Completo",
-  fullNamePlaceholder: "Juan Pérez",
+  fullNamePlaceholder: "Introduce nombre completo",
   country: "País",
-  selectCountry: "Seleccionar País",
+  selectCountry: "Selecciona un país",
   address: "Dirección",
-  addressPlaceholder: "Calle Ejemplo 123",
+  addressPlaceholder: "Calle, número, piso",
   zipCode: "Código Postal",
-  zipPlaceholder: "28001",
+  zipPlaceholder: "Ej. 28001",
   city: "Ciudad",
-  cityPlaceholder: "Madrid",
+  cityPlaceholder: "Ej. Madrid",
   
   // Order summary
   subtotal: "Subtotal",
   price: "Precio",
-  tax: "IVA",
+  tax: "Impuestos",
   total: "Total",
   
   // Payment related
   paymentInformation: "Información de Pago",
   cardInformation: "Información de Tarjeta",
   paymentMethods: "Métodos de Pago",
-  payButton: "Pagar Ahora",
+  payButton: "Pagar",
   processingPayment: "Procesando Pago...",
   
   // Errors
   paymentError: "Error de Pago",
-  paymentNotLoadedError: "El sistema de pago aún no está completamente cargado. Inténtalo de nuevo.",
-  missingInformation: "Falta Información",
-  missingNameError: "Por favor, proporciona tu nombre para la entrega.",
-  missingPhoneError: "Por favor, proporciona tu número de teléfono para actualizaciones de entrega.",
-  missingShippingError: "Por favor, completa todos los campos de la dirección de envío.",
+  paymentNotLoadedError: "No se pudo cargar la información de pago. Por favor, intenta de nuevo.",
+  missingInformation: "Información Incompleta",
+  missingNameError: "Por favor, proporciona tu nombre completo",
+  missingPhoneError: "Por favor, proporciona un número de teléfono válido",
+  missingShippingError: "Por favor, completa toda la información de envío",
   paymentFailedTitle: "Pago Fallido",
-  paymentFailedDefault: "El pago ha fallado. Por favor, inténtalo de nuevo.",
-  unexpectedError: "Ha ocurrido un error inesperado durante el pago. Por favor, inténtalo más tarde."
+  paymentFailedDefault: "No pudimos procesar tu pago. Por favor, verifica los detalles e intenta de nuevo.",
+  unexpectedError: "Ha ocurrido un error inesperado. Por favor, intenta de nuevo."
 };

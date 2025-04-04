@@ -24,6 +24,10 @@ export const en: ProductUITranslations = {
   dataPipelinesDesc: 'Robust ETL pipelines with advanced data transformation and feature engineering capabilities',
   aiPerformance: 'AI Performance',
   aiPerformanceDesc: 'Up to 67 TOPS (INT8), a 70% improvement over prior version',
+  generativeAI: 'Generative AI',
+  generativeAIDesc: 'Support for transformer models and LLMs up to 8B parameters (Llama-3.1-8B)',
+  energyEfficiency: 'Energy Efficiency',
+  energyEfficiencyDesc: '7–25 watts power draw, making it a leader in energy-efficient AI computing',
   softwareStack: 'Software Stack',
   softwareStackDesc: 'Full compatibility with NVIDIA JetPack SDK v6.1, CUDA, TensorRT, cuDNN',
   applications: 'Applications',
@@ -82,13 +86,25 @@ export const es: ProductUITranslations = {
   dataPipelinesDesc: 'Robustos pipelines ETL con capacidades avanzadas de transformación de datos e ingeniería de características',
   aiPerformance: 'Rendimiento de IA',
   aiPerformanceDesc: 'Hasta 67 TOPS (INT8), una mejora del 70% sobre la versión anterior',
+  generativeAI: 'IA Generativa',
+  generativeAIDesc: 'Soporte para modelos transformer y LLMs de hasta 8B parámetros (Llama-3.1-8B)',
+  energyEfficiency: 'Eficiencia Energética',
+  energyEfficiencyDesc: 'Consumo de energía de 7–25 vatios, lo que lo convierte en líder en computación de IA energéticamente eficiente',
   softwareStack: 'Stack de Software',
   softwareStackDesc: 'Compatibilidad completa con NVIDIA JetPack SDK v6.1, CUDA, TensorRT, cuDNN',
   applications: 'Aplicaciones',
   applicationsDesc: 'Robótica, visión por computadora, agentes multimodales e IoT en el borde de la red',
   apiIntegration: 'APIs',
   apiIntegrationDesc: 'APIs RESTful y GraphQL con soporte SDK integral para fácil integración',
-  edgeComputing: 'Computación de Borde'
+  edgeComputing: 'Computación de Borde',
+  deepLearning: 'Aprendizaje Profundo',
+  machineLearning: 'Aprendizaje Automático',
+  modelOptimization: 'Optimización de Modelos',
+  modelOptimizationDesc: 'Soporte para TensorRT, TF-TRT y OpenVINO con cuantización INT8 y poda de pesos',
+  realTimeProcessing: 'Procesamiento en Tiempo Real',
+  realTimeProcessingDesc: 'Procesamiento de flujos de datos con latencia tan baja como 15ms para aplicaciones en tiempo real',
+  features: 'Características',
+  featuresDesc: 'Ejecución local de LLM para mejorar la privacidad y reducir la latencia'
 };
 
 // Французский (fr)

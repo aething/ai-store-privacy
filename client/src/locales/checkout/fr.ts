@@ -1,6 +1,3 @@
-/**
- * French localization for checkout page
- */
 import { CheckoutTranslations } from '@/types';
 
 export const fr: CheckoutTranslations = {
@@ -10,29 +7,29 @@ export const fr: CheckoutTranslations = {
   
   // Form fields
   emailAddress: "Adresse Email",
-  emailPlaceholder: "email@exemple.fr",
+  emailPlaceholder: "exemple@domaine.fr",
   firstName: "Prénom",
-  firstNamePlaceholder: "Jean",
+  firstNamePlaceholder: "Entrez votre prénom",
   lastName: "Nom",
-  lastNamePlaceholder: "Dupont",
+  lastNamePlaceholder: "Entrez votre nom",
   phoneNumber: "Numéro de Téléphone",
-  phonePlaceholder: "+33 6 12 34 56 78",
-  companyName: "Nom de l'Entreprise",
-  companyNameOptional: "Nom de l'Entreprise (Optionnel)",
-  companyPlaceholder: "Entreprise Exemple SAS",
+  phonePlaceholder: "+33 X XX XX XX XX",
+  companyName: "Société",
+  companyNameOptional: "Société (facultatif)",
+  companyPlaceholder: "Nom de la société",
   
   // Shipping address
   shippingAddress: "Adresse de Livraison",
   fullName: "Nom Complet",
-  fullNamePlaceholder: "Jean Dupont",
+  fullNamePlaceholder: "Entrez votre nom complet",
   country: "Pays",
-  selectCountry: "Sélectionner un Pays",
+  selectCountry: "Sélectionnez un pays",
   address: "Adresse",
-  addressPlaceholder: "123 Rue Exemple",
+  addressPlaceholder: "Rue, numéro, appartement, etc.",
   zipCode: "Code Postal",
-  zipPlaceholder: "75001",
+  zipPlaceholder: "ex. 75001",
   city: "Ville",
-  cityPlaceholder: "Paris",
+  cityPlaceholder: "ex. Paris",
   
   // Order summary
   subtotal: "Sous-total",
@@ -44,17 +41,17 @@ export const fr: CheckoutTranslations = {
   paymentInformation: "Informations de Paiement",
   cardInformation: "Informations de Carte",
   paymentMethods: "Méthodes de Paiement",
-  payButton: "Payer Maintenant",
+  payButton: "Payer",
   processingPayment: "Traitement du Paiement...",
   
   // Errors
   paymentError: "Erreur de Paiement",
-  paymentNotLoadedError: "Le système de paiement n'est pas entièrement chargé. Veuillez réessayer.",
+  paymentNotLoadedError: "Impossible de charger les informations de paiement. Veuillez réessayer.",
   missingInformation: "Informations Manquantes",
-  missingNameError: "Veuillez fournir votre nom pour la livraison.",
-  missingPhoneError: "Veuillez fournir votre numéro de téléphone pour les mises à jour de livraison.",
-  missingShippingError: "Veuillez compléter tous les champs d'adresse de livraison.",
+  missingNameError: "Veuillez fournir votre nom complet",
+  missingPhoneError: "Veuillez fournir un numéro de téléphone valide",
+  missingShippingError: "Veuillez compléter toutes les informations de livraison",
   paymentFailedTitle: "Échec du Paiement",
-  paymentFailedDefault: "Le paiement a échoué. Veuillez réessayer.",
-  unexpectedError: "Une erreur inattendue s'est produite lors du paiement. Veuillez réessayer plus tard."
+  paymentFailedDefault: "Nous n'avons pas pu traiter votre paiement. Veuillez vérifier les détails et réessayer.",
+  unexpectedError: "Une erreur inattendue s'est produite. Veuillez réessayer."
 };
