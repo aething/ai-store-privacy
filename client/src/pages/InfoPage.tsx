@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { useLocale } from "@/context/LocaleContext";
-import { getInfoPageById } from "@/constants/infoPages";
+import { getLocalizedInfoPageById } from "@/locales/infopages";
 import SwipeBack from "@/components/SwipeBack";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export default function InfoPage() {
   const [, setLocation] = useLocation();
   const [match, params] = useRoute<{ id: string }>("/info/:id");
-  const { t } = useLocale();
+  const { t, currentLocale } = useLocale();
   const contentRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -27,7 +27,7 @@ export default function InfoPage() {
     }
   }, [showSwipeHint]);
 
-  const infoPage = params && getInfoPageById(parseInt(params.id, 10));
+  const infoPage = params && getLocalizedInfoPageById(parseInt(params.id, 10), currentLocale);
 
   // Функция сброса прокрутки (вынесена отдельно для повторного использования)
   const resetScrollPosition = () => {
