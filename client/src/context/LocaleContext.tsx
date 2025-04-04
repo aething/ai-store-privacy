@@ -93,31 +93,10 @@ export function getLocaleFromCountry(countryCode: string | undefined | null): Lo
 
 // Create provider component
 export function LocaleProvider({ children }: LocaleProviderProps) {
-  // Get stored locale or determine from user's country or default to English
+  // Always use English as the default locale
   const [currentLocale, setCurrentLocale] = useState<LocaleCode>(() => {
-    // Проверяем сначала, есть ли сохраненная локаль
-    const savedLocale = localStorage.getItem("locale") as LocaleCode;
-    if (savedLocale && Object.keys(localesData).includes(savedLocale)) {
-      return savedLocale;
-    }
-    
-    // Если нет сохраненной локали, пытаемся определить по стране пользователя
-    try {
-      const userDataString = localStorage.getItem("user");
-      if (userDataString) {
-        const userData = JSON.parse(userDataString);
-        if (userData && userData.country) {
-          const localeFromCountry = getLocaleFromCountry(userData.country);
-          // Сохраняем определенную локаль в localStorage
-          localStorage.setItem("locale", localeFromCountry);
-          return localeFromCountry;
-        }
-      }
-    } catch (error) {
-      console.error("Error parsing user data to determine locale:", error);
-    }
-    
-    // Если не удалось определить локаль, используем английский по умолчанию
+    // Установим фиксированную локаль "en" для всех пользователей
+    localStorage.setItem("locale", "en");
     return "en";
   });
 
@@ -147,40 +126,7 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
     document.documentElement.lang = currentLocale;
   }, [currentLocale]);
   
-  // Слушатель изменений страны пользователя
-  useEffect(() => {
-    // Функция для обработки изменений в localStorage (например, когда меняется страна пользователя)
-    const handleStorageChange = (event: StorageEvent) => {
-      // Если изменился пользователь, проверяем, изменилась ли его страна
-      if (event.key === 'user' && event.newValue !== null) {
-        try {
-          const userData = JSON.parse(event.newValue);
-          // Только если локаль еще не задана вручную пользователем
-          const savedLocale = localStorage.getItem("locale");
-          const isDefaultLocale = !savedLocale || savedLocale === "en";
-          
-          if (userData && userData.country && isDefaultLocale) {
-            const newLocale = getLocaleFromCountry(userData.country);
-            if (newLocale !== currentLocale) {
-              setCurrentLocale(newLocale);
-              localStorage.setItem("locale", newLocale);
-              console.log(`Locale automatically updated to ${newLocale} based on country ${userData.country}`);
-            }
-          }
-        } catch (error) {
-          console.error("Error handling storage change for locale update:", error);
-        }
-      }
-    };
-
-    // Добавляем слушатель событий изменения localStorage
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Удаляем слушатель при размонтировании компонента
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [currentLocale]);
+  // Не используем автоматическое изменение локали при смене страны пользователя
 
   // Function to get localized product information
   const getLocalizedProductInfo = (productId: number) => {

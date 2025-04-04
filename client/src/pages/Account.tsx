@@ -8,7 +8,7 @@ import { useAppContext } from "@/context/AppContext";
 import { useLocation } from "wouter";
 import MaterialInput from "@/components/MaterialInput";
 import { Card } from "@/components/ui/card";
-import LanguageSelector from "@/components/LanguageSelector";
+
 import OrdersList from "@/components/OrdersList";
 import { useLocale } from "@/context/LocaleContext";
 import { ChevronRight, Trash2, RefreshCw, Settings, ShoppingBag, Mail, Lock, LogIn, LogOut } from "lucide-react";
@@ -646,16 +646,7 @@ export default function Account() {
         </Card>
       </div>
       
-      {/* Language Selection */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium">{t("language")}</h2>
-        </div>
-        <Card className="p-4 rounded-lg mb-6">
-          <LanguageSelector />
-        </Card>
-      </div>
-      
+
       {/* Personal Information */}
       <div className="mb-6">
         <h2 className="text-lg font-medium mb-4">{t("personalInformation")}</h2>
