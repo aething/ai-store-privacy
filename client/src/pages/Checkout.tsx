@@ -22,7 +22,8 @@ const CheckoutForm = ({
   currency, 
   product,
   stripeTaxInfo,
-  clientSecret
+  clientSecret,
+  price
 }: { 
   productId: number; 
   amount: number; 
@@ -30,6 +31,7 @@ const CheckoutForm = ({
   product?: Product;
   stripeTaxInfo?: {amount: number; rate: number; label: string; display?: string} | null;
   clientSecret: string;
+  price: number;
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -1294,6 +1296,7 @@ export default function Checkout() {
               product={product} 
               stripeTaxInfo={stripeTaxInfo}
               clientSecret={clientSecret}
+              price={price}
             />
           </Elements>
         ) : (
