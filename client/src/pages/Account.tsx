@@ -193,8 +193,6 @@ export default function Account() {
       return;
     }
     
-    console.log("Submitting user update with data:", data);
-    
     setIsLoading(true);
     
     try {
@@ -205,12 +203,8 @@ export default function Account() {
         country: data.country || ""
       };
       
-      console.log("Prepared data for API request:", submitData);
-      
       const response = await apiRequest("PUT", `/api/users/${user.id}`, submitData);
       const updatedUser = await response.json();
-      console.log("Account update - apiRequest succeeded:", updatedUser);
-      console.log("Updated user data received:", updatedUser);
       
       // Обновляем пользователя в контексте
       setUser({ ...user, ...updatedUser });
@@ -227,8 +221,6 @@ export default function Account() {
       
       // Если изменилась страна, используем утилиту для согласованного обновления
       if (countryChanged) {
-        console.log(`Country changed from ${user.country} to ${updatedUser.country}`);
-        
         // Выводим предупреждение пользователю
         toast({
           title: "Updating country",
@@ -239,7 +231,6 @@ export default function Account() {
         try {
           await updateCountryAndReload(user.id, updatedUser.country, user, 1500);
         } catch (error) {
-          console.error("Error during country update and reload:", error);
           // Если утилита не сработала, используем старый подход
           localStorage.setItem("user", JSON.stringify(updatedUser));
           setTimeout(() => {
@@ -248,7 +239,6 @@ export default function Account() {
         }
       }
     } catch (error: any) {
-      console.error("Account update error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to update your information",
@@ -352,11 +342,6 @@ export default function Account() {
       const cleanUsername = data.username.trim();
       const cleanPassword = data.password.trim();
       
-      console.log("Login attempt:", { 
-        username: cleanUsername, 
-        passwordLength: cleanPassword.length 
-      });
-      
       const response = await apiRequest("POST", "/api/users/login", {
         username: cleanUsername,
         password: cleanPassword
@@ -421,7 +406,6 @@ export default function Account() {
         await apiRequest("POST", "/api/users/logout");
       } catch (e) {
         // Игнорируем ошибки сервера при выходе, так как локальный выход уже выполнен
-        console.log("Server logout failed but local logout succeeded");
       }
       
       toast({
@@ -568,9 +552,6 @@ export default function Account() {
                           // Сохраняем значение в форме
                           field.onChange(value);
                           
-                          // Выводим логи для отладки
-                          console.log(`Signup country selected: ${value}`);
-                          
                           // Добавляем индикатор выбранной страны на странице
                           if (value) {
                             // Устанавливаем это значение в localStorage, чтобы его можно было использовать
@@ -715,14 +696,11 @@ export default function Account() {
                     
                     // Если пользователь авторизован и страна изменилась, сразу применяем изменения
                     if (user && user.country !== value) {
-                      console.log(`Country changed directly from ${user.country} to ${value}`);
-                      
                       // Только если страна действительно изменилась, предлагаем обновление
                       if (window.confirm(t("confirmCountryChange") || `Do you want to update your country to ${value}? Page will reload to apply changes.`)) {
                         setIsLoading(true);
                         updateCountryAndReload(user.id, value, user)
                           .catch(error => {
-                            console.error("Error updating country:", error);
                             setIsLoading(false);
                             toast({
                               title: "Error",

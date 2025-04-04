@@ -43,21 +43,17 @@ const CheckoutForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   
-  // Проверяем инициализацию Elements и добавляем больше диагностики
+  // Проверяем инициализацию Elements
   useEffect(() => {
     if (!elements) {
-      console.error('Elements не инициализированы');
       return;
     }
     
-    console.log('Elements успешно инициализированы');
-    
-    // Проверяем доступ к элементам для диагностики
+    // Проверяем доступ к элементам
     try {
       const paymentElement = elements.getElement(PaymentElement);
-      console.log('PaymentElement доступен:', !!paymentElement);
     } catch (error) {
-      console.error('Ошибка при доступе к PaymentElement:', error);
+      // Ошибка доступа к PaymentElement
     }
   }, [elements]);
   
@@ -65,12 +61,6 @@ const CheckoutForm = ({
     e.preventDefault();
     
     if (!stripe || !elements || !user) {
-      console.error('Stripe, elements или user недоступны:', { 
-        stripeAvailable: !!stripe, 
-        elementsAvailable: !!elements, 
-        userAvailable: !!user 
-      });
-      
       toast({
         title: "Payment Error",
         description: "Payment system is not fully loaded yet. Please try again.",
@@ -82,8 +72,7 @@ const CheckoutForm = ({
     
     // Начинаем обработку платежа
     setIsLoading(true);
-    console.log('Начинаем обработку платежа...');
-    console.log('Выбранный метод оплаты:', paymentMethod);
+
     
     try {
       // Получаем имя и фамилию из полей формы
@@ -137,13 +126,9 @@ const CheckoutForm = ({
       const emailInput = document.getElementById('customerEmail') as HTMLInputElement;
       const email = emailInput?.value || user.email || '';
       
-      // Для отладки: проверка состояния элементов
+      // Получаем элементы платежной формы
       const paymentElement = elements.getElement(PaymentElement);
       const addressElement = elements.getElement(AddressElement);
-      
-      console.log('PaymentElement status:', paymentElement ? 'loaded' : 'not loaded');
-      console.log('Email input value:', email);
-      console.log('AddressElement status:', addressElement ? 'loaded' : 'not loaded');
       
       // Дополнительные параметры для confirmParams
       const confirmParams: any = {
@@ -171,20 +156,13 @@ const CheckoutForm = ({
         }
       };
       
-      console.log('Используем confirmPayment с параметрами:', {
-        returnUrl: confirmParams.return_url,
-        email: email, // Теперь используем email из поля ввода
-        name: fullName,
-        phone: phone,
-        shipping: confirmParams.shipping
-      });
+
       
       // Разные методы подтверждения в зависимости от выбранного способа оплаты
       let result;
       
       // Специфические обработки для разных платежных методов
       if (paymentMethod === 'link') {
-        console.log('Используем особый процесс для Link...');
         const { error: linkError } = await stripe.confirmPayment({
           elements,
           confirmParams,
@@ -194,7 +172,6 @@ const CheckoutForm = ({
         result = { error: linkError };
       } 
       else if (paymentMethod === 'apple_pay') {
-        console.log('Используем особый процесс для Apple Pay...');
         // Стандартная обработка для Apple Pay - специфические настройки не требуются
         // поскольку они настраиваются в платежном намерении на сервере
         const { error: applePayError } = await stripe.confirmPayment({
@@ -206,7 +183,6 @@ const CheckoutForm = ({
         result = { error: applePayError };
       }
       else if (paymentMethod === 'google_pay') {
-        console.log('Используем особый процесс для Google Pay...');
         // Стандартная обработка для Google Pay - специфические настройки не требуются
         // поскольку они настраиваются в платежном намерении на сервере
         const { error: googlePayError } = await stripe.confirmPayment({
@@ -229,8 +205,6 @@ const CheckoutForm = ({
       const { error, paymentIntent } = result;
       
       if (error) {
-        console.error('Ошибка подтверждения платежа:', error);
-        
         // Отображение понятной ошибки пользователю
         let errorMessage = "Payment failed. Please try again.";
         
@@ -247,17 +221,14 @@ const CheckoutForm = ({
         });
       } else if (paymentIntent) {
         // Платеж успешно обработан без перенаправления
-        console.log('Платеж успешно выполнен:', paymentIntent);
         
         // Ручное перенаправление на страницу успеха
         const confirmationUrl = `${window.location.origin}/confirmation?payment_intent=${paymentIntent.id}&payment_intent_client_secret=${clientSecret}&redirect_status=succeeded`;
         window.location.href = confirmationUrl;
       } else {
-        console.log('Платеж успешно инициирован, ожидаем перенаправление...');
         // В этом случае перенаправление будет выполнено автоматически
       }
     } catch (err) {
-      console.error('Неожиданная ошибка при обработке платежа:', err);
       toast({
         title: "Payment Error",
         description: "An unexpected error occurred during payment. Please try again later.",
@@ -508,7 +479,6 @@ const CheckoutForm = ({
         className="stripe-input-element payment-element"
         onChange={(event) => {
           setPaymentMethod(event.value.type);
-          console.log('PaymentElement type changed:', event.value.type);
         }}
       />
       
@@ -565,10 +535,9 @@ export default function Checkout() {
         if (storedDemoUser) {
           const parsedUser = JSON.parse(storedDemoUser);
           setDemoUser(parsedUser);
-          console.log('Используем демо-режим с пользователем:', parsedUser);
         }
       } catch (error) {
-        console.error('Ошибка при загрузке демо-пользователя:', error);
+        // Ошибка при загрузке демо-пользователя
       }
     }
   }, [isDemoMode]);
@@ -673,7 +642,7 @@ export default function Checkout() {
     // Обновляем налоговую информацию
     setTaxInfo({ rate, label, amount });
     
-    console.log(`Tax calculation: ${price} (${currency}) + ${amount} (${rate * 100}%) = ${price + amount}`);
+
   }, [user?.country, price, currency, defaultCountry]);
   
   // Определяем базовые значения налоговой информации, чтобы они всегда были доступны
@@ -692,14 +661,6 @@ export default function Checkout() {
         // Отключаем логирование количества
         
         // Создаем платежное намерение с текущим количеством
-        console.log('Creating payment intent with:', {
-          productId,
-          userId: user.id,
-          country: user.country,
-          price,
-          currency,
-          quantity
-        });
         
         const data = await createPaymentIntent(
           productId, 
@@ -714,17 +675,13 @@ export default function Checkout() {
         
         // Сохраняем ID PaymentIntent для последующего обновления
         if (data.id) {
-          console.log('Получен ID платежа:', data.id);
           setPaymentIntentId(data.id);
-        } else {
-          console.warn('ID платежа не получен в ответе API');
         }
         
         setPaymentIntentError(false);
         
         // Если пришла налоговая информация от Stripe, используем ее
         if (data.tax) {
-          console.log('Получена налоговая информация от Stripe:', data.tax);
           
           // Преобразование налоговой суммы, убедимся что она в правильном формате
           let taxAmountFixed = data.tax.amount || taxAmount;
@@ -772,7 +729,6 @@ export default function Checkout() {
         
         // Payment intent created successfully
       } catch (error) {
-        console.error('Payment initialization error:', error);
         setPaymentIntentError(true);
         
         // Даже при ошибке платежной системы показываем правильную налоговую информацию
@@ -851,23 +807,18 @@ export default function Checkout() {
       
       // Если пользователь не авторизован или нет ID платежа, просто обновляем UI
       if (!user || !paymentIntentId) {
-        // Отключаем логирование для неавторизованных пользователей
         setIsUpdatingQuantity(false);
         return;
       }
       
       // Вызываем API для обновления PaymentIntent с новым количеством
       try {
-        // Отключаем логирование вызова API обновления количества
         const result = await updatePaymentIntentQuantity(
           paymentIntentId,
           user.id,
           newQuantity,
           productId // Важно: передаем ID продукта для корректного обновления
         );
-        
-        // Добавляем больше логов для отладки
-        // Отключаем логирование результата API
         
         const { 
           amount, 
@@ -876,11 +827,8 @@ export default function Checkout() {
           clientSecret: newClientSecret
         } = result;
         
-        // Отключаем логирование обновления количества
-        
         // Обновляем информацию о налогах и clientSecret для Stripe
         if (updatedTaxAmount !== undefined) {
-          // Отключаем отладочные сообщения
           
           // Проверяем необходимость конвертации налоговой суммы
           let taxAmountToUse = updatedTaxAmount;
@@ -896,11 +844,8 @@ export default function Checkout() {
           // Дополнительная проверка для выявления абсурдно больших значений
           // Например, если налог составляет больше 100% от суммы заказа
           if (taxAmountToUse > price * newQuantity * 1.5) {
-            // Отключаем все отладочные сообщения
             taxAmountToUse = expectedTaxAmount;
           }
-          
-          // Отключаем отладочное сообщение итогового налога
           
           setTaxInfo(prev => ({
             ...prev,
@@ -919,7 +864,6 @@ export default function Checkout() {
         
         // Обновляем clientSecret, чтобы Stripe перегрузил форму оплаты с новыми данными
         if (newClientSecret && newClientSecret !== clientSecret) {
-          // Отключаем отладочное сообщение обновления clientSecret
           setClientSecret(newClientSecret);
           
           // Также обновляем опции для Stripe Elements, чтобы они отразили новый clientSecret
@@ -929,13 +873,12 @@ export default function Checkout() {
           }));
         }
         
-        // Показываем уведомление об успешном обновлении
-        toast({
-          title: "Quantity updated",
-          description: `Successfully updated to ${newQuantity} items`,
-        });
+        // Не показываем уведомление об успешном обновлении, чтобы не загромождать интерфейс
+        // toast({
+        //   title: "Quantity updated",
+        //   description: `Successfully updated to ${newQuantity} items`,
+        // });
       } catch (apiError) {
-        // Отключаем отладочное сообщение об ошибке API
         // Показываем уведомление, но не сбрасываем количество
         toast({
           title: "Payment update error",
@@ -945,7 +888,6 @@ export default function Checkout() {
         });
       }
     } catch (error) {
-      // Отключаем отладочное сообщение об ошибке количества
       // Восстанавливаем предыдущее значение в случае ошибки
       setQuantity(1);
       toast({

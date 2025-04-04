@@ -277,39 +277,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { username, password } = req.body;
       
-      console.log("[DEBUG] Login attempt:", { username, passwordLength: password ? password.length : 0 });
-      
       if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
         return res.status(400).json({ message: "Username and password are required and must be strings" });
       }
       
-      // Получаем всех пользователей для отладки
-      // Используем приведение типа для отладочных целей
-      const allUsers = storage instanceof Object && 'users' in storage 
-        ? Array.from((storage as any).users.values()) 
-        : [];
-      
-      if (allUsers.length > 0) {
-        // Безопасный доступ к свойствам с проверкой типов
-        console.log("[DEBUG] All users:", allUsers.map(u => ({
-          id: typeof u === 'object' && u && 'id' in u ? u.id : 'unknown',
-          username: typeof u === 'object' && u && 'username' in u ? u.username : 'unknown',
-          password: typeof u === 'object' && u && 'password' in u ? u.password : 'unknown'
-        })));
-      } else {
-        console.log("[DEBUG] No users found in storage");
-      }
-      
       const user = await storage.getUserByUsername(username);
-      console.log("[DEBUG] Found user:", user);
       
       if (!user || user.password !== password) {
-        console.log("[DEBUG] Password comparison:", {
-          userExists: !!user,
-          providedPassword: password,
-          storedPassword: user?.password,
-          match: user?.password === password
-        });
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
@@ -548,12 +522,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if we should filter by country
       const country = req.query.country as string | undefined;
       
-      // Добавляем детальный вывод информации о запросе
-      console.log(`[DEBUG] GET /api/products - Query country param: ${country}, User session country: ${req.user?.country}`);
-      
       // Если в запросе не указана страна, но пользователь аутентифицирован, используем его страну
       const effectiveCountry = country || (req.isAuthenticated() ? req.user?.country : undefined);
-      console.log(`[DEBUG] Effective country for products: ${effectiveCountry}`);
       
       // Optional sync with Stripe products (for demo purposes)
       const syncWithStripe = req.query.sync === 'true';
@@ -572,14 +542,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? await storage.getProductsByCountry(effectiveCountry)
         : await storage.getProducts();
         
-      // Добавляем вывод информации о ценах в разных валютах
-      if (products.length > 0) {
+      // Определяем валюту для сортировки по цене при необходимости
+      if (products.length > 0 && sortBy === 'price') {
         const shouldUseEuro = effectiveCountry ? shouldUseEUR(effectiveCountry) : false;
         const currency = shouldUseEuro ? 'EUR' : 'USD';
-        console.log(`[DEBUG] Currency determined for country ${effectiveCountry}: ${currency}`);
-        
-        const sampleProduct = products[0];
-        console.log(`[DEBUG] Sample product prices - USD: ${sampleProduct.price}, EUR: ${sampleProduct.priceEUR}`);
       }
       
       // Apply sorting if requested
@@ -1520,7 +1486,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Вычисляем новую полную сумму
       const newTotalAmount = newBaseAmount + newTaxAmount;
-      console.log(`[PAYMENT DEBUG] Updating PaymentIntent ${paymentIntentId}, quantity: ${metadata.quantity || '1'} -> ${parsedQuantity}`);
       console.log(`New total amount: ${newTotalAmount} (base: ${newBaseAmount}, tax: ${newTaxAmount})`);
       
       // Обновляем или отменяем текущий PaymentIntent и создаем новый
@@ -1568,16 +1533,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           // Обновляем PaymentIntent с новой суммой и метаданными
-          console.log(`[PAYMENT DEBUG] Вызываем stripe.paymentIntents.update для ID: ${paymentIntentId}, сумма: ${newTotalAmount}, метаданные:`, updatedMetadata);
           const updatedPaymentIntent = await stripe.paymentIntents.update(paymentIntentId, {
             amount: newTotalAmount,
             metadata: updatedMetadata
-          });
-          console.log(`[PAYMENT DEBUG] Результат обновления:`, {
-            id: updatedPaymentIntent.id,
-            amount: updatedPaymentIntent.amount,
-            metadata: updatedPaymentIntent.metadata,
-            status: updatedPaymentIntent.status
           });
           
           console.log(`PaymentIntent обновлен: ${paymentIntentId}, новая сумма: ${newTotalAmount} ${order.currency}`);
