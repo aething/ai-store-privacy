@@ -12,10 +12,13 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
   const [, setLocation] = useLocation();
   const { t } = useLocale();
 
+  // Получаем ID страницы в строковом или числовом формате
+  const pageId = infoPage.id.toString();
+
   return (
     <Card 
       className="flex-none w-64 h-[280px] rounded-lg overflow-hidden bg-white cursor-pointer shadow-md hover:shadow-lg transition-shadow"
-      onClick={() => setLocation(`/info/${infoPage.id}`)}
+      onClick={() => setLocation(`/info/${pageId}`)}
     >
       <div className="flex flex-col h-full">
         {/* Содержание */}
@@ -30,10 +33,10 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
             className="w-full bg-transparent hover:bg-gray-100 text-black border-2 border-blue-600"
             onClick={(e) => {
               e.stopPropagation();
-              setLocation(`/info/${infoPage.id}`);
+              setLocation(`/info/${pageId}`);
             }}
           >
-            Read More
+            {t("readMore") || "Read More"}
           </Button>
         </div>
       </div>

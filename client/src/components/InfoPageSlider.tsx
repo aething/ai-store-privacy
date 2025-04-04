@@ -13,7 +13,7 @@ interface InfoPageSliderProps {
 
 export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageSliderProps) {
   const [, setLocation] = useLocation();
-  const { t } = useLocale();
+  const { t, currentLocale } = useLocale();
   const sliderRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);

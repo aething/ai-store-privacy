@@ -9,6 +9,7 @@ import { Home, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ReactMarkdown from "react-markdown";
 import Footer from "@/components/Footer";
+import { getInfoPageById } from "@/constants/infoPages";
 
 export default function InfoPage() {
   const [, setLocation] = useLocation();
@@ -29,9 +30,32 @@ export default function InfoPage() {
     }
   }, [showSwipeHint]);
 
-  // Получаем локализованное содержимое страницы
+  // Получаем ID страницы
   const pageId = params?.id;
-  const infoPage = pageId && getLocalizedInfoPageById(pageId as InfoPageId, currentLocale);
+  
+  // Пытаемся получить информацию о странице
+  let infoPage;
+  
+  // Пробуем найти в хардкодном списке, если ID - число
+  const numericId = parseInt(pageId || "0", 10);
+  if (!isNaN(numericId)) {
+    const staticInfoPage = getInfoPageById(numericId);
+    if (staticInfoPage) {
+      infoPage = {
+        title: staticInfoPage.title,
+        content: staticInfoPage.content
+      };
+    }
+  }
+  
+  // Если не нашли в статических, ищем в локализованных данных
+  if (!infoPage && pageId) {
+    try {
+      infoPage = getLocalizedInfoPageById(pageId as InfoPageId, currentLocale);
+    } catch (error) {
+      console.error("Error getting localized info page:", error);
+    }
+  }
 
   // Функция сброса прокрутки (вынесена отдельно для повторного использования)
   const resetScrollPosition = () => {
