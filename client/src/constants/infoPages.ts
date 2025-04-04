@@ -1,3 +1,4 @@
+
 import { InfoPage } from "@/types";
 
 export const infoPages: InfoPage[] = [

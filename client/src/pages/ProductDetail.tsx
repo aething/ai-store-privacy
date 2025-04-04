@@ -479,6 +479,22 @@ export default function ProductDetail() {
                       </div>
                     </div>
                   </div>
+                  
+                  {product && product.learnMoreTitle && (
+                    <div className="mt-8 pt-6 border-t border-gray-200">
+                      <h3 className="text-lg font-medium mb-4">{t('learnMore')}</h3>
+                      <div className="prose prose-sm max-w-none">
+                        <h4 className="text-md font-medium mb-2">{product.learnMoreTitle}</h4>
+                        <p className="text-sm text-gray-600">{product.learnMoreContent}</p>
+                        <Link
+                          to={`/info/${product.id - 1}`}
+                          className="inline-block mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          {t('readMore')} →
+                        </Link>
+                      </div>
+                    </div>
+                  )}
                 ) : (
                   <div className="text-gray-400 text-center py-4">
                     {uiText.noSoftwareInfo}
