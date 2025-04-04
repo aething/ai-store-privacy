@@ -15,6 +15,7 @@ import Subscribe from "@/pages/Subscribe";
 import PlayMarket from "@/pages/PlayMarket";
 import StripeCatalog from "@/pages/StripeCatalog";
 import OfflineTest from "@/pages/OfflineTest";
+import OfflinePage from "@/pages/OfflinePage";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
@@ -48,6 +49,8 @@ function Router() {
       <Route path="/stripe-catalog" component={StripeCatalog} />
       {/* Страница тестирования офлайн-режима скрыта для публикации */}
       {import.meta.env.DEV && <Route path="/offline-test" component={OfflineTest} />}
+      <Route path="/offline-enhanced" component={OfflinePage} />
+      <Route path="/offline.html" component={OfflinePage} />
       <Route component={NotFound} />
     </Switch>
   );
