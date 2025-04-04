@@ -495,7 +495,7 @@ export default function ProductDetail() {
                       </div>
                     </div>
                   )}
-                ) : (
+                </>) : (
                   <div className="text-gray-400 text-center py-4">
                     {uiText.noSoftwareInfo}
                   </div>
