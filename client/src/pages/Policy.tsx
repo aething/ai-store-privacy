@@ -7,7 +7,52 @@ import { getLocalizedPolicy } from "@/constants/multilingual-policies";
 import { useLocale } from "@/context/LocaleContext";
 import SwipeBack from "@/components/SwipeBack";
 import { X } from "lucide-react";
-import { saveScrollPositionForPath, scrollToTop } from "@/lib/scrollUtils";
+import { saveScrollPositionForPath } from "@/lib/scrollUtils";
+
+// Функция для преобразования Markdown в HTML (такая же, как в InfoPage)
+function markdownToHtml(markdown: string): string {
+  if (!markdown) return '';
+  
+  // Проверка, является ли контент уже HTML (начинается с тегов)
+  if (markdown.trim().startsWith('<')) {
+    return markdown;
+  }
+  
+  // Заголовки
+  let html = markdown
+    .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold my-4">$1</h1>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold my-3">$1</h2>')
+    .replace(/^### (.*$)/gm, '<h3 class="text-xl font-bold my-2">$1</h3>')
+    .replace(/^#### (.*$)/gm, '<h4 class="text-lg font-bold my-2">$1</h4>');
+
+  // Списки
+  html = html.replace(/^\s*\- (.*$)/gm, '<li class="ml-6 list-disc">$1</li>');
+  html = html.replace(/<\/li>\n<li/g, '</li><li');
+  html = html.replace(/(<li.*<\/li>)/gs, '<ul class="my-4">$1</ul>');
+
+  // Жирный текст
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Курсив
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+  // Ссылки
+  html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>');
+
+  // Параграфы (пустые строки)
+  html = html.replace(/\n\n/g, '</p><p class="my-3">');
+  
+  // Оборачиваем все в параграф
+  html = '<p class="my-3">' + html + '</p>';
+  
+  // Исправление вложенных параграфов
+  html = html.replace(/<p class="my-3"><h([1-6])/g, '<h$1');
+  html = html.replace(/<\/h([1-6])><\/p>/g, '</h$1>');
+  html = html.replace(/<p class="my-3"><ul/g, '<ul');
+  html = html.replace(/<\/ul><\/p>/g, '</ul>');
+
+  return html;
+}
 
 export default function Policy() {
   const [match, params] = useRoute("/policy/:id");
@@ -46,30 +91,11 @@ export default function Policy() {
       rootRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
     
-    // Логируем для отладки
-    console.log('[Policy] Сбросили скролл', {
-      windowScrollY: window.scrollY,
-      path: window.location.pathname
-    });
-    
     // Важно: НЕ перезаписываем позицию аккаунта здесь, чтобы сохранить исходную
     // Это позволит при возврате восстановить позицию страницы аккаунта, где был пользователь
-    // saveScrollPositionForPath('/account'); - это приводило к сбросу запомненной позиции
     
     // Позицию главной страницы можно перезаписать, если потребуется
     saveScrollPositionForPath('/');
-  };
-  
-  // Используем RAF для плавных анимаций и корректного рендеринга
-  const scheduleScroll = (callback: () => void) => {
-    requestAnimationFrame(() => {
-      callback();
-      
-      // Иногда требуется еще один кадр для гарантии
-      requestAnimationFrame(() => {
-        callback();
-      });
-    });
   };
 
   // Эффект при монтировании компонента - копируем таймеры из InfoPage
@@ -123,6 +149,9 @@ export default function Policy() {
     setLocation('/account');
   };
 
+  // Преобразуем контент в HTML
+  const contentHtml = markdownToHtml(policy.content);
+
   return (
     <SwipeBack onSwipeBack={goBackToAccountPolicies}>
       <div id="policy-root" ref={rootRef} className="w-full max-w-4xl mx-auto bg-white flex flex-col min-h-screen sm:min-h-0 sm:rounded-lg sm:shadow-lg sm:my-4">
@@ -141,7 +170,7 @@ export default function Policy() {
         {/* Простой контейнер для содержимого */}
         <div className="flex-1 p-4" id="info-content" ref={contentRef}>
           <Card className="p-4 rounded-lg">
-            <div dangerouslySetInnerHTML={{ __html: policy.content }} />
+            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: contentHtml }} />
             
             {/* Кнопка прокрутки вверх */}
             <div className="flex justify-center mt-6">
