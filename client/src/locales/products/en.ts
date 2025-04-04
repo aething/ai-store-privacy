@@ -27,7 +27,9 @@ const translations: ProductTranslations = {
     softwareTabLabel: "Software",
     hardwareSpecsLabel: "Hardware Specifications",
     aiCapabilitiesLabel: "AI Capabilities & Performance",
-    softwareArchitectureLabel: "Software Architecture"
+    softwareArchitectureLabel: "Software Architecture",
+    learnMoreTitle: "Enterprise AI Solutions",
+    learnMoreContent: "The Enterprise AI Server represents a cutting-edge solution for organizations looking to deploy AI at scale. It offers exceptional performance for training complex models, running inference workloads, and managing multiple AI projects simultaneously with enterprise-grade reliability and security."
   },
   3: {
     title: "AI Vision Kit (Complete Package)",
@@ -35,7 +37,12 @@ const translations: ProductTranslations = {
     hardwareInfo: "The AI Vision Kit includes a main computing module based on the Jetson Xavier NX platform, featuring a 6-core NVIDIA Carmel CPU and 384-core Volta GPU with 48 Tensor Cores. It comes with 8GB of LPDDR4x memory and 16GB of eMMC storage. The kit includes two 4K camera modules with wide-angle lenses, infrared capabilities for low-light operation, and hardware accelerated image processing.",
     softwareInfo: "The Vision Kit comes with a complete software stack including pre-trained models for common computer vision tasks such as object detection, classification, segmentation, and tracking. The SDK provides APIs for camera control, image processing, and model deployment. The system supports TensorFlow, PyTorch, and OpenCV, with additional tools for dataset management and model training.",
     hardwareTabLabel: "Hardware",
-    softwareTabLabel: "Software"
+    softwareTabLabel: "Software",
+    hardwareSpecsLabel: "Hardware Specifications",
+    aiCapabilitiesLabel: "AI Capabilities & Performance",
+    softwareArchitectureLabel: "Software Architecture",
+    learnMoreTitle: "Vision AI Technology",
+    learnMoreContent: "Our AI Vision Kit integrates state-of-the-art computer vision technologies with dedicated hardware for real-world applications. It enables rapid development of solutions for retail analytics, security monitoring, industrial inspection, autonomous navigation, and more with minimal programming effort."
   }
 };
 

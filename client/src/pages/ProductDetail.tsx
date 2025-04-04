@@ -486,6 +486,18 @@ export default function ProductDetail() {
                 )}
               </TabsContent>
             </Tabs>
+            
+            {/* Секция "Learn More" (если есть) */}
+            {localizedProduct.learnMoreTitle && localizedProduct.learnMoreContent && (
+              <div className="mt-8 bg-blue-50 rounded-lg p-6 border border-blue-100">
+                <h3 className="text-lg font-semibold text-blue-800 mb-3">
+                  {localizedProduct.learnMoreTitle}
+                </h3>
+                <p className="text-gray-700">
+                  {localizedProduct.learnMoreContent}
+                </p>
+              </div>
+            )}
           
         </div>
       </div>
