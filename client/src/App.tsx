@@ -46,7 +46,8 @@ function Router() {
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/playmarket" component={PlayMarket} />
       <Route path="/stripe-catalog" component={StripeCatalog} />
-      <Route path="/offline-test" component={OfflineTest} />
+      {/* Страница тестирования офлайн-режима скрыта для публикации */}
+      {import.meta.env.DEV && <Route path="/offline-test" component={OfflineTest} />}
       <Route component={NotFound} />
     </Switch>
   );

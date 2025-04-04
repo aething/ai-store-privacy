@@ -22,16 +22,15 @@ echo -e "${GREEN}Веб-приложение успешно собрано${NC}"
 
 # Проверяем наличие директории android
 if [ ! -d "android" ]; then
-  # Шаг 2: Инициализация проекта Capacitor
-  echo -e "${YELLOW}Шаг 2: Инициализация проекта Capacitor${NC}"
-  npx cap init "AI Store" "com.aething.aistore" --web-dir "client/dist"
+  # Шаг 2: Проверка файла конфигурации Capacitor
+  echo -e "${YELLOW}Шаг 2: Проверка файла конфигурации Capacitor${NC}"
   
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Ошибка при инициализации проекта Capacitor${NC}"
+  if [ ! -f "capacitor.config.json" ]; then
+    echo -e "${RED}Ошибка: Отсутствует файл capacitor.config.json${NC}"
     exit 1
   fi
   
-  echo -e "${GREEN}Проект Capacitor успешно инициализирован${NC}"
+  echo -e "${GREEN}Файл конфигурации Capacitor найден${NC}"
   
   # Шаг 3: Добавление Android платформы
   echo -e "${YELLOW}Шаг 3: Добавление Android платформы${NC}"
