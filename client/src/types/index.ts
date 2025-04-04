@@ -1,5 +1,61 @@
 import { productUITranslations, en } from '@/locales/products/ui';
 
+export interface CheckoutTranslations {
+  // Page title and headers
+  pageTitle: string;
+  yourPurchase: string;
+  
+  // Form fields
+  emailAddress: string;
+  emailPlaceholder: string;
+  firstName: string;
+  firstNamePlaceholder: string;
+  lastName: string;
+  lastNamePlaceholder: string;
+  phoneNumber: string;
+  phonePlaceholder: string;
+  companyName: string;
+  companyNameOptional: string;
+  companyPlaceholder: string;
+  
+  // Shipping address
+  shippingAddress: string;
+  fullName: string;
+  fullNamePlaceholder: string;
+  country: string;
+  selectCountry: string;
+  address: string;
+  addressPlaceholder: string;
+  zipCode: string;
+  zipPlaceholder: string;
+  city: string;
+  cityPlaceholder: string;
+  
+  // Order summary
+  subtotal: string;
+  price: string;
+  tax: string;
+  total: string;
+  
+  // Payment related
+  paymentInformation: string;
+  cardInformation: string;
+  paymentMethods: string;
+  payButton: string;
+  processingPayment: string;
+  
+  // Errors
+  paymentError: string;
+  paymentNotLoadedError: string;
+  missingInformation: string;
+  missingNameError: string;
+  missingPhoneError: string;
+  missingShippingError: string;
+  paymentFailedTitle: string;
+  paymentFailedDefault: string;
+  unexpectedError: string;
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -160,6 +216,8 @@ export interface ProductUITranslations {
   apiIntegrationDesc: string;
   edgeComputing: string;
 }
+
+// Определение интерфейса уже есть выше
 
 export type ProductUILanguage = keyof typeof productUITranslations;
 

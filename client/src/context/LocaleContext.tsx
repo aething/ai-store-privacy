@@ -65,6 +65,7 @@ const localesData = {
 // Define context type
 export interface LocaleContextType {
   currentLocale: LocaleCode;
+  locale: LocaleCode; // Алиас для упрощения доступа
   setLocale: (locale: LocaleCode) => void;
   t: (key: string) => string;
   getLocaleOptions: () => { value: LocaleCode; label: string }[];
@@ -202,6 +203,7 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
 
   const value = {
     currentLocale,
+    locale: currentLocale, // Алиас для упрощения доступа
     setLocale,
     t,
     getLocaleOptions,
