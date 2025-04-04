@@ -27,7 +27,9 @@ const translations: ProductTranslations = {
     softwareTabLabel: "ソフトウェア",
     hardwareSpecsLabel: "ハードウェア仕様",
     aiCapabilitiesLabel: "AI機能とパフォーマンス",
-    softwareArchitectureLabel: "ソフトウェアアーキテクチャ"
+    softwareArchitectureLabel: "ソフトウェアアーキテクチャ",
+    learnMoreTitle: "エンタープライズAIソリューション",
+    learnMoreContent: "エンタープライズAIサーバーは、大規模にAIを展開しようとする組織にとって最先端のソリューションです。複雑なモデルのトレーニング、推論ワークロードの実行、複数のAIプロジェクトをエンタープライズレベルの信頼性とセキュリティで同時に管理するための卓越したパフォーマンスを提供します。"
   },
   3: {
     title: "AIビジョンキット（完全パッケージ）",
@@ -35,7 +37,12 @@ const translations: ProductTranslations = {
     hardwareInfo: "AIビジョンキットには、Jetson Xavier NXプラットフォームをベースにした6コアのNVIDIA Carmel CPUと48テンソルコアを搭載した384コアのVolta GPUを特徴とするメインコンピューティングモジュールが含まれています。8GBのLPDDR4xメモリと16GBのeMMCストレージを搭載しています。キットには広角レンズを備えた2台の4Kカメラモジュール、低照度での動作のための赤外線機能、ハードウェアによる画像処理の高速化が含まれています。",
     softwareInfo: "ビジョンキットには、物体検出、分類、セグメンテーション、トラッキングなどの一般的なコンピュータビジョンタスク用の事前学習済みモデルを含む完全なソフトウェアスタックが付属しています。SDKはカメラ制御、画像処理、モデルデプロイメント用のAPIを提供します。システムはTensorFlow、PyTorch、OpenCVをサポートし、データセット管理とモデルトレーニング用の追加ツールも備えています。",
     hardwareTabLabel: "ハードウェア",
-    softwareTabLabel: "ソフトウェア"
+    softwareTabLabel: "ソフトウェア",
+    hardwareSpecsLabel: "ハードウェア仕様",
+    aiCapabilitiesLabel: "AI機能とパフォーマンス",
+    softwareArchitectureLabel: "ソフトウェアアーキテクチャ",
+    learnMoreTitle: "ビジョンAIテクノロジー",
+    learnMoreContent: "当社のAIビジョンキットは、実世界のアプリケーション向けに最先端のコンピュータビジョン技術と専用ハードウェアを統合しています。小売分析、セキュリティ監視、産業検査、自律走行などのソリューションを、最小限のプログラミング労力で迅速に開発することが可能です。"
   }
 };
 

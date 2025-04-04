@@ -27,7 +27,9 @@ const translations: ProductTranslations = {
     softwareTabLabel: "软件",
     hardwareSpecsLabel: "硬件规格",
     aiCapabilitiesLabel: "AI功能和性能",
-    softwareArchitectureLabel: "软件架构"
+    softwareArchitectureLabel: "软件架构",
+    learnMoreTitle: "企业AI解决方案",
+    learnMoreContent: "企业级AI服务器为寻求大规模部署AI的组织提供前沿解决方案。它为训练复杂模型、执行推理工作负载以及同时管理多个AI项目提供卓越性能，同时保证企业级可靠性和安全性。"
   },
   3: {
     title: "AI视觉套件（完整套装）",
@@ -35,7 +37,12 @@ const translations: ProductTranslations = {
     hardwareInfo: "AI视觉套件包含基于Jetson Xavier NX平台的主计算模块，配备6核NVIDIA Carmel CPU和384核Volta GPU，含48个张量核心。它配备8GB LPDDR4x内存和16GB eMMC存储。该套件包括两个配备广角镜头的4K摄像头模块，支持低光环境下的红外功能，以及硬件加速图像处理。",
     softwareInfo: "视觉套件配备完整软件堆栈，包括常见计算机视觉任务的预训练模型，如物体检测、分类、分割和跟踪。SDK提供摄像头控制、图像处理和模型部署API。系统支持TensorFlow、PyTorch和OpenCV，并提供额外的数据集管理和模型训练工具。",
     hardwareTabLabel: "硬件",
-    softwareTabLabel: "软件"
+    softwareTabLabel: "软件",
+    hardwareSpecsLabel: "硬件规格",
+    aiCapabilitiesLabel: "AI功能和性能",
+    softwareArchitectureLabel: "软件架构",
+    learnMoreTitle: "视觉AI技术",
+    learnMoreContent: "我们的AI视觉套件将前沿计算机视觉技术与专用硬件集成，用于实际应用场景。它支持快速开发零售分析、安全监控、工业检测、自主导航等解决方案，同时将编程工作量降至最低。"
   }
 };
 

@@ -27,7 +27,9 @@ const translations: ProductTranslations = {
     softwareTabLabel: "Logiciel",
     hardwareSpecsLabel: "Spécifications Matérielles",
     aiCapabilitiesLabel: "Capacités IA et Performance",
-    softwareArchitectureLabel: "Architecture Logicielle"
+    softwareArchitectureLabel: "Architecture Logicielle",
+    learnMoreTitle: "Solutions IA Entreprise",
+    learnMoreContent: "Le Serveur IA Entreprise représente une solution de pointe pour les organisations cherchant à déployer l'IA à grande échelle. Il offre des performances exceptionnelles pour l'entraînement de modèles complexes, l'exécution de charges de travail d'inférence et la gestion de plusieurs projets d'IA simultanément avec une fiabilité et une sécurité de niveau entreprise."
   },
   3: {
     title: "Kit de Vision IA (Package Complet)",
@@ -35,7 +37,12 @@ const translations: ProductTranslations = {
     hardwareInfo: "Le Kit de Vision IA comprend un module de calcul principal basé sur la plateforme Jetson Xavier NX, avec un CPU NVIDIA Carmel 6 cœurs et un GPU Volta 384 cœurs avec 48 Tensor Cores. Il est équipé de 8 Go de mémoire LPDDR4x et 16 Go de stockage eMMC. Le kit comprend deux modules de caméra 4K avec des objectifs grand angle, des capacités infrarouges pour le fonctionnement en faible luminosité et un traitement d'image accéléré par matériel.",
     softwareInfo: "Le Kit de Vision est livré avec une pile logicielle complète comprenant des modèles pré-entraînés pour les tâches courantes de vision par ordinateur telles que la détection d'objets, la classification, la segmentation et le suivi. Le SDK fournit des API pour le contrôle de la caméra, le traitement d'image et le déploiement de modèles. Le système prend en charge TensorFlow, PyTorch et OpenCV, avec des outils supplémentaires pour la gestion des ensembles de données et l'entraînement de modèles.",
     hardwareTabLabel: "Matériel",
-    softwareTabLabel: "Logiciel"
+    softwareTabLabel: "Logiciel",
+    hardwareSpecsLabel: "Spécifications Matérielles",
+    aiCapabilitiesLabel: "Capacités IA et Performance",
+    softwareArchitectureLabel: "Architecture Logicielle",
+    learnMoreTitle: "Technologie de Vision IA",
+    learnMoreContent: "Notre Kit de Vision IA intègre des technologies de vision par ordinateur de pointe avec du matériel dédié pour des applications réelles. Il permet le développement rapide de solutions pour l'analyse de vente au détail, la surveillance de sécurité, l'inspection industrielle, la navigation autonome et plus encore avec un effort de programmation minimal."
   }
 };
 

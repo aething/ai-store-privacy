@@ -27,7 +27,9 @@ const translations: ProductTranslations = {
     softwareTabLabel: "Software",
     hardwareSpecsLabel: "Specifiche Hardware",
     aiCapabilitiesLabel: "Capacità di IA e Prestazioni",
-    softwareArchitectureLabel: "Architettura Software"
+    softwareArchitectureLabel: "Architettura Software",
+    learnMoreTitle: "Soluzioni IA Enterprise",
+    learnMoreContent: "Il Server IA Enterprise rappresenta una soluzione all'avanguardia per le organizzazioni che cercano di implementare l'IA su larga scala. Offre prestazioni eccezionali per l'addestramento di modelli complessi, l'esecuzione di carichi di lavoro di inferenza e la gestione di più progetti IA contemporaneamente con affidabilità e sicurezza di livello enterprise."
   },
   3: {
     title: "Kit di Visione IA (Pacchetto Completo)",
@@ -35,7 +37,12 @@ const translations: ProductTranslations = {
     hardwareInfo: "Il Kit di Visione IA include un modulo di calcolo principale basato sulla piattaforma Jetson Xavier NX, dotato di CPU NVIDIA Carmel a 6 core e GPU Volta a 384 core con 48 Tensor Core. Viene fornito con 8GB di memoria LPDDR4x e 16GB di storage eMMC. Il kit include due moduli camera 4K con lenti grandangolari, capacità infrarossi per operazioni in condizioni di scarsa illuminazione ed elaborazione immagini accelerata via hardware.",
     softwareInfo: "Il Kit di Visione viene fornito con uno stack software completo che include modelli pre-addestrati per attività comuni di visione artificiale come rilevamento oggetti, classificazione, segmentazione e tracking. L'SDK fornisce API per il controllo della camera, l'elaborazione delle immagini e il deployment dei modelli. Il sistema supporta TensorFlow, PyTorch e OpenCV, con strumenti aggiuntivi per la gestione dei dataset e il training dei modelli.",
     hardwareTabLabel: "Hardware",
-    softwareTabLabel: "Software"
+    softwareTabLabel: "Software",
+    hardwareSpecsLabel: "Specifiche Hardware",
+    aiCapabilitiesLabel: "Capacità di IA e Prestazioni",
+    softwareArchitectureLabel: "Architettura Software",
+    learnMoreTitle: "Tecnologia di Visione IA",
+    learnMoreContent: "Il nostro Kit di Visione IA integra tecnologie di visione artificiale all'avanguardia con hardware dedicato per applicazioni nel mondo reale. Consente lo sviluppo rapido di soluzioni per analisi retail, monitoraggio della sicurezza, ispezione industriale, navigazione autonoma e altro ancora con uno sforzo di programmazione minimo."
   }
 };
 

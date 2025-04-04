@@ -27,7 +27,9 @@ const translations: ProductTranslations = {
     softwareTabLabel: "Software",
     hardwareSpecsLabel: "Hardware-Spezifikationen",
     aiCapabilitiesLabel: "KI-Fähigkeiten & Leistung",
-    softwareArchitectureLabel: "Software-Architektur"
+    softwareArchitectureLabel: "Software-Architektur",
+    learnMoreTitle: "Enterprise-KI-Lösungen",
+    learnMoreContent: "Der Enterprise-KI-Server repräsentiert eine hochmoderne Lösung für Organisationen, die KI im großen Maßstab einsetzen möchten. Er bietet außergewöhnliche Leistung für das Training komplexer Modelle, die Ausführung von Inferenz-Workloads und die Verwaltung mehrerer KI-Projekte gleichzeitig mit Unternehmensqualität in Bezug auf Zuverlässigkeit und Sicherheit."
   },
   3: {
     title: "KI-Vision-Kit (Komplettpaket)",
@@ -35,7 +37,12 @@ const translations: ProductTranslations = {
     hardwareInfo: "Das KI-Vision-Kit enthält ein Hauptrechenmodul, das auf der Jetson Xavier NX-Plattform basiert und über eine 6-Kern NVIDIA Carmel CPU und eine 384-Kern Volta GPU mit 48 Tensor-Kernen verfügt. Es kommt mit 8 GB LPDDR4x-Speicher und 16 GB eMMC-Speicher. Das Kit umfasst zwei 4K-Kameramodule mit Weitwinkelobjektiven, Infrarotfähigkeiten für den Betrieb bei schlechten Lichtverhältnissen und hardwarebeschleunigter Bildverarbeitung.",
     softwareInfo: "Das Vision-Kit wird mit einem kompletten Software-Stack geliefert, einschließlich vortrainierter Modelle für gängige Computer-Vision-Aufgaben wie Objekterkennung, Klassifizierung, Segmentierung und Tracking. Das SDK bietet APIs für Kamerasteuerung, Bildverarbeitung und Modellbereitstellung. Das System unterstützt TensorFlow, PyTorch und OpenCV, mit zusätzlichen Tools für Datensatzverwaltung und Modelltraining.",
     hardwareTabLabel: "Hardware",
-    softwareTabLabel: "Software"
+    softwareTabLabel: "Software",
+    hardwareSpecsLabel: "Hardware-Spezifikationen",
+    aiCapabilitiesLabel: "KI-Fähigkeiten & Leistung",
+    softwareArchitectureLabel: "Software-Architektur",
+    learnMoreTitle: "Vision-KI-Technologie",
+    learnMoreContent: "Unser KI-Vision-Kit integriert modernste Computer-Vision-Technologien mit dedizierter Hardware für reale Anwendungen. Es ermöglicht die schnelle Entwicklung von Lösungen für Einzelhandelsanalysen, Sicherheitsüberwachung, industrielle Inspektion, autonome Navigation und mehr mit minimalem Programmieraufwand."
   }
 };
 
