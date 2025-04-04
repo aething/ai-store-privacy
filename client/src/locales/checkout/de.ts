@@ -1,36 +1,35 @@
 /**
- * German (de) checkout translations
+ * German localization for checkout page
  */
-
 import { CheckoutTranslations } from '@/types';
 
-const translations: CheckoutTranslations = {
+export const de: CheckoutTranslations = {
   // Page title and headers
   pageTitle: "Kasse",
   yourPurchase: "Ihr Einkauf",
   
   // Form fields
   emailAddress: "E-Mail-Adresse",
-  emailPlaceholder: "ihre.email@beispiel.de",
+  emailPlaceholder: "email@beispiel.de",
   firstName: "Vorname",
-  firstNamePlaceholder: "Max",
+  firstNamePlaceholder: "Hans",
   lastName: "Nachname",
-  lastNamePlaceholder: "Mustermann",
+  lastNamePlaceholder: "Müller",
   phoneNumber: "Telefonnummer",
-  phonePlaceholder: "+49 123 456789",
+  phonePlaceholder: "+49 123 4567890",
   companyName: "Firmenname",
   companyNameOptional: "Firmenname (Optional)",
-  companyPlaceholder: "Ihre Firma GmbH",
+  companyPlaceholder: "Beispiel GmbH",
   
   // Shipping address
   shippingAddress: "Lieferadresse",
   fullName: "Vollständiger Name",
-  fullNamePlaceholder: "Max Mustermann",
+  fullNamePlaceholder: "Hans Müller",
   country: "Land",
   selectCountry: "Land auswählen",
   address: "Adresse",
-  addressPlaceholder: "Musterstraße 123",
-  zipCode: "PLZ",
+  addressPlaceholder: "Beispielstraße 123",
+  zipCode: "Postleitzahl",
   zipPlaceholder: "12345",
   city: "Stadt",
   cityPlaceholder: "Berlin",
@@ -44,20 +43,18 @@ const translations: CheckoutTranslations = {
   // Payment related
   paymentInformation: "Zahlungsinformationen",
   cardInformation: "Karteninformationen",
-  paymentMethods: "Zahlungsarten",
-  payButton: "Bezahlen",
+  paymentMethods: "Zahlungsmethoden",
+  payButton: "Jetzt bezahlen",
   processingPayment: "Zahlung wird verarbeitet...",
   
   // Errors
   paymentError: "Zahlungsfehler",
-  paymentNotLoadedError: "Zahlungssystem konnte nicht geladen werden. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support.",
+  paymentNotLoadedError: "Das Zahlungssystem ist noch nicht vollständig geladen. Bitte versuchen Sie es erneut.",
   missingInformation: "Fehlende Informationen",
-  missingNameError: "Bitte geben Sie Ihren Namen an",
-  missingPhoneError: "Bitte geben Sie Ihre Telefonnummer an",
-  missingShippingError: "Bitte geben Sie Ihre Lieferadresse an",
+  missingNameError: "Bitte geben Sie Ihren Namen für die Lieferung an.",
+  missingPhoneError: "Bitte geben Sie Ihre Telefonnummer für Lieferaktualisierungen an.",
+  missingShippingError: "Bitte füllen Sie alle Felder der Lieferadresse aus.",
   paymentFailedTitle: "Zahlung fehlgeschlagen",
-  paymentFailedDefault: "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
-  unexpectedError: "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+  paymentFailedDefault: "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+  unexpectedError: "Bei der Zahlung ist ein unerwarteter Fehler aufgetreten. Bitte versuchen Sie es später erneut."
 };
-
-export default translations;

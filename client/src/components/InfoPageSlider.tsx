@@ -4,61 +4,21 @@ import InfoPageCard from "./InfoPageCard";
 import { useLocale } from "@/context/LocaleContext";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { InfoPageTranslations } from "@/locales/infopages";
-
-// Определяем расширенный тип для переводов с добавлением id
-type ExtendedInfoPageTranslations = InfoPageTranslations & {
-  id: string | number;
-};
-
-// Определяем универсальный тип для информационных страниц
-type UniversalInfoPage = InfoPage | ExtendedInfoPageTranslations | { 
-  id: string | number;
-  title: string;
-  description?: string;
-  content?: string;
-};
 
 interface InfoPageSliderProps {
   title: string;
-  infoPages: UniversalInfoPage[];
-  titleKey?: string; // Ключ для локализации заголовка
+  infoPages: InfoPage[];
 }
 
-export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageSliderProps) {
+export default function InfoPageSlider({ title, infoPages }: InfoPageSliderProps) {
   const [, setLocation] = useLocation();
-  const { t, currentLocale } = useLocale();
+  const { t } = useLocale();
   const sliderRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   
-  // Проверяем, что infoPages существует и является массивом
-  if (!infoPages || !Array.isArray(infoPages)) {
-    console.error('InfoPageSlider: infoPages is not an array', infoPages);
-    return null;
-  }
-  
-  // Фильтруем страницы, удаляя невалидные страницы
-  const validInfoPages = infoPages.filter(page => {
-    if (!page) return false;
-    
-    // Проверяем наличие обязательных полей
-    if (!('id' in page) || !page.id) {
-      console.error('InfoPage missing id:', page);
-      return false;
-    }
-    
-    if (!('title' in page) || !page.title) {
-      console.error('InfoPage missing title:', page);
-      return false;
-    }
-    
-    return true;
-  });
-  
-  if (validInfoPages.length === 0) {
-    console.log('No valid info pages to display');
+  if (!infoPages || infoPages.length === 0) {
     return null;
   }
 
@@ -112,9 +72,7 @@ export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageS
 
   return (
     <div className="mb-8 relative">
-      <h2 className="text-lg font-medium mb-4">
-        {titleKey ? t(titleKey) : title}
-      </h2>
+      <h2 className="text-lg font-medium mb-4">{title}</h2>
       <div 
         ref={sliderRef}
         id="info-pages-scroll"
@@ -132,23 +90,15 @@ export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageS
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {validInfoPages.map((infoPage) => {
-          // Получаем ID для ключа, безопасно проверяя его наличие
-          const key = infoPage && 'id' in infoPage && infoPage.id 
-            ? infoPage.id.toString() 
-            : Math.random().toString();
-            
-          // Безопасно отрисовываем карточку
-          return (
-            <InfoPageCard 
-              key={key} 
-              infoPage={infoPage} 
-            />
-          );
-        })}
+        {infoPages.map((infoPage) => (
+          <InfoPageCard 
+            key={infoPage.id} 
+            infoPage={infoPage} 
+          />
+        ))}
       </div>
       
-      {validInfoPages.length > 2 && (
+      {infoPages.length > 2 && (
         <>
           <button
             className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1 z-10"

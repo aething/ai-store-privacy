@@ -1,37 +1,36 @@
 /**
- * English (en) checkout translations
+ * English localization for checkout page
  */
-
 import { CheckoutTranslations } from '@/types';
 
-const translations: CheckoutTranslations = {
+export const en: CheckoutTranslations = {
   // Page title and headers
   pageTitle: "Checkout",
   yourPurchase: "Your Purchase",
   
   // Form fields
   emailAddress: "Email Address",
-  emailPlaceholder: "your.email@example.com",
+  emailPlaceholder: "email@example.com",
   firstName: "First Name",
   firstNamePlaceholder: "John",
   lastName: "Last Name",
   lastNamePlaceholder: "Doe",
   phoneNumber: "Phone Number",
-  phonePlaceholder: "+1 (555) 123-4567",
+  phonePlaceholder: "+1 234 567 8900",
   companyName: "Company Name",
   companyNameOptional: "Company Name (Optional)",
-  companyPlaceholder: "Your Company Ltd",
+  companyPlaceholder: "Example Company Inc.",
   
   // Shipping address
   shippingAddress: "Shipping Address",
   fullName: "Full Name",
   fullNamePlaceholder: "John Doe",
   country: "Country",
-  selectCountry: "Select a country",
+  selectCountry: "Select Country",
   address: "Address",
-  addressPlaceholder: "123 Main Street",
-  zipCode: "ZIP / Postal Code",
-  zipPlaceholder: "10001",
+  addressPlaceholder: "123 Example St.",
+  zipCode: "ZIP Code",
+  zipPlaceholder: "12345",
   city: "City",
   cityPlaceholder: "New York",
   
@@ -45,19 +44,17 @@ const translations: CheckoutTranslations = {
   paymentInformation: "Payment Information",
   cardInformation: "Card Information",
   paymentMethods: "Payment Methods",
-  payButton: "Pay",
+  payButton: "Pay Now",
   processingPayment: "Processing Payment...",
   
   // Errors
   paymentError: "Payment Error",
-  paymentNotLoadedError: "Payment system not loaded. Please try again or contact support.",
+  paymentNotLoadedError: "The payment system is not fully loaded yet. Please try again.",
   missingInformation: "Missing Information",
-  missingNameError: "Please provide your name",
-  missingPhoneError: "Please provide your phone number",
-  missingShippingError: "Please provide shipping information",
+  missingNameError: "Please provide your name for delivery.",
+  missingPhoneError: "Please provide your phone number for delivery updates.",
+  missingShippingError: "Please complete all shipping address fields.",
   paymentFailedTitle: "Payment Failed",
-  paymentFailedDefault: "There was an error processing your payment. Please try again.",
-  unexpectedError: "An unexpected error occurred. Please try again."
+  paymentFailedDefault: "Payment failed. Please try again.",
+  unexpectedError: "An unexpected error occurred during payment. Please try again later."
 };
-
-export default translations;

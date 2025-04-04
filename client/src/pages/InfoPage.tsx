@@ -9,7 +9,6 @@ import { Home, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ReactMarkdown from "react-markdown";
 import Footer from "@/components/Footer";
-import { getInfoPageById } from "@/constants/infoPages";
 
 export default function InfoPage() {
   const [, setLocation] = useLocation();
@@ -19,12 +18,6 @@ export default function InfoPage() {
   const pageRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const [showSwipeHint, setShowSwipeHint] = useState(true);
-  const [pageContent, setPageContent] = useState<{ title: string; content: string } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Получаем ID страницы
-  const pageId = params?.id;
   
   // Скрыть подсказку о жесте через 5 секунд
   useEffect(() => {
@@ -36,50 +29,8 @@ export default function InfoPage() {
     }
   }, [showSwipeHint]);
 
-  // Загружаем данные страницы
-  useEffect(() => {
-    if (!pageId) {
-      setIsLoading(false);
-      setError("No page ID provided");
-      return;
-    }
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      // Пробуем найти в хардкодном списке, если ID - число
-      const numericId = parseInt(pageId, 10);
-      if (!isNaN(numericId)) {
-        const staticInfoPage = getInfoPageById(numericId);
-        if (staticInfoPage) {
-          setPageContent({
-            title: staticInfoPage.title,
-            content: staticInfoPage.content
-          });
-          setIsLoading(false);
-          return;
-        }
-      }
-      
-      // Если не нашли в статических, ищем в локализованных данных
-      const localizedPage = getLocalizedInfoPageById(pageId as InfoPageId, currentLocale);
-      if (localizedPage && localizedPage.title && localizedPage.content) {
-        setPageContent({
-          title: localizedPage.title,
-          content: localizedPage.content
-        });
-      } else {
-        // Если страница не найдена
-        setError("Page not found");
-      }
-    } catch (err) {
-      console.error("Error loading info page:", err);
-      setError(`Error loading page: ${err instanceof Error ? err.message : 'Unknown error'}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [pageId, currentLocale]);
+  // Получаем локализованное содержимое страницы
+  const infoPage = params?.id && getLocalizedInfoPageById(params.id as InfoPageId, currentLocale);
 
   // Функция сброса прокрутки (вынесена отдельно для повторного использования)
   const resetScrollPosition = () => {
@@ -130,22 +81,7 @@ export default function InfoPage() {
     };
   }, [params?.id]);
 
-  // Отображаем загрузку
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center p-4 min-h-[50vh]">
-        <div className="animate-pulse">
-          <div className="h-8 w-64 bg-gray-200 rounded mb-4"></div>
-          <div className="h-4 w-full bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 w-full bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
-        </div>
-      </div>
-    );
-  }
-
-  // Отображаем ошибку
-  if (error || !match || !pageContent) {
+  if (!match || !infoPage) {
     return (
       <div className="flex flex-col items-center justify-center p-4 min-h-[50vh]">
         <h1 className="text-2xl font-bold mb-2">{t("pageNotFound")}</h1>
@@ -161,10 +97,6 @@ export default function InfoPage() {
     );
   }
 
-  // Гарантируем, что pageContent не null и имеет все нужные свойства
-  const title = pageContent?.title || "";
-  const content = pageContent?.content || "";
-  
   return (
     <SwipeBack onSwipeBack={() => setLocation("/")}>
       <div className="max-w-4xl mx-auto relative" ref={pageRef}>
@@ -192,14 +124,10 @@ export default function InfoPage() {
           {/* Якорь для верхней части контента */}
           <div id="content-top" ref={contentRef}></div>
           
-          <h1 className="text-2xl font-bold mb-6">
-            {title}
-          </h1>
+          <h1 className="text-2xl font-bold mb-6">{infoPage.title}</h1>
           
           <div className="prose max-w-none">
-            <ReactMarkdown>
-              {content}
-            </ReactMarkdown>
+            <ReactMarkdown>{infoPage.content}</ReactMarkdown>
           </div>
           
           <div className="mt-8 flex justify-center">

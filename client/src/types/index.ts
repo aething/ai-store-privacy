@@ -177,21 +177,12 @@ export interface LocalizedProduct {
 export interface ProductTranslation {
   title: string;
   description: string;
-  features?: string[];
-  specifications?: {
+  features: string[];
+  specifications: {
     [key: string]: string;
   };
-  hardwareInfo?: string | string[];
-  softwareInfo?: string | string[];
-  // Дополнительные поля для вкладок и секций
-  hardwareTabLabel?: string;
-  softwareTabLabel?: string;
-  hardwareSpecsLabel?: string;
-  aiCapabilitiesLabel?: string;
-  softwareArchitectureLabel?: string;
-  // Дополнительная информация для диалога "Узнать больше"
-  learnMoreTitle?: string;
-  learnMoreContent?: string;
+  hardwareInfo?: string[];
+  softwareInfo?: string[];
 }
 
 export interface ProductTranslations {
@@ -217,11 +208,6 @@ export interface ProductUITranslations {
   dataPipelinesDesc: string;
   aiPerformance: string;
   aiPerformanceDesc: string;
-  // Новые поля
-  generativeAI?: string;
-  generativeAIDesc?: string;
-  energyEfficiency?: string;
-  energyEfficiencyDesc?: string;
   softwareStack: string;
   softwareStackDesc: string;
   applications: string;
@@ -229,15 +215,6 @@ export interface ProductUITranslations {
   apiIntegration: string;
   apiIntegrationDesc: string;
   edgeComputing: string;
-  // Дополнительные поля для Software секции
-  deepLearning?: string;
-  machineLearning?: string;
-  modelOptimization?: string;
-  modelOptimizationDesc?: string;
-  realTimeProcessing?: string;
-  realTimeProcessingDesc?: string;
-  features?: string;
-  featuresDesc?: string;
 }
 
 // Определение интерфейса уже есть выше

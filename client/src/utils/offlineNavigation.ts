@@ -6,7 +6,8 @@
  * 2. Кэширования и загрузки данных для оффлайн-режима
  * 3. Мониторинга состояния сети
  */
-import React from 'react';
+
+import { useState, useEffect } from 'react';
 
 // Глобальное хранилище кэшированных данных
 export const OFFLINE_DATA = {
@@ -95,14 +96,35 @@ function dispatchNetworkEvent(isOnline: boolean) {
 }
 
 /**
- * Получает текущий статус сети
+ * Хук для отслеживания состояния сети
  */
-export function getNetworkStatus(): boolean {
-  return navigator.onLine;
+export function useNetworkStatus() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    // Добавляем слушатели событий
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Добавляем слушатель для внутреннего события
+    const handleNetworkStatusChange = (event: CustomEvent) => {
+      setIsOnline(event.detail.online);
+    };
+    
+    window.addEventListener('network-status-change' as any, handleNetworkStatusChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('network-status-change' as any, handleNetworkStatusChange as EventListener);
+    };
+  }, []);
+  
+  return isOnline;
 }
-
-// ВАЖНО: Хук useNetworkStatus перенесен в компонент OfflineNavigationProvider
-// для соблюдения правил React Hooks
 
 /**
  * Сохраняет данные в localStorage для оффлайн-режима
@@ -184,30 +206,10 @@ export function clearOfflineData() {
   return true;
 }
 
-// Хук для получения статуса сети
-export function useNetworkStatus() {
-  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
-  
-  React.useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-  
-  return isOnline;
-}
-
 export default {
   initOfflineNavigation,
   isRouteAvailableOffline,
-  getNetworkStatus,
+  useNetworkStatus,
   saveOfflineData,
   loadOfflineData,
   cacheDataForOffline,

@@ -63,16 +63,14 @@ export default function Shop() {
       {/* Product Slider - Products are automatically sorted by price ascending */}
       {products && products.length > 0 && (
         <ProductSlider 
-          title="Products" 
-          titleKey="products"
+          title={t("products") || "Products"} 
           products={products} 
         />
       )}
 
       {/* Info Pages - New section with informational content */}
       <InfoPageSlider 
-        title="Learn More"
-        titleKey="learnMore"
+        title={t("learnMore") || "Learn More"} 
         infoPages={infoPages} 
       />
       

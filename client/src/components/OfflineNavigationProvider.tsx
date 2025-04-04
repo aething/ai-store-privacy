@@ -1,5 +1,4 @@
 import React, { useEffect, createContext, useState, useContext } from 'react';
-
 import { 
   initOfflineNavigation, 
   loadOfflineData, 
@@ -7,16 +6,10 @@ import {
   OFFLINE_DATA
 } from '../utils/offlineNavigation';
 
-// Определяем тип для оффлайн данных
-interface OfflineData {
-  products: any[];
-  user: any | null;
-}
-
 // Контекст для состояния оффлайн-навигации
 interface OfflineNavigationContextType {
   isOnline: boolean;
-  offlineData: OfflineData;
+  offlineData: typeof OFFLINE_DATA;
   cacheData: (dataType: 'products' | 'user', data: any) => void;
 }
 
@@ -26,11 +19,7 @@ const OfflineNavigationContext = createContext<OfflineNavigationContextType>({
   cacheData: () => {},
 });
 
-// Хук для использования всего контекста оффлайн-навигации
 export const useOfflineNavigation = () => useContext(OfflineNavigationContext);
-
-// Реэкспортируем хук для обратной совместимости
-export { useNetworkStatus } from '../utils/offlineNavigation';
 
 interface OfflineNavigationProviderProps {
   children: React.ReactNode;

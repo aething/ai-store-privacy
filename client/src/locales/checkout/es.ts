@@ -1,33 +1,32 @@
 /**
- * Spanish (es) checkout translations
+ * Spanish localization for checkout page
  */
-
 import { CheckoutTranslations } from '@/types';
 
-const translations: CheckoutTranslations = {
+export const es: CheckoutTranslations = {
   // Page title and headers
-  pageTitle: "Pago",
+  pageTitle: "Finalizar Compra",
   yourPurchase: "Tu Compra",
   
   // Form fields
   emailAddress: "Correo Electrónico",
-  emailPlaceholder: "tu.email@ejemplo.com",
+  emailPlaceholder: "email@ejemplo.es",
   firstName: "Nombre",
   firstNamePlaceholder: "Juan",
   lastName: "Apellido",
   lastNamePlaceholder: "Pérez",
   phoneNumber: "Número de Teléfono",
-  phonePlaceholder: "+34 123 456 789",
+  phonePlaceholder: "+34 612 345 678",
   companyName: "Nombre de la Empresa",
   companyNameOptional: "Nombre de la Empresa (Opcional)",
-  companyPlaceholder: "Tu Empresa S.L.",
+  companyPlaceholder: "Empresa Ejemplo S.L.",
   
   // Shipping address
   shippingAddress: "Dirección de Envío",
   fullName: "Nombre Completo",
   fullNamePlaceholder: "Juan Pérez",
   country: "País",
-  selectCountry: "Seleccionar país",
+  selectCountry: "Seleccionar País",
   address: "Dirección",
   addressPlaceholder: "Calle Ejemplo 123",
   zipCode: "Código Postal",
@@ -43,21 +42,19 @@ const translations: CheckoutTranslations = {
   
   // Payment related
   paymentInformation: "Información de Pago",
-  cardInformation: "Información de la Tarjeta",
+  cardInformation: "Información de Tarjeta",
   paymentMethods: "Métodos de Pago",
-  payButton: "Pagar",
+  payButton: "Pagar Ahora",
   processingPayment: "Procesando Pago...",
   
   // Errors
   paymentError: "Error de Pago",
-  paymentNotLoadedError: "El sistema de pago no se ha cargado. Por favor, inténtelo de nuevo o contacte con soporte.",
-  missingInformation: "Información Faltante",
-  missingNameError: "Por favor, proporcione su nombre",
-  missingPhoneError: "Por favor, proporcione su número de teléfono",
-  missingShippingError: "Por favor, proporcione su dirección de envío",
+  paymentNotLoadedError: "El sistema de pago aún no está completamente cargado. Inténtalo de nuevo.",
+  missingInformation: "Falta Información",
+  missingNameError: "Por favor, proporciona tu nombre para la entrega.",
+  missingPhoneError: "Por favor, proporciona tu número de teléfono para actualizaciones de entrega.",
+  missingShippingError: "Por favor, completa todos los campos de la dirección de envío.",
   paymentFailedTitle: "Pago Fallido",
-  paymentFailedDefault: "Hubo un error al procesar su pago. Por favor, inténtelo de nuevo.",
-  unexpectedError: "Ocurrió un error inesperado. Por favor, inténtelo de nuevo."
+  paymentFailedDefault: "El pago ha fallado. Por favor, inténtalo de nuevo.",
+  unexpectedError: "Ha ocurrido un error inesperado durante el pago. Por favor, inténtalo más tarde."
 };
-
-export default translations;
