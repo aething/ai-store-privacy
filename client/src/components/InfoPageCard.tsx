@@ -24,19 +24,33 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
   const [, setLocation] = useLocation();
   const { t } = useLocale();
 
+  if (!infoPage) {
+    console.error('InfoPage is undefined or null');
+    return null;
+  }
+
   // Получаем ID страницы в строковом или числовом формате
   const pageId = 'id' in infoPage && infoPage.id ? infoPage.id.toString() : '';
 
   // Проверяем наличие обязательных полей
-  if (!('title' in infoPage) || !infoPage.title) {
+  if (!pageId) {
+    console.error('InfoPage without valid id:', infoPage);
+    return null;
+  }
+
+  // Получаем заголовок
+  let title = '';
+  if ('title' in infoPage && infoPage.title) {
+    title = infoPage.title;
+  } else {
     console.error('InfoPage without title:', infoPage);
     return null;
   }
-  
-  // Проверяем наличие id
-  if (!('id' in infoPage) || !infoPage.id) {
-    console.error('InfoPage without id:', infoPage);
-    return null;
+
+  // Получаем описание (может быть опциональным)
+  let description = '';
+  if ('description' in infoPage && infoPage.description) {
+    description = infoPage.description;
   }
 
   return (
@@ -47,10 +61,10 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
       <div className="flex flex-col h-full">
         {/* Содержание */}
         <div className="p-4 flex flex-col flex-grow">
-          <h3 className="font-medium text-lg mb-2">{infoPage.title}</h3>
+          <h3 className="font-medium text-lg mb-2">{title}</h3>
           
           <p className="text-gray-500 text-sm flex-grow line-clamp-6 mb-4">
-            {'description' in infoPage ? infoPage.description || '' : ''}
+            {description}
           </p>
           
           <Button 

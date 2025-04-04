@@ -33,7 +33,26 @@ export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageS
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   
-  if (!infoPages || infoPages.length === 0) {
+  // Фильтруем страницы, удаляя невалидные страницы
+  const validInfoPages = Array.isArray(infoPages) ? infoPages.filter(page => {
+    if (!page) return false;
+    
+    // Проверяем наличие обязательных полей
+    if (!('id' in page) || !page.id) {
+      console.error('InfoPage missing id:', page);
+      return false;
+    }
+    
+    if (!('title' in page) || !page.title) {
+      console.error('InfoPage missing title:', page);
+      return false;
+    }
+    
+    return true;
+  }) : [];
+  
+  if (validInfoPages.length === 0) {
+    console.log('No valid info pages to display');
     return null;
   }
 
@@ -107,9 +126,13 @@ export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageS
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {infoPages.map((infoPage) => {
+        {validInfoPages.map((infoPage) => {
           // Получаем ID для ключа, безопасно проверяя его наличие
-          const key = 'id' in infoPage && infoPage.id ? infoPage.id.toString() : Math.random().toString();
+          const key = infoPage && 'id' in infoPage && infoPage.id 
+            ? infoPage.id.toString() 
+            : Math.random().toString();
+            
+          // Безопасно отрисовываем карточку
           return (
             <InfoPageCard 
               key={key} 
@@ -119,7 +142,7 @@ export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageS
         })}
       </div>
       
-      {infoPages.length > 2 && (
+      {validInfoPages.length > 2 && (
         <>
           <button
             className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1 z-10"
