@@ -1,35 +1,39 @@
+/**
+ * Italian (it) checkout translations
+ */
+
 import { CheckoutTranslations } from '@/types';
 
-export const it: CheckoutTranslations = {
+const translations: CheckoutTranslations = {
   // Page title and headers
   pageTitle: "Pagamento",
-  yourPurchase: "Il Tuo Acquisto",
+  yourPurchase: "Il tuo acquisto",
   
   // Form fields
-  emailAddress: "Indirizzo Email",
-  emailPlaceholder: "esempio@dominio.it",
+  emailAddress: "Indirizzo email",
+  emailPlaceholder: "tua.email@esempio.it",
   firstName: "Nome",
-  firstNamePlaceholder: "Inserisci il tuo nome",
+  firstNamePlaceholder: "Mario",
   lastName: "Cognome",
-  lastNamePlaceholder: "Inserisci il tuo cognome",
-  phoneNumber: "Numero di Telefono",
-  phonePlaceholder: "+39 XXX XXXXXXX",
-  companyName: "Azienda",
-  companyNameOptional: "Azienda (opzionale)",
-  companyPlaceholder: "Nome dell'azienda",
+  lastNamePlaceholder: "Rossi",
+  phoneNumber: "Numero di telefono",
+  phonePlaceholder: "+39 123 456 7890",
+  companyName: "Nome azienda",
+  companyNameOptional: "Nome azienda (Opzionale)",
+  companyPlaceholder: "La Tua Azienda S.r.l.",
   
   // Shipping address
-  shippingAddress: "Indirizzo di Spedizione",
-  fullName: "Nome Completo",
-  fullNamePlaceholder: "Inserisci il nome completo",
+  shippingAddress: "Indirizzo di spedizione",
+  fullName: "Nome completo",
+  fullNamePlaceholder: "Mario Rossi",
   country: "Paese",
   selectCountry: "Seleziona un paese",
   address: "Indirizzo",
-  addressPlaceholder: "Via, numero civico, ecc.",
-  zipCode: "Codice Postale",
-  zipPlaceholder: "es. 00100",
+  addressPlaceholder: "Via Esempio 123",
+  zipCode: "CAP",
+  zipPlaceholder: "00100",
   city: "Città",
-  cityPlaceholder: "es. Roma",
+  cityPlaceholder: "Roma",
   
   // Order summary
   subtotal: "Subtotale",
@@ -38,20 +42,22 @@ export const it: CheckoutTranslations = {
   total: "Totale",
   
   // Payment related
-  paymentInformation: "Informazioni di Pagamento",
-  cardInformation: "Informazioni della Carta",
-  paymentMethods: "Metodi di Pagamento",
+  paymentInformation: "Informazioni di pagamento",
+  cardInformation: "Informazioni carta",
+  paymentMethods: "Metodi di pagamento",
   payButton: "Paga",
-  processingPayment: "Elaborazione Pagamento...",
+  processingPayment: "Elaborazione pagamento...",
   
   // Errors
-  paymentError: "Errore di Pagamento",
-  paymentNotLoadedError: "Impossibile caricare le informazioni di pagamento. Si prega di riprovare.",
-  missingInformation: "Informazioni Mancanti",
-  missingNameError: "Si prega di fornire il nome completo",
-  missingPhoneError: "Si prega di fornire un numero di telefono valido",
-  missingShippingError: "Si prega di completare tutte le informazioni di spedizione",
-  paymentFailedTitle: "Pagamento Fallito",
-  paymentFailedDefault: "Non è stato possibile elaborare il pagamento. Si prega di verificare i dettagli e riprovare.",
-  unexpectedError: "Si è verificato un errore imprevisto. Si prega di riprovare."
+  paymentError: "Errore di pagamento",
+  paymentNotLoadedError: "Il sistema di pagamento non è stato caricato. Riprova o contatta l'assistenza.",
+  missingInformation: "Informazioni mancanti",
+  missingNameError: "Inserisci il tuo nome",
+  missingPhoneError: "Inserisci il tuo numero di telefono",
+  missingShippingError: "Inserisci il tuo indirizzo di spedizione",
+  paymentFailedTitle: "Pagamento fallito",
+  paymentFailedDefault: "Si è verificato un errore durante l'elaborazione del pagamento. Riprova.",
+  unexpectedError: "Si è verificato un errore imprevisto. Riprova."
 };
+
+export default translations;
