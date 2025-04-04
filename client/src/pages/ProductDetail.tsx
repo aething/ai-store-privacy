@@ -290,38 +290,42 @@ export default function ProductDetail() {
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13a10 10 0 0 1 14 0"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M2 8.82a15 15 0 0 1 20 0"/><line x1="12" y1="20" x2="12" y2="20"/></svg>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-900">AI Performance:</span>
-                          <p className="text-gray-700">Up to 67 TOPS (INT8), a 70% improvement over prior version</p>
+                          <span className="font-medium text-gray-900">{uiText.aiPerformance}:</span>
+                          <p className="text-gray-700">{uiText.aiPerformanceDesc}</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start gap-3">
-                        <div className="bg-gray-200 rounded-md p-1 text-gray-700">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                      {uiText.generativeAI && (
+                        <div className="flex items-start gap-3">
+                          <div className="bg-gray-200 rounded-md p-1 text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-900">{uiText.generativeAI}:</span>
+                            <p className="text-gray-700">{uiText.generativeAIDesc}</p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-medium text-gray-900">Generative AI:</span>
-                          <p className="text-gray-700">Support for transformer models and LLMs up to 8B parameters (Llama-3.1-8B)</p>
-                        </div>
-                      </div>
+                      )}
                       
-                      <div className="flex items-start gap-3">
-                        <div className="bg-gray-200 rounded-md p-1 text-gray-700">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                      {uiText.energyEfficiency && (
+                        <div className="flex items-start gap-3">
+                          <div className="bg-gray-200 rounded-md p-1 text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-900">{uiText.energyEfficiency}:</span>
+                            <p className="text-gray-700">{uiText.energyEfficiencyDesc}</p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-medium text-gray-900">Energy Efficiency:</span>
-                          <p className="text-gray-700">7–25 watts power draw, making it a leader in energy-efficient AI computing</p>
-                        </div>
-                      </div>
+                      )}
                       
                       <div className="flex items-start gap-3">
                         <div className="bg-gray-200 rounded-md p-1 text-gray-700">
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m14 5-10 8.5c-.14.12-.08.35.12.35l15.08-.05c.38 0 .55-.48.33-.75L14.25 5.05a.2.2 0 0 0-.25-.05Z"/><path d="m5 6 14 6"/><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"/></svg>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-900">Software Stack:</span>
-                          <p className="text-gray-700">Full compatibility with NVIDIA JetPack SDK v6.1, CUDA, TensorRT, cuDNN</p>
+                          <span className="font-medium text-gray-900">{uiText.softwareStack}:</span>
+                          <p className="text-gray-700">{uiText.softwareStackDesc}</p>
                         </div>
                       </div>
                       
@@ -330,20 +334,22 @@ export default function ProductDetail() {
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m8 12 3 3 5-5"/></svg>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-900">Applications:</span>
-                          <p className="text-gray-700">Robotics, computer vision, multimodal agents, and IoT at the network edge</p>
+                          <span className="font-medium text-gray-900">{uiText.applications}:</span>
+                          <p className="text-gray-700">{uiText.applicationsDesc}</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-start gap-3">
-                        <div className="bg-gray-200 rounded-md p-1 text-gray-700">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                      {uiText.features && (
+                        <div className="flex items-start gap-3">
+                          <div className="bg-gray-200 rounded-md p-1 text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-900">{uiText.features}:</span>
+                            <p className="text-gray-700">{uiText.featuresDesc}</p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-medium text-gray-900">Features:</span>
-                          <p className="text-gray-700">Local LLM execution for enhanced privacy and reduced latency</p>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
