@@ -30,8 +30,8 @@ interface OfflineNavigationProviderProps {
  * Инициализирует систему оффлайн-навигации и предоставляет контекст для компонентов
  */
 export const OfflineNavigationProvider: React.FC<OfflineNavigationProviderProps> = ({ children }) => {
-  // Используем встроенный useState для отслеживания состояния сети
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  // Проверка, что useState не вызывается в глобальном контексте
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [offlineData, setOfflineData] = useState(OFFLINE_DATA);
   
   // Добавляем эффект для отслеживания состояния сети
@@ -57,36 +57,40 @@ export const OfflineNavigationProvider: React.FC<OfflineNavigationProviderProps>
   // Инициализация оффлайн-режима при монтировании компонента
   useEffect(() => {
     console.log('[OfflineNavigationProvider] Инициализация...');
-    initOfflineNavigation();
-    loadOfflineData();
     
-    // Обновляем состояние после загрузки данных
-    setOfflineData({ ...OFFLINE_DATA });
-    
-    // При переходе в оффлайн-режим, показываем уведомление
-    const handleOffline = () => {
-      showOfflineStatusNotification(false);
-    };
-    
-    // При восстановлении соединения, показываем уведомление
-    const handleOnline = () => {
-      showOfflineStatusNotification(true);
-    };
-    
-    window.addEventListener('offline', handleOffline);
-    window.addEventListener('online', handleOnline);
-    
-    // Устанавливаем глобальную переменную для доступа из service worker
-    window.AIStoreOffline = {
-      data: OFFLINE_DATA,
-      isOnline,
-      cacheData: cacheDataForOffline
-    };
-    
-    return () => {
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('online', handleOnline);
-    };
+    // Проверка, что мы находимся в браузере перед инициализацией
+    if (typeof window !== 'undefined') {
+      initOfflineNavigation();
+      loadOfflineData();
+      
+      // Обновляем состояние после загрузки данных
+      setOfflineData({ ...OFFLINE_DATA });
+      
+      // При переходе в оффлайн-режим, показываем уведомление
+      const handleOffline = () => {
+        showOfflineStatusNotification(false);
+      };
+      
+      // При восстановлении соединения, показываем уведомление
+      const handleOnline = () => {
+        showOfflineStatusNotification(true);
+      };
+      
+      window.addEventListener('offline', handleOffline);
+      window.addEventListener('online', handleOnline);
+      
+      // Устанавливаем глобальную переменную для доступа из service worker
+      window.AIStoreOffline = {
+        data: OFFLINE_DATA,
+        isOnline,
+        cacheData: cacheDataForOffline
+      };
+      
+      return () => {
+        window.removeEventListener('offline', handleOffline);
+        window.removeEventListener('online', handleOnline);
+      };
+    }
   }, []);
   
   /**
@@ -99,7 +103,7 @@ export const OfflineNavigationProvider: React.FC<OfflineNavigationProviderProps>
   
   // Автоматически кэшируем данные о продуктах при получении их в онлайн-режиме
   useEffect(() => {
-    if (isOnline) {
+    if (isOnline && typeof window !== 'undefined') {
       // Прослушиваем события успешных запросов к API
       const handleApiSuccess = (event: CustomEvent) => {
         const { endpoint, data } = event.detail;
@@ -137,6 +141,9 @@ export const OfflineNavigationProvider: React.FC<OfflineNavigationProviderProps>
  * Показывает уведомление о статусе подключения к сети
  */
 const showOfflineStatusNotification = (isOnline: boolean) => {
+  // Проверяем, что мы находимся в браузере
+  if (typeof document === 'undefined') return;
+  
   // Создаем или находим элемент уведомления
   let notificationEl = document.getElementById('offline-status-notification');
   

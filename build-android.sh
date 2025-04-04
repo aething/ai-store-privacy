@@ -119,8 +119,25 @@ else
   echo -e "${YELLOW}Скрипт prepare-icons.sh не найден. Пропускаем генерацию иконок.${NC}"
 fi
 
-# Шаг 7: Настройка проекта Android для оптимальной работы WebView
-echo -e "${YELLOW}Шаг 7: Оптимизация настроек Android WebView${NC}"
+# Шаг 7: Обновление манифеста Android
+echo -e "${YELLOW}Шаг 7: Обновление AndroidManifest.xml${NC}"
+
+# Проверяем, существует ли скрипт для обновления манифеста
+if [ -f "update-manifest.sh" ]; then
+  echo -e "${YELLOW}Запуск скрипта для обновления манифеста${NC}"
+  ./update-manifest.sh
+  
+  if [ $? -ne 0 ]; then
+    echo -e "${RED}Предупреждение: не удалось обновить манифест${NC}"
+  else
+    echo -e "${GREEN}Манифест успешно обновлен${NC}"
+  fi
+else
+  echo -e "${YELLOW}Скрипт update-manifest.sh не найден. Пропускаем обновление манифеста.${NC}"
+fi
+
+# Шаг 8: Настройка проекта Android для оптимальной работы WebView
+echo -e "${YELLOW}Шаг 8: Оптимизация настроек Android WebView${NC}"
 
 # Путь к MainActivity.java
 MAIN_ACTIVITY="android/app/src/main/java/com/aething/aistore/MainActivity.java"
@@ -152,7 +169,7 @@ else
   echo -e "${YELLOW}Файл MainActivity.java не найден, пропускаем оптимизацию WebView${NC}"
 fi
 
-# Шаг 8: Сборка APK файла в режиме отладки
+# Шаг 9: Сборка APK файла в режиме отладки
 echo -e "${YELLOW}Шаг 8: Сборка APK файла (debug)${NC}"
 cd android && ./gradlew assembleDebug
 
