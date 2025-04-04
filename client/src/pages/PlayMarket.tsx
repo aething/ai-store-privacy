@@ -187,8 +187,7 @@ export default function PlayMarket() {
       <Card className="p-4 mb-6">
         <h3 className="font-medium mb-4">About this app</h3>
         <p className="text-gray-700 mb-4">
-          AI Store by Aething offers a unique shopping experience powered by artificial intelligence.
-          Browse our exclusive selection of AI-powered products designed to make your life easier.
+          SPEED. TECHNOLOGY. DATA. These three words capture the essence of the modern world and define what our store is all about. We offer you ready-to-use artificial intelligence solutions designed for seamless integration into your office. Whether it's pulling insights from CRM systems, financial analytics, legal references, or training materials, there's a wide range of applications you can implement within your company for internal use. From creating personal assistants to voice-activated helpers, our app keeps these tools right at your fingertips. We're constantly expanding our product lineup and will keep you posted with updates.
         </p>
         
         <div className="grid grid-cols-2 gap-4 mb-4">
