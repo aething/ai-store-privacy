@@ -32,7 +32,7 @@ export default function BottomNav() {
       >
         <ShoppingBag className={isShopActive ? "text-primary" : "text-gray-500"} size={24} />
         <span className={`text-xs mt-1 ${isShopActive ? "text-primary font-medium" : "text-gray-500"}`}>
-          Shop
+          AI Shop
         </span>
       </button>
       <button 
