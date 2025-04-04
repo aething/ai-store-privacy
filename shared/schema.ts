@@ -86,6 +86,7 @@ export const updateUserSchema = createInsertSchema(users).omit({
   street: z.string().optional().transform(val => val || null),
   house: z.string().optional().transform(val => val || null),
   apartment: z.string().optional().transform(val => val || null),
+  language: z.string().optional().transform(val => val || "en"),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

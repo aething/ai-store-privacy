@@ -1,77 +1,290 @@
-/**
- * Spanish (es) info page translations
- */
+export default {
+  privacyPolicy: {
+    title: "Política de Privacidad",
+    content: `
+# Política de Privacidad
 
-import { InfoPage } from "@/types";
+Última actualización: 4 de abril de 2025
 
-// Spanish translations of info pages
-export const es: InfoPage[] = [
-  {
-    id: 0,
-    title: "Soluciones impulsadas por IA para entornos profesionales",
-    description: "Descubra cómo nuestra solución de chatbot impulsada por IA en la plataforma NVIDIA Jetson Orin Nano ofrece soluciones específicas para diversos entornos profesionales.",
-    content: `
-      <p>La solución de chatbot impulsada por IA construida sobre esta plataforma es adecuada para una variedad de tareas profesionales en múltiples industrias, aprovechando su capacidad para procesar volúmenes significativos de datos y proporcionar soluciones personalizadas y específicas para cada dominio.</p>
-      
-      <h3>Volumen de procesamiento de datos</h3>
-      <ul>
-        <li><strong>Capacidad de inferencia:</strong> Con un rendimiento de 5-10 tokens por segundo, el sistema puede generar respuestas de 20 tokens (aproximadamente 10-15 palabras) en 2-4 segundos.</li>
-        <li><strong>Escala de base de conocimiento:</strong> Utilizando RAG, el sistema puede indexar y aprovechar hasta 500GB de datos textuales.</li>
-      </ul>
-      
-      <h3>Aplicaciones profesionales</h3>
-      <h4>1. Departamento de TI:</h4>
-      <ul>
-        <li><strong>Tarea:</strong> Automatización del soporte técnico y búsqueda de documentación.</li>
-        <li><strong>Ejemplo:</strong> Consulta de registros del sistema, guías de solución de problemas o manuales de software.</li>
-      </ul>
-      
-      <h3>Beneficios en entornos profesionales</h3>
-      <ul>
-        <li><strong>Privacidad de datos:</strong> Al operar dentro de una red empresarial, garantiza que la información sensible permanezca en las instalaciones.</li>
-        <li><strong>Escalabilidad:</strong> Aunque está limitado a 2-3 usuarios simultáneos con rendimiento máximo, el sistema puede conectarse en red con unidades adicionales.</li>
-      </ul>
-    `,
+## Introducción
+
+Esta Política de Privacidad describe cómo recopilamos, utilizamos y divulgamos su información personal cuando utiliza nuestros servicios, incluidos nuestro sitio web y aplicaciones.
+
+## Información que recopilamos
+
+Recopilamos información que usted nos proporciona directamente, como cuando crea una cuenta, realiza una compra o contacta con atención al cliente. Esto puede incluir:
+
+- Información de contacto (nombre, dirección de correo electrónico, número de teléfono)
+- Información de facturación (dirección de envío, detalles de pago)
+- Credenciales de cuenta (nombre de usuario, contraseña)
+- Información del dispositivo (dirección IP, tipo de navegador, sistema operativo)
+
+## Cómo utilizamos su información
+
+Utilizamos su información para:
+
+- Proporcionar, mantener y mejorar nuestros servicios
+- Procesar transacciones y enviar información relacionada
+- Responder a comentarios, preguntas y solicitudes de servicio al cliente
+- Enviar avisos técnicos, actualizaciones, alertas de seguridad y mensajes administrativos
+- Monitorear y analizar tendencias, uso y actividades en relación con nuestros servicios
+
+## Compartir su información
+
+Podemos compartir su información con:
+
+- Proveedores de servicios que realizan servicios en nuestro nombre
+- Socios externos para marketing, publicidad u otros fines con su consentimiento
+- En respuesta a procesos legales o cuando creemos que la divulgación es necesaria para proteger nuestros derechos
+
+## Sus derechos
+
+Dependiendo de su ubicación, puede tener ciertos derechos con respecto a su información personal, incluyendo:
+
+- Acceso a su información personal
+- Corrección de información inexacta o incompleta
+- Eliminación de su información personal
+- Restricción u objeción a ciertas actividades de procesamiento
+
+## Contáctenos
+
+Si tiene alguna pregunta sobre esta Política de Privacidad, contáctenos en privacidad@example.com.
+`
   },
-  {
-    id: 1,
-    title: "Sistemas de ML para entornos profesionales",
-    description: "Explore cómo nuestros sistemas de aprendizaje automático en la plataforma NVIDIA DGX Spark ofrecen soluciones sofisticadas para diversos dominios profesionales.",
+  termsOfService: {
+    title: "Términos de Servicio",
     content: `
-      <p>Los sistemas de ML que aprovechan esta plataforma están diseñados para abordar tareas sofisticadas en diversos dominios profesionales, aprovechando una potencia de cálculo significativa y capacidad de procesamiento de datos para entregar soluciones específicas para cada industria.</p>
-      
-      <h3>Volumen de procesamiento de datos</h3>
-      <ul>
-        <li><strong>Capacidad de inferencia:</strong> Con una velocidad de generación de 20-50 tokens por segundo, el sistema puede producir respuestas de 20 tokens en 0,4-1 segundo.</li>
-        <li><strong>Escala de base de conocimiento:</strong> El sistema RAG puede indexar y aprovechar hasta 1TB de datos textuales.</li>
-      </ul>
-      
-      <h3>Aplicaciones profesionales</h3>
-      <ul>
-        <li><strong>Departamento de TI:</strong> Optimización de operaciones de TI y escalada de soporte.</li>
-        <li><strong>Sector financiero:</strong> Mejora del análisis financiero y cumplimiento regulatorio.</li>
-      </ul>
-    `,
+# Términos de Servicio
+
+Última actualización: 4 de abril de 2025
+
+## Aceptación de los términos
+
+Al acceder o utilizar nuestros servicios, acepta estar sujeto a estos Términos de Servicio.
+
+## Uso de los servicios
+
+Puede utilizar nuestros servicios solo para fines legales y de acuerdo con estos Términos. Acepta no:
+
+- Utilizar nuestros servicios de manera que viole las leyes o regulaciones aplicables
+- Participar en conductas que restrinjan o inhiban el uso o disfrute de nuestros servicios por parte de cualquier persona
+- Utilizar nuestros servicios para distribuir malware u otro código dañino
+- Intentar obtener acceso no autorizado a nuestros sistemas o cuentas de usuario
+
+## Cuentas de usuario
+
+Cuando crea una cuenta con nosotros, debe proporcionar información precisa y completa. Usted es responsable de mantener la confidencialidad de sus credenciales de cuenta y de todas las actividades que ocurran bajo su cuenta.
+
+## Términos de pago
+
+Todas las compras son finales y no reembolsables a menos que se especifique lo contrario. Los precios están sujetos a cambios sin previo aviso.
+
+## Propiedad intelectual
+
+Nuestros servicios y contenido están protegidos por derechos de autor, marcas comerciales y otras leyes de propiedad intelectual. No puede utilizar nuestro contenido sin nuestro permiso expreso por escrito.
+
+## Exención de garantías
+
+Nuestros servicios se proporcionan "tal cual" sin garantías de ningún tipo, ya sean expresas o implícitas.
+
+## Limitación de responsabilidad
+
+No seremos responsables por daños indirectos, incidentales, especiales, consecuentes o punitivos que surjan de o se relacionen con su uso de nuestros servicios.
+
+## Ley aplicable
+
+Estos Términos se regirán e interpretarán de acuerdo con las leyes de la jurisdicción en la que operamos.
+`
   },
-  {
-    id: 2,
-    title: "Sistemas de automatización inteligente para entornos profesionales",
-    description: "Conozca cómo nuestros sistemas de automatización inteligente basados en la plataforma NVIDIA Founders Edition RTX 6000 optimizan flujos de trabajo en diversas industrias.",
+  deliveryPolicy: {
+    title: "Política de Entrega",
     content: `
-      <p>Nuestros sistemas de automatización inteligente potenciados por NVIDIA Founders Edition RTX 6000 proporcionan soluciones de automatización integral para entornos empresariales en múltiples sectores.</p>
-      
-      <h3>Aplicaciones profesionales</h3>
-      <h4>1. Departamento de TI:</h4>
-      <ul>
-        <li><strong>Tarea:</strong> Automatización de la gestión de servicios de TI y escalada de soporte.</li>
-        <li><strong>Ejemplo:</strong> Orquestación de flujos de trabajo de resolución de tickets, consulta a una base de datos de 1TB.</li>
-      </ul>
-      
-      <h3>Beneficios en entornos profesionales</h3>
-      <ul>
-        <li><strong>Automatización en tiempo real:</strong> La ejecución casi instantánea de texto, voz y procesos mejora la velocidad operativa.</li>
-        <li><strong>Privacidad de datos:</strong> El procesamiento local garantiza el cumplimiento normativo.</li>
-      </ul>
-    `,
+# Política de Entrega
+
+Última actualización: 4 de abril de 2025
+
+## Métodos de envío
+
+Ofrecemos varias opciones de envío para satisfacer sus necesidades:
+
+- Envío estándar (5-7 días hábiles)
+- Envío exprés (2-3 días hábiles)
+- Envío prioritario (1-2 días hábiles)
+
+## Costos de envío
+
+Los costos de envío se calculan en función del destino, peso y dimensiones de los artículos en su pedido. El costo exacto de envío se mostrará durante el proceso de pago antes del pago.
+
+## Plazos de entrega
+
+Los plazos de entrega son estimaciones y pueden variar según su ubicación, despacho de aduanas (para pedidos internacionales) y otros factores fuera de nuestro control.
+
+## Seguimiento de pedidos
+
+Una vez que su pedido ha sido enviado, recibirá un correo electrónico de confirmación con información de seguimiento. Puede utilizar esta información para rastrear el estado y la ubicación de su paquete.
+
+## Envío internacional
+
+Para pedidos internacionales, tenga en cuenta que:
+
+- Pueden aplicarse derechos de aduana, impuestos o tarifas adicionales
+- Los tiempos de entrega pueden ser más largos debido al procesamiento aduanero
+- Algunos productos pueden no estar disponibles para envío internacional debido a restricciones regulatorias
+
+## Problemas de entrega
+
+Si encuentra algún problema con su entrega, como:
+
+- Paquetes dañados
+- Artículos faltantes
+- Retrasos significativos en la entrega
+
+Póngase en contacto con nuestro equipo de servicio al cliente inmediatamente, y trabajaremos para resolver el problema con prontitud.
+`
   },
-];
+  returnPolicy: {
+    title: "Política de Devoluciones",
+    content: `
+# Política de Devoluciones
+
+Última actualización: 4 de abril de 2025
+
+## Elegibilidad para devoluciones
+
+Puede devolver la mayoría de los artículos nuevos y sin usar dentro de los 30 días posteriores a la entrega para obtener un reembolso completo. Para ser elegible para una devolución, su artículo debe estar:
+
+- En el embalaje original
+- Sin usar y en las mismas condiciones en que lo recibió
+- Acompañado del recibo original o prueba de compra
+
+## Artículos no retornables
+
+Algunos artículos no pueden ser devueltos, incluyendo:
+
+- Productos digitales (software, libros electrónicos, etc.)
+- Artículos personalizados o hechos a medida
+- Artículos marcados como venta final o liquidación
+- Productos perecederos
+
+## Proceso de devolución
+
+Para iniciar una devolución:
+
+1. Contacte a nuestro equipo de servicio al cliente para solicitar una autorización de devolución
+2. Empaque el artículo de forma segura con todos los materiales originales
+3. Incluya el formulario de autorización de devolución en su paquete
+4. Envíe el paquete a la dirección proporcionada por nuestro equipo de servicio al cliente
+
+## Reembolsos
+
+Una vez que recibamos e inspeccionemos su devolución, le notificaremos sobre el estado de su reembolso. Si se aprueba, su reembolso se procesará dentro de 5-7 días hábiles. El reembolso se acreditará a su método de pago original.
+
+## Intercambios
+
+Si necesita cambiar un artículo por el mismo producto, contacte a nuestro equipo de servicio al cliente para obtener orientación sobre el proceso de intercambio.
+
+## Artículos dañados o defectuosos
+
+Si recibe un artículo dañado o defectuoso, contáctenos inmediatamente. Organizaremos un reemplazo o reembolso sin costo adicional para usted.
+`
+  },
+  about: {
+    title: "Sobre Nosotros",
+    content: `
+# Sobre Nuestra Empresa
+
+## Nuestra Misión
+
+Nuestra misión es proporcionar soluciones innovadoras de IA que permitan a empresas e individuos resolver problemas complejos, aumentar la eficiencia y descubrir nuevas oportunidades a través de tecnología de vanguardia.
+
+## Nuestra Historia
+
+Fundada en 2023, nuestra empresa comenzó con un pequeño equipo de investigadores e ingenieros de IA apasionados por hacer que la inteligencia artificial sea más accesible y útil. Desde entonces, hemos crecido hasta convertirnos en una organización global que atiende a clientes en diversas industrias.
+
+## Nuestro Equipo
+
+Nuestro diverso equipo reúne experiencia de múltiples disciplinas:
+
+- Especialistas en IA y Aprendizaje Automático
+- Ingenieros de software y desarrolladores
+- Diseñadores de hardware
+- Profesionales de UX/UI
+- Expertos en dominios industriales
+- Especialistas en éxito del cliente
+
+## Nuestro Enfoque
+
+Creemos en:
+
+- Desarrollar soluciones de IA que sean tanto potentes como éticas
+- Crear tecnología que complemente las capacidades humanas
+- Construir productos con seguridad y privacidad por diseño
+- Mantener transparencia en cómo operan nuestros sistemas
+- Innovar continuamente basándonos en comentarios de clientes e investigación emergente
+
+## Nuestro Impacto
+
+Nuestras soluciones han ayudado a organizaciones a:
+
+- Reducir costos operativos mediante la automatización de tareas rutinarias
+- Obtener insights de datos complejos
+- Mejorar experiencias de clientes a través de personalización
+- Resolver problemas previamente intratables
+- Construir sistemas más sostenibles y eficientes
+
+## Contáctenos
+
+Damos la bienvenida a consultas de clientes potenciales, socios y talentos interesados en unirse a nuestro equipo.
+
+Correo electrónico: info@example.com
+Teléfono: +1 (555) 123-4567
+Sede central: 123 AI Plaza, Tech City, CA 94000
+`
+  },
+  contact: {
+    title: "Contacto",
+    content: `
+# Contáctenos
+
+## Atención al Cliente
+
+Nuestro dedicado equipo de soporte está disponible para ayudarle con cualquier pregunta, problema o comentario.
+
+**Correo electrónico:** soporte@example.com
+**Teléfono:** +1 (555) 123-4567
+**Horario:** Lunes-Viernes, 9:00 AM - 6:00 PM (EST)
+
+## Consultas de Ventas
+
+¿Interesado en nuestros productos o soluciones para su negocio?
+
+**Correo electrónico:** ventas@example.com
+**Teléfono:** +1 (555) 987-6543
+**Horario:** Lunes-Viernes, 9:00 AM - 7:00 PM (EST)
+
+## Oficina Corporativa
+
+123 AI Plaza
+Tech City, CA 94000
+Estados Unidos
+
+## Soporte Técnico
+
+Para asistencia técnica con nuestros productos:
+
+**Correo electrónico:** soportetecnico@example.com
+**Horario:** 24/7 para problemas críticos
+
+## Conéctese Con Nosotros
+
+- [Twitter](https://twitter.com)
+- [LinkedIn](https://linkedin.com)
+- [Facebook](https://facebook.com)
+- [YouTube](https://youtube.com)
+
+## Comentarios
+
+Valoramos sus comentarios y nos esforzamos continuamente por mejorar nuestros productos y servicios. Por favor, comparta sus pensamientos, sugerencias o preocupaciones con nosotros en comentarios@example.com.
+`
+  }
+};

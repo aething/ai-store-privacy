@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { useLocale } from "@/context/LocaleContext";
-import { getLocalizedInfoPageById } from "@/locales/infopages";
+import { getLocalizedInfoPageById, InfoPageId } from "@/locales/infopages";
 import SwipeBack from "@/components/SwipeBack";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Home, ChevronLeft } from "lucide-react";
+import { Home, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ReactMarkdown from "react-markdown";
 
 export default function InfoPage() {
   const [, setLocation] = useLocation();
@@ -27,7 +28,8 @@ export default function InfoPage() {
     }
   }, [showSwipeHint]);
 
-  const infoPage = params && getLocalizedInfoPageById(parseInt(params.id, 10), currentLocale);
+  // Получаем локализованное содержимое страницы
+  const infoPage = params?.id && getLocalizedInfoPageById(params.id as InfoPageId, currentLocale);
 
   // Функция сброса прокрутки (вынесена отдельно для повторного использования)
   const resetScrollPosition = () => {
@@ -121,13 +123,11 @@ export default function InfoPage() {
           {/* Якорь для верхней части контента */}
           <div id="content-top" ref={contentRef}></div>
           
-          <h1 className="text-2xl font-bold mb-2">{infoPage.title}</h1>
-          <p className="text-gray-500 mb-6">{infoPage.description}</p>
+          <h1 className="text-2xl font-bold mb-6">{infoPage.title}</h1>
           
-          <div 
-            className="prose max-w-none" 
-            dangerouslySetInnerHTML={{ __html: infoPage.content }} 
-          />
+          <div className="prose max-w-none">
+            <ReactMarkdown>{infoPage.content}</ReactMarkdown>
+          </div>
           
           <div className="mt-8 flex justify-center">
             <Button

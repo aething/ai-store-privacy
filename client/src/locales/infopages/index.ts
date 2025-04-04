@@ -1,34 +1,61 @@
-import { InfoPage } from "@/types";
-// Импортируем все локализованные файлы с информационными страницами
-import { en } from "./en";
-import { de } from "./de"; 
-import { es } from "./es";
-import { fr } from "./fr";
-import { it } from "./it";
-import { ja } from "./ja";
-import { zh } from "./zh";
+import en from './en';
+import de from './de';
+import es from './es';
+import fr from './fr';
+import it from './it';
+import ja from './ja';
+import zh from './zh';
 
-export const infoPageTranslations: Record<string, InfoPage[]> = {
+export interface InfoPageTranslations {
+  title: string;
+  content: string;
+}
+
+export interface InfoPages {
+  privacyPolicy: InfoPageTranslations;
+  termsOfService: InfoPageTranslations;
+  deliveryPolicy: InfoPageTranslations;
+  returnPolicy: InfoPageTranslations;
+  about: InfoPageTranslations;
+  contact: InfoPageTranslations;
+}
+
+export type InfoPageId = keyof InfoPages;
+
+// Fallback to English if specific language isn't available yet
+const infopages = {
   en,
-  de,
-  es,
-  fr,
-  it,
-  ja,
-  zh
+  de: de || en,
+  es: es || en,
+  fr: fr || en,
+  it: it || en,
+  ja: ja || en,
+  zh: zh || en,
 };
 
 /**
- * Получить информационную страницу по ID и локали
+ * Gets localized information page content based on the page ID and language
  * 
- * @param id ID информационной страницы
- * @param locale Код языка (en, de, fr, ...)
- * @returns Локализованная информационная страница или undefined если не найдена
+ * @param pageId The ID of the information page
+ * @param language The language code (e.g., 'en', 'de', 'fr')
+ * @returns The localized title and content
  */
-export const getLocalizedInfoPageById = (id: number, locale: string = "en"): InfoPage | undefined => {
-  // Если локаль не существует, используем английский по умолчанию
-  const pages = infoPageTranslations[locale] || infoPageTranslations.en;
+export const getLocalizedInfoPageById = (
+  pageId: InfoPageId,
+  language: string = 'en'
+): InfoPageTranslations => {
+  // Check if the requested language exists
+  const lang = (language in infopages) ? language : 'en';
   
-  // Найти страницу по ID
-  return pages.find(page => page.id === id);
+  // Get the info page in the requested language
+  const localizedInfoPage = infopages[lang as keyof typeof infopages][pageId];
+  
+  if (!localizedInfoPage) {
+    // Fallback to English if the page doesn't exist in the requested language
+    return infopages.en[pageId];
+  }
+  
+  return localizedInfoPage;
 };
+
+export default infopages;

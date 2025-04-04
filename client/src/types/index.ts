@@ -2,19 +2,17 @@ import { productUITranslations, en } from '@/locales/products/ui';
 
 export interface Product {
   id: number;
-  name: string;
+  title: string;
   description: string;
   price: number;
+  priceEUR: number;
   imageUrl: string;
-  coverImage?: string;
-  specs?: Record<string, string>;
-  aiCapabilities?: string;
+  category: string;
+  features?: string[];
+  specifications?: string[];
+  hardwareInfo?: string;
   softwareInfo?: string;
-  isSubscription?: boolean;
-  tags?: string[];
-  version?: string;
-  available?: boolean;
-  stripeId?: string;
+  stripeProductId?: string;
   currency?: string;
 }
 
@@ -28,18 +26,20 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
+  name?: string;
+  phone?: string;
   country?: string;
-  phoneNumber?: string;
-  address?: string;
-  emailVerified?: boolean;
-  isAdmin?: boolean;
+  street?: string;
+  house?: string;
+  apartment?: string;
+  language?: string;
+  isVerified?: boolean;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  verificationToken?: string;
   shippingAddress?: ShippingAddress;
   billingAddress?: BillingAddress;
   orders?: Order[];
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 export interface ShippingAddress {
@@ -116,6 +116,21 @@ export interface LocalizedProduct {
   softwareInfo?: string;
   learnMoreTitle?: string;
   learnMoreContent?: string;
+}
+
+export interface ProductTranslation {
+  title: string;
+  description: string;
+  features: string[];
+  specifications: {
+    [key: string]: string;
+  };
+  hardwareInfo?: string[];
+  softwareInfo?: string[];
+}
+
+export interface ProductTranslations {
+  [key: number]: ProductTranslation;
 }
 
 export interface ProductUITranslations {
