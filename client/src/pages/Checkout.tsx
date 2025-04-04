@@ -380,11 +380,7 @@ const CheckoutForm = ({
         <h3 className="text-center font-bold text-gray-800 text-base mb-3 border-b pb-2">
           {product?.title || 'Your Purchase'}
         </h3>
-        {/* Добавляем количество для отображения */}
-        <div className="quantity-info text-sm text-gray-500 mb-1">
-          {/* Отображаем количество только если оно больше 1 */}
-          {quantity > 1 && <div>Quantity: {quantity}</div>}
-        </div>
+        {/* Количество скрыто по просьбе пользователя */}
         
         <div className="flex justify-between items-center mb-2 text-gray-700">
           <span>{quantity > 1 ? 'Subtotal:' : 'Price:'}</span>
