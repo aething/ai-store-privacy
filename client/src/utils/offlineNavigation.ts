@@ -50,26 +50,26 @@ export function initOfflineNavigation() {
 }
 
 /**
- * Проверяет, доступен ли маршрут в оффлайн-режиме
+ * Checks if a route is available in offline mode
  */
 export function isRouteAvailableOffline(route: string): boolean {
-  // Если маршрут точно совпадает с одним из доступных оффлайн-маршрутов
+  // If the route exactly matches one of the available offline routes
   if (OFFLINE_ROUTES.includes(route)) {
     return true;
   }
   
-  // Проверяем маршруты с параметрами
+  // Check routes with parameters
   for (const offlineRoute of OFFLINE_ROUTES) {
     if (offlineRoute.includes(':') && route.startsWith(offlineRoute.split(':')[0])) {
       return true;
     }
   }
   
-  // Проверяем, есть ли у нас кэшированные данные для этого продукта
+  // Check if we have cached data for this product
   if (route.startsWith('/product/') && OFFLINE_DATA.products.length > 0) {
     const productId = route.split('/').pop();
     
-    // Если есть ID продукта и он есть в кэше
+    // If there is a product ID and it exists in the cache
     if (productId && OFFLINE_DATA.products.some(p => p.id.toString() === productId)) {
       return true;
     }
@@ -79,7 +79,7 @@ export function isRouteAvailableOffline(route: string): boolean {
 }
 
 /**
- * Отправляет событие об изменении состояния сети
+ * Dispatches an event about network status change
  */
 function dispatchNetworkEvent(isOnline: boolean) {
   const event = new CustomEvent('network-status-change', {
@@ -87,7 +87,7 @@ function dispatchNetworkEvent(isOnline: boolean) {
   });
   window.dispatchEvent(event);
   
-  // Обновляем состояние документа, добавляя/удаляя класс "offline"
+  // Update document state by adding/removing "offline" class
   if (isOnline) {
     document.documentElement.classList.remove('offline');
   } else {
@@ -96,7 +96,7 @@ function dispatchNetworkEvent(isOnline: boolean) {
 }
 
 /**
- * Хук для отслеживания состояния сети
+ * Hook for tracking network status
  */
 export function useNetworkStatus() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -105,11 +105,11 @@ export function useNetworkStatus() {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     
-    // Добавляем слушатели событий
+    // Add event listeners
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
-    // Добавляем слушатель для внутреннего события
+    // Add listener for internal event
     const handleNetworkStatusChange = (event: CustomEvent) => {
       setIsOnline(event.detail.online);
     };
@@ -127,81 +127,81 @@ export function useNetworkStatus() {
 }
 
 /**
- * Сохраняет данные в localStorage для оффлайн-режима
+ * Saves data to localStorage for offline mode
  */
 export function saveOfflineData() {
   try {
-    // Сохраняем данные по каждому типу отдельно для более гибкого обновления
+    // Save data by type separately for more flexible updates
     localStorage.setItem('offline_products', JSON.stringify(OFFLINE_DATA.products));
     
     if (OFFLINE_DATA.user) {
       localStorage.setItem('offline_user', JSON.stringify(OFFLINE_DATA.user));
     }
     
-    console.log('[Offline Navigation] Данные сохранены в localStorage');
+    console.log('[Offline Navigation] Data saved to localStorage');
     return true;
   } catch (error) {
-    console.error('[Offline Navigation] Ошибка при сохранении данных:', error);
+    console.error('[Offline Navigation] Error saving data:', error);
     return false;
   }
 }
 
 /**
- * Загружает кэшированные данные из localStorage
+ * Loads cached data from localStorage
  */
 export function loadOfflineData() {
   try {
-    // Загружаем данные о продуктах
+    // Load product data
     const productsData = localStorage.getItem('offline_products');
     if (productsData) {
       OFFLINE_DATA.products = JSON.parse(productsData);
-      console.log(`[Offline Navigation] Загружено ${OFFLINE_DATA.products.length} продуктов из кэша`);
+      console.log(`[Offline Navigation] Loaded ${OFFLINE_DATA.products.length} products from cache`);
     }
     
-    // Загружаем данные пользователя
+    // Load user data
     const userData = localStorage.getItem('offline_user');
     if (userData) {
       OFFLINE_DATA.user = JSON.parse(userData);
-      console.log(`[Offline Navigation] Загружены данные пользователя из кэша (${OFFLINE_DATA.user.username})`);
+      console.log(`[Offline Navigation] Loaded user data from cache (${OFFLINE_DATA.user.username})`);
     }
     
     return true;
   } catch (error) {
-    console.error('[Offline Navigation] Ошибка при загрузке данных:', error);
+    console.error('[Offline Navigation] Error loading data:', error);
     return false;
   }
 }
 
 /**
- * Кэширует данные для оффлайн-режима
+ * Caches data for offline mode
  */
 export function cacheDataForOffline(dataType: 'products' | 'user', data: any) {
   if (dataType === 'products' && Array.isArray(data)) {
     OFFLINE_DATA.products = data;
-    console.log(`[Offline Navigation] Кэшировано ${data.length} продуктов`);
+    console.log(`[Offline Navigation] Cached ${data.length} products`);
   } else if (dataType === 'user' && data) {
     OFFLINE_DATA.user = data;
-    console.log(`[Offline Navigation] Кэширован пользователь (${data.username})`);
+    console.log(`[Offline Navigation] Cached user (${data.username})`);
   }
   
-  // Сохраняем обновленные данные в localStorage
+  // Save updated data to localStorage
   saveOfflineData();
   
   return true;
 }
 
 /**
- * Очищает кэш оффлайн-данных
+ * Clears offline data cache
  */
 export function clearOfflineData() {
   OFFLINE_DATA.products = [];
   OFFLINE_DATA.user = null;
   
-  // Удаляем данные из localStorage
+  // Remove data from localStorage
   localStorage.removeItem('offline_products');
   localStorage.removeItem('offline_user');
   
-  console.log('[Offline Navigation] Кэш оффлайн-данных очищен');
+  console.log('[Offline Navigation] Offline data cache cleared');
   
   return true;
 }
