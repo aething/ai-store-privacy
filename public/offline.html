@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Автономный режим - AI Store</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      background-color: #f8f9fa;
+      color: #333;
+      text-align: center;
+    }
+    
+    .offline-container {
+      max-width: 600px;
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    .offline-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      color: #6200ee;
+    }
+    
+    h1 {
+      margin-top: 0;
+      color: #6200ee;
+      font-size: 28px;
+    }
+    
+    p {
+      margin-bottom: 24px;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #555;
+    }
+    
+    .button {
+      display: inline-block;
+      background-color: #6200ee;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.2s;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .button:hover {
+      background-color: #5000d1;
+    }
+    
+    .secondary-button {
+      background-color: transparent;
+      color: #6200ee;
+      border: 1px solid #6200ee;
+      margin-left: 10px;
+    }
+    
+    .secondary-button:hover {
+      background-color: #f0e6ff;
+    }
+    
+    .cached-content {
+      margin-top: 30px;
+      border-top: 1px solid #eee;
+      padding-top: 20px;
+      text-align: left;
+    }
+    
+    .product-list {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    
+    .product-item {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .product-title {
+      font-weight: 600;
+      margin: 10px 0 5px;
+      font-size: 14px;
+    }
+    
+    .product-price {
+      color: #6200ee;
+      font-weight: 600;
+    }
+    
+    @media (max-width: 600px) {
+      .offline-container {
+        padding: 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      .button-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .button {
+        margin-bottom: 10px;
+      }
+      
+      .secondary-button {
+        margin-left: 0;
+      }
+      
+      .product-list {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-icon">📶</div>
+    <h1>Вы находитесь в автономном режиме</h1>
+    <p>Кажется, у вас нет соединения с интернетом. Некоторые функции могут быть недоступны.</p>
+    
+    <div class="button-container">
+      <button onclick="tryReconnect()" class="button">Проверить соединение</button>
+      <button onclick="goToHome()" class="button secondary-button">Просмотр кэшированного контента</button>
+    </div>
+    
+    <div id="cached-content" class="cached-content" style="display: none;">
+      <h2>Кэшированные продукты</h2>
+      <p id="no-cache-message">Нет доступных кэшированных продуктов.</p>
+      <ul id="product-list" class="product-list"></ul>
+    </div>
+  </div>
+  
+  <script>
+    // Проверка соединения
+    function tryReconnect() {
+      window.location.reload();
+    }
+    
+    // Переход на главную страницу
+    function goToHome() {
+      window.location.href = '/';
+    }
+    
+    // Загрузка кэшированных данных
+    window.addEventListener('load', function() {
+      // Попытка загрузить кэшированные продукты из localStorage
+      try {
+        const cachedProductsJSON = localStorage.getItem('offline_products');
+        if (cachedProductsJSON) {
+          const cachedProducts = JSON.parse(cachedProductsJSON);
+          if (cachedProducts && cachedProducts.length > 0) {
+            displayCachedProducts(cachedProducts);
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке кэшированных продуктов:', error);
+      }
+    });
+    
+    // Отображение кэшированных продуктов
+    function displayCachedProducts(products) {
+      const productList = document.getElementById('product-list');
+      const noCacheMessage = document.getElementById('no-cache-message');
+      const cachedContent = document.getElementById('cached-content');
+      
+      if (products && products.length > 0) {
+        noCacheMessage.style.display = 'none';
+        cachedContent.style.display = 'block';
+        
+        productList.innerHTML = '';
+        
+        products.forEach(function(product) {
+          const listItem = document.createElement('li');
+          listItem.className = 'product-item';
+          
+          const title = document.createElement('div');
+          title.className = 'product-title';
+          title.textContent = product.title;
+          
+          const price = document.createElement('div');
+          price.className = 'product-price';
+          // Определение валюты в зависимости от кэшированных настроек пользователя
+          const currency = localStorage.getItem('user_currency') || 'USD';
+          const priceValue = currency.toLowerCase() === 'eur' ? product.priceEUR : product.priceUSD;
+          const currencySymbol = currency.toLowerCase() === 'eur' ? '€' : '$';
+          price.textContent = currencySymbol + (priceValue / 100).toFixed(2);
+          
+          listItem.appendChild(title);
+          listItem.appendChild(price);
+          productList.appendChild(listItem);
+        });
+      }
+    }
+    
+    // Проверка состояния сети
+    window.addEventListener('online', function() {
+      document.querySelector('.offline-icon').textContent = '✅';
+      document.querySelector('h1').textContent = 'Соединение восстановлено';
+      document.querySelector('p').textContent = 'Ваше соединение с интернетом восстановлено. Вы можете продолжить использование приложения в полном объеме.';
+    });
+  </script>
+</body>
+</html>
