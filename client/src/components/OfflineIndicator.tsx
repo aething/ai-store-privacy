@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useIsOnline } from '../hooks/useIsOnline';
 
 /**
- * Компонент индикатора офлайн режима.
- * Показывает информацию о состоянии подключения и доступности оффлайн-режима.
+ * Offline indicator component.
+ * Shows information about connection status and offline mode availability.
  */
 const OfflineIndicator: React.FC = () => {
   const isOnline = useIsOnline();
@@ -12,13 +12,13 @@ const OfflineIndicator: React.FC = () => {
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
-    // Проверяем состояние Service Worker
+    // Check Service Worker status
     const checkServiceWorker = () => {
       const isActive = !!navigator.serviceWorker && !!navigator.serviceWorker.controller;
       setServiceWorkerActive(isActive);
       
       if (isActive && navigator.serviceWorker.controller) {
-        // Запрашиваем версию у Service Worker
+        // Request version from Service Worker
         const messageChannel = new MessageChannel();
         
         messageChannel.port1.onmessage = (event) => {
@@ -34,13 +34,13 @@ const OfflineIndicator: React.FC = () => {
       }
     };
     
-    // Проверяем состояние Service Worker при загрузке
+    // Check Service Worker status on load
     checkServiceWorker();
     
-    // И периодически проверяем
+    // And check periodically 
     const intervalId = setInterval(checkServiceWorker, 10000);
 
-    // Обработчик сообщений от Service Worker
+    // Message handler for Service Worker
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === 'SW_ACTIVATED') {
         setServiceWorkerActive(true);
@@ -56,7 +56,7 @@ const OfflineIndicator: React.FC = () => {
     };
   }, []);
 
-  // Не показываем индикатор, если онлайн и не в режиме отладки
+  // Don't show indicator if online and not in debug mode
   if (isOnline && !showDetails && !window.location.search.includes('debug=true')) {
     return null;
   }
@@ -74,39 +74,39 @@ const OfflineIndicator: React.FC = () => {
       <div>
         {!isOnline ? (
           <div>
-            <p className="font-medium">Офлайн режим</p>
-            <p className="text-sm text-gray-600">Приложение работает без подключения к интернету</p>
+            <p className="font-medium">Offline Mode</p>
+            <p className="text-sm text-gray-600">App is working without internet connection</p>
             {serviceWorkerActive && (
               <p className="text-xs text-gray-500">
-                <span id="service-worker-status">Service Worker активен</span>
+                <span id="service-worker-status">Service Worker active</span>
                 {serviceWorkerVersion && ` (v${serviceWorkerVersion})`}
               </p>
             )}
           </div>
         ) : (
           <div>
-            <p className="font-medium">Онлайн режим</p>
+            <p className="font-medium">Online Mode</p>
             <p className="text-sm text-gray-600">
               {serviceWorkerActive 
-                ? 'Оффлайн-режим доступен' 
-                : 'Оффлайн-режим не активирован'}
+                ? 'Offline mode available' 
+                : 'Offline mode not activated'}
             </p>
             {serviceWorkerActive && (
               <p className="text-xs text-gray-500">
-                <span id="service-worker-status">Service Worker активен</span>
+                <span id="service-worker-status">Service Worker active</span>
                 {serviceWorkerVersion && ` (v${serviceWorkerVersion})`}
               </p>
             )}
           </div>
         )}
         
-        {/* Дополнительная информация в режиме отладки */}
+        {/* Debug information */}
         {showDetails && (
           <div className="text-xs mt-2 pt-2 border-t border-gray-200">
-            <p>Статус: {isOnline ? 'Онлайн' : 'Оффлайн'}</p>
-            <p>SW: {serviceWorkerActive ? 'Активен' : 'Неактивен'}</p>
-            <p>Контроллер: {navigator.serviceWorker?.controller ? 'Да' : 'Нет'}</p>
-            <p className="mt-1 text-[10px] opacity-70 italic">Нажмите, чтобы скрыть</p>
+            <p>Status: {isOnline ? 'Online' : 'Offline'}</p>
+            <p>SW: {serviceWorkerActive ? 'Active' : 'Inactive'}</p>
+            <p>Controller: {navigator.serviceWorker?.controller ? 'Yes' : 'No'}</p>
+            <p className="mt-1 text-[10px] opacity-70 italic">Tap to hide</p>
           </div>
         )}
       </div>
