@@ -179,10 +179,12 @@ export function clearOfflineData() {
   return true;
 }
 
+// We no longer need to export the hook from here
+// The OfflineNavigationProvider now uses useIsOnline directly
+
 export default {
   initOfflineNavigation,
   isRouteAvailableOffline,
-  // useNetworkStatus moved to dedicated hook file
   saveOfflineData,
   loadOfflineData,
   cacheDataForOffline,

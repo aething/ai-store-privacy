@@ -1,3 +1,4 @@
+import React from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
@@ -53,24 +54,83 @@ function Router() {
 }
 
 function App() {
+  // For initial Google Play Store release, we'll disable the offline navigation
+  // if it causes React errors, since this is a non-critical feature that can
+  // be fixed in a future update
+  const [offlineNavigationError, setOfflineNavigationError] = React.useState(false);
+  
+  React.useEffect(() => {
+    // Check if we have previously encountered an error
+    const hasError = localStorage.getItem('offline_navigation_error') === 'true';
+    if (hasError) {
+      setOfflineNavigationError(true);
+    }
+    
+    // Add error handler
+    const errorHandler = (error: ErrorEvent) => {
+      // If error mentions OfflineNavigation, disable the feature
+      if (error.message && (
+        error.message.includes('OfflineNavigation') || 
+        error.message.includes('useState') ||
+        error.message.includes('useEffect')
+      )) {
+        console.warn('Disabling offline navigation due to errors:', error.message);
+        localStorage.setItem('offline_navigation_error', 'true');
+        setOfflineNavigationError(true);
+      }
+    };
+    
+    window.addEventListener('error', errorHandler);
+    
+    return () => {
+      window.removeEventListener('error', errorHandler);
+    };
+  }, []);
+  
+  // With offline navigation for the full experience
+  if (!offlineNavigationError) {
+    try {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <OfflineNavigationProvider>
+            <AppProvider>
+              <LocaleProvider>
+                {/* ScrollManager tracks URL changes and manages scrolling */}
+                <ScrollManager />
+                
+                {/* Navigation handler for offline mode */}
+                <OfflineNavigationHandler />
+                
+                <Layout>
+                  <Router />
+                </Layout>
+                <Toaster />
+              </LocaleProvider>
+            </AppProvider>
+          </OfflineNavigationProvider>
+        </QueryClientProvider>
+      );
+    } catch (error) {
+      console.error('Error rendering with OfflineNavigationProvider:', error);
+      setOfflineNavigationError(true);
+      // Continue to fallback rendering below
+    }
+  }
+  
+  // Fallback rendering without offline navigation
   return (
     <QueryClientProvider client={queryClient}>
-      <OfflineNavigationProvider>
-        <AppProvider>
-          <LocaleProvider>
-            {/* ScrollManager tracks URL changes and manages scrolling */}
-            <ScrollManager />
-            
-            {/* Navigation handler for offline mode */}
-            <OfflineNavigationHandler />
-            
-            <Layout>
-              <Router />
-            </Layout>
-            <Toaster />
-          </LocaleProvider>
-        </AppProvider>
-      </OfflineNavigationProvider>
+      <AppProvider>
+        <LocaleProvider>
+          {/* ScrollManager tracks URL changes and manages scrolling */}
+          <ScrollManager />
+          
+          <Layout>
+            <Router />
+          </Layout>
+          <Toaster />
+        </LocaleProvider>
+      </AppProvider>
     </QueryClientProvider>
   );
 }

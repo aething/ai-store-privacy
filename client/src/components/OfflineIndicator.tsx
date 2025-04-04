@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useNetworkStatus } from '../utils/offlineNavigation';
+import { useIsOnline } from '../hooks/useIsOnline';
 
 /**
  * Компонент индикатора офлайн режима.
  * Показывает информацию о состоянии подключения и доступности оффлайн-режима.
  */
 const OfflineIndicator: React.FC = () => {
-  const isOnline = useNetworkStatus();
+  const isOnline = useIsOnline();
   const [serviceWorkerActive, setServiceWorkerActive] = useState(false);
   const [serviceWorkerVersion, setServiceWorkerVersion] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
