@@ -7,8 +7,6 @@
  * 3. Мониторинга состояния сети
  */
 
-import { useState, useEffect } from 'react';
-
 // Глобальное хранилище кэшированных данных
 export const OFFLINE_DATA = {
   products: [] as any[],
@@ -185,8 +183,8 @@ export function clearOfflineData() {
   return true;
 }
 
-// Для обратной совместимости, экспортируем хук из Provider
-export { useNetworkStatus } from '../components/OfflineNavigationProvider';
+// Хук useNetworkStatus перенесен в OfflineNavigationProvider и использовать его 
+// нужно оттуда напрямую, чтобы избежать циклической зависимости
 
 export default {
   initOfflineNavigation,

@@ -22,9 +22,23 @@ const OfflineNavigationContext = createContext<OfflineNavigationContextType>({
 // Хук для использования всего контекста оффлайн-навигации
 export const useOfflineNavigation = () => useContext(OfflineNavigationContext);
 
-// Хук только для статуса сети (был перенесен из utils/offlineNavigation.ts)
+// Хук только для статуса сети (независимый от useOfflineNavigation для избежания циклических зависимостей)
 export function useNetworkStatus() {
-  const { isOnline } = useOfflineNavigation();
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+  
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+  
   return isOnline;
 }
 
