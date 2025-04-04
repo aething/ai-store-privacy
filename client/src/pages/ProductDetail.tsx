@@ -272,7 +272,19 @@ export default function ProductDetail() {
                   <div className="bg-blue-50/15 rounded-lg p-4 border-l-2 border-blue-400">
                     <h3 className="text-lg font-semibold text-blue-800 mb-4">{localizedProduct.hardwareSpecsLabel || uiText.hardwareSpecsHeading}</h3>
                     <div className="space-y-4 text-gray-800">
-                      {product.hardwareInfo && product.hardwareInfo.split('. ').map((paragraph, index) => (
+                      {localizedProduct.hardwareInfo ? (
+                        typeof localizedProduct.hardwareInfo === 'string' ? 
+                          localizedProduct.hardwareInfo.split('. ').map((paragraph, index) => (
+                            paragraph.trim() && (
+                              <p key={index} className="text-gray-700">
+                                {paragraph.trim() + (paragraph.endsWith('.') ? '' : '.')}
+                              </p>
+                            )
+                          ))
+                        : localizedProduct.hardwareInfo.map((paragraph, index) => (
+                            <p key={index} className="text-gray-700">{paragraph}</p>
+                          ))
+                      ) : product.hardwareInfo && product.hardwareInfo.split('. ').map((paragraph, index) => (
                         paragraph.trim() && (
                           <p key={index} className="text-gray-700">
                             {paragraph.trim() + (paragraph.endsWith('.') ? '' : '.')}
@@ -411,7 +423,7 @@ export default function ProductDetail() {
                       <h3 className="text-lg font-semibold text-gray-800 mb-3">{uiText.aiPerformance}</h3>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <h4 className="font-medium text-gray-800 mb-2">Deep Learning</h4>
+                          <h4 className="font-medium text-gray-800 mb-2">{uiText.deepLearning || "Deep Learning"}</h4>
                           <ul className="space-y-1 text-sm">
                             <li className="flex items-center gap-2">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
@@ -433,7 +445,7 @@ export default function ProductDetail() {
                         </div>
                         
                         <div>
-                          <h4 className="font-medium text-gray-800 mb-2">Machine Learning</h4>
+                          <h4 className="font-medium text-gray-800 mb-2">{uiText.machineLearning || "Machine Learning"}</h4>
                           <ul className="space-y-1 text-sm">
                             <li className="flex items-center gap-2">
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M5 12l5 5l10 -10"/></svg>
@@ -470,17 +482,17 @@ export default function ProductDetail() {
                         <div className="bg-white rounded p-3 shadow-sm border border-gray-200">
                           <h4 className="font-medium flex items-center gap-2 text-gray-800 mb-1">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 17h6"/><path d="M9 13h6"/></svg>
-                            Model Optimization
+                            {uiText.modelOptimization || "Model Optimization"}
                           </h4>
-                          <p className="text-sm text-gray-600">TensorRT, TF-TRT, and OpenVINO support with INT8 quantization and weight pruning</p>
+                          <p className="text-sm text-gray-600">{uiText.modelOptimizationDesc || "TensorRT, TF-TRT, and OpenVINO support with INT8 quantization and weight pruning"}</p>
                         </div>
                         
                         <div className="bg-white rounded p-3 shadow-sm border border-gray-200">
                           <h4 className="font-medium flex items-center gap-2 text-gray-800 mb-1">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500"><path d="M13 2L3 14h9l-1 8L21 10h-9l1-8z"/></svg>
-                            Real-time Processing
+                            {uiText.realTimeProcessing || "Real-time Processing"}
                           </h4>
-                          <p className="text-sm text-gray-600">Process data streams with latency as low as 15ms for real-time applications</p>
+                          <p className="text-sm text-gray-600">{uiText.realTimeProcessingDesc || "Process data streams with latency as low as 15ms for real-time applications"}</p>
                         </div>
                       </div>
                     </div>
@@ -502,6 +514,14 @@ export default function ProductDetail() {
                 <p className="text-gray-700">
                   {localizedProduct.learnMoreContent}
                 </p>
+                <div className="flex justify-center mt-4">
+                  <button 
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                    onClick={() => navigate(`/info/product-${product.id}`)}
+                  >
+                    {uiText.learnMore}
+                  </button>
+                </div>
               </div>
             )}
           

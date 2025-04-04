@@ -1,35 +1,39 @@
+/**
+ * German (de) checkout translations
+ */
+
 import { CheckoutTranslations } from '@/types';
 
-export const de: CheckoutTranslations = {
+const translations: CheckoutTranslations = {
   // Page title and headers
-  pageTitle: "Zur Kasse",
+  pageTitle: "Kasse",
   yourPurchase: "Ihr Einkauf",
   
   // Form fields
   emailAddress: "E-Mail-Adresse",
-  emailPlaceholder: "beispiel@domain.de",
+  emailPlaceholder: "ihre.email@beispiel.de",
   firstName: "Vorname",
-  firstNamePlaceholder: "Geben Sie Ihren Vornamen ein",
+  firstNamePlaceholder: "Max",
   lastName: "Nachname",
-  lastNamePlaceholder: "Geben Sie Ihren Nachnamen ein",
+  lastNamePlaceholder: "Mustermann",
   phoneNumber: "Telefonnummer",
-  phonePlaceholder: "+49 XXX XXXXXXX",
-  companyName: "Firma",
-  companyNameOptional: "Firma (optional)",
-  companyPlaceholder: "Firmenname",
+  phonePlaceholder: "+49 123 456789",
+  companyName: "Firmenname",
+  companyNameOptional: "Firmenname (Optional)",
+  companyPlaceholder: "Ihre Firma GmbH",
   
   // Shipping address
   shippingAddress: "Lieferadresse",
   fullName: "Vollständiger Name",
-  fullNamePlaceholder: "Vollständigen Namen eingeben",
+  fullNamePlaceholder: "Max Mustermann",
   country: "Land",
   selectCountry: "Land auswählen",
   address: "Adresse",
-  addressPlaceholder: "Straße, Hausnummer, etc.",
-  zipCode: "Postleitzahl",
-  zipPlaceholder: "z.B. 10115",
+  addressPlaceholder: "Musterstraße 123",
+  zipCode: "PLZ",
+  zipPlaceholder: "12345",
   city: "Stadt",
-  cityPlaceholder: "z.B. Berlin",
+  cityPlaceholder: "Berlin",
   
   // Order summary
   subtotal: "Zwischensumme",
@@ -40,18 +44,20 @@ export const de: CheckoutTranslations = {
   // Payment related
   paymentInformation: "Zahlungsinformationen",
   cardInformation: "Karteninformationen",
-  paymentMethods: "Zahlungsmethoden",
+  paymentMethods: "Zahlungsarten",
   payButton: "Bezahlen",
-  processingPayment: "Zahlung wird bearbeitet...",
+  processingPayment: "Zahlung wird verarbeitet...",
   
   // Errors
   paymentError: "Zahlungsfehler",
-  paymentNotLoadedError: "Zahlungsinformationen konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+  paymentNotLoadedError: "Zahlungssystem konnte nicht geladen werden. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support.",
   missingInformation: "Fehlende Informationen",
-  missingNameError: "Bitte geben Sie Ihren vollständigen Namen an",
-  missingPhoneError: "Bitte geben Sie eine gültige Telefonnummer an",
-  missingShippingError: "Bitte vervollständigen Sie alle Versandinformationen",
+  missingNameError: "Bitte geben Sie Ihren Namen an",
+  missingPhoneError: "Bitte geben Sie Ihre Telefonnummer an",
+  missingShippingError: "Bitte geben Sie Ihre Lieferadresse an",
   paymentFailedTitle: "Zahlung fehlgeschlagen",
-  paymentFailedDefault: "Wir konnten Ihre Zahlung nicht verarbeiten. Bitte überprüfen Sie die Details und versuchen Sie es erneut.",
+  paymentFailedDefault: "Bei der Verarbeitung Ihrer Zahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
   unexpectedError: "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
 };
+
+export default translations;
