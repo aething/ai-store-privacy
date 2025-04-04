@@ -1,220 +1,137 @@
-# План тестирования Android-приложения перед публикацией
+# Android Application Test Plan
 
-## 1. Тесты налогообложения по странам
+This test plan outlines the comprehensive testing process for the AI Store Android application before submission to Google Play Store.
 
-### 1.1 Тесты для стран ЕС
-- [ ] **Германия (DE)**: Проверить отображение НДС 19% (MwSt.)
-  - [ ] Зайти под тестовым пользователем с страной DE
-  - [ ] Проверить, что цены отображаются в EUR
-  - [ ] Проверить, что на странице checkout сумма включает налог 19%
-  - [ ] Проверить, что на чеке правильно указан MwSt. 19%
+## 1. Installation Testing
 
-- [ ] **Франция (FR)**: Проверить отображение НДС 20% (TVA)
-  - [ ] Зайти под тестовым пользователем с страной FR
-  - [ ] Проверить, что цены отображаются в EUR
-  - [ ] Проверить, что на странице checkout сумма включает налог 20%
-  - [ ] Проверить, что на чеке правильно указан TVA 20%
+- [ ] Install the app on various Android versions (6.0, 8.0, 10.0, 12.0, 13.0, 14.0)
+- [ ] Test installation on multiple device types (phone, tablet)
+- [ ] Verify app icon appears correctly on home screen
+- [ ] Verify app can be uninstalled properly
+- [ ] Test update process from previous version (if applicable)
 
-- [ ] **Италия (IT)**: Проверить отображение НДС 22% (IVA)
-  - [ ] Зайти под тестовым пользователем с страной IT
-  - [ ] Проверить, что цены отображаются в EUR
-  - [ ] Проверить, что на странице checkout сумма включает налог 22%
-  - [ ] Проверить, что на чеке правильно указан IVA 22%
+## 2. Functionality Testing
 
-- [ ] **Испания (ES)**: Проверить отображение НДС 21% (IVA)
-  - [ ] Зайти под тестовым пользователем с страной ES
-  - [ ] Проверить, что цены отображаются в EUR
-  - [ ] Проверить, что на странице checkout сумма включает налог 21%
-  - [ ] Проверить, что на чеке правильно указан IVA 21%
+### Core Features
+- [ ] User registration process
+- [ ] Login functionality
+- [ ] Product browsing and search
+- [ ] Product details display
+- [ ] Cart functionality
+- [ ] Checkout process
+- [ ] Payment processing
+- [ ] Order confirmation
 
-### 1.2 Тесты для стран вне ЕС
-- [ ] **США (US)**: Проверить отсутствие налога
-  - [ ] Зайти под тестовым пользователем с страной US
-  - [ ] Проверить, что цены отображаются в USD
-  - [ ] Проверить, что на странице checkout нет дополнительного налога
-  - [ ] Проверить, что на чеке нет строки с налогом
+### Tax Calculation
+- [ ] Verify correct tax calculation for different countries
+- [ ] Test automatic country detection
+- [ ] Verify appropriate currency display
+- [ ] Test tax display in cart and checkout
 
-- [ ] **Великобритания (GB)**: Проверить отображение НДС 20% (VAT)
-  - [ ] Зайти под тестовым пользователем с страной GB
-  - [ ] Проверить, что цены отображаются в GBP
-  - [ ] Проверить, что на странице checkout сумма включает налог 20%
-  - [ ] Проверить, что на чеке правильно указан VAT 20%
+### Offline Functionality
+- [ ] Test app behavior when device is offline
+- [ ] Verify offline indicator appears
+- [ ] Test browsing previously loaded products while offline
+- [ ] Verify appropriate error messages when attempting actions requiring connectivity
+- [ ] Test reconnection behavior when network is restored
 
-## 2. Тесты PWA-функциональности на Android
+## 3. User Interface Testing
 
-### 2.1 Установка и обновление
-- [ ] **Установка приложения**: Проверить процесс установки
-  - [ ] Открыть сайт в Chrome, дождаться появления баннера установки
-  - [ ] Установить как PWA приложение
-  - [ ] Проверить, что иконка появилась на рабочем столе
-  - [ ] Запустить через иконку и убедиться, что приложение открывается
+- [ ] Verify all text is in English
+- [ ] Verify no Russian text or comments remain in UI
+- [ ] Check UI display in both portrait and landscape orientations
+- [ ] Test responsive design on different screen sizes
+- [ ] Verify all buttons and interactive elements are properly sized for touch
+- [ ] Test form inputs and validation
+- [ ] Verify sufficient color contrast for accessibility
+- [ ] Test with different font sizes (device accessibility settings)
 
-- [ ] **Обновление приложения**: Проверить процесс обновления
-  - [ ] Установить более старую версию приложения
-  - [ ] Запустить снова после релиза обновленной версии
-  - [ ] Проверить, что приложение показывает диалог обновления
-  - [ ] Подтвердить обновление и убедиться в успешной установке
+## 4. Performance Testing
 
-### 2.2 Оффлайн-функциональность
-- [ ] **Работа без Интернета**: Проверить оффлайн-режим
-  - [ ] Загрузить приложение при наличии Интернета
-  - [ ] Отключить Интернет (авиарежим)
-  - [ ] Проверить, что приложение запускается и показывает оффлайн-контент
-  - [ ] Проверить, что при попытке оплаты выводится сообщение о необходимости подключения
+- [ ] Measure app startup time
+- [ ] Test scrolling performance
+- [ ] Verify memory usage remains within acceptable limits
+- [ ] Test battery usage during extended sessions
+- [ ] Verify app performance with limited device resources
+- [ ] Test app behavior when device is low on storage
 
-- [ ] **Кэширование данных**: Проверить кэширование
-  - [ ] Просмотреть разные страницы продуктов при наличии Интернета
-  - [ ] Отключить Интернет
-  - [ ] Проверить, что ранее просмотренные страницы доступны из кэша
-  - [ ] Проверить, что непросмотренные страницы показывают оффлайн-сообщение
+## 5. Network Testing
 
-### 2.3 Уведомления и push-сообщения
-- [ ] **Push-уведомления**: Проверить получение уведомлений
-  - [ ] Разрешить push-уведомления при запросе
-  - [ ] Сделать тестовую покупку или действие, которое должно вызвать уведомление
-  - [ ] Убедиться, что уведомление приходит и корректно отображается
-  - [ ] Проверить, что при нажатии на уведомление открывается нужная страница
+- [ ] Test app on different network types (WiFi, 4G, 5G)
+- [ ] Verify behavior during network transitions (WiFi to mobile data)
+- [ ] Test with slow network connections
+- [ ] Verify appropriate timeouts and retry mechanisms
+- [ ] Test behavior when server is unavailable
 
-## 3. Тесты мобильного UX и адаптивности
+## 6. Security Testing
 
-### 3.1 Адаптивность на разных устройствах
-- [ ] **Смартфоны с маленьким экраном**: Проверить на экранах ~4.7-5.5"
-  - [ ] Проверить читаемость всех элементов
-  - [ ] Проверить, что все кнопки и элементы управления удобны для нажатия
-  - [ ] Убедиться в отсутствии горизонтальной прокрутки
+- [ ] Verify secure data transmission (HTTPS)
+- [ ] Test session timeout and renewal
+- [ ] Verify proper data encryption for sensitive information
+- [ ] Test permission requests and behaviors
+- [ ] Verify no sensitive data is stored in plain text
 
-- [ ] **Смартфоны с большим экраном**: Проверить на экранах ~6-7"
-  - [ ] Проверить, что интерфейс эффективно использует доступное пространство
-  - [ ] Проверить режим разделенного экрана (если применимо)
-  - [ ] Убедиться, что изображения не растянуты или пикселизованы
+## 7. Compatibility Testing
 
-- [ ] **Планшеты**: Проверить на экранах 8" и больше
-  - [ ] Проверить двухпанельный режим (если реализован)
-  - [ ] Проверить корректность лейаута в ландшафтной ориентации
-  - [ ] Убедиться, что информация отображается эффективно без пустых пространств
+- [ ] Test on various device manufacturers (Samsung, Google, Xiaomi, etc.)
+- [ ] Verify compatibility with different Android skins
+- [ ] Test with popular accessibility services
+- [ ] Verify interaction with system notifications
 
-### 3.2 Жесты и взаимодействие
-- [ ] **Сенсорные жесты**: Проверить основные жесты
-  - [ ] Проверить прокрутку (вертикальную и горизонтальную)
-  - [ ] Проверить жест "назад" (свайп от края экрана)
-  - [ ] Проверить масштабирование (пинч для увеличения/уменьшения)
-  - [ ] Проверить свайп-действия в списках (если реализованы)
+## 8. Internationalization Testing
 
-- [ ] **Тактильная обратная связь**: Проверить отклик
-  - [ ] Проверить, что нажатие на интерактивные элементы дает визуальное подтверждение
-  - [ ] Проверить использование системной вибрации при необходимости
-  - [ ] Убедиться, что анимации плавные и не вызывают задержек
+- [ ] Verify all UI elements properly display English text
+- [ ] Test with English locale settings
+- [ ] Verify proper date and time formats
+- [ ] Test currency format display
 
-## 4. Тесты производительности и ресурсов
+## 9. Integration Testing
 
-### 4.1 Производительность
-- [ ] **Скорость запуска**: Засечь время холодного/теплого старта
-  - [ ] Проверить время холодного запуска (первый запуск)
-  - [ ] Проверить время теплого запуска (повторный запуск)
-  - [ ] Убедиться, что splash screen отображается корректно
+- [ ] Verify proper integration with payment gateways
+- [ ] Test integration with analytics services
+- [ ] Verify notifications work correctly
 
-- [ ] **Скорость загрузки страниц**: Измерить время загрузки
-  - [ ] Проверить время загрузки списка продуктов
-  - [ ] Проверить время загрузки страницы продукта
-  - [ ] Проверить время загрузки корзины/checkout
-  - [ ] Убедиться, что страницы загружаются не дольше 3 секунд
+## 10. Edge Cases
 
-- [ ] **Прокрутка и анимации**: Оценить плавность
-  - [ ] Проверить плавность прокрутки длинных списков
-  - [ ] Проверить плавность анимаций переходов между экранами
-  - [ ] Убедиться в отсутствии фризов и дропов кадров
+- [ ] Test behavior during incoming calls
+- [ ] Test app behavior when device is in split-screen mode
+- [ ] Verify behavior during system updates
+- [ ] Test with device in battery saver mode
+- [ ] Verify behavior after force close and restart
 
-### 4.2 Потребление ресурсов
-- [ ] **Использование памяти**: Проверить расход RAM
-  - [ ] Проверить потребление памяти в фоновом режиме
-  - [ ] Проверить потребление памяти при активном использовании
-  - [ ] Убедиться, что нет утечек памяти при длительном использовании
+## 11. Final Pre-submission Checks
 
-- [ ] **Использование процессора**: Проверить нагрузку на CPU
-  - [ ] Проверить загрузку CPU в фоновом режиме
-  - [ ] Проверить загрузку CPU при активном использовании
-  - [ ] Убедиться, что приложение не вызывает перегрев устройства
+- [ ] Verify app complies with all Google Play policies
+- [ ] Check all required permissions are properly explained and justified
+- [ ] Verify app does not crash when performing common actions
+- [ ] Test app on Google's pre-launch test suite
+- [ ] Confirm privacy policy is accessible and accurate
+- [ ] Verify in-app purchases work correctly
 
-- [ ] **Расход батареи**: Оценить энергопотребление
-  - [ ] Провести тест длительного использования и замерить процент расхода батареи
-  - [ ] Проверить расход в фоновом режиме
-  - [ ] Убедиться, что приложение не входит в список энергозатратных
+## Test Environments
 
-## 5. Тесты безопасности и приватности
+Test the application on the following minimum set of devices:
+1. Low-end device (1GB RAM, Android 6.0)
+2. Mid-range device (3GB RAM, Android 10.0)
+3. High-end device (8GB RAM, Android 14.0)
+4. 7-inch tablet (Android 8.0+)
+5. 10-inch tablet (Android 8.0+)
 
-### 5.1 Защита данных
-- [ ] **Хранимые данные**: Проверить безопасность хранения
-  - [ ] Проверить, что чувствительные данные не хранятся в открытом виде
-  - [ ] Убедиться, что данные платежей не сохраняются локально
-  - [ ] Проверить, что кэш приложения не содержит личной информации
+## Test Reporting
 
-- [ ] **Сетевые запросы**: Проверить безопасность соединений
-  - [ ] Убедиться, что все API-запросы идут через HTTPS
-  - [ ] Проверить, что сертификаты SSL проверяются корректно
-  - [ ] Убедиться в наличии защиты от MITM-атак
+For each test case:
+- Document test environment (device, OS version)
+- Record pass/fail status
+- Capture screenshots for failures
+- Note steps to reproduce any issues
+- Assign severity level to identified issues
 
-### 5.2 Соответствие нормам приватности
-- [ ] **Запросы разрешений**: Проверить запросы прав
-  - [ ] Проверить, что приложение запрашивает только необходимые разрешения
-  - [ ] Убедиться, что каждый запрос разрешения сопровождается понятным объяснением
-  - [ ] Проверить работу приложения при отказе в необязательных разрешениях
+## Issue Prioritization
 
-- [ ] **Политика конфиденциальности**: Проверить доступность
-  - [ ] Убедиться, что политика конфиденциальности легко доступна из приложения
-  - [ ] Проверить, что все пункты сбора данных отражены в политике
-  - [ ] Проверить наличие возможности удаления аккаунта и данных пользователя
+Prioritize issues by the following criteria:
+1. **Critical**: Prevents core functionality, crashes, or security vulnerabilities
+2. **High**: Significant impact on user experience but with workarounds
+3. **Medium**: Minor functional issues with easy workarounds
+4. **Low**: Cosmetic issues, minor UI inconsistencies
 
-## 6. Специфические тесты для нашего приложения
-
-### 6.1 Интернационализация
-- [ ] **Языковые настройки**: Проверить поддержку разных языков
-  - [ ] Проверить отображение интерфейса на всех поддерживаемых языках (EN, DE, FR, ES, IT, RU)
-  - [ ] Убедиться, что система автоматически определяет язык устройства
-  - [ ] Проверить корректность перевода специализированных терминов
-
-- [ ] **Региональные настройки**: Проверить локализацию
-  - [ ] Проверить форматы дат и времени для разных регионов
-  - [ ] Проверить форматы чисел и валют
-  - [ ] Убедиться в корректном отображении местных налогов и сборов
-
-### 6.2 Платежные интеграции
-- [ ] **Stripe Checkout**: Проверить процесс оплаты
-  - [ ] Проверить процесс создания платежного намерения
-  - [ ] Проверить различные методы оплаты (карты, Apple Pay, Google Pay)
-  - [ ] Убедиться, что после успешной оплаты заказ обрабатывается корректно
-  - [ ] Проверить обработку отмены или неудачной оплаты
-
-- [ ] **Подписки**: Проверить работу подписок (если реализованы)
-  - [ ] Проверить процесс оформления подписки
-  - [ ] Проверить процесс отмены подписки
-  - [ ] Проверить обработку просроченных платежей
-  - [ ] Убедиться, что доступ к платному контенту корректно управляется
-
-## 7. Тесты на соответствие политикам Google Play
-
-### 7.1 Требования Google Play
-- [ ] **Целостность данных**: Проверить соответствие
-  - [ ] Убедиться в отсутствии поддельных учетных записей и накрутки рейтингов
-  - [ ] Проверить легитимность всего используемого контента
-  - [ ] Убедиться в отсутствии запрещенного контента
-
-- [ ] **Ограничения контента**: Проверить соответствие возрастным рейтингам
-  - [ ] Убедиться, что контент приложения соответствует заявленному возрастному рейтингу
-  - [ ] Проверить отсутствие шокирующего, жестокого или насильственного контента
-  - [ ] Убедиться в отсутствии ненадлежащей рекламы (если используется)
-
-- [ ] **Функциональность**: Проверить стабильность
-  - [ ] Убедиться, что приложение не крашится и не имеет критических багов
-  - [ ] Проверить, что все заявленные функции работают
-  - [ ] Убедиться, что приложение корректно работает на разных устройствах и версиях Android
-
-### 7.2 Метаданные и материалы
-- [ ] **Скриншоты и иконки**: Проверить соответствие
-  - [ ] Убедиться, что все скриншоты актуальны и соответствуют текущей версии
-  - [ ] Проверить, что иконка не содержит запрещенных элементов
-  - [ ] Убедиться, что промо-графика точно представляет приложение
-
-- [ ] **Описание**: Проверить точность
-  - [ ] Убедиться, что описание соответствует актуальной функциональности
-  - [ ] Проверить, что в описании нет недостоверной информации
-  - [ ] Убедиться, что новости обновления точно отражают изменения
+All critical and high-priority issues must be resolved before submission to Google Play Store.

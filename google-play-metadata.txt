@@ -1,0 +1,20 @@
+# Google Play Store Metadata
+
+## App Details
+- Name: AI Store
+- Package: com.aething.aistore
+- Short description: AI-powered global tech marketplace with advanced tax processing and offline capabilities
+- Category: Shopping
+
+## Content Rating
+- Expected rating: Everyone
+- Contains ads: No
+- In-app purchases: Yes
+
+## Required Assets
+- App icon (512x512) - included in project
+- Feature graphic (1024x500) - needs to be created
+- Screenshots (at least 2 per device type) - need to be created
+
+## Privacy Policy
+A privacy policy URL is required for all apps on Google Play.

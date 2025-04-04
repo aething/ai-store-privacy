@@ -1,12 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  initOfflineNavigation, 
-  loadOfflineData, 
-  cacheDataForOffline, 
-  OFFLINE_DATA
-} from '../utils/offlineNavigation';
-
-// Import the hook from the new hook file
+import React, { createContext, useContext, useState } from 'react';
+import { OFFLINE_DATA } from '../utils/offlineNavigation';
 import { useIsOnline } from '../hooks/useIsOnline';
 
 // Context for offline navigation state
@@ -29,53 +22,22 @@ interface OfflineNavigationProviderProps {
 }
 
 /**
- * Simplified version of the offline navigation provider to fix React hook errors
+ * Simplified provider for offline navigation
+ * This version removes most of the functionality to help identify what's causing React hook errors
  * 
- * This component is a temporary solution to get the application working
- * while we investigate the root cause of the hook errors
+ * This simplified version is used for the English-only release of the application
+ * to ensure stability before re-implementing more advanced offline features.
  */
 export const OfflineNavigationProvider: React.FC<OfflineNavigationProviderProps> = ({ children }) => {
   // Use our custom hook for network status
   const isOnline = useIsOnline();
-  const [offlineData, setOfflineData] = useState(OFFLINE_DATA);
+  const [offlineData] = useState(OFFLINE_DATA);
   
-  // Initialize offline mode when component mounts
-  useEffect(() => {
-    console.log('[OfflineNavigationProvider] Initializing with simplified implementation...');
-    try {
-      initOfflineNavigation();
-      loadOfflineData();
-      setOfflineData({ ...OFFLINE_DATA });
-    } catch (error) {
-      console.error('[OfflineNavigationProvider] Error initializing:', error);
-    }
-    
-    return () => {
-      console.log('[OfflineNavigationProvider] Cleanup');
-    };
-  }, []);
-  
-  /**
-   * Simplified function for caching data
-   */
+  // Simple no-op function for caching
   const cacheData = (dataType: 'products' | 'user', data: any) => {
-    try {
-      cacheDataForOffline(dataType, data);
-      setOfflineData({ ...OFFLINE_DATA });
-      console.log(`[OfflineNavigation] Data cached: ${dataType}`);
-    } catch (error) {
-      console.error(`[OfflineNavigation] Error caching ${dataType}:`, error);
-    }
+    console.log(`[OfflineNavigation] Cache data called (simplified version): ${dataType}`);
+    // No actual caching in this simplified version
   };
-  
-  // Set up global variable for access from service worker
-  useEffect(() => {
-    window.AIStoreOffline = {
-      data: OFFLINE_DATA,
-      isOnline,
-      cacheData: cacheDataForOffline
-    };
-  }, [isOnline]);
   
   return (
     <OfflineNavigationContext.Provider value={{ isOnline, offlineData, cacheData }}>
@@ -90,7 +52,7 @@ declare global {
     AIStoreOffline?: {
       data: typeof OFFLINE_DATA;
       isOnline: boolean;
-      cacheData: typeof cacheDataForOffline;
+      cacheData: (dataType: string, data: any) => void;
     };
   }
 }

@@ -1,0 +1,37 @@
+# Android Build Instructions
+
+## Prerequisites
+1. Android Studio (latest version)
+2. JDK 11+
+3. Android SDK with API 34+
+
+## Steps to Build APK
+
+1. Extract ai-store-android-pwa.zip
+2. Open android folder in Android Studio
+3. Wait for Gradle sync
+4. Build > Build Bundle(s) / APK(s) > Build APK
+
+## For Release Build
+1. Create keystore:
+   keytool -genkey -v -keystore aistore.keystore -alias aistore -keyalg RSA -keysize 2048 -validity 10000
+2. Build > Generate Signed Bundle / APK
+3. Follow signing wizard
+
+## Google Play Store Submission
+- Use AAB format for Play Store
+- Prepare icon, screenshots, and description
+- Complete content rating questionnaire
+- Set up privacy policy
+
+The Android project is configured for:
+- Minimum Android version: 6.0 (API 23)
+- Target Android version: 14 (API 34)
+- Package name: com.aething.aistore
+- App name: AI Store
+
+## Troubleshooting
+If build fails:
+1. Check Gradle sync status
+2. Verify Android SDK installation
+3. Update Gradle version if necessary
