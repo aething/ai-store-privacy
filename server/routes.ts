@@ -1093,9 +1093,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (taxRate > 0) {
         taxAmount = Math.round(amount * taxRate);
         // Добавляем информацию о налоге в метаданные
-        metadata.taxRate = taxRate.toString();
-        metadata.taxAmount = taxAmount.toString();
-        metadata.taxLabel = taxLabel;
+        // ИСПРАВЛЕНО: Унифицированные названия полей с использованием snake_case
+        metadata.tax_rate = (taxRate * 100).toFixed(1) + '%'; // Формат "19.0%"
+        metadata.tax_amount = taxAmount.toString();
+        metadata.tax_label = taxLabel;
+        
+        console.log(`Налог для страны ${country}: ${taxLabel}, ставка: ${taxRate * 100}%, сумма: ${taxAmount}`);
       }
       
       // Перевынесено из функции paymentIntent и добавлен экспорт
@@ -1167,7 +1170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...metadata,
           base_amount: amount.toString(),
           tax_amount: taxAmount.toString(),
-          tax_rate: (taxRate * 100).toFixed(2) + '%',
+          tax_rate: (taxRate * 100).toFixed(1) + '%', // Унифицированный формат "19.0%"
           tax_label: taxLabel,
           country_code: country || 'unknown',
           // Добавляем важную информацию о цене за единицу товара
@@ -1212,7 +1215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Добавляем информацию о налоге в метаданные
         paymentIntentParams.metadata.tax_amount = taxAmount.toString();
-        paymentIntentParams.metadata.tax_rate = '20%';
+        paymentIntentParams.metadata.tax_rate = '20.0%';
         paymentIntentParams.metadata.tax_label = taxLabel;
         paymentIntentParams.metadata.country_code = country;
         
@@ -1235,7 +1238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Добавляем информацию о налоге в метаданные
         paymentIntentParams.metadata.tax_amount = taxAmount.toString();
-        paymentIntentParams.metadata.tax_rate = '22%';
+        paymentIntentParams.metadata.tax_rate = '22.0%';
         paymentIntentParams.metadata.tax_label = taxLabel;
         paymentIntentParams.metadata.country_code = country;
         
@@ -1258,7 +1261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Добавляем информацию о налоге в метаданные
         paymentIntentParams.metadata.tax_amount = taxAmount.toString();
-        paymentIntentParams.metadata.tax_rate = '21%';
+        paymentIntentParams.metadata.tax_rate = '21.0%';
         paymentIntentParams.metadata.tax_label = taxLabel;
         paymentIntentParams.metadata.country_code = country;
         
@@ -1279,7 +1282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Не добавляем налог к сумме
         paymentIntentParams.metadata.tax_amount = '0';
-        paymentIntentParams.metadata.tax_rate = '0%';
+        paymentIntentParams.metadata.tax_rate = '0.0%';
         paymentIntentParams.metadata.tax_label = taxLabel;
         paymentIntentParams.metadata.country_code = 'unknown';
         
@@ -1298,7 +1301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Добавляем информацию о налогах в метаданные
         paymentIntentParams.metadata.tax_amount = taxAmount.toString();
-        paymentIntentParams.metadata.tax_rate = '19%';
+        paymentIntentParams.metadata.tax_rate = '19.0%';
         paymentIntentParams.metadata.tax_label = taxLabel;
         paymentIntentParams.metadata.country_code = defaultCountry;
         
@@ -1317,7 +1320,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Добавляем информацию об отсутствии налога в метаданные
         paymentIntentParams.metadata.tax_amount = '0';
-        paymentIntentParams.metadata.tax_rate = '0%';
+        paymentIntentParams.metadata.tax_rate = '0.0%';
         paymentIntentParams.metadata.tax_label = taxLabel;
         paymentIntentParams.metadata.country_code = country;
         
@@ -1500,13 +1503,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`Новое количество: ${parsedQuantity}, базовая сумма: ${newBaseAmount} ${order.currency}`);
       
       // Получаем налоговую ставку из метаданных
-      const taxRateStr = metadata.taxRate || '0%';
+      // Используем tax_rate вместо taxRate для согласованности
+      const taxRateStr = metadata.tax_rate || '0%';
       const taxRatePercentage = parseFloat(taxRateStr.replace('%', ''));
       console.log(`Извлеченная ставка налога: ${taxRatePercentage}% из строки "${taxRateStr}"`);
       
       // Вычисляем сумму налога
       const taxRate = taxRatePercentage / 100;
       const newTaxAmount = Math.round(newBaseAmount * taxRate);
+      console.log(`Вычисленная сумма налога: ${newTaxAmount} (${taxRatePercentage}% от ${newBaseAmount})`);
+      
+      // Дополнительная проверка на случай, если налоговая сумма выглядит подозрительной
+      if (taxRatePercentage > 0 && newTaxAmount === 0) {
+        console.log(`ПРЕДУПРЕЖДЕНИЕ: Нулевая сумма налога при ненулевой ставке ${taxRatePercentage}%`);
+      }
       
       // Вычисляем новую полную сумму
       const newTotalAmount = newBaseAmount + newTaxAmount;
@@ -1520,12 +1530,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           // Проверяем, есть ли в запросе структура товаров newItems
           // и при необходимости обновляем метаданные с новой структурой
+          // ИСПРАВЛЕНО: Согласуем названия полей для налогов и сумм
           let updatedMetadata: Record<string, string> = {
             ...metadata,
             quantity: parsedQuantity.toString(),
-            baseAmount: newBaseAmount.toString(),
-            taxAmount: newTaxAmount.toString(),
-            totalWithTax: newTotalAmount.toString()
+            base_amount: newBaseAmount.toString(), // Используем единый формат названий полей
+            tax_amount: newTaxAmount.toString(),
+            total_amount: newTotalAmount.toString(),
+            // Обязательно сохраняем tax_rate, так как мы его используем при расчетах
+            tax_rate: metadata.tax_rate || '0%'
           };
           
           // Если переданы newItems, обновляем items в метаданных
@@ -1583,12 +1596,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Если не удалось обновить, создаем новый PaymentIntent
           // Создаем обновленные метаданные с учетом items, если есть
+          // ИСПРАВЛЕНО: Согласуем названия полей для налогов и сумм
           let updatedMetadata: Record<string, string> = {
             ...metadata,
             quantity: parsedQuantity.toString(),
-            baseAmount: newBaseAmount.toString(),
-            taxAmount: newTaxAmount.toString(),
-            totalWithTax: newTotalAmount.toString(),
+            base_amount: newBaseAmount.toString(),
+            tax_amount: newTaxAmount.toString(),
+            total_amount: newTotalAmount.toString(),
+            tax_rate: metadata.tax_rate || '0%',
             previousPaymentIntentId: paymentIntentId
           };
           
@@ -1638,12 +1653,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         // Если платеж уже находится в другом состоянии, создаем новый
         // Готовим обновленные метаданные как для всех других случаев
+        // ИСПРАВЛЕНО: Согласуем названия полей для налогов и сумм
         let updatedMetadata: Record<string, string> = {
           ...metadata,
           quantity: parsedQuantity.toString(),
-          baseAmount: newBaseAmount.toString(),
-          taxAmount: newTaxAmount.toString(),
-          totalWithTax: newTotalAmount.toString(),
+          base_amount: newBaseAmount.toString(),
+          tax_amount: newTaxAmount.toString(),
+          total_amount: newTotalAmount.toString(),
+          tax_rate: metadata.tax_rate || '0%',
           previousPaymentIntentId: paymentIntentId
         };
         
