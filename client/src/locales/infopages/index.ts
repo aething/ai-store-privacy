@@ -1,6 +1,7 @@
 import { InfoPage } from "@/types";
+// Импортируем все локализованные файлы с информационными страницами
 import { en } from "./en";
-import { de } from "./de";
+import { de } from "./de"; 
 import { es } from "./es";
 import { fr } from "./fr";
 import { it } from "./it";

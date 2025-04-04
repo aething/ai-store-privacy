@@ -1,86 +1,123 @@
+import { productUITranslations, en } from '@/locales/products/ui';
+
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  coverImage?: string;
+  specs?: Record<string, string>;
+  aiCapabilities?: string;
+  softwareInfo?: string;
+  isSubscription?: boolean;
+  tags?: string[];
+  version?: string;
+  available?: boolean;
+  stripeId?: string;
+  currency?: string;
+}
+
+export interface CartItem {
+  productId: number;
+  quantity: number;
+  product: Product;
+}
+
 export interface User {
   id: number;
   username: string;
   email: string;
-  isVerified: boolean;
-  name?: string;
-  phone?: string;
+  firstName?: string;
+  lastName?: string;
   country?: string;
-  street?: string;
-  house?: string;
-  apartment?: string;
-  stripeCustomerId?: string | null;
-  stripeSubscriptionId?: string | null;
+  phoneNumber?: string;
+  address?: string;
+  emailVerified?: boolean;
+  isAdmin?: boolean;
+  shippingAddress?: ShippingAddress;
+  billingAddress?: BillingAddress;
+  orders?: Order[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface Product {
-  id: number;
-  title: string;
-  description: string;
-  price: number; // in USD cents or USD depending on source (Stripe)
-  priceEUR: number; // in EUR cents or EUR depending on source (Stripe)
-  imageUrl: string;
-  category: string;
-  features: string[];
-  specifications: string[];
-  hardwareInfo?: string;
-  softwareInfo?: string;
-  stripeProductId?: string; // ID продукта в Stripe
-  stripePriceId?: string; // ID цены в Stripe
+export interface ShippingAddress {
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state?: string;
+  postalCode: string;
+  country: string;
+  phoneNumber?: string;
+}
+
+export interface BillingAddress {
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state?: string;
+  postalCode: string;
+  country: string;
+  phoneNumber?: string;
 }
 
 export interface Order {
   id: number;
   userId: number;
-  productId: number;
   status: string;
-  amount: number;
-  currency: string; // 'usd' or 'eur'
-  stripePaymentId?: string;
-  createdAt: Date;
+  items: OrderItem[];
+  total: number;
+  currency: string;
+  tax?: number;
+  taxRate?: string;
+  paymentIntentId?: string;
+  createdAt: string;
+  subscriptionId?: string;
+  isSubscription?: boolean;
 }
 
-export interface Policy {
-  id: string;
-  title: string;
-  content: string;
-}
-
-export interface InfoPage {
+export interface OrderItem {
   id: number;
-  title: string;
-  description: string;
-  content: string; // Может содержать HTML-разметку для форматирования
+  orderId: number;
+  productId: number;
+  quantity: number;
+  price: number;
+  name: string;
+  product?: Product;
 }
 
-/**
- * Локализованная информация о продукте
- */
-export interface LocalizedProductInfo {
-  title: string;
+export interface PaymentIntent {
+  id: string;
+  clientSecret: string;
+  amount: number;
+  currency: string;
+  status: string;
+  items?: OrderItem[];
+  taxAmount?: number;
+  taxRate?: string;
+  taxLabel?: string;
+}
+
+export interface Locale {
+  code: string;
+  name: string;
+  flag: string;
+}
+
+export interface LocalizedProduct {
+  id: number;
+  name: string;
   description: string;
-  hardwareInfo?: string;
+  specs?: Record<string, string>;
+  aiCapabilities?: string;
   softwareInfo?: string;
-  hardwareTabLabel?: string;
-  softwareTabLabel?: string;
-  hardwareSpecsLabel?: string;
-  aiCapabilitiesLabel?: string;
-  softwareArchitectureLabel?: string;
-  learnMoreContent?: string;
   learnMoreTitle?: string;
+  learnMoreContent?: string;
 }
 
-/**
- * Тип для хранения переводов продуктов
- * Ключ - ID продукта
- */
-export interface ProductTranslations {
-  [productId: number]: LocalizedProductInfo;
-}
-
-/**
- * Тип для хранения общих UI переводов для продуктов
- */
 export interface ProductUITranslations {
   hardwareTab: string;
   softwareTab: string;
@@ -93,4 +130,30 @@ export interface ProductUITranslations {
   imageDisclaimer: string;
   enterCouponCode: string;
   learnMore: string;
+  // Статические компоненты вкладки Software
+  cloudIntegration: string;
+  cloudIntegrationDesc: string;
+  dataPipelines: string;
+  dataPipelinesDesc: string;
+  aiPerformance: string;
+  aiPerformanceDesc: string;
+  softwareStack: string;
+  softwareStackDesc: string;
+  applications: string;
+  applicationsDesc: string;
+  apiIntegration: string;
+  apiIntegrationDesc: string;
+  edgeComputing: string;
 }
+
+export type ProductUILanguage = keyof typeof productUITranslations;
+
+export interface InfoPage {
+  id: number;
+  title: string;
+  description: string;
+  content: string;
+}
+
+export const DEFAULT_LOCALE = 'en';
+export const DEFAULT_CURRENCY = 'usd';
