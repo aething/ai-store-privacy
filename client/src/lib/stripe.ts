@@ -23,7 +23,7 @@ if (!stripeKey) {
 } else {
   // Используем простую инициализацию для совместимости
   stripePromise = loadStripe(stripeKey);
-  console.log('Initializing Stripe with standard configuration');
+  // Удалены консольные логи для production
 }
 
 /**
@@ -42,7 +42,7 @@ export async function createPaymentIntent(
   overrideCurrency?: string,
   quantity: number = 1
 ) {
-  console.log('Creating payment intent for:', { productId, userId, country });
+  // Удалены консольные логи для production
   
   // Determine the appropriate currency based on country
   const currency = getCurrencyForCountry(country);
@@ -126,16 +126,7 @@ export async function createPaymentIntent(
   // Вычисляем полную сумму с налогом
   const totalAmount = baseAmountWithQuantity + taxAmount;
   
-  console.log('Payment calculation with tax:', {
-    baseAmount,
-    baseAmountWithQuantity,
-    quantity,
-    taxRate,
-    taxAmount,
-    totalAmount,
-    country,
-    taxLabel
-  });
+  // Удалены консольные логи для production
   
   // Check if this is a Stripe product (already in dollar/euro amounts, not cents)
   const isStripePrice = !!product.stripeProductId;
@@ -174,7 +165,7 @@ export async function createPaymentIntent(
   }
   
   const responseData = await paymentResponse.json();
-  console.log('Payment intent created with tax data:', responseData);
+  // Удалены консольные логи для production
   
   return responseData;
 }

@@ -817,7 +817,7 @@ export default function Checkout() {
           paymentIntentId,
           user.id,
           newQuantity,
-          productId // Важно: передаем ID продукта для корректного обновления
+          productId || 1 // Используем ID продукта с запасным вариантом
         );
         
         const { 
@@ -866,11 +866,8 @@ export default function Checkout() {
         if (newClientSecret && newClientSecret !== clientSecret) {
           setClientSecret(newClientSecret);
           
-          // Также обновляем опции для Stripe Elements, чтобы они отразили новый clientSecret
-          setStripeOptions(prev => ({
-            ...prev,
-            clientSecret: newClientSecret
-          }));
+          // Обновление clientSecret достаточно - Elements перерисуется
+  // с этим новым значением из-за обновления key в родительском компоненте
         }
         
         // Не показываем уведомление об успешном обновлении, чтобы не загромождать интерфейс
@@ -1201,13 +1198,31 @@ export default function Checkout() {
                   merchantName: 'Aething Inc.',
                   buttonType: 'buy',
                   buttonTheme: 'black',
-                  buttonSizeMode: 'fill'
+                  buttonSizeMode: 'fill',
+                  // Установка на "always" для отладки - принудительно показать кнопку
+                  // В продакшн версии установить на "auto"
+                  status: 'auto'
                 },
                 applePay: {
                   merchantName: 'Aething Inc.',
                   buttonType: 'buy',
-                  buttonStyle: 'black'
+                  buttonStyle: 'black',
+                  // Установка на "always" для отладки - принудительно показать кнопку
+                  // В продакшн версии установить на "auto" 
+                  status: 'auto'
                 }
+              },
+              // Включаем payment request для поддержки wallets
+              paymentRequest: {
+                  country: 'US', // или динамически на основе определенной страны
+                  currency: currency.toLowerCase(),
+                  total: {
+                      label: product?.title || 'Your Purchase',
+                      amount: (price * quantity) + (stripeTaxInfo?.amount || 0),
+                  },
+                  requestPayerName: true,
+                  requestPayerEmail: true,
+                  requestShipping: true,
               },
               // Настройка допустимых платежных методов в зависимости от региона
               paymentMethodOrder: currency === 'eur' 
@@ -1216,7 +1231,7 @@ export default function Checkout() {
             }}
           >
             <CheckoutForm 
-              productId={productId as number} 
+              productId={productId || 1} 
               amount={price} 
               currency={currency} 
               product={product} 
