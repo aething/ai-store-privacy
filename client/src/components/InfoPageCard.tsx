@@ -20,12 +20,10 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
       <div className="flex flex-col h-full">
         {/* Содержание */}
         <div className="p-4 flex flex-col flex-grow">
-          <h3 className="font-medium text-lg mb-2">
-            {t(`infoPage.${infoPage.id}.title`) || infoPage.title}
-          </h3>
+          <h3 className="font-medium text-lg mb-2">{infoPage.title}</h3>
           
           <p className="text-gray-500 text-sm flex-grow line-clamp-6 mb-4">
-            {t(`infoPage.${infoPage.id}.description`) || infoPage.description}
+            {infoPage.description}
           </p>
           
           <Button 
@@ -35,7 +33,7 @@ export default function InfoPageCard({ infoPage }: InfoPageCardProps) {
               setLocation(`/info/${infoPage.id}`);
             }}
           >
-            {t("readMore") || "Read More"}
+            Read More
           </Button>
         </div>
       </div>

@@ -126,12 +126,12 @@ export default function InfoPage() {
           <div id="content-top" ref={contentRef}></div>
           
           <h1 className="text-2xl font-bold mb-6">
-            {t(`infoPage.${pageId}.title`) || infoPage.title}
+            {infoPage.title}
           </h1>
           
           <div className="prose max-w-none">
             <ReactMarkdown>
-              {t(`infoPage.${pageId}.content`) || infoPage.content}
+              {infoPage.content}
             </ReactMarkdown>
           </div>
           
