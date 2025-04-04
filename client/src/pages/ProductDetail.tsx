@@ -124,7 +124,12 @@ export default function ProductDetail() {
       getPriceForCountry(product, user?.country),
       getCurrencyForCountry(user?.country),
       !!product.stripeProductId
-    )
+    ),
+    hasLearnMoreTitle: !!localizedProduct.learnMoreTitle,
+    hasLearnMoreContent: !!localizedProduct.learnMoreContent,
+    currentLocale: currentLocale,
+    allTranslationsForProduct: productTranslations[currentLocale]?.[product.id],
+    enTranslationsForProduct: productTranslations['en']?.[product.id]
   });
   
   const handleBuyNow = () => {

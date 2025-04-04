@@ -177,12 +177,19 @@ export interface LocalizedProduct {
 export interface ProductTranslation {
   title: string;
   description: string;
-  features: string[];
-  specifications: {
+  features?: string[];
+  specifications?: {
     [key: string]: string;
   };
-  hardwareInfo?: string[];
-  softwareInfo?: string[];
+  hardwareInfo?: string;
+  softwareInfo?: string;
+  hardwareTabLabel?: string;
+  softwareTabLabel?: string;
+  hardwareSpecsLabel?: string;
+  aiCapabilitiesLabel?: string;
+  softwareArchitectureLabel?: string;
+  learnMoreTitle?: string;
+  learnMoreContent?: string;
 }
 
 export interface ProductTranslations {
