@@ -70,6 +70,8 @@ export interface Product {
   softwareInfo?: string;
   stripeProductId?: string;
   currency?: string;
+  learnMoreTitle?: string;
+  learnMoreContent?: string;
 }
 
 export interface CartItem {
@@ -183,6 +185,8 @@ export interface ProductTranslation {
   };
   hardwareInfo?: string[];
   softwareInfo?: string[];
+  learnMoreTitle?: string;
+  learnMoreContent?: string;
 }
 
 export interface ProductTranslations {
@@ -201,6 +205,7 @@ export interface ProductUITranslations {
   imageDisclaimer: string;
   enterCouponCode: string;
   learnMore: string;
+  readMore: string;
   // Статические компоненты вкладки Software
   cloudIntegration: string;
   cloudIntegrationDesc: string;

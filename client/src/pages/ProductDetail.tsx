@@ -1,4 +1,4 @@
-import { useRoute, useLocation } from "wouter";
+import { useRoute, useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
@@ -104,9 +104,14 @@ export default function ProductDetail() {
 
   // Получаем локализованные данные продукта и UI
   const localizedInfo = productTranslations[currentLocale]?.[product.id];
-  const localizedProduct = localizedInfo || productTranslations['en']?.[product.id] || { 
+  const englishFallback = productTranslations['en']?.[product.id];
+  const localizedProduct = localizedInfo || englishFallback || { 
     title: product.title,
-    description: product.description
+    description: product.description,
+    features: [],
+    specifications: {},
+    learnMoreTitle: '',
+    learnMoreContent: ''
   };
   
   // Получаем локализованные UI элементы
@@ -479,22 +484,28 @@ export default function ProductDetail() {
                       </div>
                     </div>
                   </div>
-                  
-                  {product && product.learnMoreTitle && (
-                    <div className="mt-8 pt-6 border-t border-gray-200">
-                      <h3 className="text-lg font-medium mb-4">{t('learnMore')}</h3>
-                      <div className="prose prose-sm max-w-none">
-                        <h4 className="text-md font-medium mb-2">{product.learnMoreTitle}</h4>
-                        <p className="text-sm text-gray-600">{product.learnMoreContent}</p>
-                        <Link
-                          to={`/info/${product.id - 1}`}
-                          className="inline-block mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          {t('readMore')} →
-                        </Link>
-                      </div>
+                </>) : (
+                  <div className="text-gray-400 text-center py-4">
+                    {uiText.noSoftwareInfo}
+                  </div>
+                )}
+                
+                {/* "Learn More" секция - вынесена за пределы условного блока с softwareInfo */}
+                {localizedProduct && localizedProduct.learnMoreTitle && localizedProduct.learnMoreContent && (
+                  <div className="mt-8 pt-6 border-t border-gray-200">
+                    <h3 className="text-lg font-medium mb-4">{t('learnMore')}</h3>
+                    <div className="prose prose-sm max-w-none">
+                      <h4 className="text-md font-medium mb-2">{localizedProduct.learnMoreTitle}</h4>
+                      <p className="text-sm text-gray-600">{localizedProduct.learnMoreContent}</p>
+                      <Link
+                        to={`/info/${product.id - 1}`}
+                        className="inline-block mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        {t('readMore')} →
+                      </Link>
                     </div>
-                  )}
+                  </div>
+                )}
                 </>) : (
                   <div className="text-gray-400 text-center py-4">
                     {uiText.noSoftwareInfo}
@@ -502,18 +513,6 @@ export default function ProductDetail() {
                 )}
               </TabsContent>
             </Tabs>
-            
-            {/* Секция "Learn More" (если есть) */}
-            {localizedProduct.learnMoreTitle && localizedProduct.learnMoreContent && (
-              <div className="mt-8 bg-blue-50 rounded-lg p-6 border border-blue-100">
-                <h3 className="text-lg font-semibold text-blue-800 mb-3">
-                  {localizedProduct.learnMoreTitle}
-                </h3>
-                <p className="text-gray-700">
-                  {localizedProduct.learnMoreContent}
-                </p>
-              </div>
-            )}
           
         </div>
       </div>

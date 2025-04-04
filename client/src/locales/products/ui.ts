@@ -17,6 +17,7 @@ export const en: ProductUITranslations = {
   imageDisclaimer: 'Images are for illustration purposes only. Refer to the description for full specifications.',
   enterCouponCode: 'Enter coupon code (optional)',
   learnMore: 'Learn More',
+  readMore: 'Read More',
   // Статические компоненты вкладки Software
   cloudIntegration: 'Cloud Integration',
   cloudIntegrationDesc: 'Seamless integration with major cloud platforms for scalable data processing and model training',
@@ -46,6 +47,7 @@ export const de: ProductUITranslations = {
   imageDisclaimer: 'Die Bilder dienen nur zur Veranschaulichung. Siehe Beschreibung für vollständige Spezifikationen.',
   enterCouponCode: 'Gutscheincode eingeben (optional)',
   learnMore: 'Mehr erfahren',
+  readMore: 'Weiterlesen',
   // Статические компоненты вкладки Software
   cloudIntegration: 'Cloud-Integration',
   cloudIntegrationDesc: 'Nahtlose Integration mit großen Cloud-Plattformen für skalierbares Datenverarbeitung und Modelltraining',
@@ -75,6 +77,7 @@ export const es: ProductUITranslations = {
   imageDisclaimer: 'Las imágenes son solo para fines ilustrativos. Consulte la descripción para las especificaciones completas.',
   enterCouponCode: 'Ingrese código de cupón (opcional)',
   learnMore: 'Más información',
+  readMore: 'Leer más',
   // Статические компоненты вкладки Software
   cloudIntegration: 'Integración en la Nube',
   cloudIntegrationDesc: 'Integración perfecta con las principales plataformas en la nube para procesamiento escalable de datos y entrenamiento de modelos',
@@ -104,6 +107,7 @@ export const fr: ProductUITranslations = {
   imageDisclaimer: 'Les images sont à titre d\'illustration uniquement. Reportez-vous à la description pour les spécifications complètes.',
   enterCouponCode: 'Entrez le code de coupon (facultatif)',
   learnMore: 'En savoir plus',
+  readMore: 'Lire la suite',
   // Статические компоненты вкладки Software
   cloudIntegration: 'Intégration Cloud',
   cloudIntegrationDesc: 'Intégration transparente avec les principales plateformes cloud pour le traitement évolutif des données et l\'entraînement des modèles',
@@ -133,6 +137,7 @@ export const it: ProductUITranslations = {
   imageDisclaimer: 'Le immagini sono solo a scopo illustrativo. Fare riferimento alla descrizione per le specifiche complete.',
   enterCouponCode: 'Inserisci il codice coupon (opzionale)',
   learnMore: 'Maggiori informazioni',
+  readMore: 'Leggi di più',
   // Статические компоненты вкладки Software
   cloudIntegration: 'Integrazione Cloud',
   cloudIntegrationDesc: 'Integrazione perfetta con le principali piattaforme cloud per l\'elaborazione scalabile dei dati e l\'addestramento dei modelli',
@@ -162,6 +167,7 @@ export const ja: ProductUITranslations = {
   imageDisclaimer: '画像はイメージです。完全な仕様については説明を参照してください。',
   enterCouponCode: 'クーポンコードを入力（任意）',
   learnMore: '詳細を見る',
+  readMore: '続きを読む',
   // Статические компоненты вкладки Software
   cloudIntegration: 'クラウド統合',
   cloudIntegrationDesc: 'スケーラブルなデータ処理とモデルトレーニングのための主要クラウドプラットフォームとのシームレスな統合',
@@ -191,6 +197,7 @@ export const zh: ProductUITranslations = {
   imageDisclaimer: '图片仅供参考。请参阅描述以获取完整规格。',
   enterCouponCode: '输入优惠码（可选）',
   learnMore: '了解更多',
+  readMore: '阅读更多',
   // Статические компоненты вкладки Software
   cloudIntegration: '云集成',
   cloudIntegrationDesc: '与主要云平台无缝集成，用于可扩展数据处理和模型训练',
