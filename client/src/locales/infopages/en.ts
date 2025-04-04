@@ -1,4 +1,202 @@
 export default {
+  'product-1': {
+    title: "AI Edge Computing Module - Technical Details",
+    content: `
+# AI Edge Computing Module (Developer Edition)
+
+## Overview
+
+The AI Edge Computing Module represents the cutting edge of AI hardware for edge deployment. With its powerful NPU and optimized software stack, it enables deploying complex neural networks including transformers and LLMs at the edge with minimal power consumption.
+
+## Hardware Specifications
+
+The AI Edge Computing Module features the latest Jetson Orin Nano architecture with a 6-core ARM Cortex-A78AE processor running at up to 1.5 GHz. It comes with 8GB of LPDDR5 memory and delivers exceptional performance for edge AI applications. The NPU supports all major deep learning frameworks and provides up to 67 TOPS of AI performance with optimized energy efficiency.
+
+## Software Stack
+
+This module comes with a complete software stack including:
+- Linux-based OS optimized for edge computing
+- CUDA libraries for GPU acceleration
+- Full support for TensorFlow, PyTorch, and ONNX runtime
+- Integrated SDK with tools for model optimization
+- Visualization and deployment utilities
+- AI model management and versioning built-in
+- Over-the-air update capabilities
+
+## Use Cases
+
+- **Computer Vision:** Object detection, segmentation, and recognition
+- **Natural Language Processing:** Edge-based language models for offline use
+- **Robotics:** Real-time decision making and control systems
+- **Industrial Automation:** Quality control and predictive maintenance
+- **Smart Retail:** Customer analytics and inventory management
+- **Healthcare:** Patient monitoring and diagnostic assistance
+
+## Development Resources
+
+Our module is supported by comprehensive documentation, sample applications, and an active developer community. We provide regular software updates and security patches to ensure your deployments remain cutting-edge and secure.
+
+## Energy Efficiency
+
+The module is designed with energy efficiency in mind, featuring dynamic power management, optimized thermal design, and performance scaling capabilities. This makes it ideal for battery-powered and solar-powered deployments where energy consumption is a critical consideration.
+
+## Integration Capabilities
+
+The module supports a wide range of connectivity options, including:
+- Wi-Fi 6 and Bluetooth 5.2
+- Gigabit Ethernet
+- USB 3.2 Gen 2
+- HDMI 2.1
+- Multiple GPIO pins for sensor integration
+
+Get started with your AI edge computing journey today!
+`
+  },
+  'product-2': {
+    title: "Enterprise AI Server - Technical Details",
+    content: `
+# Enterprise AI Server (Rack-Mountable)
+
+## Overview
+
+Our Enterprise AI Server is designed for high-performance computing environments that demand reliability, scalability, and exceptional AI processing capabilities. It provides the foundation for enterprise-grade AI deployments, large-scale machine learning workloads, and advanced data processing applications.
+
+## Hardware Architecture
+
+The Enterprise AI Server comes in a 2U rack-mountable chassis with support for up to 4 high-performance GPUs (NVIDIA A100 or equivalent). It features dual Intel Xeon processors with up to 64 cores total, 256GB of DDR4 ECC memory (expandable to 1TB), and 8TB of NVMe storage in RAID configuration. The system includes redundant 1600W power supplies and an advanced cooling system for optimal performance.
+
+## Software Environment
+
+The server comes pre-installed with:
+- Ubuntu Server LTS with enterprise support
+- Complete AI software stack including CUDA, cuDNN, and TensorRT
+- Docker and Kubernetes for containerized deployments
+- Distributed training and inference tools
+- Comprehensive management software for monitoring, scheduling, and resource allocation
+
+## Performance Metrics
+
+- Up to 40 PFLOPS of AI computing performance
+- Up to 80GB of HBM2e memory per GPU
+- 400 Gbps networking with RDMA support
+- Storage I/O performance up to 12 GB/s
+
+## Enterprise Features
+
+- Hardware-level security features (TPM 2.0, secure boot)
+- Comprehensive remote management capabilities
+- Resource monitoring and utilization optimization
+- Job scheduling and prioritization
+- Multi-user access with resource isolation
+- Audit logging and compliance reporting
+
+## Scalability
+
+The Enterprise AI Server can be deployed as a standalone unit or as part of a cluster using industry-standard protocols. It supports:
+- Multiple cluster configurations (compute-optimized, storage-optimized)
+- Scale-out architectures for distributed training
+- High-speed interconnects for node-to-node communication
+- Centralized management for multiple server deployments
+
+## Usage Scenarios
+
+- **AI Research:** Training large-scale models with massive datasets
+- **Data Analytics:** Real-time processing of business intelligence data
+- **Financial Services:** Risk modeling and algorithmic trading
+- **Healthcare:** Medical imaging analysis and genomics research
+- **Manufacturing:** Digital twin simulation and quality control
+- **Media:** Content generation and video processing
+
+## Support and Maintenance
+
+We provide comprehensive enterprise support options, including:
+- 24/7 technical assistance
+- Proactive monitoring and issue resolution
+- Regular firmware and software updates
+- On-site service options
+- Performance optimization consulting
+
+Elevate your organization's AI capabilities with our Enterprise AI Server.
+`
+  },
+  'product-3': {
+    title: "AI Development Workstation - Technical Details",
+    content: `
+# AI Development Workstation (Professional Edition)
+
+## Overview
+
+The AI Development Workstation is a high-performance computing solution designed specifically for AI researchers, data scientists, and machine learning engineers. It provides the perfect balance of power, flexibility, and usability for developing cutting-edge AI models and applications.
+
+## Hardware Configuration
+
+Our workstation features the latest generation of computing hardware:
+- NVIDIA RTX A6000 GPU with 48GB GDDR6 memory
+- Intel Core i9 processor (16 cores, 32 threads)
+- 128GB DDR5 RAM (expandable to 256GB)
+- 2TB NVMe SSD primary drive + 4TB SSD secondary storage
+- Custom cooling solution for sustained performance
+- Professional-grade motherboard with PCIe 4.0 support
+
+## Software Environment
+
+The workstation comes pre-configured with:
+- Ubuntu 22.04 LTS or Windows 11 Pro (user choice)
+- CUDA Toolkit and cuDNN libraries
+- Popular ML frameworks (TensorFlow, PyTorch, JAX)
+- Jupyter Lab and development environments
+- NVIDIA NGC catalog integration
+- Docker and container support
+- Code-Server for remote development
+
+## Development Tools
+
+- VSCode with AI/ML extensions
+- TensorBoard and visualization tools
+- Git and version control integrations
+- Database connectors and data processing utilities
+- Model optimization and profiling tools
+- GPU performance monitoring
+
+## Connectivity & Expansion
+
+- 10Gb Ethernet
+- Wi-Fi 6E
+- Bluetooth 5.2
+- Thunderbolt 4 ports
+- USB 3.2 Gen 2 ports
+- Multiple display outputs (up to 4 monitors)
+- Expansion slots for additional GPUs or specialized hardware
+
+## Professional Features
+
+- Whisper-quiet operation (under 35dB at full load)
+- Ergonomically designed chassis
+- Tool-less access for upgrades
+- Cable management system
+- Professional color-calibrated display options
+- Advanced power management
+
+## Use Cases
+
+- **Deep Learning Research:** Train and experiment with custom neural networks
+- **Computer Vision:** Develop and test advanced vision models
+- **NLP Development:** Create and fine-tune language models
+- **Reinforcement Learning:** Build simulation environments and AI agents
+- **Data Science:** Process and analyze large datasets with accelerated computing
+- **AI Application Development:** Create end-to-end AI solutions with integrated development tools
+
+## Support Package
+
+- 3-year warranty with next-business-day on-site service
+- Technical support from AI specialists
+- Performance optimization consulting
+- Regular software update notifications
+- Access to exclusive learning resources and developer community
+
+Accelerate your AI development journey with our professional-grade workstation.
+`
+  },
   privacyPolicy: {
     title: "Privacy Policy",
     content: `

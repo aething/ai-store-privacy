@@ -517,7 +517,7 @@ export default function ProductDetail() {
                 <div className="flex justify-center mt-4">
                   <button 
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-                    onClick={() => navigate(`/info/product-${product.id}`)}
+                    onClick={() => setLocation(`/info/product-${product.id}`)}
                   >
                     {uiText.learnMore}
                   </button>

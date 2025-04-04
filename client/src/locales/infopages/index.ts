@@ -18,9 +18,13 @@ export interface InfoPages {
   returnPolicy: InfoPageTranslations;
   about: InfoPageTranslations;
   contact: InfoPageTranslations;
+  // Дополнительные ID для страниц продуктов
+  'product-1': InfoPageTranslations;
+  'product-2': InfoPageTranslations;
+  'product-3': InfoPageTranslations;
 }
 
-export type InfoPageId = keyof InfoPages;
+export type InfoPageId = keyof InfoPages | string;
 
 // Fallback to English if specific language isn't available yet
 const infopages = {
@@ -47,15 +51,35 @@ export const getLocalizedInfoPageById = (
   // Check if the requested language exists
   const lang = (language in infopages) ? language : 'en';
   
-  // Get the info page in the requested language
-  const localizedInfoPage = infopages[lang as keyof typeof infopages][pageId];
-  
-  if (!localizedInfoPage) {
-    // Fallback to English if the page doesn't exist in the requested language
-    return infopages.en[pageId];
+  try {
+    // Get the info page in the requested language
+    const langPages = infopages[lang as keyof typeof infopages];
+    const pageKey = pageId as keyof typeof langPages;
+    const localizedInfoPage = langPages[pageKey];
+    
+    if (!localizedInfoPage) {
+      // Fallback to English if the page doesn't exist in the requested language
+      const enPage = infopages.en[pageKey as keyof typeof infopages.en];
+      if (enPage) {
+        return enPage;
+      }
+      
+      // If not found in English either, return a generic error page
+      return {
+        title: `Page Not Found: ${pageId}`,
+        content: `# Page Not Found\n\nThe requested page "${pageId}" could not be found.`
+      };
+    }
+    
+    return localizedInfoPage;
+  } catch (error) {
+    console.error(`Error loading page ${pageId} in ${language}:`, error);
+    // Return a generic error page
+    return {
+      title: `Error Loading Page: ${pageId}`,
+      content: `# Error Loading Page\n\nThere was an error loading the requested page "${pageId}".`
+    };
   }
-  
-  return localizedInfoPage;
 };
 
 export default infopages;
