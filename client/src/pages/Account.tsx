@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useState, useEffect, useRef } from "react";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
@@ -53,6 +53,9 @@ export default function Account() {
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(true); // true = login, false = register
   const { t } = useLocale();
+  const [emailChanged, setEmailChanged] = useState(false);
+  const [formChanged, setFormChanged] = useState(false);
+  const originalEmailRef = useRef(user?.email || "");
   
   // Обрабатываем хэш в URL при монтировании и обновлении
   useEffect(() => {
@@ -86,7 +89,15 @@ export default function Account() {
     };
   }, []);
   
-  const { register, handleSubmit, formState: { errors }, control } = useForm<UpdateUserForm>({
+  // Сохраняем оригинальный email при монтировании компонента
+  useEffect(() => {
+    if (user?.email) {
+      originalEmailRef.current = user.email;
+      setEmailChanged(false);
+    }
+  }, [user?.email]);
+  
+  const { register, handleSubmit, formState: { errors }, control, watch } = useForm<UpdateUserForm>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       name: user?.name || "",
@@ -97,6 +108,24 @@ export default function Account() {
       apartment: user?.apartment || "",
     },
   });
+  
+  // Отслеживаем значения формы для определения изменений
+  const formValues = watch();
+  
+  // Эффект для обновления состояния изменения формы
+  useEffect(() => {
+    if (user) {
+      const hasChanged = 
+        formValues.name !== (user.name || "") ||
+        formValues.phone !== (user.phone || "") ||
+        formValues.country !== (user.country || "") ||
+        formValues.street !== (user.street || "") ||
+        formValues.house !== (user.house || "") ||
+        formValues.apartment !== (user.apartment || "");
+      
+      setFormChanged(hasChanged);
+    }
+  }, [formValues, user]);
   
   const handleVerifyEmail = async () => {
     if (!user) {
@@ -608,13 +637,19 @@ export default function Account() {
             type="email"
             label={`${t("emailAddress")} *`}
             defaultValue={currentUser.email}
-            readOnly
+            onChange={(e) => {
+              if (e.target.value !== originalEmailRef.current && e.target.value.trim() !== "") {
+                setEmailChanged(true);
+              } else {
+                setEmailChanged(false);
+              }
+            }}
           />
           <div className="flex items-center gap-3 mt-3">
             <button 
-              className="bg-blue-600 text-white flex-grow py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
+              className={`${!emailChanged && !currentUser.isVerified ? 'bg-blue-400' : 'bg-blue-600'} text-white flex-grow py-2 rounded-full hover:bg-blue-700 disabled:opacity-50`}
               onClick={handleVerifyEmail}
-              disabled={isLoading || currentUser.isVerified}
+              disabled={isLoading || currentUser.isVerified || !emailChanged}
             >
               {isLoading ? t("submit") + "..." : t("verifyEmail")}
             </button>
@@ -724,8 +759,8 @@ export default function Account() {
             </div>
             <button 
               type="submit"
-              className="bg-blue-600 text-white w-full py-2 rounded-full mt-4 hover:bg-blue-700 disabled:opacity-50"
-              disabled={isLoading}
+              className={`${!formChanged ? 'bg-blue-400' : 'bg-blue-600'} text-white w-full py-2 rounded-full mt-4 hover:bg-blue-700 disabled:opacity-50`}
+              disabled={isLoading || !formChanged}
             >
               {isLoading ? t("saving") + "..." : t("save") + " " + t("personalInformation")}
             </button>
