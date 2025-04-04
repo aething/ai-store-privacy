@@ -41,7 +41,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Активация сервис-воркера и удаление старых кэшей
+// Service worker activation and removal of old caches
 self.addEventListener('activate', event => {
   console.log('[Service Worker] Activating Service Worker...');
   event.waitUntil(
@@ -60,15 +60,15 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Стратегия кэширования и обработка оффлайн-режима
+// Caching strategy and offline mode handling
 self.addEventListener('fetch', event => {
-  // Не перехватываем запросы к API и сторонним ресурсам
+  // Do not intercept API requests and third-party resources
   if (event.request.url.includes('/api/') || 
       !event.request.url.startsWith(self.location.origin)) {
     return;
   }
   
-  // Особая обработка для навигации в оффлайн-режиме
+  // Special handling for navigation in offline mode
   if (event.request.mode === 'navigate' && !navigator.onLine) {
     event.respondWith(
       caches.match('/offline.html')
@@ -77,20 +77,20 @@ self.addEventListener('fetch', event => {
             console.log('[Service Worker] Serving offline page');
             return cachedResponse;
           }
-          // Если нет оффлайн-страницы, возвращаем кэшированную главную страницу
+          // If offline page is not available, return cached home page
           return caches.match('/');
         })
     );
     return;
   }
 
-  // Для HTML-страниц используем Network First
+  // Using Network First strategy for HTML pages
   if (event.request.headers.get('accept') && 
       event.request.headers.get('accept').includes('text/html')) {
     event.respondWith(
       fetch(event.request)
         .then(response => {
-          // Создаем копию ответа и сохраняем в кэш
+          // Create a copy of the response and save it to cache
           const clonedResponse = response.clone();
           caches.open(CACHE_NAME)
             .then(cache => cache.put(event.request, clonedResponse));
@@ -102,11 +102,11 @@ self.addEventListener('fetch', event => {
               if (cachedResponse) {
                 return cachedResponse;
               }
-              // Если страница не найдена в кэше и мы офлайн
+              // If the page is not found in cache and we're offline
               if (!navigator.onLine) {
                 return caches.match('/offline.html');
               }
-              // Иначе возвращаем кэшированную главную страницу
+              // Otherwise return cached home page
               return caches.match('/');
             });
         })
@@ -114,7 +114,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Для остальных ресурсов используем Cache First
+  // Using Cache First strategy for other resources
   event.respondWith(
     caches.match(event.request)
       .then(cachedResponse => {
@@ -122,15 +122,15 @@ self.addEventListener('fetch', event => {
           return cachedResponse;
         }
         
-        // Если ресурса нет в кэше, пытаемся получить его из сети
+        // If resource is not in cache, try to get it from network
         return fetch(event.request)
           .then(response => {
-            // Проверяем, что ответ валидный
+            // Check that the response is valid
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
             
-            // Создаем копию ответа для кэширования
+            // Create a copy of the response for caching
             const clonedResponse = response.clone();
             caches.open(CACHE_NAME)
               .then(cache => cache.put(event.request, clonedResponse));
@@ -138,11 +138,11 @@ self.addEventListener('fetch', event => {
             return response;
           })
           .catch(() => {
-            // Для изображений можно вернуть заглушку
+            // For images, return a placeholder
             if (event.request.url.match(/\.(jpg|jpeg|png|gif|svg)$/)) {
               return caches.match('/images/image-placeholder.svg');
             }
-            return new Response('Ресурс недоступен в офлайн-режиме', {
+            return new Response('Resource not available in offline mode', {
               status: 503,
               statusText: 'Service Unavailable',
               headers: new Headers({
@@ -154,7 +154,7 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Слушаем сообщения от клиентского кода
+// Listen for messages from client code
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();

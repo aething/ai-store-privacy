@@ -3,12 +3,12 @@ import { useLocation, useRoute } from 'wouter';
 import { isRouteAvailableOffline, useNetworkStatus } from '../utils/offlineNavigation';
 
 /**
- * Обработчик навигации для оффлайн-режима
+ * Navigation handler for offline mode
  * 
- * Этот компонент:
- * 1. Отслеживает изменения маршрута
- * 2. Проверяет доступность маршрута в оффлайн-режиме
- * 3. Перенаправляет на оффлайн-страницу, если маршрут недоступен в оффлайн-режиме
+ * This component:
+ * 1. Tracks route changes
+ * 2. Checks route availability in offline mode
+ * 3. Redirects to the offline page if the route is not available in offline mode
  */
 export const OfflineNavigationHandler: React.FC = () => {
   const isOnline = useNetworkStatus();
@@ -17,19 +17,19 @@ export const OfflineNavigationHandler: React.FC = () => {
   
   useEffect(() => {
     if (!isOnline && !isOfflinePage) {
-      // Проверяем, доступен ли текущий маршрут в оффлайн-режиме
+      // Check if the current route is available offline
       const isAvailableOffline = isRouteAvailableOffline(location);
       
       if (!isAvailableOffline) {
-        console.log(`[OfflineNavigationHandler] Маршрут ${location} недоступен офлайн, перенаправление на оффлайн-страницу`);
+        console.log(`[OfflineNavigationHandler] Route ${location} is not available offline, redirecting to offline page`);
         setLocation('/offline-enhanced');
       } else {
-        console.log(`[OfflineNavigationHandler] Маршрут ${location} доступен офлайн`);
+        console.log(`[OfflineNavigationHandler] Route ${location} is available offline`);
       }
     }
   }, [location, isOnline, isOfflinePage, setLocation]);
   
-  // Компонент не рендерит никакого UI
+  // This component doesn't render any UI
   return null;
 };
 

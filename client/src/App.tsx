@@ -14,7 +14,6 @@ import Confirmation from "@/pages/Confirmation";
 import Subscribe from "@/pages/Subscribe";
 import PlayMarket from "@/pages/PlayMarket";
 import StripeCatalog from "@/pages/StripeCatalog";
-import OfflineTest from "@/pages/OfflineTest";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
@@ -22,12 +21,12 @@ import { logMobileAppConfig, isMobileApp } from "@/utils/mobileAppUtils";
 import { OfflineNavigationProvider } from "./components/OfflineNavigationProvider";
 import OfflineNavigationHandler from "./components/OfflineNavigationHandler";
 
-// Инициализация настроек мобильного приложения
+// Initialize mobile app settings
 if (isMobileApp()) {
   logMobileAppConfig();
 }
 
-// Подключаем тесты в режиме разработки
+// Run tests in development mode
 if (import.meta.env.DEV) {
   import('@/utils/browserTests');
 }
@@ -46,7 +45,6 @@ function Router() {
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/playmarket" component={PlayMarket} />
       <Route path="/stripe-catalog" component={StripeCatalog} />
-      <Route path="/offline-test" component={OfflineTest} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -58,10 +56,10 @@ function App() {
       <OfflineNavigationProvider>
         <AppProvider>
           <LocaleProvider>
-            {/* ScrollManager следит за изменениями URL и управляет скроллом */}
+            {/* ScrollManager tracks URL changes and manages scrolling */}
             <ScrollManager />
             
-            {/* Обработчик навигации для оффлайн-режима */}
+            {/* Navigation handler for offline mode */}
             <OfflineNavigationHandler />
             
             <Layout>

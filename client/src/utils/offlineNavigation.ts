@@ -1,49 +1,49 @@
 /**
- * Модуль для реализации навигации в оффлайн-режиме
+ * Module for implementing offline navigation
  * 
- * Этот модуль предоставляет функциональность для:
- * 1. Определения доступности маршрутов в оффлайн-режиме
- * 2. Кэширования и загрузки данных для оффлайн-режима
- * 3. Мониторинга состояния сети
+ * This module provides functionality for:
+ * 1. Determining route availability in offline mode
+ * 2. Caching and loading data for offline mode
+ * 3. Monitoring network status
  */
 
 import { useState, useEffect } from 'react';
 
-// Глобальное хранилище кэшированных данных
+// Global storage for cached data
 export const OFFLINE_DATA = {
   products: [] as any[],
   user: null as any
 };
 
-// Список маршрутов, доступных в оффлайн-режиме
+// List of routes available in offline mode
 export const OFFLINE_ROUTES = [
-  '/',                    // Главная страница
-  '/account',             // Личный кабинет
-  '/offline-test',        // Тестовая страница офлайн-режима
-  '/offline-enhanced',    // Расширенная оффлайн-страница
+  '/',                    // Home page
+  '/account',             // Account page
+  '/offline-test',        // Offline test page
+  '/offline-enhanced',    // Enhanced offline page
 ];
 
 /**
- * Инициализация модуля оффлайн-навигации
+ * Initialize offline navigation module
  */
 export function initOfflineNavigation() {
-  console.log('[Offline Navigation] Инициализация...');
+  console.log('[Offline Navigation] Initializing...');
   
-  // Загружаем данные из localStorage
+  // Load data from localStorage
   loadOfflineData();
   
-  // Добавляем слушатели событий сети
+  // Add network event listeners
   window.addEventListener('online', () => {
-    console.log('[Offline Navigation] Соединение восстановлено');
+    console.log('[Offline Navigation] Connection restored');
     dispatchNetworkEvent(true);
   });
   
   window.addEventListener('offline', () => {
-    console.log('[Offline Navigation] Соединение потеряно');
+    console.log('[Offline Navigation] Connection lost');
     dispatchNetworkEvent(false);
   });
   
-  // Отправляем начальное событие о состоянии сети
+  // Send initial network status event
   dispatchNetworkEvent(navigator.onLine);
   
   return true;
