@@ -30,7 +30,8 @@ export default function InfoPage() {
   }, [showSwipeHint]);
 
   // Получаем локализованное содержимое страницы
-  const infoPage = params?.id && getLocalizedInfoPageById(params.id as InfoPageId, currentLocale);
+  const pageId = params?.id;
+  const infoPage = pageId && getLocalizedInfoPageById(pageId as InfoPageId, currentLocale);
 
   // Функция сброса прокрутки (вынесена отдельно для повторного использования)
   const resetScrollPosition = () => {

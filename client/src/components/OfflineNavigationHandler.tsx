@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useRoute } from 'wouter';
-import { isRouteAvailableOffline, useNetworkStatus } from '../utils/offlineNavigation';
+import { isRouteAvailableOffline } from '../utils/offlineNavigation';
+import { useOfflineNavigation } from './OfflineNavigationProvider';
 
 /**
  * Обработчик навигации для оффлайн-режима
@@ -11,7 +12,7 @@ import { isRouteAvailableOffline, useNetworkStatus } from '../utils/offlineNavig
  * 3. Перенаправляет на оффлайн-страницу, если маршрут недоступен в оффлайн-режиме
  */
 export const OfflineNavigationHandler: React.FC = () => {
-  const isOnline = useNetworkStatus();
+  const { isOnline } = useOfflineNavigation();
   const [location, setLocation] = useLocation();
   const [isOfflinePage] = useRoute('/offline-enhanced');
   

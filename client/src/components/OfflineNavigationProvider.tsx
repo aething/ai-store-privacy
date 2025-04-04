@@ -19,7 +19,14 @@ const OfflineNavigationContext = createContext<OfflineNavigationContextType>({
   cacheData: () => {},
 });
 
+// Хук для использования всего контекста оффлайн-навигации
 export const useOfflineNavigation = () => useContext(OfflineNavigationContext);
+
+// Хук только для статуса сети (был перенесен из utils/offlineNavigation.ts)
+export function useNetworkStatus() {
+  const { isOnline } = useOfflineNavigation();
+  return isOnline;
+}
 
 interface OfflineNavigationProviderProps {
   children: React.ReactNode;

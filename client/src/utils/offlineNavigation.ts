@@ -96,35 +96,14 @@ function dispatchNetworkEvent(isOnline: boolean) {
 }
 
 /**
- * Хук для отслеживания состояния сети
+ * Получает текущий статус сети
  */
-export function useNetworkStatus() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    
-    // Добавляем слушатели событий
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    // Добавляем слушатель для внутреннего события
-    const handleNetworkStatusChange = (event: CustomEvent) => {
-      setIsOnline(event.detail.online);
-    };
-    
-    window.addEventListener('network-status-change' as any, handleNetworkStatusChange as EventListener);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('network-status-change' as any, handleNetworkStatusChange as EventListener);
-    };
-  }, []);
-  
-  return isOnline;
+export function getNetworkStatus(): boolean {
+  return navigator.onLine;
 }
+
+// ВАЖНО: Хук useNetworkStatus перенесен в компонент OfflineNavigationProvider
+// для соблюдения правил React Hooks
 
 /**
  * Сохраняет данные в localStorage для оффлайн-режима
@@ -206,10 +185,13 @@ export function clearOfflineData() {
   return true;
 }
 
+// Для обратной совместимости, экспортируем хук из Provider
+export { useNetworkStatus } from '../components/OfflineNavigationProvider';
+
 export default {
   initOfflineNavigation,
   isRouteAvailableOffline,
-  useNetworkStatus,
+  getNetworkStatus,
   saveOfflineData,
   loadOfflineData,
   cacheDataForOffline,
