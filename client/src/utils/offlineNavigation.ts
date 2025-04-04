@@ -7,7 +7,8 @@
  * 3. Monitoring network status
  */
 
-import { useState, useEffect } from 'react';
+// NOTE: React hooks have been moved to a separate file for better organization
+// and to avoid hook rule violations. See client/src/hooks/useNetworkStatus.tsx
 
 // Global storage for cached data
 export const OFFLINE_DATA = {
@@ -95,36 +96,8 @@ function dispatchNetworkEvent(isOnline: boolean) {
   }
 }
 
-/**
- * Hook for tracking network status
- */
-export function useNetworkStatus() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    
-    // Add event listeners
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    // Add listener for internal event
-    const handleNetworkStatusChange = (event: CustomEvent) => {
-      setIsOnline(event.detail.online);
-    };
-    
-    window.addEventListener('network-status-change' as any, handleNetworkStatusChange as EventListener);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('network-status-change' as any, handleNetworkStatusChange as EventListener);
-    };
-  }, []);
-  
-  return isOnline;
-}
+// Hook for tracking network status moved to a separate file
+// See client/src/hooks/useNetworkStatus.tsx
 
 /**
  * Saves data to localStorage for offline mode
@@ -209,7 +182,7 @@ export function clearOfflineData() {
 export default {
   initOfflineNavigation,
   isRouteAvailableOffline,
-  useNetworkStatus,
+  // useNetworkStatus moved to dedicated hook file
   saveOfflineData,
   loadOfflineData,
   cacheDataForOffline,

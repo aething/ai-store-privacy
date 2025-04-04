@@ -1,100 +1,146 @@
-# Метаданные для публикации в Google Play Market
+# Google Play Store Metadata
 
-## Основная информация
+## App Information
 
-### Название приложения
-AI Store by Aething
+### Basic Information
+- **App Name**: AI Store
+- **Default Language**: English (United States)
+- **Package Name**: com.aething.aistore
+- **App or Game**: App
+- **Free or Paid**: Free (with in-app purchases)
+- **App Contains Ads**: No
 
-### Краткое описание (до 80 символов)
-Магазин AI-решений с международной поддержкой, автоматическим расчетом налогов и многоязычностью.
+### Store Listing
 
-### Полное описание (до 4000 символов)
-Готовые корпоративные решения для создания собственного чат-бота или голосового помощника внутри вашей компании. Создавайте базы знаний и разворачивайте защищенное интранет-решение для любых задач — от поддержки до коммуникации с клиентами или анализа больших данных.
+#### App Details
+- **Short Description** (80 characters max):
+  ```
+  Browse and purchase AI-powered solutions with automatic tax calculation
+  ```
 
-AI Store by Aething предлагает уникальный опыт покупок, основанный на искусственном интеллекте. Просматривайте нашу эксклюзивную коллекцию продуктов с поддержкой ИИ, созданных для того, чтобы сделать вашу жизнь проще.
+- **Full Description** (4000 characters max):
+  ```
+  AI Store is your go-to marketplace for cutting-edge artificial intelligence solutions designed for both personal and professional use. Browse our curated selection of premium AI tools that can streamline your workflow, enhance productivity, and unlock new possibilities.
 
-Наше приложение поддерживает:
-- Просмотр и покупку продуктов с поддержкой искусственного интеллекта
-- Безопасную оплату через Stripe
-- Отслеживание ваших заказов
-- Поддержку нескольких валют (USD и EUR)
-- Рекомендации продуктов в зависимости от страны
-- Автоматический расчет налогов на основе вашей страны
-- Многоязычную поддержку
+  Key Features:
+  
+  • Browse a diverse catalog of AI-powered solutions across multiple categories
+  • Automatically calculate taxes based on your location and applicable regulations
+  • Secure checkout process with support for multiple payment methods
+  • Track your purchases and access download links in your account
+  • Offline functionality allows browsing products even without internet connection
+  • Regular updates with new AI tools and features
 
-Что нового в последней версии:
-• Добавлена поддержка международного расчета налогов
-• Улучшена производительность и стабильность
-• Добавлены новые способы оплаты
-• Улучшен пользовательский интерфейс
-• Многоязычная поддержка информации о продуктах
-• Исправления ошибок и улучшения производительности
+  Our AI products range from productivity tools to creative solutions:
+  
+  • AI-Driven Business Solutions: Streamline operations, analyze data, and gain insights
+  • Machine Learning Systems: Deploy custom ML systems for specialized tasks
+  • Creative AI Tools: Generate content, designs, and creative assets with cutting-edge AI
+  • Productivity Enhancers: Automate routine tasks and optimize your workflow
+  
+  Why Choose AI Store?
+  
+  • Curated Selection: We carefully vet all products to ensure quality and performance
+  • Transparent Pricing: Clear pricing with automatic tax calculation for your region
+  • Secure Payments: Industry-standard encryption and secure payment processing
+  • Excellent Support: Dedicated customer service for all your questions and needs
+  
+  Download AI Store today and discover the future of artificial intelligence at your fingertips!
+  ```
 
-### Категория
-Покупки
+#### Contact Details
+- **Email**: support@aething.com
+- **Website**: https://aething.com
+- **Privacy Policy URL**: https://aething.com/privacy-policy
 
-### Тип приложения
-Приложение
+#### Categorization
+- **Primary Category**: Shopping
+- **Secondary Category**: Business
 
-## Контактная информация
+#### Graphics Assets
 
-### Электронная почта для связи с пользователями
-support@aething.com
+##### Screenshots
+Required: At least 2 screenshots for each supported device type (phone, tablet, TV, wear OS)
 
-### Веб-сайт
-https://aething.com
+- **Phone Screenshots** (1080x1920px recommended):
+  1. Home screen showing featured AI products
+  2. Product detail view with specifications
+  3. Shopping cart with tax calculation
+  4. Account page with purchase history
+  5. Offline mode navigation screen
 
-### Политика конфиденциальности
-https://aething.com/privacy-policy
+##### Feature Graphic
+Size: 1024x500 px
+```
+Feature graphic showing "AI Store" logo with a futuristic design and tagline "Advanced AI Solutions at Your Fingertips"
+```
 
-## Настройки цен и распространения
+##### App Icon
+Size: 512x512 px (already included in the project)
 
-### Цена приложения
-Бесплатно
+#### Content Rating
+- Target audience: 13+ years old
+- Contains no violent or sexual content
+- No user-generated content
+- No real gambling
+- No alcohol, tobacco or drugs references
 
-### Страны распространения
-Все страны
+### Content Rating Questionnaire Answers
+- **Violence**: No violence or references to violence
+- **Sexual Content**: No sexual content or nudity
+- **Language**: No profanity or crude humor
+- **Controlled Substances**: No references to drugs, alcohol or tobacco
+- **User Generated Content**: No user-to-user interactions or sharing of content
+- **Interactive Elements**: In-app purchases 
 
-### Возрастной рейтинг
-Для всех (Everyone)
+### Releases
 
-## Технические требования
+#### Release Notes for Initial Version (1.0.0)
+```
+Welcome to the initial release of AI Store! This version includes:
 
-### Минимальная версия Android
-Android 8.0 (API уровень 26)
+• Browse our catalog of premium AI solutions
+• Automatic tax calculation based on your location
+• Secure checkout process with multiple payment options
+• Offline functionality for browsing without internet
+• English language support (more languages coming soon)
 
-### Целевая версия SDK
-Android 14 (API уровень 34)
+Thank you for choosing AI Store!
+```
 
-### Требуемые разрешения
-- Интернет
-- Доступ к состоянию сети
+### Pricing & Distribution
 
-### Поддерживаемые экраны
-- Телефоны
-- Планшеты
+#### Countries for Distribution
+All countries except those with restrictions on digital goods
 
-## Маркетинговые материалы
+#### In-App Products
+- Various AI products and solutions (to be configured separately)
 
-### Ключевые слова
-AI, искусственный интеллект, чат-бот, голосовой помощник, машинное обучение, автоматизация, бизнес-решения, корпоративные решения, ИИ-продукты, международные платежи
+#### Consent
+- App complies with all Play policies
+- App does not target children under 13
+- App is not primarily directed to children under 13
+- Marketing opt-in: Yes
 
-### Краткие маркетинговые сообщения
-- Создайте собственного ИИ-ассистента для вашего бизнеса
-- Автоматизация бизнес-процессов с помощью искусственного интеллекта
-- Повысьте эффективность команды с AI Store
-- Оплата с учетом локальных налогов и в локальной валюте
+## Technical Information
 
-## Чек-лист для публикации
+### Country Availability
+Available in all countries with Google Play Store access
 
-- [ ] Подготовлены скриншоты всех основных экранов
-- [ ] Создан значок приложения для Google Play (512x512)
-- [ ] Создан баннер для Google Play (1024x500)
-- [ ] Подготовлен APK или Android App Bundle (AAB) файл
-- [ ] Заполнены все необходимые поля в консоли разработчика Google Play
-- [ ] Проверено соблюдение всех правил и политик Google Play
-- [ ] Проведено тестирование на разных устройствах
-- [ ] Проверена работа всех функций приложения
-- [ ] Загружен файл для внутреннего тестирования
-- [ ] Заполнена информация о политике конфиденциальности
-- [ ] Создан и загружен keystore файл для подписи приложения
+### Android API Levels
+- **Minimum SDK**: 23 (Android 6.0 Marshmallow)
+- **Target SDK**: 34 (Android 14)
+
+### Permissions
+- **Required**: INTERNET (for online functionality)
+- **Optional**: None
+
+### Features
+- Progressive Web App (PWA) with offline functionality
+- Secure HTTPS connections
+- Responsive design for various screen sizes
+- Automatic tax calculation based on user location
+
+### Version Information
+- **Version Code**: 1
+- **Version Name**: 1.0.0

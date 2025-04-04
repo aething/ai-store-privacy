@@ -3,9 +3,11 @@ import {
   initOfflineNavigation, 
   loadOfflineData, 
   cacheDataForOffline, 
-  useNetworkStatus,
   OFFLINE_DATA
 } from '../utils/offlineNavigation';
+
+// Import the hook from its dedicated file
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 
 // Context for offline navigation state
 interface OfflineNavigationContextType {

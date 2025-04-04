@@ -13,7 +13,7 @@ const config: CapacitorConfig = {
   appName: 'AI Store',
   
   // Frontend build directory
-  webDir: 'client/dist',
+  webDir: 'dist/public',
   
   // Disable built-in runtime
   bundledWebRuntime: false,

@@ -1,82 +1,98 @@
-# Чек-лист для публикации Android-приложения в Google Play Market
+# Google Play Store Publication Checklist
 
-## Подготовка приложения
+## Project State Summary
+The project has been successfully prepared for Google Play Store publication with the following features:
+- Single language (English only) for initial release
+- PWA (Progressive Web App) configured for offline functionality
+- Android platform added via Capacitor
+- Proper icons and resources generated for different screen densities
+- Service worker for offline functionality
 
-### Обязательные требования
-- [ ] Собрана стабильная и протестированная версия приложения
-- [ ] Оптимизирована производительность в WebView (низкое потребление ресурсов)
-- [ ] Приложение корректно работает в offline-режиме или уведомляет пользователя об отсутствии интернета
-- [ ] Пользовательский интерфейс оптимизирован для мобильных устройств
-- [ ] Реализована обработка ошибок и исключений
+## Build Status
+- ✅ Web application successfully built
+- ✅ Android platform added
+- ✅ Resources and configurations synced to Android project
+- ❌ APK file not built (requires JDK and Android SDK)
 
-### Технические требования
-- [ ] Минимальная версия Android: 8.0 (API уровень 26) или выше
-- [ ] Целевая версия SDK: Android 13 (API уровень 33) или выше
-- [ ] Приложение успешно собрано как Android App Bundle (AAB)
-- [ ] Подписано релизным ключом с длительным сроком действия (10+ лет)
-- [ ] Размер AAB файла не превышает 150MB
-- [ ] Версия приложения (versionCode и versionName) корректно указаны в build.gradle
+## Steps to Complete Publication
 
-## Маркетинговые материалы
+### 1. Build the APK/AAB file
+To build the APK or AAB (Android App Bundle) file, you have several options:
 
-### Обязательные графические элементы
-- [ ] Иконка приложения (512x512 px, 32-bit PNG)
-- [ ] Графика для функций (Feature Graphic, 1024x500 px)
-- [ ] Минимум 2 скриншота для каждого типа устройств (телефон/планшет)
-- [ ] Все изображения в формате JPEG или 24-bit PNG (без прозрачности)
+#### Option A: Local Build
+1. Download the project to a local machine with Android Studio installed
+2. Open the `android` folder in Android Studio
+3. Build the APK/AAB file using Android Studio
 
-### Текстовое содержание
-- [ ] Название приложения (до 50 символов)
-- [ ] Краткое описание (до 80 символов)
-- [ ] Полное описание (до 4000 символов)
-- [ ] Ключевые слова и теги
-- [ ] Новости о последнем обновлении
+#### Option B: Cloud CI/CD Service
+1. Set up a GitHub repository for the project
+2. Configure GitHub Actions or similar CI/CD service
+3. Create a workflow that builds the APK/AAB file
 
-## Политики Google Play
+#### Option C: APK Building Service
+1. Use a service that can build APK/AAB files from source
+2. Upload the `android` folder and configurations
 
-### Контент и правовые аспекты
-- [ ] URL политики конфиденциальности
-- [ ] Подтверждение соответствия политикам Google Play
-- [ ] Указание целевой аудитории и возрастных ограничений
-- [ ] Декларация использования разрешений Android
-- [ ] Соответствие требованиям GDPR/CCPA/COPPA (если применимо)
+### 2. Create a Google Play Developer Account
+If you don't already have one:
+1. Register at [play.google.com/apps/publish](https://play.google.com/apps/publish)
+2. Pay the one-time registration fee ($25)
+3. Complete the account setup process
 
-### Параметры публикации
-- [ ] Настроены страны для распространения
-- [ ] Определена ценовая политика (бесплатно/платно)
-- [ ] Указана категория приложения
-- [ ] Настроены контактные данные разработчика
+### 3. Create App in Google Play Console
+1. Log in to the Google Play Console
+2. Click "Create app"
+3. Fill in the app details:
+   - App name: "AI Store"
+   - Default language: English (United States)
+   - App or Game: App
+   - Free or Paid: Free (with in-app purchases)
+   - Declaration about app containing ads: No (update as needed)
 
-## Перед отправкой на проверку
+### 4. Prepare Store Listing
+1. Create a short description (up to 80 characters)
+2. Create a full description (up to 4000 characters)
+3. Upload screenshots (at least 2 for each supported device type)
+4. Create a feature graphic (1024x500 px)
+5. Add an app icon (512x512 px)
+6. Specify app category: Shopping
+7. Add contact details (email, website, privacy policy URL)
 
-### Финальная проверка
-- [ ] Приложение протестировано на реальных устройствах
-- [ ] Проверена работоспособность всех функций
-- [ ] Выполнена проверка на совместимость с разными версиями Android
-- [ ] Проверены все ссылки в приложении (не должно быть битых URL)
-- [ ] Проверена корректность отображения иконок и изображений
-- [ ] Удалены все отладочные выводы в консоль и логи
+### 5. Upload the App Bundle/APK
+1. Go to "App Releases" section
+2. Choose a release track (Production, Beta, Alpha, or Internal Test)
+3. Create a new release
+4. Upload the AAB file (preferred) or APK file
+5. Fill in release notes
 
-### Безопасность
-- [ ] Проверка на отсутствие уязвимостей
-- [ ] Безопасное хранение данных пользователя
-- [ ] Безопасные соединения (HTTPS)
-- [ ] Отсутствие чрезмерных или необоснованных разрешений
+### 6. Complete Content Rating
+1. Complete the rating questionnaire
+2. Submit for rating
 
-## После публикации
+### 7. Complete Pricing & Distribution
+1. Select countries for distribution
+2. Set pricing tier (free with in-app purchases)
+3. Specify content guidelines compliance
 
-### Мониторинг и поддержка
-- [ ] Настроены уведомления о новых отзывах
-- [ ] Настроен мониторинг ошибок через Google Play Console
-- [ ] Разработан план поддержки и обновлений
-- [ ] Готовность к быстрой реакции на критические проблемы
+### 8. Submit for Review
+1. Verify all required information is provided
+2. Submit the app for review
 
-## Дополнительно для нашего приложения
+## Post-Publication Tasks
+- Monitor app performance using Play Console analytics
+- Prepare additional language versions for future updates
+- Collect user feedback and plan improvements
+- Prepare marketing materials
 
-### Специфические проверки
-- [ ] Проверена работа расчета налогов для разных стран в WebView
-- [ ] Протестирована многоязычная поддержка на устройствах с разными локалями
-- [ ] Проверены все интеграции с платежными системами
-- [ ] Работа с кэшированием и оффлайн-поддержкой проверена при различных сценариях
-- [ ] Проверена корректная работа с разными размерами экранов
-- [ ] Проверена работа в ландшафтной и портретной ориентации (если поддерживается)
+## Current Limitations and Future Improvements
+- Only English language supported in initial release
+- Future releases plan to add additional languages
+- Some PWA advanced features (like background sync) not yet implemented
+- Tax calculation for international purchases requires testing in production
+
+## Technical Details for Reference
+- Package name: `com.aething.aistore`
+- Minimum SDK version: 23 (Android 6.0 Marshmallow)
+- Target SDK version: 34 (Android 14)
+- App category: Shopping
+- Required permissions: Internet access
