@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import SwipeBack from "@/components/SwipeBack";
 import { useLocale } from "@/context/LocaleContext";
-import { productTranslations } from "@/locales/products";
+import productTranslations from "@/locales/products";
 import productUITranslations from "@/locales/products/ui";
 import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -104,15 +104,9 @@ export default function ProductDetail() {
 
   // Получаем локализованные данные продукта и UI
   const localizedInfo = productTranslations[currentLocale]?.[product.id];
-  // Используем английские переводы как запасной вариант
-  const enTranslation = productTranslations['en']?.[product.id];
-  
-  // Создаем объект с полными данными, включая learnMoreTitle и learnMoreContent
-  const localizedProduct = localizedInfo || enTranslation || { 
+  const localizedProduct = localizedInfo || productTranslations['en']?.[product.id] || { 
     title: product.title,
-    description: product.description,
-    learnMoreTitle: enTranslation?.learnMoreTitle || "Technical Details",
-    learnMoreContent: enTranslation?.learnMoreContent || product.description
+    description: product.description
   };
   
   // Получаем локализованные UI элементы
@@ -130,12 +124,7 @@ export default function ProductDetail() {
       getPriceForCountry(product, user?.country),
       getCurrencyForCountry(user?.country),
       !!product.stripeProductId
-    ),
-    hasLearnMoreTitle: !!localizedProduct.learnMoreTitle,
-    hasLearnMoreContent: !!localizedProduct.learnMoreContent,
-    currentLocale: currentLocale,
-    allTranslationsForProduct: productTranslations[currentLocale]?.[product.id],
-    enTranslationsForProduct: productTranslations['en']?.[product.id]
+    )
   });
   
   const handleBuyNow = () => {

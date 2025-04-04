@@ -14,16 +14,15 @@ export const OfflineNavigationHandler: React.FC = () => {
   const isOnline = useNetworkStatus();
   const [location, setLocation] = useLocation();
   const [isOfflinePage] = useRoute('/offline-enhanced');
-  const [isInOfflinePage] = useRoute('/offline.html');
   
   useEffect(() => {
-    if (!isOnline && !isOfflinePage && !isInOfflinePage) {
+    if (!isOnline && !isOfflinePage) {
       // Проверяем, доступен ли текущий маршрут в оффлайн-режиме
       const isAvailableOffline = isRouteAvailableOffline(location);
       
       if (!isAvailableOffline) {
         console.log(`[OfflineNavigationHandler] Маршрут ${location} недоступен офлайн, перенаправление на оффлайн-страницу`);
-        setLocation('/offline.html');
+        setLocation('/offline-enhanced');
       } else {
         console.log(`[OfflineNavigationHandler] Маршрут ${location} доступен офлайн`);
       }

@@ -22,15 +22,16 @@ echo -e "${GREEN}Веб-приложение успешно собрано${NC}"
 
 # Проверяем наличие директории android
 if [ ! -d "android" ]; then
-  # Шаг 2: Проверка файла конфигурации Capacitor
-  echo -e "${YELLOW}Шаг 2: Проверка файла конфигурации Capacitor${NC}"
+  # Шаг 2: Инициализация проекта Capacitor
+  echo -e "${YELLOW}Шаг 2: Инициализация проекта Capacitor${NC}"
+  npx cap init "AI Store" "com.aething.aistore" --web-dir "client/dist"
   
-  if [ ! -f "capacitor.config.json" ]; then
-    echo -e "${RED}Ошибка: Отсутствует файл capacitor.config.json${NC}"
+  if [ $? -ne 0 ]; then
+    echo -e "${RED}Ошибка при инициализации проекта Capacitor${NC}"
     exit 1
   fi
   
-  echo -e "${GREEN}Файл конфигурации Capacitor найден${NC}"
+  echo -e "${GREEN}Проект Capacitor успешно инициализирован${NC}"
   
   # Шаг 3: Добавление Android платформы
   echo -e "${YELLOW}Шаг 3: Добавление Android платформы${NC}"
@@ -101,43 +102,8 @@ fi
 
 echo -e "${GREEN}Нативные плагины успешно обновлены${NC}"
 
-# Шаг 6.1: Проверка и обновление иконок приложения
-echo -e "${YELLOW}Шаг 6.1: Проверка и обновление иконок приложения${NC}"
-
-# Проверяем, существует ли скрипт для подготовки иконок
-if [ -f "prepare-icons.sh" ]; then
-  echo -e "${YELLOW}Запуск скрипта для подготовки иконок${NC}"
-  ./prepare-icons.sh
-  
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Предупреждение: не удалось обновить иконки приложения${NC}"
-    echo -e "${YELLOW}Будут использованы стандартные иконки${NC}"
-  else
-    echo -e "${GREEN}Иконки приложения успешно обновлены${NC}"
-  fi
-else
-  echo -e "${YELLOW}Скрипт prepare-icons.sh не найден. Пропускаем генерацию иконок.${NC}"
-fi
-
-# Шаг 7: Обновление манифеста Android
-echo -e "${YELLOW}Шаг 7: Обновление AndroidManifest.xml${NC}"
-
-# Проверяем, существует ли скрипт для обновления манифеста
-if [ -f "update-manifest.sh" ]; then
-  echo -e "${YELLOW}Запуск скрипта для обновления манифеста${NC}"
-  ./update-manifest.sh
-  
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Предупреждение: не удалось обновить манифест${NC}"
-  else
-    echo -e "${GREEN}Манифест успешно обновлен${NC}"
-  fi
-else
-  echo -e "${YELLOW}Скрипт update-manifest.sh не найден. Пропускаем обновление манифеста.${NC}"
-fi
-
-# Шаг 8: Настройка проекта Android для оптимальной работы WebView
-echo -e "${YELLOW}Шаг 8: Оптимизация настроек Android WebView${NC}"
+# Шаг 7: Настройка проекта Android для оптимальной работы WebView
+echo -e "${YELLOW}Шаг 7: Оптимизация настроек Android WebView${NC}"
 
 # Путь к MainActivity.java
 MAIN_ACTIVITY="android/app/src/main/java/com/aething/aistore/MainActivity.java"
@@ -169,7 +135,7 @@ else
   echo -e "${YELLOW}Файл MainActivity.java не найден, пропускаем оптимизацию WebView${NC}"
 fi
 
-# Шаг 9: Сборка APK файла в режиме отладки
+# Шаг 8: Сборка APK файла в режиме отладки
 echo -e "${YELLOW}Шаг 8: Сборка APK файла (debug)${NC}"
 cd android && ./gradlew assembleDebug
 
