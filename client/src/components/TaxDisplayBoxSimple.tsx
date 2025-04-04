@@ -26,11 +26,8 @@ const TaxDisplayBoxSimple: React.FC<TaxDisplayBoxProps> = ({
   className = '',
   showDetails = false
 }) => {
-  console.log('TaxDisplayBoxSimple rendering:', { tax, subtotal, currency });
-  
   // Форматирование валюты
   const formatCurrency = (amount: number): string => {
-    console.log('Formatting currency:', amount, currency);
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency.toUpperCase()
@@ -39,7 +36,6 @@ const TaxDisplayBoxSimple: React.FC<TaxDisplayBoxProps> = ({
 
   // Если налоговая информация не предоставлена, показываем информацию с 19% налогом по умолчанию
   if (!tax) {
-    console.warn(`Tax information is missing, using default 19% rate on subtotal ${subtotal}`);
     const defaultTaxAmount = Math.round(subtotal * 0.19); // 19% по умолчанию
     
     return (

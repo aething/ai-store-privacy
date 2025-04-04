@@ -15,12 +15,10 @@ let isOfflineMode = !navigator.onLine;
 // Обработчики изменения статуса сети
 window.addEventListener('online', () => {
   isOfflineMode = false;
-  console.log('[API Interceptor] Соединение восстановлено, используем онлайн API');
 });
 
 window.addEventListener('offline', () => {
   isOfflineMode = true;
-  console.log('[API Interceptor] Соединение потеряно, используем кэшированные данные');
 });
 
 /**
@@ -44,21 +42,16 @@ export function initApiInterceptors() {
     }
     
     if (isOfflineMode && url.includes('/api/')) {
-      console.log(`[API Interceptor] Оффлайн режим, используем кэш для запроса: ${url}`);
-      
       // Обрабатываем известные API эндпоинты
       if (url.includes('/api/products')) {
-        console.log('[API Interceptor] Возвращаем кэшированные продукты');
         return createMockResponse(OFFLINE_DATA.products, url);
       }
       
       if (url.includes('/api/users/me')) {
-        console.log('[API Interceptor] Возвращаем кэшированные данные пользователя');
         return createMockResponse(OFFLINE_DATA.user, url);
       }
       
       // Для других API запросов возвращаем оффлайн-ошибку
-      console.log(`[API Interceptor] Нет кэшированных данных для ${url}`);
       return createErrorResponse('Запрос невозможен в оффлайн-режиме', url);
     }
     
@@ -83,22 +76,18 @@ export function initApiInterceptors() {
           });
           window.dispatchEvent(event);
         } catch (error) {
-          console.warn('[API Interceptor] Ошибка при кэшировании ответа:', error);
+          // Игнорируем ошибки при кэшировании ответа
         }
       }
       
       return response;
     } catch (error) {
-      console.error(`[API Interceptor] Ошибка сети для ${url}:`, error);
-      
       // Если произошла ошибка сети, пробуем использовать кэш, даже если мы "онлайн"
       if (url.includes('/api/products')) {
-        console.log('[API Interceptor] Возвращаем кэшированные продукты (fallback)');
         return createMockResponse(OFFLINE_DATA.products, url);
       }
       
       if (url.includes('/api/users/me')) {
-        console.log('[API Interceptor] Возвращаем кэшированные данные пользователя (fallback)');
         return createMockResponse(OFFLINE_DATA.user, url);
       }
       

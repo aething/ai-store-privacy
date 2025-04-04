@@ -160,8 +160,7 @@ export async function createPaymentIntent(
   
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Error creating payment intent:', errorText);
-    throw new Error('Error creating payment intent');
+    throw new Error(`Error creating payment intent: ${errorText}`);
   }
   
   return await response.json();
@@ -201,8 +200,7 @@ export async function updatePaymentIntentQuantity(
   
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Error updating payment intent:', errorText);
-    throw new Error('Error updating payment intent');
+    throw new Error(`Error updating payment intent: ${errorText}`);
   }
   
   return await response.json();

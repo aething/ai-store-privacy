@@ -7,7 +7,6 @@ import NotFound from "@/pages/not-found";
 import Shop from "@/pages/Shop";
 import Account from "@/pages/Account";
 import ProductDetail from "@/pages/ProductDetail";
-import ProductDetailDebug from "@/pages/ProductDetail.debug";
 import Policy from "@/pages/Policy";
 import InfoPage from "@/pages/InfoPage";
 import Checkout from "@/pages/Checkout";
@@ -15,13 +14,7 @@ import Confirmation from "@/pages/Confirmation";
 import Subscribe from "@/pages/Subscribe";
 import PlayMarket from "@/pages/PlayMarket";
 import StripeCatalog from "@/pages/StripeCatalog";
-import DebugPage from "@/pages/DebugPage";
-import TaxTestPage from "@/pages/TaxTestPage";
-import SimpleTaxPage from "@/pages/SimpleTaxPage";
-import TaxTest from "@/pages/TaxTest";
-import ClearCache from "@/pages/ClearCache";
 import OfflineTest from "@/pages/OfflineTest";
-import CountrySelectDemo from "@/pages/CountrySelectDemo";
 import { AppProvider } from "@/context/AppContext";
 import { LocaleProvider } from "@/context/LocaleContext";
 import ScrollManager from "@/components/ScrollManager";
@@ -45,7 +38,6 @@ function Router() {
       <Route path="/" component={Shop} />
       <Route path="/account" component={Account} />
       <Route path="/product/:id" component={ProductDetail} />
-      <Route path="/product-debug/:id" component={ProductDetailDebug} />
       <Route path="/policy/:id" component={Policy} />
       <Route path="/info/:id" component={InfoPage} />
       <Route path="/checkout/:id" component={Checkout} />
@@ -54,13 +46,7 @@ function Router() {
       <Route path="/subscribe" component={Subscribe} />
       <Route path="/playmarket" component={PlayMarket} />
       <Route path="/stripe-catalog" component={StripeCatalog} />
-      <Route path="/debug" component={DebugPage} />
-      <Route path="/tax-test" component={TaxTestPage} />
-      <Route path="/simple-tax" component={SimpleTaxPage} />
-      <Route path="/tax-display-test" component={TaxTest} />
-      <Route path="/clear-cache" component={ClearCache} />
       <Route path="/offline-test" component={OfflineTest} />
-      <Route path="/country-select-demo" component={CountrySelectDemo} />
       <Route component={NotFound} />
     </Switch>
   );
