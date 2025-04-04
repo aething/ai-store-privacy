@@ -13,8 +13,6 @@ import type { Stripe, StripeElementsOptions } from '@stripe/stripe-js';
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { TaxDisplayBoxSimple } from "@/components/TaxDisplayBoxSimple";
 import { COMPANY_INFO, getVatIdForCountry } from "@shared/companyInfo";
-import { useLocale } from "@/context/LocaleContext";
-import checkoutTranslations from "@/locales/checkout";
 import { createPaymentIntent, updatePaymentIntentQuantity } from "@/api/payments";
 import { countries } from "@/data/countries";
 
@@ -44,8 +42,6 @@ const CheckoutForm = ({
   const { user } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
-  const { locale } = useLocale();
-  const t = checkoutTranslations[locale] || checkoutTranslations.en;
   
   // Проверяем инициализацию Elements
   useEffect(() => {
@@ -66,8 +62,8 @@ const CheckoutForm = ({
     
     if (!stripe || !elements || !user) {
       toast({
-        title: t.paymentError,
-        description: t.paymentNotLoadedError,
+        title: "Payment Error",
+        description: "Payment system is not fully loaded yet. Please try again.",
         variant: "destructive",
       });
       

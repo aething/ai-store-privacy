@@ -3,6 +3,7 @@ import {
   initOfflineNavigation, 
   loadOfflineData, 
   cacheDataForOffline, 
+  useNetworkStatus,
   OFFLINE_DATA
 } from '../utils/offlineNavigation';
 
@@ -30,29 +31,8 @@ interface OfflineNavigationProviderProps {
  * Инициализирует систему оффлайн-навигации и предоставляет контекст для компонентов
  */
 export const OfflineNavigationProvider: React.FC<OfflineNavigationProviderProps> = ({ children }) => {
-  // Используем встроенный useState для отслеживания состояния сети
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const isOnline = useNetworkStatus();
   const [offlineData, setOfflineData] = useState(OFFLINE_DATA);
-  
-  // Добавляем эффект для отслеживания состояния сети
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    window.addEventListener('network-status-change' as any, 
-      ((event: CustomEvent) => setIsOnline(event.detail.online)) as EventListener
-    );
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('network-status-change' as any, 
-        ((event: CustomEvent) => setIsOnline(event.detail.online)) as EventListener
-      );
-    };
-  }, []);
   
   // Инициализация оффлайн-режима при монтировании компонента
   useEffect(() => {

@@ -1,4 +1,3 @@
-
 import { InfoPage } from "@/types";
 
 export const infoPages: InfoPage[] = [
@@ -200,7 +199,6 @@ export const infoPages: InfoPage[] = [
   },
 ];
 
-// Сохраняем оригинальную функцию для обратной совместимости
 export const getInfoPageById = (id: number): InfoPage | undefined => {
   return infoPages.find(page => page.id === id);
 };

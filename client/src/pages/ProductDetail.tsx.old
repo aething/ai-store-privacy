@@ -1,4 +1,4 @@
-import { useRoute, useLocation, Link } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Product } from "@/types";
 import { Card } from "@/components/ui/card";
@@ -7,8 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import SwipeBack from "@/components/SwipeBack";
 import { useLocale } from "@/context/LocaleContext";
-import productTranslations from "@/locales/products";
-import productUITranslations from "@/locales/products/ui";
 import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -16,14 +14,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useProductImage } from "@/hooks/useProductImage";
 import { getProductImage } from "@/lib/imagePreloader";
 import { scrollToTop, saveScrollPositionForPath } from "@/lib/scrollUtils";
-// Используем локализованную информацию через контекст
 
 export default function ProductDetail() {
   const [match, params] = useRoute("/product/:id");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { user } = useAppContext();
-  const { t, currentLocale } = useLocale();
+  const { t } = useLocale();
   const [couponCode, setCouponCode] = useState('');
   
   const productId = match ? parseInt(params.id) : null;
@@ -42,11 +39,11 @@ export default function ProductDetail() {
     scrollToTop(false);
     
     // Сохраняем текущую позицию скролла главной страницы перед уходом
-    saveScrollPositionForPath();
+    saveScrollPositionForPath('/');
     
     // Также добавляем событие перед уходом со страницы для сохранения позиции
     const handleBeforeUnload = () => {
-      saveScrollPositionForPath();
+      saveScrollPositionForPath('/');
     };
     
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -59,7 +56,7 @@ export default function ProductDetail() {
   // Функция возврата на главную с сохранением позиции скролла
   const handleGoBack = () => {
     // Сохраняем текущую позицию скролла перед переходом
-    saveScrollPositionForPath();
+    saveScrollPositionForPath('/product/' + productId);
     console.log('[ProductDetail] Сохраняем позицию скролла перед уходом');
     
     // Используем history.back() для корректной работы системы восстановления позиции скролла
@@ -102,26 +99,10 @@ export default function ProductDetail() {
     );
   }
 
-  // Получаем локализованные данные продукта и UI
-  const localizedInfo = productTranslations[currentLocale]?.[product.id];
-  const englishFallback = productTranslations['en']?.[product.id];
-  const localizedProduct = localizedInfo || englishFallback || { 
-    title: product.title,
-    description: product.description,
-    features: [],
-    specifications: {},
-    learnMoreTitle: '',
-    learnMoreContent: ''
-  };
-  
-  // Получаем локализованные UI элементы
-  const uiText = productUITranslations[currentLocale] || productUITranslations['en'];
-  
   // Отладочная информация
   console.log("Product debug:", {
     id: product.id,
     title: product.title,
-    localizedTitle: localizedProduct.title,
     price: product.price,
     priceEUR: product.priceEUR,
     hasStripeId: !!product.stripeProductId,
@@ -190,7 +171,7 @@ export default function ProductDetail() {
             {imageSrc && (
               <img 
                 src={imageSrc}
-                alt={localizedProduct.title} 
+                alt={product.title} 
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   // Если не удалось загрузить изображение по URL, используем локальное изображение
@@ -203,13 +184,13 @@ export default function ProductDetail() {
             )}
           </div>
           <p className="text-xs text-gray-500 italic text-center">
-            {uiText.imageDisclaimer}
+            Images are for illustration purposes only. Refer to the description for full specifications.
           </p>
         </div>
         
         {/* Title, Coupon and Buy Button */}
         <div className="mb-6">
-          <h1 className="font-medium text-xl mb-3">{localizedProduct.title}</h1>
+          <h1 className="font-medium text-xl mb-3">{product.title}</h1>
           
           {/* Price and Buy Button in one row */}
           <div className="flex justify-between items-center mb-4">
@@ -229,7 +210,7 @@ export default function ProductDetail() {
               className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700"
               onClick={handleBuyNow}
             >
-              {t('buyNow')}
+              Buy Now
             </button>
           </div>
           
@@ -237,7 +218,7 @@ export default function ProductDetail() {
           <div className="mb-4">
             <Input
               type="text"
-              placeholder={uiText.enterCouponCode}
+              placeholder="Enter coupon code (optional)"
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
               className="w-full"
@@ -260,7 +241,7 @@ export default function ProductDetail() {
                   <line x1="2" y1="9" x2="4" y2="9"></line>
                   <line x1="2" y1="14" x2="4" y2="14"></line>
                 </svg>
-                {localizedProduct.hardwareTabLabel || uiText.hardwareTab}
+                Hardware
               </TabsTrigger>
               <TabsTrigger value="software" className="flex items-center">
                 <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -268,14 +249,14 @@ export default function ProductDetail() {
                   <line x1="8" y1="21" x2="16" y2="21"></line>
                   <line x1="12" y1="17" x2="12" y2="21"></line>
                 </svg>
-                {localizedProduct.softwareTabLabel || uiText.softwareTab}
+                Software
               </TabsTrigger>
             </TabsList>
             <TabsContent value="hardware" className="p-0">
               {product.hardwareInfo ? (
                 <div className="space-y-6">
                   <div className="bg-blue-50/15 rounded-lg p-4 border-l-2 border-blue-400">
-                    <h3 className="text-lg font-semibold text-blue-800 mb-4">{localizedProduct.hardwareSpecsLabel || uiText.hardwareSpecsHeading}</h3>
+                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Hardware Specifications</h3>
                     <div className="space-y-4 text-gray-800">
                       {product.hardwareInfo && product.hardwareInfo.split('. ').map((paragraph, index) => (
                         paragraph.trim() && (
@@ -288,7 +269,7 @@ export default function ProductDetail() {
                   </div>
 
                   <div className="bg-gray-50 rounded-lg p-4 border-l-2 border-gray-400">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">{localizedProduct.aiCapabilitiesLabel || uiText.aiCapabilitiesHeading}</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">AI Capabilities & Performance</h3>
                     <div className="space-y-4">
                       <div className="flex items-start gap-3">
                         <div className="bg-gray-200 rounded-md p-1 text-gray-700">
@@ -362,16 +343,16 @@ export default function ProductDetail() {
                 {product.softwareInfo ? (
                   <div className="space-y-6">
                     <div className="bg-gray-50/15 rounded-lg p-4 border-l-2 border-gray-400">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-3">{localizedProduct.softwareArchitectureLabel || uiText.softwareArchitectureHeading}</h3>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">Software Architecture</h3>
                       <div className="grid gap-3 md:grid-cols-2">
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
                           <div className="flex items-center gap-2 mb-2">
                             <div className="h-8 w-8 flex items-center justify-center bg-emerald-100 rounded-full">
                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600"><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="8" y1="20" x2="8.01" y2="20"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="12" y1="22" x2="12.01" y2="22"/><line x1="16" y1="16" x2="16.01" y2="16"/><line x1="16" y1="20" x2="16.01" y2="20"/></svg>
                             </div>
-                            <span className="font-medium">{uiText.cloudIntegration}</span>
+                            <span className="font-medium">Cloud Integration</span>
                           </div>
-                          <p className="text-sm text-gray-600">{uiText.cloudIntegrationDesc}</p>
+                          <p className="text-sm text-gray-600">Seamless integration with major cloud platforms for scalable data processing and model training</p>
                         </div>
                         
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
@@ -379,9 +360,9 @@ export default function ProductDetail() {
                             <div className="h-8 w-8 flex items-center justify-center bg-emerald-100 rounded-full">
                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                             </div>
-                            <span className="font-medium">{uiText.dataPipelines}</span>
+                            <span className="font-medium">Data Pipelines</span>
                           </div>
-                          <p className="text-sm text-gray-600">{uiText.dataPipelinesDesc}</p>
+                          <p className="text-sm text-gray-600">Robust ETL pipelines with advanced data transformation and feature engineering capabilities</p>
                         </div>
                         
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
@@ -389,9 +370,9 @@ export default function ProductDetail() {
                             <div className="h-8 w-8 flex items-center justify-center bg-emerald-100 rounded-full">
                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
                             </div>
-                            <span className="font-medium">{uiText.softwareStack}</span>
+                            <span className="font-medium">Containers</span>
                           </div>
-                          <p className="text-sm text-gray-600">{uiText.softwareStackDesc}</p>
+                          <p className="text-sm text-gray-600">Docker containerization with Kubernetes orchestration for deployment flexibility</p>
                         </div>
                         
                         <div className="bg-white rounded-lg shadow-sm p-3 border border-emerald-100">
@@ -399,15 +380,15 @@ export default function ProductDetail() {
                             <div className="h-8 w-8 flex items-center justify-center bg-emerald-100 rounded-full">
                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
                             </div>
-                            <span className="font-medium">{uiText.apiIntegration}</span>
+                            <span className="font-medium">APIs</span>
                           </div>
-                          <p className="text-sm text-gray-600">{uiText.apiIntegrationDesc}</p>
+                          <p className="text-sm text-gray-600">RESTful and GraphQL APIs with comprehensive SDK support for easy integration</p>
                         </div>
                       </div>
                     </div>
                     
                     <div className="bg-gray-50/15 rounded-lg p-4 border-l-2 border-gray-400">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-3">{uiText.aiPerformance}</h3>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">AI Framework Support</h3>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <h4 className="font-medium text-gray-800 mb-2">Deep Learning</h4>
@@ -456,7 +437,7 @@ export default function ProductDetail() {
                     </div>
                     
                     <div className="bg-gray-50/15 rounded-lg p-4 border-l-2 border-gray-400">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-3">{uiText.edgeComputing}</h3>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3">Edge Computing</h3>
                       <div className="text-gray-700 mb-4">
                         {product.softwareInfo?.replace(/e\.\s*g\.\s*/g, 'e.g. ')
                           .split(/(?<=\.)\s+(?=[A-Z•])/)
@@ -484,31 +465,9 @@ export default function ProductDetail() {
                       </div>
                     </div>
                   </div>
-                </>) : (
+                ) : (
                   <div className="text-gray-400 text-center py-4">
-                    {uiText.noSoftwareInfo}
-                  </div>
-                )}
-                
-                {/* "Learn More" секция - вынесена за пределы условного блока с softwareInfo */}
-                {localizedProduct && localizedProduct.learnMoreTitle && localizedProduct.learnMoreContent && (
-                  <div className="mt-8 pt-6 border-t border-gray-200">
-                    <h3 className="text-lg font-medium mb-4">{t('learnMore')}</h3>
-                    <div className="prose prose-sm max-w-none">
-                      <h4 className="text-md font-medium mb-2">{localizedProduct.learnMoreTitle}</h4>
-                      <p className="text-sm text-gray-600">{localizedProduct.learnMoreContent}</p>
-                      <Link
-                        to={`/info/${product.id - 1}`}
-                        className="inline-block mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        {t('readMore')} →
-                      </Link>
-                    </div>
-                  </div>
-                )}
-                </>) : (
-                  <div className="text-gray-400 text-center py-4">
-                    {uiText.noSoftwareInfo}
+                    No software information available
                   </div>
                 )}
               </TabsContent>

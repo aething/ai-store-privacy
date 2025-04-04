@@ -82,17 +82,6 @@ export default {
   closeAccountWarning: "This action permanently deletes your account and all associated data.",
   confirmCloseAccount: "Are you sure you want to close your account? This action cannot be undone.",
   
-  // Footer
-  company: "Company",
-  aboutUs: "About Us",
-  contactUs: "Contact Us",
-  termsOfService: "Terms of Service",
-  privacyPolicy: "Privacy Policy",
-  deliveryInfo: "Delivery Information",
-  returnsInfo: "Returns & Exchanges",
-  allRightsReserved: "All Rights Reserved",
-  currentLang: "Current Language",
-  
   // Policy Page
   policyNotFound: "Policy Not Found",
   policyCouldNotBeFound: "The requested policy could not be found.",

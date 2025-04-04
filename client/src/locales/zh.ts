@@ -47,12 +47,6 @@ export default {
   shipping: "配送政策",
   payment: "支付条款",
   warranty: "保修政策",
-  deliveryPolicy: "配送政策",
-  returnPolicy: "退货与换货政策",
-  contactInfo: "联系信息",
-  gdpr: "GDPR",
-  ftc: "FTC规则",
-  dataSafety: "Google Play数据安全",
   
   // Checkout
   checkout: "结账",

@@ -150,7 +150,7 @@ export async function getAllUsers(): Promise<User[]> {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `${SHEETS.USERS}!A2:M`,
+      range: `${SHEETS.USERS}!A2:L`,
     });
 
     const rows = response.data.values || [];
@@ -171,10 +171,8 @@ export async function getAllUsers(): Promise<User[]> {
           street: row[7] || null,
           house: row[8] || null,
           apartment: row[9] || null,
-          language: row[10] || 'en', // Язык пользователя, по умолчанию 'en'
-          stripeCustomerId: row[11] || null,
-          stripeSubscriptionId: null,
-          verificationToken: null
+          stripeCustomerId: row[10] || null,
+          stripeSubscriptionId: null
         };
         users.push(user);
       }
@@ -206,7 +204,6 @@ async function initializeHeaders(): Promise<void> {
     'street',
     'house',
     'apartment',
-    'language',
     'stripeCustomerId',
     'createdAt',
   ];
@@ -238,7 +235,7 @@ async function initializeHeaders(): Promise<void> {
     // Устанавливаем заголовки для листа пользователей
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `${SHEETS.USERS}!A1:M1`,
+      range: `${SHEETS.USERS}!A1:L1`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [userHeaders],
@@ -289,7 +286,6 @@ export async function saveUser(user: User): Promise<void> {
         user.street || '',
         user.house || '',
         user.apartment || '',
-        user.language || 'en', // Язык пользователя с дефолтным значением 'en'
         '', // stripeCustomerId
         new Date().toISOString(),
       ],
@@ -297,7 +293,7 @@ export async function saveUser(user: User): Promise<void> {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: `${SHEETS.USERS}!A:M`,
+      range: `${SHEETS.USERS}!A:L`,
       valueInputOption: 'RAW',
       requestBody: {
         values,
@@ -349,7 +345,6 @@ export async function updateUser(user: User): Promise<void> {
         user.street || '',
         user.house || '',
         user.apartment || '',
-        user.language || 'en', // Язык пользователя с дефолтным значением 'en'
         '', // stripeCustomerId
         new Date().toISOString(),
       ],
@@ -357,7 +352,7 @@ export async function updateUser(user: User): Promise<void> {
 
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: `${SHEETS.USERS}!A${rowIndex}:M${rowIndex}`,
+      range: `${SHEETS.USERS}!A${rowIndex}:L${rowIndex}`,
       valueInputOption: 'RAW',
       requestBody: {
         values,
@@ -399,7 +394,7 @@ export async function deleteUser(userId: number): Promise<void> {
     // Очищаем строку с пользователем
     await sheets.spreadsheets.values.clear({
       spreadsheetId,
-      range: `${SHEETS.USERS}!A${rowIndex}:M${rowIndex}`,
+      range: `${SHEETS.USERS}!A${rowIndex}:L${rowIndex}`,
     });
 
     console.log(`User deleted from Google Sheets: ID ${userId}`);

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from "react";
 
-// Import all general language translations
+// Import all language translations
 import en from "../locales/en";
 import es from "../locales/es";
 import de from "../locales/de";
@@ -9,47 +9,8 @@ import it from "../locales/it";
 import zh from "../locales/zh";
 import ja from "../locales/ja";
 
-// Import product-specific translations
-import productTranslations from "../locales/products";
-
 // Define locale types
 export type LocaleCode = 'en' | 'es' | 'de' | 'fr' | 'it' | 'zh' | 'ja';
-
-// Карта соответствия стран и языков
-export const countryToLocaleMap: Record<string, LocaleCode> = {
-  // Европейские страны
-  'DE': 'de', // Германия
-  'AT': 'de', // Австрия
-  'CH': 'de', // Швейцария
-  
-  'FR': 'fr', // Франция
-  'BE': 'fr', // Бельгия (фр.)
-  'LU': 'fr', // Люксембург (фр.)
-  
-  'ES': 'es', // Испания
-  'MX': 'es', // Мексика
-  'AR': 'es', // Аргентина
-  'CL': 'es', // Чили
-  'CO': 'es', // Колумбия
-  
-  'IT': 'it', // Италия
-  'SM': 'it', // Сан-Марино
-  'VA': 'it', // Ватикан
-  
-  'CN': 'zh', // Китай
-  'TW': 'zh', // Тайвань
-  'SG': 'zh', // Сингапур (частично)
-  
-  'JP': 'ja', // Япония
-  
-  // Англоязычные страны
-  'US': 'en', // США
-  'GB': 'en', // Великобритания
-  'CA': 'en', // Канада (англ.)
-  'AU': 'en', // Австралия
-  'NZ': 'en', // Новая Зеландия
-  'IE': 'en', // Ирландия
-};
 
 // Available locales object
 const localesData = {
@@ -65,12 +26,10 @@ const localesData = {
 // Define context type
 export interface LocaleContextType {
   currentLocale: LocaleCode;
-  locale: LocaleCode; // Алиас для упрощения доступа
   setLocale: (locale: LocaleCode) => void;
   t: (key: string) => string;
   getLocaleOptions: () => { value: LocaleCode; label: string }[];
-  translations: any; // Доступ к объекту переводов
-  getLocalizedProductInfo: (productId: number) => { title: string; description: string };
+  translations: any; // Добавляем доступ к объекту переводов
 }
 
 // Create context
@@ -81,23 +40,14 @@ interface LocaleProviderProps {
   children: ReactNode;
 }
 
-// Функция для определения языка по стране пользователя
-export function getLocaleFromCountry(countryCode: string | undefined | null): LocaleCode {
-  if (!countryCode) {
-    return 'en'; // По умолчанию английский, если страна не указана
-  }
-  
-  const upperCaseCountry = countryCode.toUpperCase();
-  return countryToLocaleMap[upperCaseCountry] || 'en';
-}
-
 // Create provider component
 export function LocaleProvider({ children }: LocaleProviderProps) {
-  // Always use English as the default locale
+  // Get stored locale or default to English
   const [currentLocale, setCurrentLocale] = useState<LocaleCode>(() => {
-    // Установим фиксированную локаль "en" для всех пользователей
-    localStorage.setItem("locale", "en");
-    return "en";
+    const savedLocale = localStorage.getItem("locale") as LocaleCode;
+    return (savedLocale && Object.keys(localesData).includes(savedLocale)) 
+      ? savedLocale 
+      : "en";
   });
 
   // Update locale and save to localStorage
@@ -125,36 +75,14 @@ export function LocaleProvider({ children }: LocaleProviderProps) {
   useEffect(() => {
     document.documentElement.lang = currentLocale;
   }, [currentLocale]);
-  
-  // Не используем автоматическое изменение локали при смене страны пользователя
-
-  // Function to get localized product information
-  const getLocalizedProductInfo = (productId: number) => {
-    // Try to get from product translations for current locale
-    const localizedInfo = productTranslations[currentLocale]?.[productId];
-    
-    // Fallback to English if translation not available
-    if (!localizedInfo && currentLocale !== 'en') {
-      return productTranslations['en']?.[productId] || { 
-        title: `Product #${productId}`, 
-        description: "No description available" 
-      };
-    }
-    
-    return localizedInfo || { 
-      title: `Product #${productId}`, 
-      description: "No description available" 
-    };
-  };
 
   const value = {
     currentLocale,
-    locale: currentLocale, // Алиас для упрощения доступа
     setLocale,
     t,
     getLocaleOptions,
-    translations: localesData[currentLocale].translations,
-    getLocalizedProductInfo
+    // Добавляем доступ к текущим переводам
+    translations: localesData[currentLocale].translations
   };
 
   return (
