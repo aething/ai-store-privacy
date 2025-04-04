@@ -689,7 +689,7 @@ export default function Checkout() {
     
     const fetchPaymentIntent = async () => {
       try {
-        console.log('Initializing payment with quantity:', quantity);
+        // Отключаем логирование количества
         
         // Создаем платежное намерение с текущим количеством
         console.log('Creating payment intent with:', {
@@ -840,7 +840,7 @@ export default function Checkout() {
     setIsUpdatingQuantity(true);
     
     try {
-      console.log("[QUANTITY DEBUG] Changing quantity from", quantity, "to", newQuantity);
+      // Отключаем логирование изменения количества
       
       // Сначала обновляем визуально количество
       setQuantity(newQuantity);
@@ -851,7 +851,7 @@ export default function Checkout() {
       
       // Предварительно обновляем отображаемую налоговую информацию для лучшего UX
       if (stripeTaxInfo) {
-        console.log("[QUANTITY DEBUG] Предварительно обновляем налоговую информацию");
+        // Отключаем логирование обновления налоговой информации
         // Рассчитываем новую сумму налога на основе ставки и нового количества
         const updatedTaxAmount = Math.round(price * newQuantity * stripeTaxInfo.rate);
         

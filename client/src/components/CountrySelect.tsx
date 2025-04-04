@@ -80,7 +80,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({
       {label && (
         <label 
           htmlFor={id} 
-          className={`block text-sm font-medium text-gray-700 mb-1 ${required ? 'after:content-["*"] after:ml-0.5 after:text-red-500' : ''}`}
+          className="block text-sm font-medium text-gray-700 mb-1"
         >
           {label}
         </label>

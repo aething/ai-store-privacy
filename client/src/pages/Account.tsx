@@ -606,7 +606,7 @@ export default function Account() {
           <MaterialInput
             id="email"
             type="email"
-            label={t("emailAddress")}
+            label={`${t("emailAddress")} *`}
             defaultValue={currentUser.email}
             readOnly
           />
@@ -672,7 +672,7 @@ export default function Account() {
               render={({ field }) => (
                 <CountrySelect
                   id="country"
-                  label={t("country") || "Country"}
+                  label={`${t("country") || "Country"} *`}
                   value={field.value || ''}
                   onChange={(value) => {
                     // Вызываем оригинальный обработчик
