@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatPrice, getCurrencyForCountry, getPriceForCountry } from "@/lib/currency";
 import SwipeBack from "@/components/SwipeBack";
 import { useLocale } from "@/context/LocaleContext";
-import productTranslations from "@/locales/products";
+import { productTranslations } from "@/locales/products";
 import productUITranslations from "@/locales/products/ui";
 import { ArrowLeft, Monitor, Cpu } from "lucide-react";
 import { Input } from "@/components/ui/input";
