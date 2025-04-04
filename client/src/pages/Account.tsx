@@ -741,12 +741,12 @@ export default function Account() {
             <p className="mb-4">
               {user?.stripeSubscriptionId 
                 ? t("activeSubscription") || "You have an active subscription" 
-                : t("noSubscription") || "You don't have an active subscription"}
+                : t("noSubscription") || "No Subscription"}
             </p>
             <button
               onClick={() => setLocation('/subscribe')}
               className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 disabled:opacity-50"
-              disabled={isLoading || !user}
+              disabled={isLoading || !user || !user?.stripeSubscriptionId}
             >
               {user?.stripeSubscriptionId 
                 ? t("manageSubscription") || "Manage Subscription" 

@@ -214,7 +214,7 @@ export default function OrdersList({ showDemoOrders = false }) {
   if (isError) {
     return (
       <Card className="p-4 text-center text-red-600">
-        <p>{t('errorFetchingOrders') || 'Error fetching orders. Please try again.'}</p>
+        <p>{t('errorFetchingOrders') || 'No Fetching Orders'}</p>
       </Card>
     );
   }
