@@ -22,19 +22,8 @@ echo -e "${GREEN}Web application successfully built${NC}"
 
 # Check if android directory exists
 if [ ! -d "android" ]; then
-  # Step 2: Initialize Capacitor project
-  echo -e "${YELLOW}Step 2: Initializing Capacitor project${NC}"
-  npx cap init "AI Store" "com.aething.aistore" --web-dir "client/dist"
-  
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}Error initializing Capacitor project${NC}"
-    exit 1
-  fi
-  
-  echo -e "${GREEN}Capacitor project successfully initialized${NC}"
-  
-  # Step 3: Add Android platform
-  echo -e "${YELLOW}Step 3: Adding Android platform${NC}"
+  # Step 2: Add Android platform (using existing capacitor.config.ts)
+  echo -e "${YELLOW}Step 2: Adding Android platform${NC}"
   npx cap add android
   
   if [ $? -ne 0 ]; then
@@ -47,8 +36,8 @@ else
   echo -e "${GREEN}Android project already initialized${NC}"
 fi
 
-# Step 4: Copy and optimize index.html for Android
-echo -e "${YELLOW}Step 4: Optimizing index.html for Android${NC}"
+# Step 3: Copy and optimize index.html for Android
+echo -e "${YELLOW}Step 3: Optimizing index.html for Android${NC}"
 INDEX_FILE="client/dist/index.html"
 
 if [ -f "$INDEX_FILE" ]; then
@@ -80,8 +69,8 @@ else
   echo -e "${RED}Error: index.html not found${NC}"
 fi
 
-# Step 5: Copy web application changes to Android project
-echo -e "${YELLOW}Step 5: Copying web application changes to Android project${NC}"
+# Step 4: Copy web application changes to Android project
+echo -e "${YELLOW}Step 4: Copying web application changes to Android project${NC}"
 npx cap copy android
 
 if [ $? -ne 0 ]; then
@@ -91,8 +80,8 @@ fi
 
 echo -e "${GREEN}Changes successfully copied to Android project${NC}"
 
-# Step 6: Update native plugins
-echo -e "${YELLOW}Step 6: Updating native plugins${NC}"
+# Step 5: Update native plugins
+echo -e "${YELLOW}Step 5: Updating native plugins${NC}"
 npx cap sync android
 
 if [ $? -ne 0 ]; then
@@ -102,8 +91,8 @@ fi
 
 echo -e "${GREEN}Native plugins successfully updated${NC}"
 
-# Step 7: Configure Android project for optimal WebView performance
-echo -e "${YELLOW}Step 7: Optimizing Android WebView settings${NC}"
+# Step 6: Configure Android project for optimal WebView performance
+echo -e "${YELLOW}Step 6: Optimizing Android WebView settings${NC}"
 
 # Path to MainActivity.java
 MAIN_ACTIVITY="android/app/src/main/java/com/aething/aistore/MainActivity.java"
@@ -135,8 +124,8 @@ else
   echo -e "${YELLOW}MainActivity.java file not found, skipping WebView optimization${NC}"
 fi
 
-# Step 8: Build APK file in debug mode
-echo -e "${YELLOW}Step 8: Building APK file (debug)${NC}"
+# Step 7: Build APK file in debug mode
+echo -e "${YELLOW}Step 7: Building APK file (debug)${NC}"
 cd android && ./gradlew assembleDebug
 
 if [ $? -ne 0 ]; then
