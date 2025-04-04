@@ -2,13 +2,16 @@ import { useRef } from "react";
 import { Product } from "@/types";
 import ProductCard from "@/components/ProductCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useLocale } from "@/context/LocaleContext";
 
 interface ProductSliderProps {
   title: string;
   products: Product[];
+  titleKey?: string; // Ключ для локализации заголовка
 }
 
-export default function ProductSlider({ title, products }: ProductSliderProps) {
+export default function ProductSlider({ title, products, titleKey }: ProductSliderProps) {
+  const { t } = useLocale(); // Получаем функцию перевода
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const scroll = (direction: 'left' | 'right') => {
@@ -26,7 +29,9 @@ export default function ProductSlider({ title, products }: ProductSliderProps) {
   
   return (
     <div className="mb-6 relative">
-      <h2 className="text-lg font-medium mb-4">{title}</h2>
+      <h2 className="text-lg font-medium mb-4">
+        {titleKey ? t(titleKey) : title}
+      </h2>
       
       <div 
         ref={scrollRef}

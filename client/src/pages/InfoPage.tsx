@@ -125,10 +125,14 @@ export default function InfoPage() {
           {/* Якорь для верхней части контента */}
           <div id="content-top" ref={contentRef}></div>
           
-          <h1 className="text-2xl font-bold mb-6">{infoPage.title}</h1>
+          <h1 className="text-2xl font-bold mb-6">
+            {t(`infoPage.${pageId}.title`) || infoPage.title}
+          </h1>
           
           <div className="prose max-w-none">
-            <ReactMarkdown>{infoPage.content}</ReactMarkdown>
+            <ReactMarkdown>
+              {t(`infoPage.${pageId}.content`) || infoPage.content}
+            </ReactMarkdown>
           </div>
           
           <div className="mt-8 flex justify-center">

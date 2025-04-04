@@ -8,9 +8,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface InfoPageSliderProps {
   title: string;
   infoPages: InfoPage[];
+  titleKey?: string; // Ключ для локализации заголовка
 }
 
-export default function InfoPageSlider({ title, infoPages }: InfoPageSliderProps) {
+export default function InfoPageSlider({ title, infoPages, titleKey }: InfoPageSliderProps) {
   const [, setLocation] = useLocation();
   const { t } = useLocale();
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -72,7 +73,9 @@ export default function InfoPageSlider({ title, infoPages }: InfoPageSliderProps
 
   return (
     <div className="mb-8 relative">
-      <h2 className="text-lg font-medium mb-4">{title}</h2>
+      <h2 className="text-lg font-medium mb-4">
+        {titleKey ? t(titleKey) : title}
+      </h2>
       <div 
         ref={sliderRef}
         id="info-pages-scroll"
