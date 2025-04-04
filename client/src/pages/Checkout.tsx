@@ -1235,6 +1235,7 @@ export default function Checkout() {
           </div>
         ) : clientSecret ? (
           <Elements 
+            key={`${clientSecret}-qty-${quantity}`}
             stripe={stripePromise} 
             options={{ 
               clientSecret,
