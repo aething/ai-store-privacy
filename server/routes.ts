@@ -833,6 +833,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Quantity must be a positive number" });
       }
       
+      // Вычисляем базовую цену за единицу товара (это важно для будущих обновлений)
+      const unitPrice = Math.round(amount / parsedQuantity);
+      console.log(`Calculated unit price: ${unitPrice} ${currency} per item (total amount: ${amount}, quantity: ${parsedQuantity})`);
+      
       // Validate currency - ensure lowercase comparison
       // Сначала убедимся, что currency - это строка
       const currencyStr = String(currency);
@@ -1165,7 +1169,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           tax_amount: taxAmount.toString(),
           tax_rate: (taxRate * 100).toFixed(2) + '%',
           tax_label: taxLabel,
-          country_code: country || 'unknown'
+          country_code: country || 'unknown',
+          // Добавляем важную информацию о цене за единицу товара
+          unitPrice: unitPrice.toString(),
+          basePrice: unitPrice.toString(), // Для обратной совместимости 
+          singleItemPrice: unitPrice.toString() // Еще один формат для ясности
         },
         description: taxRate > 0 ? `Order with ${taxLabel} (${taxAmount} ${currency})` : 'Order without VAT'
         // Примечание: параметр 'tax' не поддерживается в текущей версии API Stripe
@@ -1442,17 +1450,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Получаем метаданные текущего PaymentIntent
       const metadata = currentPaymentIntent.metadata || {};
+
+      // Получаем информацию о продукте для определения цены за единицу
+      const productPrice = product.priceEUR || product.price;
       
-      // Получаем базовую цену за единицу товара из метаданных
-      const basePrice = parseInt(metadata.basePrice || '0', 10);
-      console.log(`Original amount: ${basePrice} ${order.currency} (единица товара: ${basePrice})`);
+      // Пытаемся получить базовую цену за единицу товара из разных источников
+      // 1. Из метаданных basePrice (приоритет)
+      // 2. Из метаданных base_amount, разделенное на quantity (если есть)
+      // 3. Из продукта напрямую (всегда должно работать)
+      let basePrice = 0;
       
-      // Если базовая цена не найдена, используем сумму из заказа
-      const originalUnitPrice = basePrice || order.amount;
+      if (metadata.basePrice) {
+        basePrice = parseInt(metadata.basePrice, 10);
+      } else if (metadata.base_amount && metadata.quantity) {
+        // Вычисляем цену за единицу, разделив базовую сумму на количество
+        const metaBaseAmount = parseInt(metadata.base_amount, 10);
+        const metaQuantity = parseInt(metadata.quantity, 10);
+        if (metaQuantity > 0) {
+          basePrice = Math.round(metaBaseAmount / metaQuantity);
+        }
+      }
       
-      // Вычисляем новую базовую сумму
+      // Если всё еще нет базовой цены, берем из продукта
+      if (!basePrice) {
+        basePrice = order.currency === 'eur' ? product.priceEUR : product.price;
+      }
+      
+      console.log(`Базовая цена за единицу товара: ${basePrice} ${order.currency}`);
+      
+      // Обеспечиваем, что у нас есть положительная цена за единицу товара
+      const originalUnitPrice = basePrice > 0 ? basePrice : productPrice;
+      
+      // Вычисляем новую базовую сумму (цена за единицу * количество)
       const newBaseAmount = originalUnitPrice * parsedQuantity;
-      console.log(`Новое базовое количество: ${parsedQuantity}, сумма: ${newBaseAmount} ${order.currency}`);
+      console.log(`Новое количество: ${parsedQuantity}, базовая сумма: ${newBaseAmount} ${order.currency}`);
       
       // Получаем налоговую ставку из метаданных
       const taxRateStr = metadata.taxRate || '0%';

@@ -118,11 +118,12 @@ export async function createPaymentIntent(
     country: country || 'unknown',
     taxRate: rate.toString(),
     taxLabel: label,
-    basePrice: price.toString(), // Цена за единицу товара
+    basePrice: price.toString(), // Важно! Цена за единицу товара
     baseAmount: baseAmount.toString(), // Общая базовая сумма с учетом количества
     taxAmount: taxAmount.toString(),
     totalWithTax: totalAmount.toString(),
-    quantity: quantity.toString() // Добавляем количество в метаданные
+    quantity: quantity.toString(), // Важно! Количество товаров в заказе
+    unitPrice: price.toString() // Альтернативное поле для единичной цены (для совместимости)
   };
   
   console.log('Creating payment intent with tax calculation:', {
