@@ -6,6 +6,7 @@
  * 2. Кэширования и загрузки данных для оффлайн-режима
  * 3. Мониторинга состояния сети
  */
+import React from 'react';
 
 // Глобальное хранилище кэшированных данных
 export const OFFLINE_DATA = {
@@ -183,8 +184,25 @@ export function clearOfflineData() {
   return true;
 }
 
-// Хук useNetworkStatus перенесен в OfflineNavigationProvider и использовать его 
-// нужно оттуда напрямую, чтобы избежать циклической зависимости
+// Хук для получения статуса сети
+export function useNetworkStatus() {
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+  
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+  
+  return isOnline;
+}
 
 export default {
   initOfflineNavigation,

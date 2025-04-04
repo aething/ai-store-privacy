@@ -1,4 +1,5 @@
 import React, { useEffect, createContext, useState, useContext } from 'react';
+
 import { 
   initOfflineNavigation, 
   loadOfflineData, 
@@ -6,10 +7,16 @@ import {
   OFFLINE_DATA
 } from '../utils/offlineNavigation';
 
+// Определяем тип для оффлайн данных
+interface OfflineData {
+  products: any[];
+  user: any | null;
+}
+
 // Контекст для состояния оффлайн-навигации
 interface OfflineNavigationContextType {
   isOnline: boolean;
-  offlineData: typeof OFFLINE_DATA;
+  offlineData: OfflineData;
   cacheData: (dataType: 'products' | 'user', data: any) => void;
 }
 
@@ -22,25 +29,8 @@ const OfflineNavigationContext = createContext<OfflineNavigationContextType>({
 // Хук для использования всего контекста оффлайн-навигации
 export const useOfflineNavigation = () => useContext(OfflineNavigationContext);
 
-// Хук только для статуса сети (независимый от useOfflineNavigation для избежания циклических зависимостей)
-export function useNetworkStatus() {
-  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
-  
-  React.useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-  
-  return isOnline;
-}
+// Реэкспортируем хук для обратной совместимости
+export { useNetworkStatus } from '../utils/offlineNavigation';
 
 interface OfflineNavigationProviderProps {
   children: React.ReactNode;

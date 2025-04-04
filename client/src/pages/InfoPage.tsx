@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Home, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-// import ReactMarkdown from "react-markdown";
+import ReactMarkdown from "react-markdown";
 import Footer from "@/components/Footer";
 import { getInfoPageById } from "@/constants/infoPages";
 
@@ -197,7 +197,9 @@ export default function InfoPage() {
           </h1>
           
           <div className="prose max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: content }} />
+            <ReactMarkdown>
+              {content}
+            </ReactMarkdown>
           </div>
           
           <div className="mt-8 flex justify-center">

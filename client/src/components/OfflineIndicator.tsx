@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNetworkStatus } from './OfflineNavigationProvider';
+import { useNetworkStatus } from '../utils/offlineNavigation';
 
 /**
  * Компонент индикатора офлайн режима.
