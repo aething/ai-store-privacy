@@ -84,6 +84,17 @@ export default {
   closeAccountWarning: "Diese Aktion löscht Ihr Konto und alle zugehörigen Daten dauerhaft.",
   confirmCloseAccount: "Sind Sie sicher, dass Sie Ihr Konto schließen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
   
+  // Footer
+  company: "Unternehmen",
+  aboutUs: "Über uns",
+  contactUs: "Kontakt",
+  termsOfService: "Nutzungsbedingungen",
+  privacyPolicy: "Datenschutzrichtlinie",
+  deliveryInfo: "Lieferinformationen",
+  returnsInfo: "Rückgabe & Umtausch",
+  allRightsReserved: "Alle Rechte vorbehalten",
+  currentLang: "Aktuelle Sprache",
+  
   // Policy Page
   policyNotFound: "Richtlinie nicht gefunden",
   policyCouldNotBeFound: "Die angeforderte Richtlinie konnte nicht gefunden werden.",

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Home, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ReactMarkdown from "react-markdown";
+import Footer from "@/components/Footer";
 
 export default function InfoPage() {
   const [, setLocation] = useLocation();
@@ -138,6 +139,11 @@ export default function InfoPage() {
             </Button>
           </div>
         </Card>
+        
+        {/* Добавляем футер для информационных страниц */}
+        <div className="mt-6">
+          <Footer />
+        </div>
       </div>
     </SwipeBack>
   );
