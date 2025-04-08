@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AI Store</string>
+    <string name="title_activity_main">AI Store</string>
+    <string name="package_name">com.aething.aistore</string>
+    <string name="custom_url_scheme">com.aething.aistore</string>
+</resources>
