@@ -99,6 +99,57 @@
             transform: translateY(-5px);
         }
 
+        .description {
+            padding: 4rem 0;
+            background-color: white;
+        }
+
+        .description-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .description-content p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .screenshots {
+            padding: 4rem 0;
+            background-color: var(--light-bg);
+        }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .screenshot-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .screenshot-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .screenshot-card img {
+            width: 100%;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .screenshot-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
         .cta {
             background-color: var(--primary-color);
             color: white;
@@ -159,6 +210,40 @@
                 </div>
                 <div class="hero-image">
                     <img src="https://play-lh.googleusercontent.com/placeholder" alt="AI Store App Screenshot">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="description">
+        <div class="container">
+            <div class="description-content">
+                <h2>About AI Store</h2>
+                <p>AI Store is your ultimate destination for discovering and accessing the best AI applications. Our platform brings together a carefully curated selection of AI-powered tools that can transform how you work, create, and interact with technology.</p>
+                <p>Whether you're a professional looking to streamline your workflow, a creative seeking new tools for expression, or simply curious about the possibilities of AI, AI Store provides you with easy access to cutting-edge applications.</p>
+                <p>Our mission is to make AI technology accessible to everyone. We carefully review and select each application to ensure it meets our high standards for quality, usability, and innovation. With regular updates and new additions, you'll always have access to the latest AI tools and features.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="screenshots">
+        <div class="container">
+            <h2>App Screenshots</h2>
+            <div class="screenshot-grid">
+                <div class="screenshot-card">
+                    <img src="screenshots/screenshot1.png" alt="AI Store Home Screen">
+                    <h3>Home Screen</h3>
+                    <p>Discover featured AI applications</p>
+                </div>
+                <div class="screenshot-card">
+                    <img src="screenshots/screenshot2.png" alt="AI Store Categories">
+                    <h3>Categories</h3>
+                    <p>Browse by AI application type</p>
+                </div>
+                <div class="screenshot-card">
+                    <img src="screenshots/screenshot3.png" alt="AI Store App Details">
+                    <h3>App Details</h3>
+                    <p>View detailed information about each app</p>
                 </div>
             </div>
         </div>
