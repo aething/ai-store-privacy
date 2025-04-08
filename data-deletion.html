@@ -65,13 +65,29 @@
 
         <div class="steps">
             <h2>How to Request Data Deletion</h2>
-            <p>To request deletion of your data, please follow these steps:</p>
+            <p>To request deletion of your data, please use the form below or follow these steps:</p>
             <ol>
                 <li>Send an email to <a href="mailto:support@aething.com">support@aething.com</a> with the subject "Data Deletion Request"</li>
                 <li>Include your registered email address</li>
                 <li>Specify which data you want to delete (all data or specific types)</li>
                 <li>Provide any additional information that might help us identify your account</li>
             </ol>
+
+            <div class="form-container" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 4px;">
+                <h3>Quick Deletion Request Form</h3>
+                <form action="mailto:support@aething.com" method="post" enctype="text/plain">
+                    <input type="hidden" name="subject" value="Data Deletion Request">
+                    <div style="margin-bottom: 15px;">
+                        <label for="email" style="display: block; margin-bottom: 5px;">Your Email:</label>
+                        <input type="email" id="email" name="email" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label for="message" style="display: block; margin-bottom: 5px;">Additional Information:</label>
+                        <textarea id="message" name="message" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                    </div>
+                    <button type="submit" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Send Deletion Request</button>
+                </form>
+            </div>
         </div>
 
         <h2>Processing Time</h2>
