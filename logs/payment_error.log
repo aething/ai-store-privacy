@@ -1,0 +1,1 @@
+{"type":"payment_error","message":"Stripe payment error: Card declined","timestamp":1711863300000,"deviceInfo":{"platform":"web","userAgent":"test-agent"},"clientInfo":{"ip":"127.0.0.1","userAgent":"curl/8.7.1"}}
