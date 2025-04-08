@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Deletion Request - AI Store by Aething</title>
+    <!-- Защита от спам-краулеров -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    <meta name="bingbot" content="noindex, nofollow">
+    <meta name="yandex" content="none">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .steps {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .contact {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 30px;
+        }
+        /* Защита от автоматического заполнения форм */
+        .form-container input, .form-container textarea {
+            -webkit-text-security: disc;
+            text-security: disc;
+        }
+        /* Защита от копирования */
+        .no-copy {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+    <!-- Защита от автоматического заполнения форм -->
+    <script>
+        // Защита от автоматического заполнения форм
+        document.addEventListener('DOMContentLoaded', function() {
+            // Добавляем случайное имя для полей формы
+            const randomName = 'field_' + Math.random().toString(36).substring(2, 15);
+            document.getElementById('email').name = randomName + '_email';
+            document.getElementById('message').name = randomName + '_message';
+            
+            // Защита от автоматического заполнения
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.setAttribute('autocomplete', 'off');
+                input.setAttribute('data-form-type', 'other');
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Data Deletion Request</h1>
+        <p>Last updated: April 8, 2024</p>
+
+        <div class="warning">
+            <strong>Important:</strong> Please read this information carefully before proceeding with your data deletion request.
+        </div>
+
+        <h2>What Data Will Be Deleted</h2>
+        <p>When you request data deletion, we will remove:</p>
+        <ul>
+            <li>Your account information</li>
+            <li>App usage data</li>
+            <li>Device information</li>
+            <li>Technical logs and crash reports</li>
+            <li>Any stored preferences or settings</li>
+        </ul>
+
+        <div class="steps">
+            <h2>How to Request Data Deletion</h2>
+            <p>To request deletion of your data, please use the form below or follow these steps:</p>
+            <ol>
+                <li>Send an email to <a href="mailto:support@aething.com" class="no-copy">support@aething.com</a> with the subject "Data Deletion Request"</li>
+                <li>Include your registered email address</li>
+                <li>Specify which data you want to delete (all data or specific types)</li>
+                <li>Provide any additional information that might help us identify your account</li>
+            </ol>
+
+            <div class="form-container" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 4px;">
+                <h3>Quick Deletion Request Form</h3>
+                <form action="mailto:support@aething.com" method="post" enctype="text/plain">
+                    <input type="hidden" name="subject" value="Data Deletion Request">
+                    <div style="margin-bottom: 15px;">
+                        <label for="email" style="display: block; margin-bottom: 5px;">Your Email:</label>
+                        <input type="email" id="email" name="email" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" autocomplete="off">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label for="message" style="display: block; margin-bottom: 5px;">Additional Information:</label>
+                        <textarea id="message" name="message" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" autocomplete="off"></textarea>
+                    </div>
+                    <button type="submit" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Send Deletion Request</button>
+                </form>
+            </div>
+        </div>
+
+        <h2>Processing Time</h2>
+        <p>We will process your request within 30 days. You will receive a confirmation email once your data has been deleted.</p>
+
+        <h2>What Happens After Deletion</h2>
+        <ul>
+            <li>Your account will be permanently deactivated</li>
+            <li>All associated data will be permanently deleted from our servers</li>
+            <li>You will need to create a new account if you wish to use the app again</li>
+            <li>Some data may be retained if required by law or for legitimate business purposes</li>
+        </ul>
+
+        <div class="contact">
+            <h2>Need Help?</h2>
+            <p>If you have any questions about the data deletion process, please contact us at:</p>
+            <p>Email: <a href="mailto:support@aething.com" class="no-copy">support@aething.com</a></p>
+        </div>
+    </div>
+</body>
+</html> 
