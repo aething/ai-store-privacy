@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Store by Aething - Your AI App Marketplace</title>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #2C3E50;
+            --accent-color: #E74C3C;
+            --text-color: #333;
+            --light-bg: #F5F6FA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero {
+            padding: 4rem 0;
+            background-color: var(--light-bg);
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .hero-text {
+            flex: 1;
+        }
+
+        .hero-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .hero-image img {
+            max-width: 300px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        .features {
+            padding: 4rem 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .cta {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background-color: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #c0392b;
+        }
+
+        .footer {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-image {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>AI Store by Aething</h1>
+            <p>Your Gateway to AI Applications</p>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h2>Discover AI Apps</h2>
+                    <p>Access a curated collection of AI-powered applications designed to enhance your productivity and creativity. From text generation to image processing, find the perfect AI tools for your needs.</p>
+                    <a href="https://play.google.com/store/apps/details?id=com.aething.aistore" class="button">Download on Google Play</a>
+                </div>
+                <div class="hero-image">
+                    <img src="https://play-lh.googleusercontent.com/placeholder" alt="AI Store App Screenshot">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Why Choose AI Store?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Curated Selection</h3>
+                    <p>Carefully selected AI applications that meet our high standards for quality and usability.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Easy Access</h3>
+                    <p>One-stop platform for discovering and downloading AI applications.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Regular Updates</h3>
+                    <p>Stay up-to-date with the latest AI tools and features.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Explore AI Apps?</h2>
+            <p>Download AI Store now and start discovering amazing AI applications!</p>
+            <a href="https://play.google.com/store/apps/details?id=com.aething.aistore" class="button">Get Started</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 AI Store by Aething. All rights reserved.</p>
+            <p><a href="privacy-policy.html" style="color: white;">Privacy Policy</a></p>
+        </div>
+    </footer>
+</body>
+</html> 
